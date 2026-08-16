@@ -557,6 +557,41 @@
      "sequence": 0
     }
    ]
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
   }
  ]
 }
