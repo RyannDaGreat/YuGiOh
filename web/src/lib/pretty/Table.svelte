@@ -13,11 +13,12 @@
    * @prop {boolean} sound
    * @prop {number} viewer      the seat viewing (0|1|2): own set cards show art; 2 = spectator
    * @prop {boolean} debug      spectator debug: peek at hidden face-downs
+   * @prop {string[]} backs     card-back image URL per seat (sleeves)
    */
   import Card from "./Card.svelte";
   import { sfx } from "./sound.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"] } = $props();
 
   /** Effects state — transient classes/labels keyed by zone id ("1-m-3"). */
   let fx = $state({});
@@ -149,7 +150,7 @@
 
 {#snippet slot(p, zone, seq, label)}
   <div data-zone={zoneId(p, zone, seq)} class="justify-self-center {fx[zoneId(p, zone, seq)] ?? ''}">
-    <Card card={(zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]} {label} own={p === viewer} {debug} {onhover} {onclick} />
+    <Card card={(zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]} {label} own={p === viewer} {debug} back={backs[p]} {onhover} {onclick} />
   </div>
 {/snippet}
 
@@ -157,7 +158,7 @@
   {@const card = bottom.mzone[mine] ?? top.mzone[theirs]}
   {@const owner = bottom.mzone[mine] ? me : 1 - me}
   <div data-zone={zoneId(me, "m", mine)} data-zone-alt={zoneId(1 - me, "m", theirs)} class="justify-self-center {fx[zoneId(me, 'm', mine)] ?? fx[zoneId(1 - me, 'm', theirs)] ?? ''}">
-    <Card {card} label="EMZ" own={owner === viewer} {debug} {onhover} {onclick} />
+    <Card {card} label="EMZ" own={owner === viewer} {debug} back={backs[owner]} {onhover} {onclick} />
   </div>
 {/snippet}
 
@@ -168,9 +169,9 @@
     {#if kind === "grave"}
       <Card card={topGrave ? { ...topGrave, faceDown: false, position: "" } : null} label="GY" count={pl.grave.length} {onhover} {onclick} />
     {:else if kind === "deck"}
-      <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} />
+      <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} back={backs[p]} />
     {:else}
-      <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} />
+      <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} back={backs[p]} />
     {/if}
   </div>
 {/snippet}
@@ -179,7 +180,7 @@
   <div class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
     {#each cards as c, i}
       <div data-zone={zoneId(p, "hand", i)}>
-        <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} {onhover} {onclick} />
+        <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} back={backs[p]} {onhover} {onclick} />
       </div>
     {/each}
   </div>

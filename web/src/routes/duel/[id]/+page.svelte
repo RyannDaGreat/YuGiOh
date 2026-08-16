@@ -28,6 +28,9 @@
   /** Spectator debug: peek at hidden face-down cards. */
   let debug = $state(false);
   const cardCache = new Map();
+  /** Sleeve catalogue for the picker (loaded on mount). */
+  let sleeves = $state([]);
+  let sleeveChoice = $state("");
   /** Debounce for live scrubbing: each position is a server-side replay. */
   const SCRUB_DEBOUNCE_MS = 120;
   let scrubTimer = null;
@@ -98,11 +101,26 @@
     window.location.href = `/duel/${body.id}?as=${view.viewer === 2 ? "all" : view.viewer}`;
   }
 
+  async function loadSleeves() {
+    const res = await fetch("/api/sleeves");
+    if (!res.ok) return;
+    const body = await res.json();
+    sleeves = body.sleeves;
+    if (view.viewer !== 2) sleeveChoice = body.choices[view.players[view.viewer]] ?? "default";
+  }
+
+  async function pickSleeve(id) {
+    sleeveChoice = id;
+    await fetch("/api/sleeves", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ player: view.players[view.viewer], sleeve: id }) });
+    await refresh();
+  }
+
   function toggleSound() {
     if (isOn()) { mute(); sound = false; } else { unlock(); sound = true; }
   }
 
   onMount(() => {
+    loadSleeves();
     const timer = setInterval(() => { if (playbackAt === null) refresh(); }, POLL_MS);
     if (logEl) logEl.scrollTop = logEl.scrollHeight;
     return () => clearInterval(timer);
@@ -118,6 +136,13 @@
     <span>You: <b>{viewerLabel}</b></span>
     <span class="text-amber-100/70">seat: <a class="underline" href="?as=0">P0</a> <a class="underline" href="?as=1">P1</a> <a class="underline" href="?as=all">all</a></span>
     <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900" onclick={toggleSound}>{sound ? "🔊 sound on" : "🔇 sound off"}</button>
+    {#if view.viewer !== 2 && sleeves.length}
+      <label class="text-amber-100/70">sleeve
+        <select class="ml-1 px-1 rounded bg-black/40 border border-amber-900 text-amber-50" value={sleeveChoice} onchange={(e) => pickSleeve(e.currentTarget.value)}>
+          {#each sleeves as s}<option value={s.id}>{s.name}</option>{/each}
+        </select>
+      </label>
+    {/if}
     {#if view.viewer === 2}
       <button class="px-2 py-0.5 rounded border {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={() => (debug = !debug)} title="peek at hidden face-down cards (spectator only)">{debug ? "🐞 debug on" : "🐞 debug off"}</button>
     {/if}
@@ -146,7 +171,7 @@
     <Preview {card} />
 
     <div class="flex-1 min-w-0">
-      <Table board={view.state} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} />
+      <Table board={view.state} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">

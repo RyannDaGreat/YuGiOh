@@ -10,10 +10,11 @@
    * @prop {boolean} own        the viewer controls this card (a known face-down card is drawn as its art blended over the back)
    * @prop {boolean} debug      spectator debug: hidden face-downs are treated as known (peek)
    * @prop {number} count       for piles: number badge
+   * @prop {string} back        card-back image URL (the owner's sleeve)
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
    */
-  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, onhover = () => {}, onclick = () => {} } = $props();
+  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, back = "/img/card-back.png", onhover = () => {}, onclick = () => {} } = $props();
 
   const isDefense = $derived(Boolean(card && /DEF/.test(card.position ?? "")));
   const known = $derived(Boolean(card && card.code));
@@ -40,7 +41,7 @@
     >
       {#if mode === "back" || mode === "peek"}
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#7a4a2a_0,#3b2314_70%)] border border-amber-900"></div>
-        <img src="/img/card-back.png" alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+        <img src={back} alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
       {#if mode === "art" || mode === "peek"}
         <img src="/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />

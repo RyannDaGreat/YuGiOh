@@ -8,6 +8,7 @@ import { cardInfo, codeOf, summarizeCard } from "../../../../src/cards.js";
 import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../../../../src/session.js";
 import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel } from "../../../../src/store.js";
 import { victoryString } from "../../../../src/strings.js";
+import { seatBacks } from "./sleeves.js";
 
 export { listDecks, listDuels, parseViewer };
 
@@ -27,6 +28,7 @@ export async function duelPayload(id, viewer, at) {
   const prompt = await promptText(duel, viewer, at);
   return {
     prompt,
+    backs: seatBacks(duel.players),
     id,
     viewer,
     at: view.at,
