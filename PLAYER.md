@@ -17,6 +17,7 @@ must stop yourself. If you break it, the game is meaningless.
 node bin/ygo.js wait  <id> --as <seat> --auto-pass --ask-for "Trap Hole,Waboku" --ask-at summon,attack
                                               # blocks until it is your decision; prints new log + menu
 node bin/ygo.js state <id> --as <seat>       # (when you want the full board, not just the delta)
+node bin/ygo.js prompt <id> --as <seat>      # everything at once: both decklists with card text, log, state, options
 node bin/ygo.js card  "<exact card name>"    # rules text — check before relying on an effect
 node bin/ygo.js play  <id> <choice> --as <seat>
 ```

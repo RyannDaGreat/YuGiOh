@@ -48,10 +48,12 @@ human in the browser and an agent on the CLI share one duel. The UI calls
 ```sh
 node bin/ygo.js new --id g1 --p0 yugi --p1 kaiba --seed 42 --players ryan,claude
 node bin/ygo.js state g1 --as 1          # board, your hand, opponent's public info, and your menu
+node bin/ygo.js state g1 --as all --at 60 # playback: the position after 60 moves; `fork --at` to branch
 node bin/ygo.js wait  g1 --as 1 --auto-pass --ask-for "Trap Hole" --ask-at summon
                                          # block until it is P1's decision; auto-decline pointless "respond?" prompts
 node bin/ygo.js play  g1 3 --as 1        # answer option 3; prints what happened next
 node bin/ygo.js log   g1 --as 1 --last 40
+node bin/ygo.js prompt g1 --as 1         # the complete LLM-facing text: decklists+card text, log, state, options
 node bin/ygo.js card  "Trap Hole"        # rules text, offline
 node bin/ygo.js search "Blue-Eyes"
 node bin/ygo.js deck  kaiba
@@ -163,6 +165,7 @@ match cards.cdb exactly (`ygo search` to check).
 ## Known limitations / next
 
 - Duel format is Master Rule 5, 8000 LP, 5-card hand, no side deck, no match play.
+- Card art is fetched from YGOPRODeck by `ygo fetch-pics` (setup.sh does it) into `vendor/pics/`; sounds and the card back are CC0 (see `web/static/ASSET-LICENSES.md`).
 - `ocgcore-wasm@0.1.2` quirks: `createCore` is the default export; `constant.lua`
   and `utility.lua` must be preloaded; `OcgQueryFlags.TYPE` mis-parses (we take
   type from cards.cdb); MSG_MOVE's `reason` is not exposed (log lines say where a
