@@ -37,6 +37,7 @@ export async function duelPayload(id, viewer, at) {
     state: view.state,
     logLines: view.logLines,
     menu: menuSummary(view.menu),
+    events: view.events,
     moves: duel.responses.length,
   };
 }

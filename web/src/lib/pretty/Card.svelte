@@ -7,8 +7,8 @@
    * @prop {string} label       zone label in the corner (m0, s3, field, …)
    * @prop {"zone"|"hand"} size
    * @prop {string} fx          effect classes (fx-flash, fx-shake)
-   * @prop {boolean} own        the viewer controls this card (own set cards show their art with a "set" tag)
-   * @prop {boolean} debug      spectator debug: hidden face-downs show art at half opacity and are hoverable
+   * @prop {boolean} own        the viewer controls this card (a known face-down card is drawn as its art blended over the back)
+   * @prop {boolean} debug      spectator debug: hidden face-downs are treated as known (peek)
    * @prop {number} count       for piles: number badge
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
@@ -18,8 +18,13 @@
   const isDefense = $derived(Boolean(card && /DEF/.test(card.position ?? "")));
   const known = $derived(Boolean(card && card.code));
   const faceDown = $derived(Boolean(card && card.faceDown));
-  /** What to draw: "art" | "back" | "peek" (back + translucent art). */
-  const mode = $derived(!card ? "empty" : !known ? "back" : !faceDown ? "art" : own ? "art" : debug ? "peek" : "back");
+  /**
+   * What to draw: "art" (face-up), "back" (face-down and not ours to know), or
+   * "peek" — a face-down card whose identity the viewer knows (their own set
+   * cards, or spectator debug): the art at half opacity over the back plus a
+   * "set" tag, so it reads as both "face-down" and "this is what it is".
+   */
+  const mode = $derived(!card ? "empty" : !known ? "back" : !faceDown ? "art" : own || debug ? "peek" : "back");
   const hoverable = $derived(mode === "art" || mode === "peek");
 </script>
 
@@ -40,7 +45,7 @@
       {#if mode === "art" || mode === "peek"}
         <img src="/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
-      {#if mode === "art" && faceDown}
+      {#if mode === "peek"}
         <span class="absolute inset-x-0 bottom-0 text-[0.5rem] leading-tight bg-sky-900/80 text-sky-100 text-center">set</span>
       {/if}
       {#if count !== null}
