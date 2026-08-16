@@ -43,7 +43,8 @@ calls `src/session.js` exactly as the CLI does; it has no logic of its own.
 ```sh
 node bin/ygo.js new --id g1 --p0 yugi --p1 kaiba --seed 42 --players ryan,claude
 node bin/ygo.js state g1 --as 1          # board, your hand, opponent's public info, and your menu
-node bin/ygo.js wait  g1 --as 1          # block until it is P1's decision; print new log + menu
+node bin/ygo.js wait  g1 --as 1 --auto-pass --ask-for "Trap Hole" --ask-at summon
+                                         # block until it is P1's decision; auto-decline pointless "respond?" prompts
 node bin/ygo.js play  g1 3 --as 1        # answer option 3; prints what happened next
 node bin/ygo.js log   g1 --as 1 --last 40
 node bin/ygo.js card  "Trap Hole"        # rules text, offline
@@ -61,8 +62,16 @@ Menu answers: `3` one option · `1,4` several · `0` the pass/cancel/no option
 when offered · `name:<card>` for "declare a card name" · `random` a random legal
 move.
 
-**Agents:** read `PLAYER.md` — the seat instructions (loop, honor rule, how
-to read the log/state). A strategy brief can be appended to it per agent.
+**Agents:** `node bin/ygo.js brief g1 --as 1 --strategy strategies/control.md`
+prints the complete prompt for an LLM to play a seat (PLAYER.md + strategy +
+duel facts). Launch one agent per seat with that prompt; they coordinate through
+the duel file alone. `ygo tally [prefix]` summarises results across duels.
+
+**Proof run:** `duels/match1.json` — two Opus agents (beatdown vs control),
+each seeing only its own seat, played a full 14-turn game through the CLI;
+Kaiba won with Blue-Eyes after breaking a Dragon Capture Jar lock with Trap
+Master + Two-Pronged Attack. Their usability notes drove `--auto-pass`, the
+tribute hints, and the prompt wording.
 
 ## The text formats
 
@@ -95,6 +104,7 @@ the opponent "hand + deck + face-downs" as one pool.
 bin/ygo.js        CLI (thin)
 web/              SvelteKit UI (thin client of session.js)
 PLAYER.md         seat instructions for LLM players
+strategies/       strategy briefs appended to PLAYER.md by `ygo brief`
 src/session.js    replay a duel record → views/menus for one viewer; apply a choice
 src/duel.js       ocgcore-wasm wrapper: build duel from seed+decks, replay responses
 src/view.js       per-player masking — port of YGOPro's server fan-out rules
