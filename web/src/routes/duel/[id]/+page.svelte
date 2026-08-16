@@ -192,6 +192,15 @@
       </section>
 
       <details class="rounded-md bg-black/40 border border-amber-900/60 p-2 text-xs">
+        <summary class="cursor-pointer text-amber-200">LLM state — exactly what an LLM playing this seat is given ({view.prompt.length.toLocaleString()} chars)</summary>
+        <div class="flex gap-2 my-1">
+          <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900" onclick={() => navigator.clipboard.writeText(view.prompt)}>copy</button>
+          <span class="text-amber-100/60 self-center">CLI: <code>ygo prompt {view.id} --as {view.viewer === 2 ? "all" : view.viewer}</code></span>
+        </div>
+        <pre class="max-h-[30rem] overflow-auto text-[0.65rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.prompt}</pre>
+      </details>
+
+      <details class="rounded-md bg-black/40 border border-amber-900/60 p-2 text-xs">
         <summary class="cursor-pointer text-amber-200">Piles &amp; unseen cards</summary>
         {#each view.state.players as p}
           <div class="mt-1"><b>P{p.index}</b> GY: {p.grave.map((c) => c.name).join(", ") || "—"}</div>

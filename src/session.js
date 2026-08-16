@@ -12,6 +12,7 @@ import { buildMenu, chooseFromMenu, hintsBefore, renderMenu, timingWords } from 
 import { mulberry32 } from "./rng.js";
 import { collectState, renderState } from "./state.js";
 import { loadDuel, saveDuel } from "./store.js";
+import { cardInfo, summarizeCard } from "./cards.js";
 import { maskStream, SPECTATOR } from "./view.js";
 
 /**
@@ -143,6 +144,62 @@ export async function playChoice(id, player, choice) {
   saveDuel(trial);
   const newLogLines = after.logLines.slice(before.logLines.length);
   return { response, chosenLabel, newLogLines, next: { pendingPlayer: after.pendingPlayer, ended: after.ended } };
+}
+
+/**
+ * Pure function. Every distinct card of a decklist with stats and full effect
+ * text — the reference block at the top of an LLM's context.
+ *
+ * Args:
+ *     deck ({name, main, codes}): A duel-record deck.
+ *
+ * Returns:
+ *     string[]: One block per distinct card, sorted by name.
+ *
+ * Examples:
+ *     >>> deckReference({name: "Kaiba", main: [["Blue-Eyes White Dragon", 1]], codes: [89631139]})[0]
+ *     "1x Blue-Eyes White Dragon [LIGHT Dragon Normal Monster Lv8 ATK3000 DEF2500]\n   This legendary dragon ..."
+ */
+export function deckReference(deck) {
+  const counts = new Map();
+  for (const code of deck.codes) counts.set(code, (counts.get(code) ?? 0) + 1);
+  return [...counts.entries()]
+    .map(([code, n]) => ({ n, code, name: cardInfo(code)?.name ?? String(code) }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(({ n, code }) => `${n}x ${summarizeCard(code)}\n   ${(cardInfo(code)?.desc ?? "").replace(/\s*\n\s*/g, " / ")}`);
+}
+
+/**
+ * Command. The complete text an LLM player receives for one seat: both
+ * decklists with card text, the full log from that seat, the current state,
+ * and the pending menu. Replays the duel.
+ *
+ * Args:
+ *     duel (object): Record from store.loadDuel.
+ *     viewer (0|1|2): Seat (2 = omniscient, for judges).
+ *     at (number|undefined): Position; undefined = latest.
+ *
+ * Returns:
+ *     Promise<string>
+ */
+export async function promptText(duel, viewer, at) {
+  const view = await viewDuel(duel, viewer, at);
+  const who = viewer === SPECTATOR ? "You are the spectator (omniscient)." : `You are P${viewer} (${duel.players[viewer]}), playing the ${duel.decks[viewer].name} deck.`;
+  const sections = [
+    `# Duel ${duel.id}`,
+    `${who} P0 (${duel.players[0]}, ${duel.decks[0].name}) took turn 1. Both decklists are public knowledge.`,
+    "",
+    ...duel.decks.map((d, p) => [`## P${p} decklist — ${d.name} (${d.codes.length} cards)`, ...deckReference(d), ""]).flat(),
+    "## Log (your perspective)",
+    ...view.logLines,
+    "",
+    "## Current state",
+    ...view.stateLines,
+    "",
+    view.ended ? `## Result\n${view.winner === 2 ? "Draw." : `P${view.winner} wins.`}` : `## Waiting on P${view.pendingPlayer}`,
+    ...(view.menuLines.length ? ["", "## Your options", ...view.menuLines] : []),
+  ];
+  return sections.join("\n");
 }
 
 /**

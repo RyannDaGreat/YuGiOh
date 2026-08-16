@@ -16,7 +16,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
-import { playChoice, parseViewer, shouldAutoPass, viewDuel } from "../src/session.js";
+import { playChoice, parseViewer, promptText, shouldAutoPass, viewDuel } from "../src/session.js";
 import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, saveDuel } from "../src/store.js";
 import { victoryString } from "../src/strings.js";
 
@@ -78,6 +78,15 @@ program
     console.log(lines.join("\n"));
     console.log("");
     printStatus(view);
+  });
+
+program
+  .command("prompt <id>")
+  .description("The complete LLM-facing text for a seat: decklists with card text, log, state, options")
+  .requiredOption("--as <viewer>", "0, 1 or all")
+  .option("--at <move>", "at this position (playback)")
+  .action(async (id, opts) => {
+    console.log(await promptText(loadDuel(id), parseViewer(opts.as), opts.at === undefined ? undefined : Number(opts.at)));
   });
 
 program
