@@ -15,16 +15,20 @@
   let busy = $state(false);
   let card = $state(null);
   let logEl = $state(null);
+  /** null = live (latest move); a number = playback position, polling paused. */
+  let playbackAt = $state(null);
+  let forkId = $state("");
 
   const viewerLabel = $derived(view.viewer === 2 ? "spectator (sees everything)" : `P${view.viewer} — ${view.players[view.viewer]}`);
-  const myTurn = $derived(!view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
+  const myTurn = $derived(playbackAt === null && !view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
   const me = $derived(view.viewer === 2 ? 0 : view.viewer);
   const bottom = $derived(view.state.players[me]);
   const top = $derived(view.state.players[1 - me]);
   const canConfirm = $derived(view.menu && selected.length >= view.menu.min && selected.length <= view.menu.max);
 
   async function refresh() {
-    const res = await fetch(`/api/duel/${view.id}?as=${view.viewer === 2 ? "all" : view.viewer}`);
+    const atParam = playbackAt === null ? "" : `&at=${playbackAt}`;
+    const res = await fetch(`/api/duel/${view.id}?as=${view.viewer === 2 ? "all" : view.viewer}${atParam}`);
     if (!res.ok) return;
     const next = await res.json();
     if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) selected = [];
@@ -60,8 +64,21 @@
     card = res.ok ? await res.json() : null;
   }
 
+  async function scrub(value) {
+    playbackAt = value >= view.total ? null : value;
+    await refresh();
+  }
+
+  async function forkHere() {
+    if (!forkId) return;
+    const res = await fetch(`/api/duel/${view.id}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ fork: forkId, at: view.at }) });
+    const body = await res.json();
+    if (!body.ok) { errorText = body.error; return; }
+    window.location.href = `/duel/${body.id}?as=${view.viewer === 2 ? "all" : view.viewer}`;
+  }
+
   onMount(() => {
-    const timer = setInterval(refresh, POLL_MS);
+    const timer = setInterval(() => { if (playbackAt === null) refresh(); }, POLL_MS);
     if (logEl) logEl.scrollTop = logEl.scrollHeight;
     return () => clearInterval(timer);
   });
@@ -117,11 +134,25 @@
     <span>Turn {view.state.turn}{view.state.turnPlayer === null ? "" : ` (P${view.state.turnPlayer})`} · {view.state.phaseName}</span>
     <span>You: {viewerLabel}</span>
     <span class="seat-links">seat: <a href="?as=0">P0</a> <a href="?as=1">P1</a> <a href="?as=all">all</a></span>
-    {#if view.ended}
+    {#if playbackAt !== null}
+      <span class="banner playback">PLAYBACK — move {view.at} of {view.total}</span>
+    {:else if view.ended}
       <span class="banner">DUEL OVER — {view.winner === 2 ? "draw" : `P${view.winner} wins`} ({view.winText})</span>
     {:else}
       <span class="banner {view.pendingPlayer === view.viewer ? 'yours' : ''}">waiting on P{view.pendingPlayer}</span>
     {/if}
+    <span class="scrub">
+      <button onclick={() => scrub(0)} title="start">⏮</button>
+      <button onclick={() => scrub(Math.max(0, view.at - 1))} title="back one move">◀</button>
+      <input type="range" min="0" max={view.total} value={view.at} oninput={(e) => scrub(Number(e.currentTarget.value))} />
+      <button onclick={() => scrub(view.at + 1)} title="forward one move">▶</button>
+      <button onclick={() => scrub(view.total)} title="live">⏭ live</button>
+      <span class="muted">move {view.at}/{view.total}</span>
+      {#if playbackAt !== null}
+        <input class="fork-id" bind:value={forkId} placeholder="new id" />
+        <button onclick={forkHere} disabled={!forkId} title="copy the game up to this move and play on">fork here</button>
+      {/if}
+    </span>
   </header>
 
   <section class="board">
@@ -138,7 +169,10 @@
 
   <aside class="side">
     <section class="menu">
-      {#if view.ended}
+      {#if playbackAt !== null}
+        <p class="muted">Playback: showing the position after move {view.at}. Use ⏭ live to return, or fork here to play on from this point.</p>
+        {#if view.menu}<h3 class="muted">Decision at this point: {view.menu.title}</h3>{/if}
+      {:else if view.ended}
         <p class="muted">The duel is over.</p>
       {:else if myTurn}
         <h3>{view.menu.title}</h3>
@@ -227,6 +261,10 @@
   .bar { grid-column: 1 / -1; display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; }
   .banner { padding: var(--space-1) var(--space-2); background: var(--color-banner); border-radius: var(--radius); }
   .banner.yours { background: var(--color-yours); font-weight: bold; }
+  .banner.playback { background: var(--color-selected); }
+  .scrub { display: flex; align-items: center; gap: var(--space-1); flex-basis: 100%; }
+  .scrub input[type="range"] { flex: 1; min-width: var(--card-w); }
+  .fork-id { width: var(--card-w); }
   .seat-links a { margin-right: var(--space-1); }
   .board { display: flex; flex-direction: column; gap: var(--space-2); overflow: auto; }
   .player-block { border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-2); }

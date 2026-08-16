@@ -41,6 +41,8 @@ export function parseViewer(text) {
  * Args:
  *     duel (object): Record from store.loadDuel.
  *     viewer (0|1|2): Perspective.
+ *     at (number|undefined): Replay only the first `at` responses — the board as
+ *         it stood at that move. Undefined = the latest position.
  *
  * Returns:
  *     {
@@ -54,11 +56,13 @@ export function parseViewer(text) {
  *       pending: object|null,                the asked player's masked view of the pending question
  *       messageCount: number,                total masked messages for this viewer
  *       applied: number,                     recorded responses consumed
+ *       at: number, total: number,           position shown / moves in the record
  *     }
  */
-export async function viewDuel(duel, viewer) {
+export async function viewDuel(duel, viewer, at) {
   const deckCodes = duel.decks.map((d) => d.codes);
-  const result = await replayDuel({ seed: duel.seed, deckCodes, responses: duel.responses });
+  const responses = at === undefined ? duel.responses : duel.responses.slice(0, at);
+  const result = await replayDuel({ seed: duel.seed, deckCodes, responses });
   try {
     const masked = maskStream(result.messages, viewer);
     const deckSizes = deckCodes.map((c) => c.length);
@@ -93,6 +97,8 @@ export async function viewDuel(duel, viewer) {
       pending,
       messageCount: masked.length,
       applied: result.applied,
+      at: responses.length,
+      total: duel.responses.length,
     };
   } finally {
     result.core.destroyDuel(result.handle);

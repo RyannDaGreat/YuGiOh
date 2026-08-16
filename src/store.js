@@ -119,6 +119,29 @@ export function saveDuel(duel) {
 }
 
 /**
+ * Command. Copies a duel truncated to its first `at` responses under a new id —
+ * a branch point for "what if I had played differently here".
+ *
+ * Args:
+ *     id (string): Source duel id.
+ *     newId (string): Id for the branch (must not exist).
+ *     at (number): How many responses to keep.
+ *     players ([string, string]|undefined): New seat labels; default = source's.
+ *     created (string): ISO timestamp.
+ *
+ * Returns:
+ *     object: The saved branch record.
+ */
+export function forkDuel(id, newId, at, players, created) {
+  const source = loadDuel(id);
+  if (!Number.isInteger(at) || at < 0 || at > source.responses.length) throw new Error(`--at must be 0..${source.responses.length}`);
+  if (existsSync(duelPath(newId))) throw new Error(`duel already exists: ${newId}`);
+  const branch = { ...source, id: newId, created, players: players ?? source.players, responses: source.responses.slice(0, at), forkedFrom: { id, at } };
+  saveDuel(branch);
+  return branch;
+}
+
+/**
  * Command. Creates and saves a new duel record.
  *
  * Args:

@@ -6,7 +6,7 @@
 
 import { cardInfo, codeOf, summarizeCard } from "../../../../src/cards.js";
 import { menuSummary, parseViewer, playChoice, viewDuel } from "../../../../src/session.js";
-import { createDuel, listDecks, listDuels, loadDeck, loadDuel } from "../../../../src/store.js";
+import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel } from "../../../../src/store.js";
 import { victoryString } from "../../../../src/strings.js";
 
 export { listDecks, listDuels, parseViewer };
@@ -21,12 +21,14 @@ export { listDecks, listDuels, parseViewer };
  * Returns:
  *     Promise<object>: {id, viewer, players, ended, winner, winText, pendingPlayer, state, logLines, menu, moves}
  */
-export async function duelPayload(id, viewer) {
+export async function duelPayload(id, viewer, at) {
   const duel = loadDuel(id);
-  const view = await viewDuel(duel, viewer);
+  const view = await viewDuel(duel, viewer, at);
   return {
     id,
     viewer,
+    at: view.at,
+    total: view.total,
     players: duel.players,
     ended: view.ended,
     winner: view.winner,
@@ -53,6 +55,13 @@ export function newDuel({ id, p0, p1, seed, players }) {
   const decks = [loadDeck(p0), loadDeck(p1)];
   const seedValue = seed === "" || seed === undefined ? Math.floor(Math.random() * 2 ** 32) : Number(seed);
   return createDuel({ id, seed: seedValue, decks, players, created: new Date().toISOString() });
+}
+
+/**
+ * Command. Branches a duel at a move under a new id (see store.forkDuel).
+ */
+export function fork(id, newId, at) {
+  return forkDuel(id, newId, at, undefined, new Date().toISOString());
 }
 
 /**

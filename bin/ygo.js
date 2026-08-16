@@ -17,7 +17,7 @@ import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
 import { playChoice, parseViewer, shouldAutoPass, viewDuel } from "../src/session.js";
-import { createDuel, listDecks, listDuels, loadDeck, loadDuel, saveDuel } from "../src/store.js";
+import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, saveDuel } from "../src/store.js";
 import { victoryString } from "../src/strings.js";
 
 /** Default log tail shown after a play, so the agent sees the consequences without asking. */
@@ -51,9 +51,11 @@ program
   .command("state <id>")
   .description("Full visible state (+ the menu if the viewer is being asked)")
   .requiredOption("--as <viewer>", "0, 1 or all")
+  .option("--at <move>", "show the position after this many moves (playback)")
   .action(async (id, opts) => {
     const viewer = parseViewer(opts.as);
-    const view = await viewDuel(loadDuel(id), viewer);
+    const view = await viewDuel(loadDuel(id), viewer, opts.at === undefined ? undefined : Number(opts.at));
+    if (opts.at !== undefined) console.log(`[playback: move ${view.at} of ${view.total}]`);
     console.log(view.stateLines.join("\n"));
     console.log("");
     printStatus(view);
@@ -64,9 +66,11 @@ program
   .description("Event log (YGN) from a viewer's perspective")
   .requiredOption("--as <viewer>", "0, 1 or all")
   .option("--last <n>", "only the last N lines")
+  .option("--at <move>", "log up to this many moves (playback)")
   .action(async (id, opts) => {
     const viewer = parseViewer(opts.as);
-    const view = await viewDuel(loadDuel(id), viewer);
+    const view = await viewDuel(loadDuel(id), viewer, opts.at === undefined ? undefined : Number(opts.at));
+    if (opts.at !== undefined) console.log(`[playback: move ${view.at} of ${view.total}]`);
     const lines = opts.last ? view.logLines.slice(-Number(opts.last)) : view.logLines;
     console.log(lines.join("\n"));
     console.log("");
@@ -77,8 +81,9 @@ program
   .command("menu <id>")
   .description("Just the pending decision menu")
   .requiredOption("--as <viewer>", "0, 1 or all")
+  .option("--at <move>", "the decision pending after this many moves (playback)")
   .action(async (id, opts) => {
-    const view = await viewDuel(loadDuel(id), parseViewer(opts.as));
+    const view = await viewDuel(loadDuel(id), parseViewer(opts.as), opts.at === undefined ? undefined : Number(opts.at));
     printStatus(view);
   });
 
@@ -139,6 +144,20 @@ program
       if (Date.now() > deadline) throw new Error(`timed out after ${opts.timeout}s; still waiting on P${view.pendingPlayer}`);
       await new Promise((resolve) => setTimeout(resolve, WAIT_POLL_MS));
     }
+  });
+
+program
+  .command("fork <id>")
+  .description("Branch a duel: copy it truncated at --at moves under a new id, then play on from there")
+  .requiredOption("--at <move>", "how many moves to keep")
+  .requiredOption("--id <newId>", "id for the branch")
+  .option("--players <a,b>", "new seat labels, e.g. ryan,claude (default: same as source)")
+  .action(async (id, opts) => {
+    const players = opts.players ? opts.players.split(",") : undefined;
+    if (players && players.length !== 2) throw new Error("--players needs two comma-separated labels");
+    const branch = forkDuel(id, opts.id, Number(opts.at), players, new Date().toISOString());
+    const view = await viewDuel(branch, 2);
+    console.log(`forked ${id} @ move ${opts.at} -> ${opts.id}; ${view.ended ? "duel over" : `waiting on P${view.pendingPlayer}`}`);
   });
 
 program
