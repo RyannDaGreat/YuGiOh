@@ -32,8 +32,8 @@ import { isVisible, queryLocation } from "../src/state.js";
 import { loadDeck } from "../src/store.js";
 import { maskStream, SPECTATOR } from "../src/view.js";
 
-const DECKS = [loadDeck("yugi").main, loadDeck("kaiba").main];
-const DECK_SIZES = DECKS.map((d) => expandDeck(d).length);
+const DECK_CODES = [expandDeck(loadDeck("yugi").main), expandDeck(loadDeck("kaiba").main)];
+const DECK_SIZES = DECK_CODES.map((c) => c.length);
 /** Decisions per random duel; enough to reach battle, flips, tributes, traps. */
 const STEPS_PER_DUEL = 250;
 const SEEDS = [11, 12, 13];
@@ -64,7 +64,7 @@ for (const seed of SEEDS) {
   test(`model matches masked core query throughout random duel (seed ${seed})`, async () => {
     const responses = [];
     for (let step = 0; step < STEPS_PER_DUEL; step++) {
-      const r = await replayDuel({ seed, decks: DECKS, responses });
+      const r = await replayDuel({ seed, deckCodes: DECK_CODES, responses });
       try {
         if (r.ended) break;
         for (const viewer of [0, 1, SPECTATOR]) {

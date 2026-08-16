@@ -20,17 +20,30 @@ is available offline.
 ## Setup
 
 ```sh
-./setup.sh          # clones pinned card scripts + database, fetches strings.conf, npm install
+./setup.sh          # pinned card scripts + database + strings.conf, npm install (root + web), vendor/cards.txt
 npm test            # cross-checks masking + client model over random duels (~1 min)
 ```
 
 Requires Node ≥ 22.13 (uses the built-in `node:sqlite`).
+
+## Web UI (for humans)
+
+```sh
+cd web && npm run dev      # then open the printed URL
+```
+
+Pick a duel and a seat (`?as=0`, `?as=1`, or `?as=all`). The page shows the
+board from that seat, the log, the card text on click, and — when it is that
+seat's decision — the same menu the CLI shows, as buttons. It polls every 1.5 s,
+so a human in the browser and an agent on the CLI can share one duel. The UI
+calls `src/session.js` exactly as the CLI does; it has no logic of its own.
 
 ## Playing
 
 ```sh
 node bin/ygo.js new --id g1 --p0 yugi --p1 kaiba --seed 42 --players ryan,claude
 node bin/ygo.js state g1 --as 1          # board, your hand, opponent's public info, and your menu
+node bin/ygo.js wait  g1 --as 1          # block until it is P1's decision; print new log + menu
 node bin/ygo.js play  g1 3 --as 1        # answer option 3; prints what happened next
 node bin/ygo.js log   g1 --as 1 --last 40
 node bin/ygo.js card  "Trap Hole"        # rules text, offline
@@ -38,6 +51,7 @@ node bin/ygo.js search "Blue-Eyes"
 node bin/ygo.js deck  kaiba
 node bin/ygo.js undo  g1 --n 2           # time travel (experiments)
 node bin/ygo.js list
+grep -i "cannot be destroyed by battle" vendor/cards.txt   # one line per card, every card ever printed
 ```
 
 `--as` is who you are: `0`, `1`, or `all` (spectator/omniscient — for judging,
@@ -46,6 +60,9 @@ never for playing). P0 always takes turn 1.
 Menu answers: `3` one option · `1,4` several · `0` the pass/cancel/no option
 when offered · `name:<card>` for "declare a card name" · `random` a random legal
 move.
+
+**Agents:** read `PLAYER.md` — the seat instructions (loop, honor rule, how
+to read the log/state). A strategy brief can be appended to it per agent.
 
 ## The text formats
 
@@ -76,6 +93,8 @@ the opponent "hand + deck + face-downs" as one pool.
 
 ```
 bin/ygo.js        CLI (thin)
+web/              SvelteKit UI (thin client of session.js)
+PLAYER.md         seat instructions for LLM players
 src/session.js    replay a duel record → views/menus for one viewer; apply a choice
 src/duel.js       ocgcore-wasm wrapper: build duel from seed+decks, replay responses
 src/view.js       per-player masking — port of YGOPro's server fan-out rules
@@ -133,4 +152,3 @@ match cards.cdb exactly (`ygo search` to check).
   type from cards.cdb); MSG_MOVE's `reason` is not exposed (log lines say where a
   card went, not why — the surrounding lines make it clear).
 - The core keeps running after `MSG_WIN`; the harness treats WIN as terminal.
-- Web UI (Svelte) not yet built; it will be a client of `session.js`.

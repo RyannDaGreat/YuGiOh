@@ -38,4 +38,12 @@ echo "vendor/strings.conf $(wc -l < vendor/strings.conf) lines"
 
 npm install
 
+# Greppable card list for agents: one line per card with full effect text.
+node bin/ygo.js dump-cards
+
+# Web UI (SvelteKit) — a client of the same engine; optional for CLI-only use.
+(cd web && npm install)
+
 echo "setup complete"
+echo "CLI:    node bin/ygo.js --help"
+echo "web UI: cd web && npm run dev   (then open the printed URL)"

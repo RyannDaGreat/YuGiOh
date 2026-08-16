@@ -61,7 +61,9 @@ export function expandDeck(entries) {
  * Args:
  *     spec (object): The duel description.
  *     spec.seed (number): 32-bit seed driving both deck shuffles.
- *     spec.decks (Array<Array<[string, number]>>): Decklist per player, [p0, p1].
+ *     spec.deckCodes ([number[], number[]]): Passcodes per player, [p0, p1],
+ *         one entry per physical card. Frozen in the duel record at creation so
+ *         a record replays identically even if name resolution changes later.
  *     spec.responses (Array): Recorded OcgResponse objects, applied in order.
  *
  * Returns:
@@ -77,10 +79,10 @@ export function expandDeck(entries) {
  *     skip over quietly.
  *
  * Examples:
- *     >>> // (await replayDuel({seed: 1, decks: [d, d], responses: []})).pending.type
+ *     >>> // (await replayDuel({seed: 1, deckCodes: [codes, codes], responses: []})).pending.type
  *     >>> // 11   — MSG_SELECT_IDLECMD, the first real decision of the game
  */
-export async function replayDuel({ seed, decks, responses }) {
+export async function replayDuel({ seed, deckCodes, responses }) {
   const core = await createCore({ sync: true });
   const errors = [];
   const handle = core.createDuel({
@@ -102,7 +104,7 @@ export async function replayDuel({ seed, decks, responses }) {
 
   // We shuffle rather than letting the core do it; see src/rng.js for why.
   for (const player of [0, 1]) {
-    const deck = shuffled(expandDeck(decks[player]), subSeed(seed, `deck${player}`));
+    const deck = shuffled(deckCodes[player], subSeed(seed, `deck${player}`));
     for (const code of deck) {
       core.duelNewCard(handle, {
         team: player,

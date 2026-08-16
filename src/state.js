@@ -1,25 +1,25 @@
 /**
- * Full game state as text, from one viewer's perspective.
+ * Full game state from one viewer's perspective — as data (for the UI) and as
+ * text (for the CLI and for LLM prompts).
  *
  * Reads the live core (authoritative: current ATK/DEF after modifiers, equips,
- * counters, chain) and applies the same visibility rules EDOPro's server uses
- * for its field refreshes (`CoreUtils::Query::IsPublicQuery`): a card's
- * identity is shown if the viewer controls it, or it is face-up, or the core
- * flags it public. Everything else is a `?` with only its position known.
+ * counters, chain) and applies the visibility rules EDOPro's server uses for
+ * its field refreshes (`CoreUtils::Query::IsPublicQuery`): a card's identity is
+ * shown if the viewer controls it, or it is face-up, or the core flags it
+ * public. Everything else is a `?` with only its position known.
  *
  * The viewer's own memory counts too: a face-down card that was revealed
  * earlier (De-Spell flipping a trap, a Book of Moon on a known monster) stays
  * known even though the core marks it non-public. That knowledge lives in the
- * viewer's field model (field.js), which is consulted for every hidden slot —
- * exactly what EDOPro's client does when it merges refresh data onto the card
- * objects it already holds.
+ * viewer's field model (field.js), consulted for every hidden slot — exactly
+ * what EDOPro's client does when it merges refresh data onto the card objects
+ * it already holds.
  *
- * Both decklists are public knowledge (that is a rule of this harness, not of
- * the game — it mirrors a tournament where lists are registered). So the state
- * also lists, per player, the cards that are NOT visible to the viewer: for
- * the viewer's own deck that is exactly the deck contents (order withheld);
- * for the opponent it is "hand + deck + face-downs" as one unordered pool,
- * which is precisely what a competent human tracks.
+ * Both decklists are public knowledge (a rule of this harness, mirroring a
+ * tournament with registered lists). So the state also lists, per player, the
+ * cards NOT visible to the viewer: for the viewer's own deck that is exactly
+ * the deck contents (order withheld); for the opponent it is "hand + deck +
+ * face-downs" as one unordered pool — what a competent human tracks.
  */
 
 import { OcgLocation, OcgPhase, OcgPosition, OcgQueryFlags } from "ocgcore-wasm";
@@ -93,45 +93,6 @@ export function queryLocation(core, handle, controller, location) {
 }
 
 /**
- * Pure function. One-line description of a card on the field as the viewer sees it.
- *
- * Args:
- *     card (OcgCardQueryInfo): Queried card.
- *     visible (boolean): Whether identity may be shown.
- *     isMonsterZone (boolean): Zone type.
- *
- * Returns:
- *     string
- *
- * Examples:
- *     >>> describeFieldCard({code: 89631139, position: 1, attack: 3000, defense: 2500, baseAttack: 3000, baseDefense: 2500, level: 8}, true, true)
- *     "Blue-Eyes White Dragon ATK 3000/2500 Lv8"
- *     >>> describeFieldCard({position: 8}, false, true)
- *     "? (fd DEF)"
- */
-export function describeFieldCard(card, visible, isMonsterZone) {
-  if (!visible) return `? (${posLabel(card.position, isMonsterZone)})`;
-  const parts = [cardName(card.code)];
-  if (isMonsterZone) {
-    const atk = card.attack === card.baseAttack ? `${card.attack}` : `${card.attack}(base ${card.baseAttack})`;
-    const def = card.defense === card.baseDefense ? `${card.defense}` : `${card.defense}(base ${card.baseDefense})`;
-    parts.push(`${posLabel(card.position, true)} ${atk}/${def}`);
-    if (card.level) parts.push(`Lv${card.level}`);
-    if (card.rank) parts.push(`Rank${card.rank}`);
-    if (card.link?.rating) parts.push(`Link${card.link.rating}`);
-  } else {
-    parts.push(`(${posLabel(card.position, false)}, ${typeLabel(cardInfo(card.code)?.type ?? 0)})`);
-  }
-  if (card.status & STATUS_DISABLED) parts.push("[effects negated]");
-  if (card.equipCard) parts.push(`[equipped to ${zoneLabel(card.equipCard.location, card.equipCard.sequence)}]`);
-  if (card.targetCards?.length) parts.push(`[targets ${card.targetCards.map((t) => `P${t.controller} ${zoneLabel(t.location, t.sequence)}`).join(", ")}]`);
-  if (card.overlayCards?.length) parts.push(`[materials: ${card.overlayCards.map(cardName).join(", ")}]`);
-  const counters = Object.entries(card.counters ?? {});
-  if (counters.length) parts.push(`[counters: ${counters.map(([type, n]) => `${n}x#${type}`).join(", ")}]`);
-  return parts.join(" ");
-}
-
-/**
  * Pure function. Multiset difference of card names: `deck` minus `seen`.
  *
  * Args:
@@ -155,57 +116,69 @@ export function unseenNames(deckCodes, seenCodes) {
 }
 
 /**
- * Query. Renders the whole visible state for `viewer` as text lines.
+ * Pure function. A field card as data, identity withheld when not known.
+ *
+ * Args:
+ *     card (OcgCardQueryInfo): Queried card.
+ *     known (boolean): Whether the viewer may identify it.
+ *     isMonsterZone (boolean): Zone type.
+ *
+ * Returns:
+ *     {name: string|null, code: number, position: string, faceDown: boolean, negated: boolean,
+ *      atk?, def?, baseAtk?, baseDef?, level?, rank?, link?, typeLabel?,
+ *      equippedTo?: string, targets?: string[], materials?: string[], counters?: object}
+ *
+ * Examples:
+ *     >>> fieldCardData({code: 89631139, position: 1, attack: 3000, defense: 2500, baseAttack: 3000, baseDefense: 2500, level: 8}, true, true).name
+ *     "Blue-Eyes White Dragon"
+ *     >>> fieldCardData({position: 8}, false, true)
+ *     {name: null, code: 0, position: "fd DEF", faceDown: true, negated: false}
+ */
+export function fieldCardData(card, known, isMonsterZone) {
+  const base = { name: known ? cardName(card.code) : null, code: known ? card.code : 0, position: posLabel(card.position, isMonsterZone), faceDown: Boolean(card.position & OcgPosition.FACEDOWN), negated: false };
+  if (!known) return base;
+  const data = { ...base, negated: Boolean(card.status & STATUS_DISABLED), typeLabel: typeLabel(cardInfo(card.code)?.type ?? 0) };
+  if (isMonsterZone) Object.assign(data, { atk: card.attack, def: card.defense, baseAtk: card.baseAttack, baseDef: card.baseDefense, level: card.level, rank: card.rank, link: card.link?.rating ?? 0 });
+  if (card.equipCard) data.equippedTo = zoneLabel(card.equipCard.location, card.equipCard.sequence);
+  if (card.targetCards?.length) data.targets = card.targetCards.map((t) => `P${t.controller} ${zoneLabel(t.location, t.sequence)}`);
+  if (card.overlayCards?.length) data.materials = card.overlayCards.map(cardName);
+  if (card.counters && Object.keys(card.counters).length) data.counters = card.counters;
+  return data;
+}
+
+/**
+ * Query. Gathers the whole visible state for `viewer` as plain data.
  *
  * Args:
  *     core, handle: Live duel after replay.
  *     opts.viewer (0|1|2)
  *     opts.deckNames ([string, string]): Labels for the two decklists.
  *     opts.deckCodes ([number[], number[]]): The registered decklists as passcodes.
- *     opts.model (object): The viewer's field model (field.js) — its turn/phase
- *         and its remembered card identities.
+ *     opts.model (object): The viewer's field model (field.js) — turn/phase and
+ *         remembered card identities.
  *
  * Returns:
- *     string[]
+ *     {viewer, turn, turnPlayer, phaseName, players: [PlayerState, PlayerState], chain: [{name, place}]}
+ *     PlayerState = {index, deckName, lp, handCount, deckCount, graveCount, banishCount, extraCount,
+ *                    mzone: (FieldCard|null)[7], szone: (FieldCard|null)[8],
+ *                    hand: (string|null)[], grave: string[], removed: (string|null)[], extra: (string|null)[],
+ *                    unseenKind: "deck"|"pool", unseen: string[]}
  */
-export function renderState(core, handle, { viewer, deckNames, deckCodes, model }) {
+export function collectState(core, handle, { viewer, deckNames, deckCodes, model }) {
   const field = core.duelQueryField(handle);
-  const lines = [];
-  const you = (p) => (viewer === p ? " [you]" : "");
-  const phaseName = PHASE_NAMES[model.phase] ?? "start";
-  lines.push(`Turn ${model.turn}${model.turnPlayer === null ? "" : ` (P${model.turnPlayer}'s turn)`}, ${phaseName}.`);
-  // Visible by rule, or remembered by the viewer from an earlier reveal.
   const known = (card, controller, location, sequence) => isVisible(card, controller, location, viewer)
     || (cardAt(model, { controller, location, sequence })?.code ?? 0) !== 0;
-  lines.push(`Decks: P0 = ${deckNames[0]}${you(0)}, P1 = ${deckNames[1]}${you(1)}  (both decklists are public: \`ygo deck <name>\`)`);
+  const nameIfKnown = (controller, location) => (card, seq) => (known(card, controller, location, seq) ? cardName(card.code) : null);
 
-  for (const p of [0, 1]) {
+  const players = [0, 1].map((p) => {
     const fp = field.players[p];
-    lines.push("");
-    lines.push(`--- P${p} (${deckNames[p]})${you(p)}: LP ${fp.lp} | hand ${fp.hand_size} | deck ${fp.deck_size} | GY ${fp.grave_size} | banished ${fp.banish_size} | extra ${fp.extra_size}`);
-
-    const zoneRows = (location) => queryLocation(core, handle, p, location)
-      .map((card, seq) => card && `  ${zoneLabel(location, seq)}: ${describeFieldCard(card, known(card, p, location, seq), location === OcgLocation.MZONE)}`)
-      .filter(Boolean);
-    const monsterRows = zoneRows(OcgLocation.MZONE);
-    const spellRows = zoneRows(OcgLocation.SZONE);
-    lines.push(...(monsterRows.length ? monsterRows : ["  (no monsters)"]));
-    lines.push(...(spellRows.length ? spellRows : ["  (no spells/traps)"]));
-
-    const hand = queryLocation(core, handle, p, OcgLocation.HAND).filter(Boolean);
-    const handNames = hand.map((c, seq) => (known(c, p, OcgLocation.HAND, seq) ? cardName(c.code) : "?"));
-    if (handNames.length) lines.push(`  hand: ${handNames.join(", ")}`);
-    const grave = queryLocation(core, handle, p, OcgLocation.GRAVE).filter(Boolean);
-    if (grave.length) lines.push(`  GY: ${grave.map((c) => cardName(c.code)).join(", ")}`);
-    const removed = queryLocation(core, handle, p, OcgLocation.REMOVED).filter(Boolean);
-    if (removed.length) lines.push(`  banished: ${removed.map((c, seq) => (known(c, p, OcgLocation.REMOVED, seq) ? cardName(c.code) : "? (face-down)")).join(", ")}`);
-    const extra = queryLocation(core, handle, p, OcgLocation.EXTRA).filter(Boolean);
-    if (extra.length) lines.push(`  extra: ${extra.map((c) => (isVisible(c, p, OcgLocation.EXTRA, viewer) ? cardName(c.code) : "?")).join(", ")}`);
-
-    // What the viewer cannot see of this player's registered deck.
+    const zone = (location) => queryLocation(core, handle, p, location).map((card, seq) => (card ? fieldCardData(card, known(card, p, location, seq), location === OcgLocation.MZONE) : null));
+    const dense = (location) => queryLocation(core, handle, p, location).filter(Boolean);
+    let unseenKind;
+    let unseen;
     if (viewer === p || viewer === SPECTATOR) {
-      const deck = queryLocation(core, handle, p, OcgLocation.DECK).filter(Boolean).map((c) => cardName(c.code)).sort();
-      lines.push(`  deck contents (unordered): ${deck.join(", ")}`);
+      unseenKind = "deck";
+      unseen = dense(OcgLocation.DECK).map((c) => cardName(c.code)).sort();
     } else {
       const seen = [];
       for (const location of [OcgLocation.MZONE, OcgLocation.SZONE, OcgLocation.HAND, OcgLocation.GRAVE, OcgLocation.REMOVED, OcgLocation.EXTRA]) {
@@ -215,16 +188,111 @@ export function renderState(core, handle, { viewer, deckNames, deckCodes, model 
           });
         }
       }
-      const unseen = unseenNames(deckCodes[p], seen);
-      lines.push(`  unseen (hand + deck + face-down, ${unseen.length}): ${unseen.join(", ")}`);
+      unseenKind = "pool";
+      unseen = unseenNames(deckCodes[p], seen);
     }
-  }
+    return {
+      index: p,
+      deckName: deckNames[p],
+      lp: fp.lp,
+      handCount: fp.hand_size,
+      deckCount: fp.deck_size,
+      graveCount: fp.grave_size,
+      banishCount: fp.banish_size,
+      extraCount: fp.extra_size,
+      mzone: zone(OcgLocation.MZONE),
+      szone: zone(OcgLocation.SZONE),
+      hand: dense(OcgLocation.HAND).map(nameIfKnown(p, OcgLocation.HAND)),
+      grave: dense(OcgLocation.GRAVE).map((c) => cardName(c.code)),
+      removed: dense(OcgLocation.REMOVED).map(nameIfKnown(p, OcgLocation.REMOVED)),
+      extra: dense(OcgLocation.EXTRA).map(nameIfKnown(p, OcgLocation.EXTRA)),
+      unseenKind,
+      unseen,
+    };
+  });
 
-  if (field.chain.length) {
+  return {
+    viewer,
+    turn: model.turn,
+    turnPlayer: model.turnPlayer,
+    phaseName: PHASE_NAMES[model.phase] ?? "start",
+    players,
+    chain: field.chain.map((link) => ({ name: cardName(link.code), place: `P${link.controller} ${zoneLabel(link.location, link.sequence)}` })),
+  };
+}
+
+/**
+ * Pure function. One line for a field card from its data.
+ *
+ * Args:
+ *     c (object): From fieldCardData.
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> describeFieldCard({name: null, position: "fd DEF"})                          // "? (fd DEF)"
+ *     >>> describeFieldCard({name: "Trap Hole", position: "fd", typeLabel: "Trap"})     // "Trap Hole (fd, Trap)"
+ *     >>> describeFieldCard({name: "Battle Ox", position: "ATK", atk: 1700, def: 1000, baseAtk: 1700, baseDef: 1000, level: 4})
+ *     "Battle Ox ATK 1700/1000 Lv4"
+ */
+export function describeFieldCard(c) {
+  if (c.name === null) return `? (${c.position})`;
+  const parts = [c.name];
+  if (c.atk !== undefined) {
+    const atk = c.atk === c.baseAtk ? `${c.atk}` : `${c.atk}(base ${c.baseAtk})`;
+    const def = c.def === c.baseDef ? `${c.def}` : `${c.def}(base ${c.baseDef})`;
+    parts.push(`${c.position} ${atk}/${def}`);
+    if (c.level) parts.push(`Lv${c.level}`);
+    if (c.rank) parts.push(`Rank${c.rank}`);
+    if (c.link) parts.push(`Link${c.link}`);
+  } else {
+    parts.push(`(${c.position}, ${c.typeLabel})`);
+  }
+  if (c.negated) parts.push("[effects negated]");
+  if (c.equippedTo) parts.push(`[equipped to ${c.equippedTo}]`);
+  if (c.targets) parts.push(`[targets ${c.targets.join(", ")}]`);
+  if (c.materials) parts.push(`[materials: ${c.materials.join(", ")}]`);
+  if (c.counters) parts.push(`[counters: ${Object.entries(c.counters).map(([type, n]) => `${n}x#${type}`).join(", ")}]`);
+  return parts.join(" ");
+}
+
+/**
+ * Pure function. Renders collected state as text lines.
+ *
+ * Args:
+ *     state (object): From collectState.
+ *
+ * Returns:
+ *     string[]
+ *
+ * Examples:
+ *     >>> // renderState(collectState(...))[0]  ->  "Turn 3 (P0's turn), Main Phase 1."
+ */
+export function renderState(state) {
+  const you = (p) => (state.viewer === p ? " [you]" : "");
+  const lines = [];
+  lines.push(`Turn ${state.turn}${state.turnPlayer === null ? "" : ` (P${state.turnPlayer}'s turn)`}, ${state.phaseName}.`);
+  lines.push(`Decks: P0 = ${state.players[0].deckName}${you(0)}, P1 = ${state.players[1].deckName}${you(1)}  (both decklists are public: \`ygo deck <name>\`)`);
+  for (const p of state.players) {
+    lines.push("");
+    lines.push(`--- P${p.index} (${p.deckName})${you(p.index)}: LP ${p.lp} | hand ${p.handCount} | deck ${p.deckCount} | GY ${p.graveCount} | banished ${p.banishCount} | extra ${p.extraCount}`);
+    const monsterRows = p.mzone.map((c, seq) => c && `  ${zoneLabel(OcgLocation.MZONE, seq)}: ${describeFieldCard(c)}`).filter(Boolean);
+    const spellRows = p.szone.map((c, seq) => c && `  ${zoneLabel(OcgLocation.SZONE, seq)}: ${describeFieldCard(c)}`).filter(Boolean);
+    lines.push(...(monsterRows.length ? monsterRows : ["  (no monsters)"]));
+    lines.push(...(spellRows.length ? spellRows : ["  (no spells/traps)"]));
+    if (p.hand.length) lines.push(`  hand: ${p.hand.map((n) => n ?? "?").join(", ")}`);
+    if (p.grave.length) lines.push(`  GY: ${p.grave.join(", ")}`);
+    if (p.removed.length) lines.push(`  banished: ${p.removed.map((n) => n ?? "? (face-down)").join(", ")}`);
+    if (p.extra.length) lines.push(`  extra: ${p.extra.map((n) => n ?? "?").join(", ")}`);
+    lines.push(p.unseenKind === "deck"
+      ? `  deck contents (unordered): ${p.unseen.join(", ")}`
+      : `  unseen (hand + deck + face-down, ${p.unseen.length}): ${p.unseen.join(", ")}`);
+  }
+  if (state.chain.length) {
     lines.push("");
     lines.push("Chain in progress:");
-    field.chain.forEach((link, i) => lines.push(`  ${i + 1}. ${cardName(link.code)} (P${link.controller} ${zoneLabel(link.location, link.sequence)})`));
+    state.chain.forEach((link, i) => lines.push(`  ${i + 1}. ${link.name} (${link.place})`));
   }
   return lines;
 }
-

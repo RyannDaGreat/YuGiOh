@@ -16,6 +16,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_ROOT, codeOf } from "./cards.js";
+import { expandDeck } from "./duel.js";
 
 export const DUELS_DIR = join(REPO_ROOT, "duels");
 export const DECKS_DIR = join(REPO_ROOT, "src/decks");
@@ -94,7 +95,8 @@ export function listDuels() {
  *     id (string): Duel id.
  *
  * Returns:
- *     {id, created, seed, decks: [{name, main}, {name, main}], players: [string, string], responses: OcgResponse[]}
+ *     {id, created, seed, decks: [{name, main, codes}, {name, main, codes}], players: [string, string], responses: OcgResponse[]}
+ *     `codes` are the passcodes frozen at creation (see replayDuel).
  */
 export function loadDuel(id) {
   const path = duelPath(id);
@@ -122,7 +124,7 @@ export function saveDuel(duel) {
  * Args:
  *     opts.id (string): Duel id (must not already exist).
  *     opts.seed (number): 32-bit seed.
- *     opts.decks ([deck, deck]): Loaded decklists for P0 (goes first) and P1.
+ *     opts.decks ([deck, deck]): Loaded decklists for P0 (goes first) and P1; passcodes are frozen into the record.
  *     opts.players ([string, string]): Free-text labels ("ryan", "claude", ...).
  *     opts.created (string): ISO timestamp.
  *
@@ -131,7 +133,7 @@ export function saveDuel(duel) {
  */
 export function createDuel({ id, seed, decks, players, created }) {
   if (existsSync(duelPath(id))) throw new Error(`duel already exists: ${id}`);
-  const duel = { id, created, seed, decks, players, responses: [] };
+  const duel = { id, created, seed, decks: decks.map((d) => ({ name: d.name, main: d.main, codes: expandDeck(d.main) })), players, responses: [] };
   saveDuel(duel);
   return duel;
 }

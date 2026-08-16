@@ -4,12 +4,11 @@
  * thin skins over this module, so they cannot drift apart.
  */
 
-import { OcgMessageType } from "ocgcore-wasm";
-import { expandDeck, replayDuel, STARTING_LP } from "./duel.js";
+import { replayDuel, STARTING_LP } from "./duel.js";
 import { renderLog } from "./log.js";
 import { buildMenu, chooseFromMenu, hintsBefore, renderMenu } from "./menu.js";
 import { mulberry32 } from "./rng.js";
-import { renderState } from "./state.js";
+import { collectState, renderState } from "./state.js";
 import { loadDuel, saveDuel } from "./store.js";
 import { maskStream, SPECTATOR } from "./view.js";
 
@@ -47,7 +46,8 @@ export function parseViewer(text) {
  *       ended: boolean, winner: number|null, winReason: number|null,
  *       pendingPlayer: number|null,          who the core is waiting on
  *       logLines: string[],                  YGN log for the viewer
- *       stateLines: string[],                full state for the viewer
+ *       state: object,                       structured state (state.js collectState)
+ *       stateLines: string[],                the same as text
  *       menu: Menu|null,                     if the viewer is (or can see) the asked player
  *       menuLines: string[],
  *       messageCount: number,                total masked messages for this viewer
@@ -55,23 +55,25 @@ export function parseViewer(text) {
  *     }
  */
 export async function viewDuel(duel, viewer) {
-  const decks = duel.decks.map((d) => d.main);
-  const result = await replayDuel({ seed: duel.seed, decks, responses: duel.responses });
+  const deckCodes = duel.decks.map((d) => d.codes);
+  const result = await replayDuel({ seed: duel.seed, deckCodes, responses: duel.responses });
   try {
     const masked = maskStream(result.messages, viewer);
-    const { lines: logLines, field } = renderLog(masked, { viewer, startingLP: STARTING_LP, deckSizes: decks.map((d) => expandDeck(d).length) });
-    const stateLines = renderState(result.core, result.handle, {
+    const deckSizes = deckCodes.map((c) => c.length);
+    const { lines: logLines, field } = renderLog(masked, { viewer, startingLP: STARTING_LP, deckSizes });
+    const state = collectState(result.core, result.handle, {
       viewer,
       deckNames: duel.decks.map((d) => d.name),
-      deckCodes: decks.map(expandDeck),
+      deckCodes,
       model: field,
     });
+    const stateLines = renderState(state);
     const pendingPlayer = result.pending ? result.pending.player : null;
     let menu = null;
     if (result.pending && (viewer === SPECTATOR || viewer === pendingPlayer)) {
       // The menu must be built from the ASKED player's masked view of the question.
       const askedView = maskStream(result.messages, pendingPlayer);
-      const askedField = viewer === pendingPlayer ? field : renderLog(askedView, { viewer: pendingPlayer, startingLP: STARTING_LP, deckSizes: decks.map((d) => expandDeck(d).length) }).field;
+      const askedField = viewer === pendingPlayer ? field : renderLog(askedView, { viewer: pendingPlayer, startingLP: STARTING_LP, deckSizes }).field;
       menu = buildMenu(askedView[askedView.length - 1], { ...hintsBefore(askedView), field: askedField });
     }
     return {
@@ -80,6 +82,7 @@ export async function viewDuel(duel, viewer) {
       winReason: field.winReason,
       pendingPlayer,
       logLines,
+      state,
       stateLines,
       menu,
       menuLines: menu ? renderMenu(menu) : [],
@@ -174,6 +177,21 @@ function describeChoice(menu, text) {
 }
 
 /**
- * Query. Which message types the core is waiting on, by name — for `ygo list`.
+ * Pure function. The JSON-safe part of a menu for a UI: labels and modes,
+ * without the response builders (the server rebuilds the menu to apply a
+ * choice; the client only needs to render and send choice text).
+ *
+ * Args:
+ *     menu (Menu|null): From buildMenu.
+ *
+ * Returns:
+ *     {title, items: string[], zero: string|null, mode, min, max}|null
+ *
+ * Examples:
+ *     >>> menuSummary({title: "t", items: [{label: "a"}], zero: null, mode: "one", min: 1, max: 1})
+ *     {title: "t", items: ["a"], zero: null, mode: "one", min: 1, max: 1}
  */
-export const QUESTION_NAME = Object.fromEntries(Object.entries(OcgMessageType).filter(([k]) => Number.isNaN(Number(k))).map(([k, v]) => [v, k]));
+export function menuSummary(menu) {
+  if (!menu) return null;
+  return { title: menu.title, items: menu.items.map((i) => i.label), zero: menu.zero?.label ?? null, mode: menu.mode, min: menu.min, max: menu.max };
+}

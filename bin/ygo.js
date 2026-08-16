@@ -12,7 +12,9 @@
  */
 
 import { Command } from "commander";
-import { cardInfo, codeOf, searchCards, summarizeCard } from "../src/cards.js";
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
 import { playChoice, parseViewer, viewDuel } from "../src/session.js";
 import { createDuel, listDecks, listDuels, loadDeck, loadDuel, saveDuel } from "../src/store.js";
@@ -20,6 +22,8 @@ import { victoryString } from "../src/strings.js";
 
 /** Default log tail shown after a play, so the agent sees the consequences without asking. */
 const DEFAULT_LOG_TAIL = 60;
+/** How often `ygo wait` re-checks the duel file. */
+const WAIT_POLL_MS = 1000;
 
 const program = new Command();
 program.name("ygo").description("Headless Yu-Gi-Oh! duels for humans and LLM agents");
@@ -101,6 +105,31 @@ program
   });
 
 program
+  .command("wait <id>")
+  .description("Block until it is this player's decision (or the duel ends), then print what happened since and the menu")
+  .requiredOption("--as <player>", "0 or 1")
+  .option("--timeout <seconds>", "give up after this long", "600")
+  .option("--since <n>", "log line count you have already seen; only newer lines are printed")
+  .action(async (id, opts) => {
+    const player = parseViewer(opts.as);
+    if (player === 2) throw new Error("--as must be 0 or 1 to wait");
+    const deadline = Date.now() + Number(opts.timeout) * 1000;
+    for (;;) {
+      const view = await viewDuel(loadDuel(id), player);
+      if (view.ended || view.pendingPlayer === player) {
+        const since = opts.since === undefined ? Math.max(0, view.logLines.length - DEFAULT_LOG_TAIL) : Number(opts.since);
+        console.log(`--- log lines ${since}..${view.logLines.length} ---`);
+        console.log(view.logLines.slice(since).join("\n"));
+        console.log("");
+        printStatus(view);
+        return;
+      }
+      if (Date.now() > deadline) throw new Error(`timed out after ${opts.timeout}s; still waiting on P${view.pendingPlayer}`);
+      await new Promise((resolve) => setTimeout(resolve, WAIT_POLL_MS));
+    }
+  });
+
+program
   .command("undo <id>")
   .description("Rewind the last N recorded responses (time travel; use for experiments)")
   .option("--n <n>", "how many", "1")
@@ -152,6 +181,16 @@ program
     const deck = loadDeck(name);
     console.log(`${deck.name} (${expandDeck(deck.main).length} cards)`);
     for (const [cardName, count] of deck.main) console.log(`${count}x ${summarizeCard(codeOf(cardName))}`);
+  });
+
+program
+  .command("dump-cards")
+  .description("Write every card as one greppable line: passcode, summary, effect text (default vendor/cards.txt)")
+  .option("--out <path>", "output path", join(REPO_ROOT, "vendor/cards.txt"))
+  .action((opts) => {
+    const lines = allCards().map((c) => `${c.code}\t${summarizeCard(c.code)}\t${c.desc.replace(/\s*\n\s*/g, " / ")}`);
+    writeFileSync(opts.out, lines.join("\n") + "\n");
+    console.log(`wrote ${lines.length} cards to ${opts.out}`);
   });
 
 program

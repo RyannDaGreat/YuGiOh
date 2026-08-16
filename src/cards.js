@@ -38,9 +38,13 @@ const LSCALE_SHIFT = 24;
 const TYPE_LINK = 0x4000000;
 
 const db = new DatabaseSync(CDB_PATH, { readOnly: true });
-const stmtById = db.prepare("SELECT * FROM datas WHERE id = ?");
+// setcode (4 packed 16-bit codes) and race (64-bit in modern cores) can exceed
+// 2^53; node:sqlite refuses to hand those over as numbers, so read them as text.
+const stmtById = db.prepare("SELECT id, ot, alias, CAST(setcode AS TEXT) AS setcode, type, atk, def, level, CAST(race AS TEXT) AS race, attribute, category FROM datas WHERE id = ?");
 const stmtTextById = db.prepare("SELECT * FROM texts WHERE id = ?");
-const stmtIdByName = db.prepare("SELECT id FROM texts WHERE name = ? ORDER BY id LIMIT 1");
+// Prefer the canonical printing (alias = 0) and TCG/OCG-legal cards (ot & 3)
+// over alternate arts, anime, and video-game versions that share a name.
+const stmtIdByName = db.prepare("SELECT t.id FROM texts t JOIN datas d ON d.id = t.id WHERE t.name = ? ORDER BY (d.alias != 0), ((d.ot & 3) = 0), t.id LIMIT 1");
 const stmtSearch = db.prepare(
   "SELECT t.id, t.name FROM texts t WHERE t.name LIKE ? ORDER BY length(t.name), t.name LIMIT ?",
 );
@@ -177,7 +181,7 @@ export function cardInfo(code) {
     def: data.def,
     level: data.level & LEVEL_MASK,
     type: data.type,
-    race: data.race,
+    race: Number(data.race),
     attribute: data.attribute,
   };
 }
@@ -304,4 +308,17 @@ export function summarizeCard(code) {
  */
 export function searchCards(term, limit) {
   return stmtSearch.all(`%${term}%`, limit);
+}
+
+/**
+ * Query. Every card in the database as {code, name, desc}, ordered by name.
+ *
+ * Returns:
+ *     Array<{code: number, name: string, desc: string}>
+ *
+ * Examples:
+ *     >>> allCards().length > 14000 // true
+ */
+export function allCards() {
+  return db.prepare("SELECT t.id AS code, t.name, t.desc FROM texts t JOIN datas d ON d.id = t.id ORDER BY t.name, t.id").all();
 }

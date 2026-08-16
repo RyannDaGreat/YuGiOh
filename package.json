@@ -16,5 +16,11 @@
   },
   "bin": {
     "ygo": "./bin/ygo.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.7.0"
+  },
+  "allowScripts": {
+    "puppeteer@25.7.0": true
   }
 }
