@@ -1,0 +1,480 @@
+{
+ "id": "t1",
+ "created": "2026-08-16T08:00:24.071Z",
+ "seed": 7,
+ "decks": [
+  {
+   "name": "Yugi",
+   "main": [
+    [
+     "Mystical Elf",
+     1
+    ],
+    [
+     "Feral Imp",
+     1
+    ],
+    [
+     "Winged Dragon, Guardian of the Fortress #1",
+     1
+    ],
+    [
+     "Summoned Skull",
+     1
+    ],
+    [
+     "Beaver Warrior",
+     1
+    ],
+    [
+     "Dark Magician",
+     1
+    ],
+    [
+     "Gaia The Fierce Knight",
+     1
+    ],
+    [
+     "Curse of Dragon",
+     1
+    ],
+    [
+     "Celtic Guardian",
+     1
+    ],
+    [
+     "Mammoth Graveyard",
+     1
+    ],
+    [
+     "Great White",
+     1
+    ],
+    [
+     "Silver Fang",
+     1
+    ],
+    [
+     "Giant Soldier of Stone",
+     1
+    ],
+    [
+     "Dragon Zombie",
+     1
+    ],
+    [
+     "Doma The Angel of Silence",
+     1
+    ],
+    [
+     "Ansatsu",
+     1
+    ],
+    [
+     "Witty Phantom",
+     1
+    ],
+    [
+     "Claw Reacher",
+     1
+    ],
+    [
+     "Mystic Clown",
+     1
+    ],
+    [
+     "Sword of Dark Destruction",
+     1
+    ],
+    [
+     "Book of Secret Arts",
+     1
+    ],
+    [
+     "Dark Hole",
+     1
+    ],
+    [
+     "Dian Keto the Cure Master",
+     1
+    ],
+    [
+     "Ancient Elf",
+     1
+    ],
+    [
+     "Magical Ghost",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "Trap Hole",
+     1
+    ],
+    [
+     "Two-Pronged Attack",
+     1
+    ],
+    [
+     "De-Spell",
+     1
+    ],
+    [
+     "Monster Reborn",
+     1
+    ],
+    [
+     "Reinforcements",
+     1
+    ],
+    [
+     "Change of Heart",
+     1
+    ],
+    [
+     "The Stern Mystic",
+     1
+    ],
+    [
+     "Wall of Illusion",
+     1
+    ],
+    [
+     "Neo the Magic Swordsman",
+     1
+    ],
+    [
+     "Baron of the Fiend Sword",
+     1
+    ],
+    [
+     "Man-Eating Treasure Chest",
+     1
+    ],
+    [
+     "Sorcerer of the Doomed",
+     1
+    ],
+    [
+     "Last Will",
+     1
+    ],
+    [
+     "Waboku",
+     1
+    ],
+    [
+     "Soul Exchange",
+     1
+    ],
+    [
+     "Card Destruction",
+     1
+    ],
+    [
+     "Trap Master",
+     1
+    ],
+    [
+     "Dragon Capture Jar",
+     1
+    ],
+    [
+     "Yami",
+     1
+    ],
+    [
+     "Man-Eater Bug",
+     1
+    ],
+    [
+     "Reverse Trap",
+     1
+    ],
+    [
+     "Remove Trap",
+     1
+    ],
+    [
+     "Castle Walls",
+     1
+    ],
+    [
+     "Ultimate Offering",
+     1
+    ]
+   ]
+  },
+  {
+   "name": "Kaiba",
+   "main": [
+    [
+     "Blue-Eyes White Dragon",
+     1
+    ],
+    [
+     "Hitotsu-Me Giant",
+     1
+    ],
+    [
+     "Ryu-Kishin",
+     1
+    ],
+    [
+     "The Wicked Worm Beast",
+     1
+    ],
+    [
+     "Battle Ox",
+     1
+    ],
+    [
+     "Koumori Dragon",
+     1
+    ],
+    [
+     "Judge Man",
+     1
+    ],
+    [
+     "Rogue Doll",
+     1
+    ],
+    [
+     "Kojikocy",
+     1
+    ],
+    [
+     "Uraby",
+     1
+    ],
+    [
+     "Gyakutenno Megami",
+     1
+    ],
+    [
+     "Mystic Horseman",
+     1
+    ],
+    [
+     "Terra the Terrible",
+     1
+    ],
+    [
+     "Dark Titan of Terror",
+     1
+    ],
+    [
+     "Dark Assailant",
+     1
+    ],
+    [
+     "Master & Expert",
+     1
+    ],
+    [
+     "Unknown Warrior of Fiend",
+     1
+    ],
+    [
+     "Mystic Clown",
+     1
+    ],
+    [
+     "Ogre of the Black Shadow",
+     1
+    ],
+    [
+     "Dark Energy",
+     1
+    ],
+    [
+     "Invigoration",
+     1
+    ],
+    [
+     "Dark Hole",
+     1
+    ],
+    [
+     "Ookazi",
+     1
+    ],
+    [
+     "Ryu-Kishin Powered",
+     1
+    ],
+    [
+     "Swordstalker",
+     1
+    ],
+    [
+     "La Jinn the Mystical Genie of the Lamp",
+     1
+    ],
+    [
+     "Rude Kaiser",
+     1
+    ],
+    [
+     "Destroyer Golem",
+     1
+    ],
+    [
+     "Skull Red Bird",
+     1
+    ],
+    [
+     "D. Human",
+     1
+    ],
+    [
+     "Pale Beast",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "Trap Hole",
+     1
+    ],
+    [
+     "Two-Pronged Attack",
+     1
+    ],
+    [
+     "De-Spell",
+     1
+    ],
+    [
+     "Monster Reborn",
+     1
+    ],
+    [
+     "The Inexperienced Spy",
+     1
+    ],
+    [
+     "Reinforcements",
+     1
+    ],
+    [
+     "Ancient Telescope",
+     1
+    ],
+    [
+     "Just Desserts",
+     1
+    ],
+    [
+     "Lord of D.",
+     1
+    ],
+    [
+     "The Flute of Summoning Dragon",
+     1
+    ],
+    [
+     "Mysterious Puppeteer",
+     1
+    ],
+    [
+     "Trap Master",
+     1
+    ],
+    [
+     "Sogen",
+     1
+    ],
+    [
+     "Hane-Hane",
+     1
+    ],
+    [
+     "Reverse Trap",
+     1
+    ],
+    [
+     "Remove Trap",
+     1
+    ],
+    [
+     "Castle Walls",
+     1
+    ],
+    [
+     "Ultimate Offering",
+     1
+    ]
+   ]
+  }
+ ],
+ "players": [
+  "ryan",
+  "claude"
+ ],
+ "responses": [
+  {
+   "type": 1,
+   "action": 3,
+   "index": 3
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  }
+ ]
+}
