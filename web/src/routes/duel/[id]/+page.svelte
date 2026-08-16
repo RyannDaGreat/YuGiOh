@@ -93,6 +93,12 @@
     scrubTimer = setTimeout(() => scrub(Number(value)), SCRUB_DEBOUNCE_MS);
   }
 
+  async function summon(seat) {
+    const res = await fetch(`/api/duel/${view.id}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ summon: seat, strategy: "strategies/control.md" }) });
+    const body = await res.json();
+    if (!body.ok) errorText = body.error;
+  }
+
   async function forkHere() {
     if (!forkId) return;
     const res = await fetch(`/api/duel/${view.id}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ fork: forkId, at: view.at }) });
@@ -135,6 +141,17 @@
     <span class="font-mono text-amber-200">{view.id}</span>
     <span>You: <b>{viewerLabel}</b></span>
     <span class="text-amber-100/70">seat: <a class="underline" href="?as=0">P0</a> <a class="underline" href="?as=1">P1</a> <a class="underline" href="?as=all">all</a></span>
+    <span class="flex items-center gap-2">
+      {#each view.presence as p}
+        <span class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 flex items-center gap-1" title={p.online ? `${p.kind} heartbeat ${Math.round(p.ageMs / 1000)}s ago` : "no one holds this seat"}>
+          <span class="{p.online ? 'text-emerald-400' : 'text-red-400'}">{p.online ? "●" : "○"}</span>
+          P{p.seat} {view.players[p.seat]} {p.online ? `online (${p.kind})` : "offline"}
+          {#if !p.online && !view.ended && p.seat !== view.viewer}
+            <button class="ml-1 px-1.5 rounded bg-amber-300 text-amber-950 text-xs font-bold" onclick={() => summon(p.seat)} title="boot a headless Claude Code to play this seat">Summon Claude</button>
+          {/if}
+        </span>
+      {/each}
+    </span>
     <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900" onclick={toggleSound}>{sound ? "🔊 sound on" : "🔇 sound off"}</button>
     {#if view.viewer !== 2 && sleeves.length}
       <label class="text-amber-100/70">sleeve
