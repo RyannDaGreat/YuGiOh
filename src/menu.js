@@ -163,6 +163,34 @@ export function selectableZones(mask, player) {
 }
 
 /**
+ * Pure function. Makes duplicate labels distinct by appending an ordinal, so
+ * "Activate X" and "Activate X" (two effects of one card whose script has no
+ * effect strings) become "Activate X (effect #1)" / "(effect #2)".
+ *
+ * Args:
+ *     items (Array<{label, value}>): Menu items.
+ *
+ * Returns:
+ *     Array<{label, value}>: New array; only duplicated labels are changed.
+ *
+ * Examples:
+ *     >>> disambiguate([{label: "a"}, {label: "a"}, {label: "b"}]).map((i) => i.label)
+ *     ["a (effect #1)", "a (effect #2)", "b"]
+ *     >>> disambiguate([{label: "a"}]).map((i) => i.label)  // ["a"]
+ */
+export function disambiguate(items) {
+  const counts = new Map();
+  for (const it of items) counts.set(it.label, (counts.get(it.label) ?? 0) + 1);
+  const seen = new Map();
+  return items.map((it) => {
+    if (counts.get(it.label) < 2) return it;
+    const n = (seen.get(it.label) ?? 0) + 1;
+    seen.set(it.label, n);
+    return { ...it, label: `${it.label} (effect #${n})` };
+  });
+}
+
+/**
  * Pure function. Builds the menu for a pending core question.
  *
  * Args:
@@ -208,7 +236,7 @@ export function buildMenu(msg, ctx) {
       msg.pos_changes.forEach((c, i) => items.push({ label: `Change battle position of ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_POS_CHANGE, index: i } }));
       if (msg.to_bp) items.push({ label: "Enter Battle Phase", value: { action: SelectIdleCMDAction.TO_BP, index: null } });
       if (msg.to_ep) items.push({ label: "End turn", value: { action: SelectIdleCMDAction.TO_EP, index: null } });
-      return { title: `P${msg.player}: main phase action`, items, zero: null, mode: "one", min: 1, max: 1, build: ([v]) => ({ type: R.SELECT_IDLECMD, ...v }) };
+      return { title: `P${msg.player}: main phase action`, items: disambiguate(items), zero: null, mode: "one", min: 1, max: 1, build: ([v]) => ({ type: R.SELECT_IDLECMD, ...v }) };
     }
     case T.SELECT_BATTLECMD: {
       const items = [];
@@ -219,7 +247,7 @@ export function buildMenu(msg, ctx) {
       });
       if (msg.to_m2) items.push({ label: "Enter Main Phase 2", value: { action: SelectBattleCMDAction.TO_M2, index: null } });
       if (msg.to_ep) items.push({ label: "End turn", value: { action: SelectBattleCMDAction.TO_EP, index: null } });
-      return { title: `P${msg.player}: battle phase action`, items, zero: null, mode: "one", min: 1, max: 1, build: ([v]) => ({ type: R.SELECT_BATTLECMD, ...v }) };
+      return { title: `P${msg.player}: battle phase action`, items: disambiguate(items), zero: null, mode: "one", min: 1, max: 1, build: ([v]) => ({ type: R.SELECT_BATTLECMD, ...v }) };
     }
     case T.SELECT_CHAIN: {
       const when = timingWords(msg.hint_timing | msg.hint_timing_other);
@@ -230,7 +258,7 @@ export function buildMenu(msg, ctx) {
         return { label: `Activate ${entryLabel(c, ctx.field)}${effect ? `: ${effect}` : ""}`, value: i };
       });
       const zero = msg.forced ? null : { label: "Do not activate anything", response: { type: R.SELECT_CHAIN, index: null } };
-      return { title: `P${msg.player}: respond?${context ? ` (${context})` : ""}${msg.forced ? " [must activate]" : ""}`, items, zero, mode: "one", min: 1, max: 1, build: ([i]) => ({ type: R.SELECT_CHAIN, index: i }) };
+      return { title: `P${msg.player}: respond?${context ? ` (${context})` : ""}${msg.forced ? " [must activate]" : ""}`, items: disambiguate(items), zero, mode: "one", min: 1, max: 1, build: ([i]) => ({ type: R.SELECT_CHAIN, index: i }) };
     }
     case T.SELECT_CARD: {
       const items = msg.selects.map((c, i) => ({ label: entryLabel(c, ctx.field), value: i }));
