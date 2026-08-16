@@ -4,26 +4,28 @@
 
 <svelte:head><title>YuGi — duels</title></svelte:head>
 
-<main class="page">
-  <h1>YuGi</h1>
-  <p class="muted">Headless Yu-Gi-Oh! for LLM agents. Pick a duel and a seat, or create one.</p>
+<main class="min-h-screen bg-[#120c08] text-amber-50 p-6 max-w-5xl mx-auto flex flex-col gap-6">
+  <header>
+    <h1 class="text-3xl font-black text-amber-200 tracking-wide">YuGi</h1>
+    <p class="text-amber-100/60 text-sm">Headless Yu-Gi-Oh! for LLM agents. Pick a duel and a seat, or create one.</p>
+  </header>
 
-  <section>
-    <h2>Duels</h2>
+  <section class="rounded-md bg-black/40 border border-amber-900/60 p-3">
+    <h2 class="font-bold text-amber-200 mb-2">Duels</h2>
     {#if data.duels.length === 0}
-      <p class="muted">None yet.</p>
+      <p class="text-amber-100/60 text-sm">None yet.</p>
     {:else}
-      <table>
-        <thead><tr><th>id</th><th>P0</th><th>P1</th><th>moves</th><th>status</th><th>open as</th></tr></thead>
+      <table class="w-full text-sm">
+        <thead class="text-amber-100/60 text-left"><tr><th class="py-1">id</th><th>P0</th><th>P1</th><th>moves</th><th>status</th><th>open as</th></tr></thead>
         <tbody>
           {#each data.duels as d}
-            <tr>
-              <td><code>{d.id}</code></td>
-              <td>{d.decks[0]} <span class="muted">({d.players[0]})</span></td>
-              <td>{d.decks[1]} <span class="muted">({d.players[1]})</span></td>
+            <tr class="border-t border-amber-900/40">
+              <td class="py-1 font-mono text-amber-200">{d.id}</td>
+              <td>{d.decks[0]} <span class="text-amber-100/50">({d.players[0]})</span></td>
+              <td>{d.decks[1]} <span class="text-amber-100/50">({d.players[1]})</span></td>
               <td>{d.moves}</td>
               <td>{d.status}</td>
-              <td><a href="/duel/{d.id}?as=0">P0</a> · <a href="/duel/{d.id}?as=1">P1</a> · <a href="/duel/{d.id}?as=all">all</a></td>
+              <td class="space-x-2"><a class="underline text-amber-300" href="/duel/{d.id}?as=0">P0</a><a class="underline text-amber-300" href="/duel/{d.id}?as=1">P1</a><a class="underline text-amber-300" href="/duel/{d.id}?as=all">all</a></td>
             </tr>
           {/each}
         </tbody>
@@ -31,48 +33,21 @@
     {/if}
   </section>
 
-  <section>
-    <h2>New duel</h2>
-    <form method="POST" action="?/create" class="new-form">
-      <label>id <input name="id" required pattern="[A-Za-z0-9_\-]+" placeholder="game1" /></label>
-      <label>P0 deck (goes first)
-        <select name="p0">{#each data.decks as d}<option value={d} selected={d === "yugi"}>{d}</option>{/each}</select>
+  <section class="rounded-md bg-black/40 border border-amber-900/60 p-3">
+    <h2 class="font-bold text-amber-200 mb-2">New duel</h2>
+    <form method="POST" action="?/create" class="grid grid-cols-3 gap-3 items-end text-sm">
+      <label class="flex flex-col gap-1">id <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="id" required pattern="[A-Za-z0-9_\-]+" placeholder="game1" /></label>
+      <label class="flex flex-col gap-1">P0 deck (goes first)
+        <select class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="p0">{#each data.decks as d}<option value={d} selected={d === "yugi"}>{d}</option>{/each}</select>
       </label>
-      <label>P1 deck
-        <select name="p1">{#each data.decks as d}<option value={d} selected={d === "kaiba"}>{d}</option>{/each}</select>
+      <label class="flex flex-col gap-1">P1 deck
+        <select class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="p1">{#each data.decks as d}<option value={d} selected={d === "kaiba"}>{d}</option>{/each}</select>
       </label>
-      <label>P0 player <input name="player0" placeholder="ryan" /></label>
-      <label>P1 player <input name="player1" placeholder="claude" /></label>
-      <label>seed <input name="seed" placeholder="random" /></label>
-      <button type="submit">Create</button>
-      {#if form?.error}<p class="error">{form.error}</p>{/if}
+      <label class="flex flex-col gap-1">P0 player <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player0" placeholder="ryan" /></label>
+      <label class="flex flex-col gap-1">P1 player <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player1" placeholder="claude" /></label>
+      <label class="flex flex-col gap-1">seed <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="seed" placeholder="random" /></label>
+      <button type="submit" class="col-span-3 justify-self-start px-4 py-1 rounded bg-amber-300 text-amber-950 font-bold">Create</button>
+      {#if form?.error}<p class="col-span-3 text-red-300">{form.error}</p>{/if}
     </form>
   </section>
 </main>
-
-<style>
-  :root {
-    --page-max-width: 60rem;
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 1rem;
-    --space-4: 1.5rem;
-    --color-bg: #f7f5ef;
-    --color-fg: #222;
-    --color-muted: #6b6b6b;
-    --color-error: #b00020;
-    --color-border: #d8d3c4;
-    --color-accent: #2f5d8a;
-    --font-body: system-ui, sans-serif;
-  }
-  :global(body) { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-body); }
-  .page { max-width: var(--page-max-width); margin: 0 auto; padding: var(--space-4); }
-  .muted { color: var(--color-muted); }
-  .error { color: var(--color-error); }
-  table { border-collapse: collapse; width: 100%; }
-  th, td { text-align: left; padding: var(--space-1) var(--space-2); border-bottom: 1px solid var(--color-border); }
-  a { color: var(--color-accent); }
-  .new-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2) var(--space-3); align-items: end; }
-  .new-form label { display: flex; flex-direction: column; gap: var(--space-1); }
-  .new-form button { grid-column: 1 / -1; justify-self: start; padding: var(--space-1) var(--space-3); }
-</style>

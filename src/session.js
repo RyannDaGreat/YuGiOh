@@ -5,6 +5,7 @@
  */
 
 import { replayDuel, STARTING_LP } from "./duel.js";
+import { extractEvents } from "./events.js";
 import { renderLog } from "./log.js";
 import { OcgMessageType } from "ocgcore-wasm";
 import { buildMenu, chooseFromMenu, hintsBefore, renderMenu, timingWords } from "./menu.js";
@@ -57,6 +58,7 @@ export function parseViewer(text) {
  *       messageCount: number,                total masked messages for this viewer
  *       applied: number,                     recorded responses consumed
  *       at: number, total: number,           position shown / moves in the record
+ *       events: object[],                    animation digest (events.js), indices into the masked stream
  *     }
  */
 export async function viewDuel(duel, viewer, at) {
@@ -99,6 +101,7 @@ export async function viewDuel(duel, viewer, at) {
       applied: result.applied,
       at: responses.length,
       total: duel.responses.length,
+      events: extractEvents(masked, viewer, STARTING_LP, deckSizes),
     };
   } finally {
     result.core.destroyDuel(result.handle);

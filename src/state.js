@@ -161,14 +161,15 @@ export function fieldCardData(card, known, isMonsterZone) {
  *     {viewer, turn, turnPlayer, phaseName, winner: number|null, players: [PlayerState, PlayerState], chain: [{name, place}]}
  *     PlayerState = {index, deckName, lp, handCount, deckCount, graveCount, banishCount, extraCount,
  *                    mzone: (FieldCard|null)[7], szone: (FieldCard|null)[8],
- *                    hand: (string|null)[], grave: string[], removed: (string|null)[], extra: (string|null)[],
+ *                    hand/grave/removed/extra: Array<{name: string|null, code: number}>  (null/0 = not identifiable),
  *                    unseenKind: "deck"|"pool", unseen: string[]}
  */
 export function collectState(core, handle, { viewer, deckNames, deckCodes, model }) {
   const field = core.duelQueryField(handle);
   const known = (card, controller, location, sequence) => isVisible(card, controller, location, viewer)
     || (cardAt(model, { controller, location, sequence })?.code ?? 0) !== 0;
-  const nameIfKnown = (controller, location) => (card, seq) => (known(card, controller, location, seq) ? cardName(card.code) : null);
+  // {name, code} for list locations; identity withheld (null/0) when not known.
+  const entry = (controller, location) => (card, seq) => (known(card, controller, location, seq) ? { name: cardName(card.code), code: card.code } : { name: null, code: 0 });
 
   const players = [0, 1].map((p) => {
     const fp = field.players[p];
@@ -202,10 +203,10 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
       extraCount: fp.extra_size,
       mzone: zone(OcgLocation.MZONE),
       szone: zone(OcgLocation.SZONE),
-      hand: dense(OcgLocation.HAND).map(nameIfKnown(p, OcgLocation.HAND)),
-      grave: dense(OcgLocation.GRAVE).map((c) => cardName(c.code)),
-      removed: dense(OcgLocation.REMOVED).map(nameIfKnown(p, OcgLocation.REMOVED)),
-      extra: dense(OcgLocation.EXTRA).map(nameIfKnown(p, OcgLocation.EXTRA)),
+      hand: dense(OcgLocation.HAND).map(entry(p, OcgLocation.HAND)),
+      grave: dense(OcgLocation.GRAVE).map((c) => ({ name: cardName(c.code), code: c.code })),
+      removed: dense(OcgLocation.REMOVED).map(entry(p, OcgLocation.REMOVED)),
+      extra: dense(OcgLocation.EXTRA).map(entry(p, OcgLocation.EXTRA)),
       unseenKind,
       unseen,
     };
@@ -283,10 +284,10 @@ export function renderState(state) {
     const spellRows = p.szone.map((c, seq) => c && `  ${zoneLabel(OcgLocation.SZONE, seq)}: ${describeFieldCard(c)}`).filter(Boolean);
     lines.push(...(monsterRows.length ? monsterRows : ["  (no monsters)"]));
     lines.push(...(spellRows.length ? spellRows : ["  (no spells/traps)"]));
-    if (p.hand.length) lines.push(`  hand: ${p.hand.map((n) => n ?? "?").join(", ")}`);
-    if (p.grave.length) lines.push(`  GY: ${p.grave.join(", ")}`);
-    if (p.removed.length) lines.push(`  banished: ${p.removed.map((n) => n ?? "? (face-down)").join(", ")}`);
-    if (p.extra.length) lines.push(`  extra: ${p.extra.map((n) => n ?? "?").join(", ")}`);
+    if (p.hand.length) lines.push(`  hand: ${p.hand.map((c) => c.name ?? "?").join(", ")}`);
+    if (p.grave.length) lines.push(`  GY: ${p.grave.map((c) => c.name).join(", ")}`);
+    if (p.removed.length) lines.push(`  banished: ${p.removed.map((c) => c.name ?? "? (face-down)").join(", ")}`);
+    if (p.extra.length) lines.push(`  extra: ${p.extra.map((c) => c.name ?? "?").join(", ")}`);
     lines.push(p.unseenKind === "deck"
       ? `  deck contents (unordered): ${p.unseen.join(", ")}`
       : `  unseen (hand + deck + face-down, ${p.unseen.length}): ${p.unseen.join(", ")}`);

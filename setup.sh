@@ -41,6 +41,9 @@ npm install
 # Greppable card list for agents: one line per card with full effect text.
 node bin/ygo.js dump-cards
 
+# Card art for the web UI (cached locally; only the decks/duels present).
+node bin/ygo.js fetch-pics
+
 # Web UI (SvelteKit) — a client of the same engine; optional for CLI-only use.
 (cd web && npm install)
 

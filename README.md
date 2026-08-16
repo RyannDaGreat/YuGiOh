@@ -32,11 +32,16 @@ Requires Node ≥ 22.13 (uses the built-in `node:sqlite`).
 cd web && npm run dev      # then open the printed URL
 ```
 
-Pick a duel and a seat (`?as=0`, `?as=1`, or `?as=all`). The page shows the
-board from that seat, the log, the card text on click, and — when it is that
-seat's decision — the same menu the CLI shows, as buttons. It polls every 1.5 s,
-so a human in the browser and an agent on the CLI can share one duel. The UI
-calls `src/session.js` exactly as the CLI does; it has no logic of its own.
+Pick a duel and a seat (`?as=0`, `?as=1`, or `?as=all`). A duel table with
+real card art (cached by `ygo fetch-pics`), LP counters, phase strip, a big
+preview of the hovered card with its text, the log, and — when it is that seat's
+decision — the same menu the CLI shows, as buttons. Attacks, activations, damage
+and summons animate (daggers, flashes, floating numbers) with synthesized sound
+(toggle in the header; browsers require a click first). A move slider replays
+any game and **fork here** branches it at that move. It polls every 1.5 s, so a
+human in the browser and an agent on the CLI share one duel. The UI calls
+`src/session.js` exactly as the CLI does; all visual code lives in
+`web/src/lib/pretty/` and can be deleted without touching the engine.
 
 ## Playing
 
@@ -102,7 +107,8 @@ the opponent "hand + deck + face-downs" as one pool.
 
 ```
 bin/ygo.js        CLI (thin)
-web/              SvelteKit UI (thin client of session.js)
+web/              SvelteKit UI (thin client of session.js); web/src/lib/pretty/ = table, cards, effects, sound
+src/events.js     animation digest of the masked stream (what the UI animates)
 PLAYER.md         seat instructions for LLM players
 strategies/       strategy briefs appended to PLAYER.md by `ygo brief`
 src/session.js    replay a duel record → views/menus for one viewer; apply a choice

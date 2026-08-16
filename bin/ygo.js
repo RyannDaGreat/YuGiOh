@@ -12,7 +12,7 @@
  */
 
 import { Command } from "commander";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
@@ -22,6 +22,9 @@ import { victoryString } from "../src/strings.js";
 
 /** Default log tail shown after a play, so the agent sees the consequences without asking. */
 const DEFAULT_LOG_TAIL = 60;
+/** Card art source (Konami art, hosted by YGOPRODeck; their terms ask to cache, not hotlink). */
+const PICS_URL = "https://images.ygoprodeck.com/images/cards";
+const PICS_DIR = join(REPO_ROOT, "vendor/pics");
 /** How often `ygo wait` re-checks the duel file. */
 const WAIT_POLL_MS = 1000;
 
@@ -260,6 +263,28 @@ program
     }
     console.log("---");
     for (const [k, n] of Object.entries(wins)) console.log(`${n}  ${k}`);
+  });
+
+program
+  .command("fetch-pics")
+  .description("Download card art for the built-in decks and every stored duel into vendor/pics (cached; re-run is cheap)")
+  .option("--deck <names>", "extra deck names/paths, comma-separated")
+  .action(async (opts) => {
+    mkdirSync(PICS_DIR, { recursive: true });
+    const codes = new Set();
+    for (const name of [...listDecks(), ...(opts.deck ? opts.deck.split(",") : [])]) for (const code of expandDeck(loadDeck(name).main)) codes.add(code);
+    for (const id of listDuels()) for (const deck of loadDuel(id).decks) for (const code of deck.codes) codes.add(code);
+    let fetched = 0;
+    for (const code of codes) {
+      const path = join(PICS_DIR, `${code}.jpg`);
+      if (existsSync(path)) continue;
+      const res = await fetch(`${PICS_URL}/${code}.jpg`);
+      if (!res.ok) throw new Error(`no art for ${code} (${cardInfo(code)?.name}): HTTP ${res.status}`);
+      writeFileSync(path, Buffer.from(await res.arrayBuffer()));
+      fetched += 1;
+      console.log(`fetched ${code} ${cardInfo(code)?.name}`);
+    }
+    console.log(`${codes.size} cards, ${fetched} fetched, ${codes.size - fetched} already cached in ${PICS_DIR}`);
   });
 
 program
