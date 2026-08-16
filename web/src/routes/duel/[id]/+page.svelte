@@ -25,7 +25,12 @@
   let slider = $state(data.initial.at);
   let forkId = $state("");
   let sound = $state(false);
+  /** Spectator debug: peek at hidden face-down cards. */
+  let debug = $state(false);
   const cardCache = new Map();
+  /** Debounce for live scrubbing: each position is a server-side replay. */
+  const SCRUB_DEBOUNCE_MS = 120;
+  let scrubTimer = null;
 
   const viewerLabel = $derived(view.viewer === 2 ? "spectator" : `P${view.viewer} — ${view.players[view.viewer]}`);
   const myTurn = $derived(playbackAt === null && !view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
@@ -79,6 +84,12 @@
     await refresh();
   }
 
+  /** Live scrubbing: update while dragging, debounced so we don't replay per pixel. */
+  function scrubbing(value) {
+    clearTimeout(scrubTimer);
+    scrubTimer = setTimeout(() => scrub(Number(value)), SCRUB_DEBOUNCE_MS);
+  }
+
   async function forkHere() {
     if (!forkId) return;
     const res = await fetch(`/api/duel/${view.id}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ fork: forkId, at: view.at }) });
@@ -107,6 +118,9 @@
     <span>You: <b>{viewerLabel}</b></span>
     <span class="text-amber-100/70">seat: <a class="underline" href="?as=0">P0</a> <a class="underline" href="?as=1">P1</a> <a class="underline" href="?as=all">all</a></span>
     <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900" onclick={toggleSound}>{sound ? "🔊 sound on" : "🔇 sound off"}</button>
+    {#if view.viewer === 2}
+      <button class="px-2 py-0.5 rounded border {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={() => (debug = !debug)} title="peek at hidden face-down cards (spectator only)">{debug ? "🐞 debug on" : "🐞 debug off"}</button>
+    {/if}
     {#if playbackAt !== null}
       <span class="px-3 py-1 rounded bg-yellow-300 text-yellow-950 font-bold">PLAYBACK — move {view.at} of {view.total}</span>
     {:else if view.ended}
@@ -117,7 +131,7 @@
     <span class="flex items-center gap-1 basis-full">
       <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(0)} title="start">⏮</button>
       <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(Math.max(0, view.at - 1))} title="back one move">◀</button>
-      <input type="range" min="0" max={view.total} bind:value={slider} onchange={() => scrub(Number(slider))} class="flex-1 accent-amber-400" />
+      <input type="range" min="0" max={view.total} bind:value={slider} oninput={() => scrubbing(slider)} onchange={() => scrub(Number(slider))} class="flex-1 accent-amber-400" />
       <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(view.at + 1)} title="forward one move">▶</button>
       <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(view.total)} title="live">⏭ live</button>
       <span class="text-amber-100/70 font-mono">move {slider}/{view.total}</span>
@@ -132,7 +146,7 @@
     <Preview {card} />
 
     <div class="flex-1 min-w-0">
-      <Table board={view.state} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} />
+      <Table board={view.state} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">

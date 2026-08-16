@@ -1,15 +1,28 @@
 @import "tailwindcss";
 
-/* Motion for the duel table. Kept tiny on purpose: everything else is Tailwind utilities. */
+/*
+ * Card geometry from the physical card: 59 x 86 mm, ~2 mm corner radius.
+ * Every card box derives height and radius from its width so all sizes are
+ * true-proportion. Motion timings live here too. Everything else is Tailwind.
+ */
 :root {
+  --card-ratio: calc(86 / 59);
+  --card-radius-ratio: calc(2 / 59);
+  --card-w-zone: 4.4rem;
+  --card-w-hand: 3.6rem;
+  --card-w-preview: 14rem;
   --dagger-ms: 650ms;
   --flash-ms: 700ms;
   --float-ms: 1200ms;
   --shake-ms: 400ms;
 }
+.card-box { width: var(--card-w); height: calc(var(--card-w) * var(--card-ratio)); border-radius: calc(var(--card-w) * var(--card-radius-ratio)); }
+.card-zone { --card-w: var(--card-w-zone); }
+.card-hand { --card-w: var(--card-w-hand); }
+.card-preview { --card-w: var(--card-w-preview); }
 @keyframes flash { 0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } 40% { box-shadow: 0 0 22px 8px rgba(250, 204, 21, 0.9); } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-@keyframes floatup { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-40px); } }
+@keyframes floatup { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)); } }
 @keyframes dagger { 0% { offset-distance: 0%; opacity: 0.2; } 15% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
 .fx-flash { animation: flash var(--flash-ms) ease-out; }
 .fx-shake { animation: shake var(--shake-ms) ease-in-out; }

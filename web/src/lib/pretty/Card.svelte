@@ -1,51 +1,56 @@
 <script>
   /**
-   * One card on the table: art when identifiable, a card back when not, rotated
-   * for Defense Position. Purely presentational; emits hover/click via props.
+   * One card box, true 59:86 proportion. Shows art when the viewer may see the
+   * card, a back otherwise; Defense Position is rotated in place.
    *
    * @prop {object|null} card   FieldCard from state.js (name, code, position, faceDown, atk, def) or a {name, code} list entry
-   * @prop {string} label       zone label shown in the corner (m0, s3, field, …)
+   * @prop {string} label       zone label in the corner (m0, s3, field, …)
    * @prop {"zone"|"hand"} size
-   * @prop {string} fx          extra classes for effects (fx-flash, fx-shake)
+   * @prop {string} fx          effect classes (fx-flash, fx-shake)
+   * @prop {boolean} own        the viewer controls this card (own set cards show their art with a "set" tag)
+   * @prop {boolean} debug      spectator debug: hidden face-downs show art at half opacity and are hoverable
+   * @prop {number} count       for piles: number badge
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
    */
-  let { card = null, label = "", size = "zone", fx = "", onhover = () => {}, onclick = () => {} } = $props();
+  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, onhover = () => {}, onclick = () => {} } = $props();
 
   const isDefense = $derived(Boolean(card && /DEF/.test(card.position ?? "")));
   const known = $derived(Boolean(card && card.code));
-  const showBack = $derived(Boolean(card && card.faceDown && !known));
-  const dims = $derived(size === "hand" ? "w-14 h-20" : "w-16 h-[5.75rem]");
+  const faceDown = $derived(Boolean(card && card.faceDown));
+  /** What to draw: "art" | "back" | "peek" (back + translucent art). */
+  const mode = $derived(!card ? "empty" : !known ? "back" : !faceDown ? "art" : own ? "art" : debug ? "peek" : "back");
+  const hoverable = $derived(mode === "art" || mode === "peek");
 </script>
 
-<div class="relative {dims} shrink-0 {fx}" role="presentation" onmouseenter={() => card && onhover(card)}>
-  {#if label}<span class="absolute -top-2 left-0.5 text-[0.55rem] leading-none text-amber-100/70 z-10">{label}</span>{/if}
-  {#if card}
+<div class="relative card-box card-{size} shrink-0 {fx}" role="presentation" onmouseenter={() => hoverable && onhover(card)}>
+  {#if label}<span class="absolute -top-2.5 left-0.5 text-[0.55rem] leading-none text-amber-100/70 z-10 pointer-events-none">{label}</span>{/if}
+  {#if mode === "empty"}
+    <div class="absolute inset-0 card-box card-{size} border border-emerald-900/40 bg-emerald-950/30"></div>
+  {:else}
     <button
-      class="absolute inset-0 rounded-sm overflow-hidden shadow-md transition-transform duration-300 hover:scale-105 focus:outline-none {isDefense ? 'rotate-90 scale-[0.82]' : ''} {card.faceDown && known ? 'ring-2 ring-sky-300/70' : ''}"
-      onclick={() => onclick(card)}
-      title={card.name ?? "unknown card"}
+      class="absolute inset-0 card-box card-{size} overflow-hidden shadow-md transition-transform duration-300 hover:scale-105 focus:outline-none {isDefense ? 'rotate-90 scale-[0.86]' : ''}"
+      onclick={() => hoverable && onclick(card)}
+      title={hoverable ? card.name : "face-down card"}
     >
-      {#if showBack || !known}
-        <div class="w-full h-full bg-[radial-gradient(circle_at_50%_40%,#7a4a2a_0,#3b2314_70%)] border border-amber-900 flex items-center justify-center">
-          <div class="w-2/3 h-2/3 rounded-full border-2 border-amber-700/60"></div>
-        </div>
-      {:else}
-        <img src="/pics/{card.code}.jpg" alt={card.name} class="w-full h-full object-cover" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
-        <div class="absolute inset-0 flex items-end justify-center pointer-events-none">
-          {#if card.faceDown}<span class="text-[0.5rem] bg-sky-900/80 text-sky-100 px-1 rounded-t">set</span>{/if}
-        </div>
+      {#if mode === "back" || mode === "peek"}
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#7a4a2a_0,#3b2314_70%)] border border-amber-900"></div>
+        <img src="/img/card-back.png" alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
-      {#if card.name && !card.faceDown && card.atk === undefined && !known}
-        <span class="absolute inset-x-0 bottom-0 text-[0.5rem] bg-black/60 text-white truncate px-0.5">{card.name}</span>
+      {#if mode === "art" || mode === "peek"}
+        <img src="/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+      {/if}
+      {#if mode === "art" && faceDown}
+        <span class="absolute inset-x-0 bottom-0 text-[0.5rem] leading-tight bg-sky-900/80 text-sky-100 text-center">set</span>
+      {/if}
+      {#if count !== null}
+        <span class="absolute right-0.5 bottom-0.5 text-[0.6rem] font-bold bg-black/70 text-amber-100 px-1 rounded">{count}</span>
       {/if}
     </button>
-    {#if card.atk !== undefined && !showBack}
-      <span class="absolute -bottom-2.5 inset-x-0 text-center text-[0.6rem] leading-none font-bold text-amber-100 drop-shadow [text-shadow:0_0_3px_#000] pointer-events-none">
+    {#if card.atk !== undefined && mode !== "back"}
+      <span class="absolute -bottom-2.5 inset-x-0 text-center text-[0.6rem] leading-none font-bold text-amber-100 [text-shadow:0_0_3px_#000] pointer-events-none">
         {isDefense ? `${card.def} DEF` : `${card.atk} ATK`}
       </span>
     {/if}
-  {:else}
-    <div class="absolute inset-0 rounded-sm border border-emerald-900/40 bg-emerald-950/30"></div>
   {/if}
 </div>

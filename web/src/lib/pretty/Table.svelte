@@ -11,11 +11,13 @@
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
    * @prop {boolean} sound
+   * @prop {number} viewer      the seat viewing (0|1|2): own set cards show art; 2 = spectator
+   * @prop {boolean} debug      spectator debug: peek at hidden face-downs
    */
   import Card from "./Card.svelte";
   import { sfx } from "./sound.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false } = $props();
 
   /** Effects state — transient classes/labels keyed by zone id ("1-m-3"). */
   let fx = $state({});
@@ -31,8 +33,10 @@
   const FLOAT_MS = 1200;
   /** Stagger between queued events so a whole opponent turn reads as a sequence. */
   const STEP_MS = 420;
-  /** Events older than this many messages before the newest are skipped (first load / long jumps). */
-  const REPLAY_WINDOW = 12;
+  /** At most this many events animate per position change; long jumps play only the last few. */
+  const MAX_BURST = 10;
+  /** Stagger used when many events land at once (scrubbing), so a burst still finishes quickly. */
+  const FAST_STEP_MS = 160;
 
   const bottom = $derived(board.players[me]);
   const top = $derived(board.players[1 - me]);
@@ -48,7 +52,7 @@
 
   function centerOf(id) {
     if (!tableEl) return null;
-    const el = tableEl.querySelector(`[data-zone="${id}"]`);
+    const el = tableEl.querySelector(`[data-zone="${id}"], [data-zone-alt="${id}"]`);
     if (!el) return null;
     const r = el.getBoundingClientRect();
     const t = tableEl.getBoundingClientRect();
@@ -123,33 +127,59 @@
     }
   }
 
-  // Play newly arrived events, staggered. On first load only the tail plays.
+  // Play whatever changed since the last position we showed — forwards (new
+  // events) or backwards (scrubbing: replay the tail leading into the new
+  // position, so stepping back through an attack still shows the attack).
+  // First render plays nothing; long jumps play only their last MAX_BURST events.
+  let pending = [];
   $effect(() => {
     const list = events;
-    if (!list.length) return;
-    const last = list[list.length - 1].i;
-    if (seenEvent < 0) seenEvent = Math.max(-1, last - REPLAY_WINDOW);
-    const fresh = list.filter((e) => e.i > seenEvent);
+    const last = list.length ? list[list.length - 1].i : -1;
+    if (seenEvent < 0) { seenEvent = last; return; }
+    if (last === seenEvent) return;
+    const forward = last > seenEvent;
+    const delta = forward ? list.filter((e) => e.i > seenEvent) : list.slice(-3);
     seenEvent = last;
-    fresh.forEach((e, k) => setTimeout(() => play(e), k * STEP_MS));
+    const burst = delta.slice(-MAX_BURST);
+    const step = burst.length > 4 ? FAST_STEP_MS : STEP_MS;
+    for (const t of pending) clearTimeout(t);
+    pending = burst.map((e, k) => setTimeout(() => play(e), k * step));
   });
 </script>
 
-{#snippet zoneRow(p, zone, seqs)}
-  <div class="flex gap-2 justify-center py-2">
-    {#each seqs as seq}
-      <div data-zone={zoneId(p, zone, seq)} class="rounded {fx[zoneId(p, zone, seq)] ?? ''}">
-        <Card card={(zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]} label={zone === "m" ? `m${seq}` : seq === 5 ? "field" : `s${seq}`} {onhover} {onclick} />
-      </div>
-    {/each}
+{#snippet slot(p, zone, seq, label)}
+  <div data-zone={zoneId(p, zone, seq)} class="justify-self-center {fx[zoneId(p, zone, seq)] ?? ''}">
+    <Card card={(zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]} {label} own={p === viewer} {debug} {onhover} {onclick} />
+  </div>
+{/snippet}
+
+{#snippet emz(mine, theirs)}
+  {@const card = bottom.mzone[mine] ?? top.mzone[theirs]}
+  {@const owner = bottom.mzone[mine] ? me : 1 - me}
+  <div data-zone={zoneId(me, "m", mine)} data-zone-alt={zoneId(1 - me, "m", theirs)} class="justify-self-center {fx[zoneId(me, 'm', mine)] ?? fx[zoneId(1 - me, 'm', theirs)] ?? ''}">
+    <Card {card} label="EMZ" own={owner === viewer} {debug} {onhover} {onclick} />
+  </div>
+{/snippet}
+
+{#snippet pile(p, kind)}
+  {@const pl = board.players[p]}
+  {@const topGrave = pl.grave[pl.grave.length - 1] ?? null}
+  <div data-zone={zoneId(p, kind, 0)} class="justify-self-center">
+    {#if kind === "grave"}
+      <Card card={topGrave ? { ...topGrave, faceDown: false, position: "" } : null} label="GY" count={pl.grave.length} {onhover} {onclick} />
+    {:else if kind === "deck"}
+      <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} />
+    {:else}
+      <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} />
+    {/if}
   </div>
 {/snippet}
 
 {#snippet hand(p, cards)}
-  <div class="flex gap-1 justify-center py-1 min-h-20">
+  <div class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
     {#each cards as c, i}
       <div data-zone={zoneId(p, "hand", i)}>
-        <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {onhover} {onclick} />
+        <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} {onhover} {onclick} />
       </div>
     {/each}
   </div>
@@ -163,37 +193,57 @@
   </div>
 {/snippet}
 
+<!--
+  The mat, as printed: from a player's view the monster row is
+  [Field | m0 m1 m2 m3 m4 | GY] and the spell/trap row is [Extra | s0 .. s4 | Deck].
+  The opponent's half is the same mat rotated 180°, so their m4 sits across
+  from my m0 and their Field zone is on my right. One 7-column grid per half
+  keeps every column exactly aligned.
+-->
 <div bind:this={tableEl} class="relative rounded-xl p-3 bg-[radial-gradient(ellipse_at_center,#1f5f45_0,#0f3d2b_60%,#0a2a1e_100%)] border-4 border-amber-900/70 shadow-2xl select-none">
-  <!-- opponent -->
+  <!-- opponent (rotated mat) -->
   <div class="flex items-start justify-between">
     {@render lp(1 - me, "top")}
     <div class="flex-1">{@render hand(1 - me, top.hand)}</div>
     <div class="w-40"></div>
   </div>
-  {@render zoneRow(1 - me, "s", [4, 3, 2, 1, 0, 5])}
-  {@render zoneRow(1 - me, "m", [4, 3, 2, 1, 0])}
+  <div class="grid grid-cols-7 gap-y-4 py-2 mx-auto w-fit gap-x-2">
+    {@render pile(1 - me, "deck")}
+    {#each [4, 3, 2, 1, 0] as seq}{@render slot(1 - me, "s", seq, `s${seq}`)}{/each}
+    {@render pile(1 - me, "extra")}
+    {@render pile(1 - me, "grave")}
+    {#each [4, 3, 2, 1, 0] as seq}{@render slot(1 - me, "m", seq, `m${seq}`)}{/each}
+    {@render slot(1 - me, "s", 5, "field")}
+  </div>
 
-  <!-- middle: extra monster zones + phase strip -->
-  <div class="flex items-center justify-between px-6 py-1">
-    <div class="flex gap-2">
-      <div data-zone={zoneId(1 - me, "m", 6)} class={fx[zoneId(1 - me, "m", 6)] ?? ""}><Card card={top.mzone[6]} label="m6" {onhover} {onclick} /></div>
-      <div data-zone={zoneId(1 - me, "m", 5)} class={fx[zoneId(1 - me, "m", 5)] ?? ""}><Card card={top.mzone[5]} label="m5" {onhover} {onclick} /></div>
+  <!-- middle: the two shared Extra Monster Zones (my m5 = their m6 on the left,
+       my m6 = their m5 on the right, above the m1 and m3 columns) + phase strip -->
+  <div class="grid grid-cols-7 items-center py-2 mx-auto w-fit gap-x-2">
+    <div></div>
+    <div></div>
+    {@render emz(5, 6)}
+    <div class="flex flex-col items-center gap-1 justify-self-center">
+      <div class="flex gap-1">
+        {#each PHASES as ph, i}
+          <span class="px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/50'}">{["DP", "SP", "M1", "BP", "M2", "EP"][i]}</span>
+        {/each}
+      </div>
+      <span class="text-[0.65rem] text-amber-100/70">Turn {board.turn}{board.turnPlayer === null ? "" : ` · P${board.turnPlayer}`}</span>
     </div>
-    <div class="flex gap-1">
-      {#each PHASES as ph, i}
-        <span class="px-2 py-0.5 rounded-full text-[0.65rem] font-semibold tracking-wide {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/50'}">{["DP", "SP", "M1", "BP", "M2", "EP"][i]}</span>
-      {/each}
-      <span class="ml-2 text-[0.65rem] text-amber-100/70 self-center">Turn {board.turn}{board.turnPlayer === null ? "" : ` · P${board.turnPlayer}`}</span>
-    </div>
-    <div class="flex gap-2">
-      <div data-zone={zoneId(me, "m", 5)} class={fx[zoneId(me, "m", 5)] ?? ""}><Card card={bottom.mzone[5]} label="m5" {onhover} {onclick} /></div>
-      <div data-zone={zoneId(me, "m", 6)} class={fx[zoneId(me, "m", 6)] ?? ""}><Card card={bottom.mzone[6]} label="m6" {onhover} {onclick} /></div>
-    </div>
+    {@render emz(6, 5)}
+    <div></div>
+    <div></div>
   </div>
 
   <!-- me -->
-  {@render zoneRow(me, "m", [0, 1, 2, 3, 4])}
-  {@render zoneRow(me, "s", [5, 0, 1, 2, 3, 4])}
+  <div class="grid grid-cols-7 gap-y-4 py-2 mx-auto w-fit gap-x-2">
+    {@render slot(me, "s", 5, "field")}
+    {#each [0, 1, 2, 3, 4] as seq}{@render slot(me, "m", seq, `m${seq}`)}{/each}
+    {@render pile(me, "grave")}
+    {@render pile(me, "extra")}
+    {#each [0, 1, 2, 3, 4] as seq}{@render slot(me, "s", seq, `s${seq}`)}{/each}
+    {@render pile(me, "deck")}
+  </div>
   <div class="flex items-end justify-between">
     <div class="w-40"></div>
     <div class="flex-1">{@render hand(me, bottom.hand)}</div>
@@ -201,7 +251,7 @@
   </div>
 
   {#if board.chain.length}
-    <div class="absolute left-1/2 -translate-x-1/2 top-1/2 translate-y-4 bg-black/80 text-yellow-100 text-xs px-3 py-1 rounded pointer-events-none border border-yellow-400/40">
+    <div class="absolute left-1/2 -translate-x-1/2 top-1/2 translate-y-6 bg-black/80 text-yellow-100 text-xs px-3 py-1 rounded pointer-events-none border border-yellow-400/40">
       chain: {board.chain.map((l, i) => `${i + 1}. ${l.name}`).join(" → ")}
     </div>
   {/if}
@@ -216,6 +266,6 @@
     {/each}
   </svg>
   {#each floats as f (f.id)}
-    <div class="absolute fx-float font-black text-2xl pointer-events-none {f.cls} [text-shadow:0_0_6px_#000]" style="left:{f.x}px; top:{f.y}px; transform: translate(-50%, -50%)">{f.text}</div>
+    <div class="absolute fx-float font-black text-2xl pointer-events-none {f.cls} [text-shadow:0_0_6px_#000]" style="left:{f.x}px; top:{f.y}px">{f.text}</div>
   {/each}
 </div>
