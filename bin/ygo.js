@@ -12,7 +12,7 @@
  */
 
 import { Command } from "commander";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
@@ -130,7 +130,7 @@ program
       if (view.ended || view.pendingPlayer === player) {
         if (passed) console.log(`(auto-passed ${passed} optional respond? prompt${passed === 1 ? "" : "s"})`);
         const since = opts.since === undefined ? Math.max(0, view.logLines.length - DEFAULT_LOG_TAIL) : Number(opts.since);
-        console.log(`--- log lines ${since}..${view.logLines.length} ---`);
+        console.log(`--- log lines ${since}..${view.logLines.length} (of ${view.logLines.length}; \`ygo log\` for all) ---`);
         console.log(view.logLines.slice(since).join("\n"));
         console.log("");
         printStatus(view);
@@ -193,6 +193,54 @@ program
     const deck = loadDeck(name);
     console.log(`${deck.name} (${expandDeck(deck.main).length} cards)`);
     for (const [cardName, count] of deck.main) console.log(`${count}x ${summarizeCard(codeOf(cardName))}`);
+  });
+
+program
+  .command("brief <id>")
+  .description("Print the full prompt for an LLM agent to play a seat: PLAYER.md + a strategy file + the seat/duel facts")
+  .requiredOption("--as <player>", "0 or 1")
+  .option("--strategy <path>", "markdown strategy brief (see strategies/)")
+  .option("--max-plays <n>", "tell the agent to stop after this many play calls", "200")
+  .action((id, opts) => {
+    const player = parseViewer(opts.as);
+    if (player === 2) throw new Error("--as must be 0 or 1");
+    const duel = loadDuel(id);
+    const strategy = opts.strategy ? readFileSync(opts.strategy, "utf8") : "(no strategy brief; use the baseline in PLAYER.md)";
+    console.log([
+      `You are a Yu-Gi-Oh! player. Working directory: ${REPO_ROOT}`,
+      `Duel id: ${id}. Your seat: ${player} (P${player}, deck "${duel.decks[player].name}"; ${player === 0 ? "you take turn 1" : "the opponent takes turn 1"}). The opponent (P${1 - player}, "${duel.decks[1 - player].name}") is played by someone else concurrently.`,
+      "",
+      "Follow these seat instructions exactly:",
+      "",
+      readFileSync(join(REPO_ROOT, "PLAYER.md"), "utf8"),
+      "",
+      "## Your strategy brief",
+      "",
+      strategy,
+      "",
+      `Stop when the duel is over or after ${opts.maxPlays} play calls. Then report: decisions made, final LP of both players (from state), the result, and any CLI output that was confusing, wrong, or missing something you needed.`,
+    ].join("\n"));
+  });
+
+program
+  .command("tally [prefix]")
+  .description("Win/loss summary over stored duels (optionally those whose id starts with prefix)")
+  .action(async (prefix) => {
+    const rows = [];
+    for (const id of listDuels()) {
+      if (prefix && !id.startsWith(prefix)) continue;
+      const duel = loadDuel(id);
+      const view = await viewDuel(duel, 2);
+      rows.push({ id, decks: duel.decks.map((d) => d.name), players: duel.players, ended: view.ended, winner: view.winner, moves: duel.responses.length });
+    }
+    const wins = {};
+    for (const r of rows) {
+      const key = r.ended && r.winner !== 2 ? `P${r.winner} ${r.decks[r.winner]} (${r.players[r.winner]})` : (r.ended ? "draw" : "unfinished");
+      wins[key] = (wins[key] ?? 0) + 1;
+      console.log(`${r.id}: ${r.decks[0]} (${r.players[0]}) vs ${r.decks[1]} (${r.players[1]}) — ${r.ended ? (r.winner === 2 ? "draw" : `P${r.winner} wins`) : "unfinished"}, ${r.moves} moves`);
+    }
+    console.log("---");
+    for (const [k, n] of Object.entries(wins)) console.log(`${n}  ${k}`);
   });
 
 program

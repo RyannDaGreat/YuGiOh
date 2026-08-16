@@ -73,7 +73,7 @@ for (const seed of SEEDS) {
           const coreField = r.core.duelQueryField(r.handle);
           for (const p of [0, 1]) {
             const where = `seed ${seed} step ${step} viewer ${viewer} player ${p}`;
-            assert.equal(field.players[p].lp, coreField.players[p].lp, `LP ${where}`);
+            assert.equal(field.players[p].lp, coreField.players[p].lp | 0, `LP ${where}`);
             assert.equal(field.players[p].deckCount, coreField.players[p].deck_size, `deck count ${where}`);
 
             const revealed = revealedCodes(masked);

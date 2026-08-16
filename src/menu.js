@@ -20,7 +20,7 @@
  */
 
 import { OcgHintTiming, OcgHintType, OcgLocation, OcgMessageType, OcgPhase, OcgPosition, OcgResponseType, SelectBattleCMDAction, SelectIdleCMDAction, ocgAttributeString, ocgRaceString } from "ocgcore-wasm";
-import { cardName, codeOf } from "./cards.js";
+import { cardInfo, cardName, codeOf } from "./cards.js";
 import { describe, sysString } from "./strings.js";
 import { cardAt } from "./field.js";
 import { nameOf, place, zoneLabel } from "./log.js";
@@ -170,6 +170,31 @@ export function selectableZones(mask, player) {
   return zones;
 }
 
+/** Standard tribute requirements by level (cards may override; the core decides). */
+const ONE_TRIBUTE_MIN_LEVEL = 5;
+const TWO_TRIBUTE_MIN_LEVEL = 7;
+
+/**
+ * Query. " (needs 1 tribute)" / " (needs 2 tributes)" for a monster's level, or
+ * "" for Level 1-4. Reads cards.cdb.
+ *
+ * Args:
+ *     code (number): Passcode (0 = unknown, gives "").
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> tributeNote(89631139) // " (needs 2 tributes)"   Blue-Eyes, Lv8
+ *     >>> tributeNote(4206964)  // ""                      Trap Hole (not a monster)
+ */
+export function tributeNote(code) {
+  const level = cardInfo(code)?.level ?? 0;
+  if (level >= TWO_TRIBUTE_MIN_LEVEL) return " (needs 2 tributes)";
+  if (level >= ONE_TRIBUTE_MIN_LEVEL) return " (needs 1 tribute)";
+  return "";
+}
+
 /**
  * Pure function. Makes duplicate labels distinct by appending an ordinal, so
  * "Activate X" and "Activate X" (two effects of one card whose script has no
@@ -233,9 +258,9 @@ export function buildMenu(msg, ctx) {
   switch (msg.type) {
     case T.SELECT_IDLECMD: {
       const items = [];
-      msg.summons.forEach((c, i) => items.push({ label: `Normal summon ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_SUMMON, index: i } }));
+      msg.summons.forEach((c, i) => items.push({ label: `Normal summon ${entryLabel(c, ctx.field)}${tributeNote(c.code)}`, value: { action: SelectIdleCMDAction.SELECT_SUMMON, index: i } }));
       msg.special_summons.forEach((c, i) => items.push({ label: `Special summon ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_SPECIAL_SUMMON, index: i } }));
-      msg.monster_sets.forEach((c, i) => items.push({ label: `Set monster ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_MONSTER_SET, index: i } }));
+      msg.monster_sets.forEach((c, i) => items.push({ label: `Set monster ${entryLabel(c, ctx.field)}${tributeNote(c.code)}`, value: { action: SelectIdleCMDAction.SELECT_MONSTER_SET, index: i } }));
       msg.spell_sets.forEach((c, i) => items.push({ label: `Set spell/trap ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_SPELL_SET, index: i } }));
       msg.activates.forEach((c, i) => {
         const effect = describe(c.description);
@@ -261,7 +286,9 @@ export function buildMenu(msg, ctx) {
       const when = timingWords(msg.hint_timing | msg.hint_timing_other);
       const event = ctx.eventHint ? describe(ctx.eventHint) : "";
       const phase = ctx.field ? `P${ctx.field.turnPlayer}'s turn, ${PHASE_WORDS[ctx.field.phase] ?? "start"}` : "";
-      const context = [phase, event, when && `possible timing: ${when}`].filter(Boolean).join("; ");
+      // The event string often just repeats the phase name; keep it only when it adds something.
+      const eventText = event && !phase.toLowerCase().includes(event.toLowerCase()) ? event : "";
+      const context = [phase, eventText, when && `possible timing: ${when}`].filter(Boolean).join("; ");
       const items = msg.selects.map((c, i) => {
         const effect = describe(c.description);
         return { label: `Activate ${entryLabel(c, ctx.field)}${effect ? `: ${effect}` : ""}`, value: i };

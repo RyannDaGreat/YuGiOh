@@ -101,5 +101,11 @@ left in their deck?
 - Set a monster face-down when the opponent has bigger monsters; summon face-up
   when you can attack profitably.
 - Two tributes for Blue-Eyes/Summoned Skull-class monsters (Lv 7+); one for Lv 5–6.
+  The menu marks these "(needs N tribute(s))"; when you lack the tributes the
+  option simply does not appear.
+- The engine offers every rules-legal activation, including ones that will do
+  nothing right now (e.g. Last Will with no monster having gone to your GY yet
+  — it sets up an effect for the rest of the turn). "Legal" is not "useful":
+  read the card text before activating.
 
 A strategy brief, if you were given one, overrides these defaults.

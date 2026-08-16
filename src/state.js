@@ -154,11 +154,11 @@ export function fieldCardData(card, known, isMonsterZone) {
  *     opts.viewer (0|1|2)
  *     opts.deckNames ([string, string]): Labels for the two decklists.
  *     opts.deckCodes ([number[], number[]]): The registered decklists as passcodes.
- *     opts.model (object): The viewer's field model (field.js) — turn/phase and
- *         remembered card identities.
+ *     opts.model (object): The viewer's field model (field.js) — turn/phase,
+ *         remembered card identities, winner/winReason once the duel is over.
  *
  * Returns:
- *     {viewer, turn, turnPlayer, phaseName, players: [PlayerState, PlayerState], chain: [{name, place}]}
+ *     {viewer, turn, turnPlayer, phaseName, winner: number|null, players: [PlayerState, PlayerState], chain: [{name, place}]}
  *     PlayerState = {index, deckName, lp, handCount, deckCount, graveCount, banishCount, extraCount,
  *                    mzone: (FieldCard|null)[7], szone: (FieldCard|null)[8],
  *                    hand: (string|null)[], grave: string[], removed: (string|null)[], extra: (string|null)[],
@@ -194,7 +194,7 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
     return {
       index: p,
       deckName: deckNames[p],
-      lp: fp.lp,
+      lp: fp.lp | 0, // the binding reads the core's int32 LP as uint32; negative LP must stay negative
       handCount: fp.hand_size,
       deckCount: fp.deck_size,
       graveCount: fp.grave_size,
@@ -216,6 +216,7 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
     turn: model.turn,
     turnPlayer: model.turnPlayer,
     phaseName: PHASE_NAMES[model.phase] ?? "start",
+    winner: model.winner,
     players,
     chain: field.chain.map((link) => ({ name: cardName(link.code), place: `P${link.controller} ${zoneLabel(link.location, link.sequence)}` })),
   };
@@ -272,7 +273,8 @@ export function describeFieldCard(c) {
 export function renderState(state) {
   const you = (p) => (state.viewer === p ? " [you]" : "");
   const lines = [];
-  lines.push(`Turn ${state.turn}${state.turnPlayer === null ? "" : ` (P${state.turnPlayer}'s turn)`}, ${state.phaseName}.`);
+  const result = state.winner === null ? "" : state.winner === 2 ? " DUEL OVER: draw." : ` DUEL OVER: P${state.winner} wins.`;
+  lines.push(`Turn ${state.turn}${state.turnPlayer === null ? "" : ` (P${state.turnPlayer}'s turn)`}, ${state.phaseName}.${result}`);
   lines.push(`Decks: P0 = ${state.players[0].deckName}${you(0)}, P1 = ${state.players[1].deckName}${you(1)}  (both decklists are public: \`ygo deck <name>\`)`);
   for (const p of state.players) {
     lines.push("");
