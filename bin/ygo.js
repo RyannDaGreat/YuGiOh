@@ -16,7 +16,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
-import { playChoice, parseViewer, viewDuel } from "../src/session.js";
+import { playChoice, parseViewer, shouldAutoPass, viewDuel } from "../src/session.js";
 import { createDuel, listDecks, listDuels, loadDeck, loadDuel, saveDuel } from "../src/store.js";
 import { victoryString } from "../src/strings.js";
 
@@ -110,13 +110,25 @@ program
   .requiredOption("--as <player>", "0 or 1")
   .option("--timeout <seconds>", "give up after this long", "600")
   .option("--since <n>", "log line count you have already seen; only newer lines are printed")
+  .option("--auto-pass", "answer optional respond? prompts with 'do not activate' automatically (recorded as your decisions)")
+  .option("--ask-for <cards>", "with --auto-pass: still stop when one of these comma-separated cards is activatable")
+  .option("--ask-at <timings>", "with --auto-pass and --ask-for: only stop at timings mentioning these words, e.g. summon,attack")
   .action(async (id, opts) => {
     const player = parseViewer(opts.as);
     if (player === 2) throw new Error("--as must be 0 or 1 to wait");
     const deadline = Date.now() + Number(opts.timeout) * 1000;
+    const askFor = opts.askFor ? opts.askFor.split(",").map((s) => s.trim()).filter(Boolean) : [];
+    const askAt = opts.askAt ? opts.askAt.split(",").map((s) => s.trim()).filter(Boolean) : [];
+    let passed = 0;
     for (;;) {
       const view = await viewDuel(loadDuel(id), player);
+      if (!view.ended && view.pendingPlayer === player && opts.autoPass && shouldAutoPass(view.menu, view.pending, { askFor, askAt })) {
+        await playChoice(id, player, "0");
+        passed += 1;
+        continue;
+      }
       if (view.ended || view.pendingPlayer === player) {
+        if (passed) console.log(`(auto-passed ${passed} optional respond? prompt${passed === 1 ? "" : "s"})`);
         const since = opts.since === undefined ? Math.max(0, view.logLines.length - DEFAULT_LOG_TAIL) : Number(opts.since);
         console.log(`--- log lines ${since}..${view.logLines.length} ---`);
         console.log(view.logLines.slice(since).join("\n"));

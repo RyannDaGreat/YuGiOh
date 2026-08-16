@@ -14,7 +14,8 @@ must stop yourself. If you break it, the game is meaningless.
 ## The loop
 
 ```sh
-node bin/ygo.js wait  <id> --as <seat>       # blocks until it is your decision; prints new log + menu
+node bin/ygo.js wait  <id> --as <seat> --auto-pass --ask-for "Trap Hole,Waboku" --ask-at summon,attack
+                                              # blocks until it is your decision; prints new log + menu
 node bin/ygo.js state <id> --as <seat>       # (when you want the full board, not just the delta)
 node bin/ygo.js card  "<exact card name>"    # rules text — check before relying on an effect
 node bin/ygo.js play  <id> <choice> --as <seat>
@@ -22,6 +23,25 @@ node bin/ygo.js play  <id> <choice> --as <seat>
 
 Repeat until `wait` prints `DUEL OVER`. Every `play` prints what happened
 after your move; if it is still your decision, it prints the next menu.
+
+**About `respond?` prompts.** Whenever any card you have set could legally be
+activated, the engine asks you at every timing window — draw, each phase, each
+summon, each attack, each damage step — even when activating would be
+pointless. That is a lot of prompts, and each one costs you a turn of thought.
+`--auto-pass` answers them "no" for you (recorded as your decisions) **except**
+when a card named in `--ask-for` is activatable, and (if `--ask-at` is given)
+only at a timing whose description contains one of those words. Choose the
+list to match what you actually intend to activate this turn cycle:
+- holding Trap Hole for their summon: `--ask-for "Trap Hole" --ask-at summon`
+- holding Waboku / Reinforcements for their attack: `--ask-for "Waboku,Reinforcements" --ask-at attack`
+- nothing set worth activating: plain `--auto-pass`
+Without `--auto-pass` you are asked every time (safest, slowest). Forced
+activations are never auto-passed.
+
+The log lines printed above a `respond?` menu are the event you are being
+asked to respond to; the prompt itself says whose turn and which phase it is
+plus the possible timing (e.g. `P0's turn, Main Phase 1; possible timing:
+after a normal summon`).
 
 Choices: `3` = option 3 · `1,4` = several (menus that ask for N cards/zones) ·
 `0` = the pass/cancel/no option when listed · `name:<card>` when asked to
@@ -56,14 +76,18 @@ pool "hand + deck + face-down". Both decklists are public (`ygo deck yugi`,
 `ygo deck kaiba`), so use that pool: what could the set card be? what outs are
 left in their deck?
 
-## Timing prompts you will meet
+## Prompts you will meet
 
-- `respond? (Attempting to end the Main Phase; timing: end of main phase)` —
-  the core asks whether you want to activate something at this timing. `0` = no.
+- `respond? (P0's turn, Main Phase 1; possible timing: after a normal summon)` —
+  do you want to activate something now? `0` = no. See `--auto-pass` above.
 - `Select the zone to place "X"` — pick where a summoned/set card goes.
 - `Use the effect of "X" from [zone]?` — optional effect trigger; Yes/No.
 - `Select the card(s) to destroy (choose exactly 1)` — targets for an effect you
-  are resolving. Names shown for cards you may know; `?` otherwise.
+  are resolving. Names shown for cards you may know; `?` otherwise. Multi-step
+  selections (e.g. Two-Pronged Attack: two of yours, then one of theirs) cannot
+  be undone once the first step is answered — think before the first step.
+- Battle menu: `End turn (skip Main Phase 2)` vs `Enter Main Phase 2` — if you
+  still want to set or summon after attacking, enter Main Phase 2.
 
 ## Playing well (baseline)
 

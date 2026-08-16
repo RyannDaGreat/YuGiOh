@@ -6,7 +6,8 @@
 
 import { replayDuel, STARTING_LP } from "./duel.js";
 import { renderLog } from "./log.js";
-import { buildMenu, chooseFromMenu, hintsBefore, renderMenu } from "./menu.js";
+import { OcgMessageType } from "ocgcore-wasm";
+import { buildMenu, chooseFromMenu, hintsBefore, renderMenu, timingWords } from "./menu.js";
 import { mulberry32 } from "./rng.js";
 import { collectState, renderState } from "./state.js";
 import { loadDuel, saveDuel } from "./store.js";
@@ -50,6 +51,7 @@ export function parseViewer(text) {
  *       stateLines: string[],                the same as text
  *       menu: Menu|null,                     if the viewer is (or can see) the asked player
  *       menuLines: string[],
+ *       pending: object|null,                the asked player's masked view of the pending question
  *       messageCount: number,                total masked messages for this viewer
  *       applied: number,                     recorded responses consumed
  *     }
@@ -70,11 +72,13 @@ export async function viewDuel(duel, viewer) {
     const stateLines = renderState(state);
     const pendingPlayer = result.pending ? result.pending.player : null;
     let menu = null;
+    let pending = null;
     if (result.pending && (viewer === SPECTATOR || viewer === pendingPlayer)) {
       // The menu must be built from the ASKED player's masked view of the question.
       const askedView = maskStream(result.messages, pendingPlayer);
       const askedField = viewer === pendingPlayer ? field : renderLog(askedView, { viewer: pendingPlayer, startingLP: STARTING_LP, deckSizes }).field;
-      menu = buildMenu(askedView[askedView.length - 1], { ...hintsBefore(askedView), field: askedField });
+      pending = askedView[askedView.length - 1];
+      menu = buildMenu(pending, { ...hintsBefore(askedView), field: askedField });
     }
     return {
       ended: result.ended,
@@ -86,6 +90,7 @@ export async function viewDuel(duel, viewer) {
       stateLines,
       menu,
       menuLines: menu ? renderMenu(menu) : [],
+      pending,
       messageCount: masked.length,
       applied: result.applied,
     };
@@ -129,6 +134,42 @@ export async function playChoice(id, player, choice) {
   saveDuel(trial);
   const newLogLines = after.logLines.slice(before.logLines.length);
   return { response, chosenLabel, newLogLines, next: { pendingPlayer: after.pendingPlayer, ended: after.ended } };
+}
+
+/**
+ * Pure function. Should an optional "respond?" prompt be auto-declined?
+ *
+ * The core asks the non-turn player at every timing window where any set card
+ * is legally activatable, which for an LLM player is a paid round trip per
+ * window. This lets a player pre-declare what they care about: only be asked
+ * when one of `askFor` cards is among the options, and (if given) only at a
+ * timing whose description mentions one of `askAt` words.
+ *
+ * Args:
+ *     menu (Menu): The built menu for the pending question.
+ *     pending (OcgMessage): The pending message (must be SELECT_CHAIN).
+ *     opts.askFor (string[]): Card names (case-insensitive) worth stopping for; empty = none.
+ *     opts.askAt (string[]): Timing keywords (matched against timingWords); empty = any timing.
+ *
+ * Returns:
+ *     boolean: true to auto-answer "do not activate".
+ *
+ * Examples:
+ *     >>> shouldAutoPass({items: [{label: "Activate Reinforcements (P1 s1)"}]}, {type: 16, forced: false, hint_timing: 0x10000, hint_timing_other: 0}, {askFor: [], askAt: []})
+ *     true
+ *     >>> shouldAutoPass({items: [{label: "Activate Trap Hole (P1 s2)"}]}, {type: 16, forced: false, hint_timing: 0x40, hint_timing_other: 0}, {askFor: ["trap hole"], askAt: []})
+ *     false
+ *     >>> shouldAutoPass({items: [{label: "Activate Trap Hole (P1 s2)"}]}, {type: 16, forced: false, hint_timing: 0x1, hint_timing_other: 0}, {askFor: ["trap hole"], askAt: ["summon"]})
+ *     true
+ *     >>> shouldAutoPass({items: []}, {type: 16, forced: true}, {askFor: [], askAt: []})  // false (forced)
+ */
+export function shouldAutoPass(menu, pending, { askFor, askAt }) {
+  if (pending.type !== OcgMessageType.SELECT_CHAIN || pending.forced) return false;
+  const wanted = menu.items.some((item) => askFor.some((name) => item.label.toLowerCase().includes(name.toLowerCase())));
+  if (!wanted) return true;
+  if (askAt.length === 0) return false;
+  const timing = timingWords(pending.hint_timing | pending.hint_timing_other).toLowerCase();
+  return !askAt.some((word) => timing.includes(word.toLowerCase()));
 }
 
 /**

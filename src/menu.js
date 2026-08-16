@@ -19,7 +19,7 @@
  * durable, replayable truth.
  */
 
-import { OcgHintTiming, OcgHintType, OcgLocation, OcgMessageType, OcgPosition, OcgResponseType, SelectBattleCMDAction, SelectIdleCMDAction, ocgAttributeString, ocgRaceString } from "ocgcore-wasm";
+import { OcgHintTiming, OcgHintType, OcgLocation, OcgMessageType, OcgPhase, OcgPosition, OcgResponseType, SelectBattleCMDAction, SelectIdleCMDAction, ocgAttributeString, ocgRaceString } from "ocgcore-wasm";
 import { cardName, codeOf } from "./cards.js";
 import { describe, sysString } from "./strings.js";
 import { cardAt } from "./field.js";
@@ -48,6 +48,14 @@ const SYS_ACTIVATE_TRIGGER_NOTE = 223;
 /** MSG_SELECT_EFFECTYN uses these description values as sentinels. */
 const DESC_DEFAULT_EFFECT_PROMPT = 0n;
 const DESC_TRIGGER_EFFECT_PROMPT = 221n;
+
+/** Phase names for the chain prompt's "where are we" clause. */
+const PHASE_WORDS = {
+  [OcgPhase.DRAW]: "Draw Phase", [OcgPhase.STANDBY]: "Standby Phase", [OcgPhase.MAIN1]: "Main Phase 1",
+  [OcgPhase.BATTLE_START]: "Battle Phase", [OcgPhase.BATTLE_STEP]: "Battle Phase (battle step)",
+  [OcgPhase.DAMAGE]: "Battle Phase (damage step)", [OcgPhase.DAMAGE_CAL]: "Battle Phase (damage calculation)",
+  [OcgPhase.BATTLE]: "Battle Phase (end)", [OcgPhase.MAIN2]: "Main Phase 2", [OcgPhase.END]: "End Phase",
+};
 
 const TIMING_LABELS = [
   [OcgHintTiming.DRAW_PHASE, "draw phase"], [OcgHintTiming.STANDBY_PHASE, "standby phase"],
@@ -246,13 +254,14 @@ export function buildMenu(msg, ctx) {
         items.push({ label: `Activate ${entryLabel(c, ctx.field)}${effect ? `: ${effect}` : ""}`, value: { action: SelectBattleCMDAction.SELECT_CHAIN, index: i } });
       });
       if (msg.to_m2) items.push({ label: "Enter Main Phase 2", value: { action: SelectBattleCMDAction.TO_M2, index: null } });
-      if (msg.to_ep) items.push({ label: "End turn", value: { action: SelectBattleCMDAction.TO_EP, index: null } });
+      if (msg.to_ep) items.push({ label: "End turn (skip Main Phase 2)", value: { action: SelectBattleCMDAction.TO_EP, index: null } });
       return { title: `P${msg.player}: battle phase action`, items: disambiguate(items), zero: null, mode: "one", min: 1, max: 1, build: ([v]) => ({ type: R.SELECT_BATTLECMD, ...v }) };
     }
     case T.SELECT_CHAIN: {
       const when = timingWords(msg.hint_timing | msg.hint_timing_other);
       const event = ctx.eventHint ? describe(ctx.eventHint) : "";
-      const context = [event, when && `timing: ${when}`].filter(Boolean).join("; ");
+      const phase = ctx.field ? `P${ctx.field.turnPlayer}'s turn, ${PHASE_WORDS[ctx.field.phase] ?? "start"}` : "";
+      const context = [phase, event, when && `possible timing: ${when}`].filter(Boolean).join("; ");
       const items = msg.selects.map((c, i) => {
         const effect = describe(c.description);
         return { label: `Activate ${entryLabel(c, ctx.field)}${effect ? `: ${effect}` : ""}`, value: i };
@@ -455,7 +464,8 @@ function itemIndex(menu, token) {
  * Examples:
  *     >>> hintsBefore([{type: 2, hint_type: 3, hint: 502n}, {type: 15}]).selectHint  // 502n
  *     >>> hintsBefore([{type: 15}, {type: 2, hint_type: 3, hint: 502n}, {type: 11}, {type: 15}]).selectHint  // 0n (consumed by the earlier question)
- *     >>> hintsBefore([{type: 2, hint_type: 1, hint: 23n}, {type: 11}, {type: 16}]).eventHint  // 23n
+ *     >>> hintsBefore([{type: 2, hint_type: 1, hint: 23n}, {type: 16}]).eventHint               // 23n
+ *     >>> hintsBefore([{type: 2, hint_type: 1, hint: 23n}, {type: 11}, {type: 16}]).eventHint  // 0n (stale: a question intervened)
  */
 export function hintsBefore(messages) {
   const T = OcgMessageType;
@@ -466,10 +476,14 @@ export function hintsBefore(messages) {
     if (m.type === T.HINT && m.hint_type === OcgHintType.SELECTMSG) { selectHint = m.hint; break; }
     if (isQuestion(m)) break;
   }
+  // The event hint is only trustworthy for the window it opened; once another
+  // question has been answered it is stale (the core does not re-send it), and
+  // a stale "Standby Phase" on a Main Phase prompt actively misleads.
   let eventHint = 0n;
   for (let i = messages.length - 2; i >= 0; i--) {
     const m = messages[i];
     if (m.type === T.HINT && m.hint_type === OcgHintType.EVENT) { eventHint = m.hint; break; }
+    if (isQuestion(m)) break;
   }
   return { selectHint, eventHint };
 }
