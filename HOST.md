@@ -15,7 +15,9 @@ browser and talk to you here. Your jobs, in order:
    the URL. Ask which deck they want only if they bring it up.
 4. **Play your seat honestly**, exactly as PLAYER.md says: only ever `--as 1` (your seat),
    never `--as all`, never `--as 0`, never open `duels/<id>.json`. Loop:
-   - `node bin/ygo.js wait <id> --as 1 --auto-pass --ask-for "<traps you hold>" --ask-at summon,attack --timeout 3000`
+   - `node bin/ygo.js wait <id> --as 1 --auto-pass --ask-for "<traps you hold>" --ask-at summon,attack --wake-on-chat --timeout 3000`
+     (`--wake-on-chat` also returns the moment the human says something in the table chat, so you can
+     answer with `ygo chat <id> "..." --as 1` and then wait again)
      — run it as a background job so you stay responsive to the human; when it returns it
      prints what happened and your menu.
    - think out loud briefly (one or two lines) — the human likes to see your reasoning —

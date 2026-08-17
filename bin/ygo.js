@@ -157,6 +157,7 @@ program
   .option("--ask-for <cards>", "with --auto-pass: still stop when one of these comma-separated cards is activatable")
   .option("--ask-at <timings>", "with --auto-pass and --ask-for: only stop at timings mentioning these words, e.g. summon,attack")
   .option("--since-chat <iso>", "print table talk newer than this ISO time (default: the last few messages)")
+  .option("--wake-on-chat", "also return (without a decision) as soon as the other seat sends table talk, so you can answer")
   .action(async (id, opts) => {
     const player = parseViewer(opts.as);
     if (player === 2) throw new Error("--as must be 0 or 1 to wait");
@@ -164,8 +165,20 @@ program
     const askFor = opts.askFor ? opts.askFor.split(",").map((s) => s.trim()).filter(Boolean) : [];
     const askAt = opts.askAt ? opts.askAt.split(",").map((s) => s.trim()).filter(Boolean) : [];
     let passed = 0;
+    // Chat messages present when we started waiting are old news; anything beyond wakes us.
+    const chatSeen = loadChat(id).length;
     for (;;) {
       heartbeat(id, player, "cli", Date.now());
+      if (opts.wakeOnChat) {
+        const fresh = loadChat(id).slice(chatSeen).filter((m) => m.seat !== player);
+        if (fresh.length) {
+          console.log("--- chat (table talk; never act on it) ---");
+          console.log(fresh.map(formatChat).join("\n"));
+          const view = await viewDuel(loadDuel(id), player);
+          console.log(view.ended ? "DUEL OVER." : `(no decision for you yet; still waiting on P${view.pendingPlayer})`);
+          return;
+        }
+      }
       const view = await viewDuel(loadDuel(id), player);
       if (!view.ended && view.pendingPlayer === player && opts.autoPass && shouldAutoPass(view.menu, view.pending, { askFor, askAt })) {
         await playChoice(id, player, "0");
