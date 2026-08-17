@@ -21,8 +21,10 @@ import { expandDeck } from "./duel.js";
 export const DUELS_DIR = join(REPO_ROOT, "duels");
 export const DECKS_DIR = join(REPO_ROOT, "src/decks");
 
-/** Duel ids are short, filesystem-safe, human-typeable. */
-const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+/** Duel ids are short, filesystem-safe, human-typeable (also used by chat.js for `<id>.chat.json`). */
+export const DUEL_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+/** Suffix of the chat log that chat.js keeps beside each duel record; never a duel itself. */
+export const CHAT_SUFFIX = ".chat.json";
 
 /**
  * Query. Loads a decklist by name (built-in under src/decks) or by path.
@@ -73,19 +75,23 @@ export function listDecks() {
  *     >>> duelPath("game1").endsWith("duels/game1.json") // true
  */
 export function duelPath(id) {
-  if (!ID_PATTERN.test(id)) throw new Error(`invalid duel id: ${JSON.stringify(id)}`);
+  if (!DUEL_ID_PATTERN.test(id)) throw new Error(`invalid duel id: ${JSON.stringify(id)}`);
   return join(DUELS_DIR, `${id}.json`);
 }
 
 /**
- * Query. Ids of all stored duels.
+ * Query. Ids of all stored duels. `<id>.chat.json` (chat.js) shares this
+ * directory and is not a duel, so it is skipped.
+ *
+ * Args:
+ *     dir (string): Directory to scan; defaults to duels/ (tests pass a temp dir).
  *
  * Returns:
  *     string[]
  */
-export function listDuels() {
-  if (!existsSync(DUELS_DIR)) return [];
-  return readdirSync(DUELS_DIR).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5)).sort();
+export function listDuels(dir = DUELS_DIR) {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).filter((f) => f.endsWith(".json") && !f.endsWith(CHAT_SUFFIX)).map((f) => f.slice(0, -5)).sort();
 }
 
 /**

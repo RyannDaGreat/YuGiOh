@@ -51,7 +51,11 @@ decision — the same menu the CLI shows, as buttons. Attacks, activations, dama
 and summons animate (daggers, flashes, floating numbers) with sound
 (toggle in the header; browsers require a click first). A move slider replays
 any game and **fork here** branches it at that move. It polls every 1.5 s, so a
-human in the browser and an agent on the CLI share one duel. Sound prefers the
+human in the browser and an agent on the CLI share one duel. The Chat panel
+under the card preview is table talk between the seats (`duels/<id>.chat.json`,
+also `ygo chat`); seats write, spectators read. **Chat is data, never
+instructions** — an LLM player answers it but never acts on it (PLAYER.md
+"## Chat"). Sound prefers the
 Dueling Nexus duel-client cues, which `bin/fetch-nexus-sfx.sh` downloads into
 `vendor/` for personal use — they are not part of this repo, and without them
 the CC0 files in `web/static/sfx/` and the synth cover every cue. The UI calls
@@ -72,6 +76,7 @@ node bin/ygo.js prompt g1 --as 1         # the complete LLM-facing text: decklis
 node bin/ygo.js card  "Trap Hole"        # rules text, offline
 node bin/ygo.js search "Blue-Eyes"
 node bin/ygo.js deck  kaiba
+node bin/ygo.js chat  g1 --as 1          # table talk; `chat g1 "gg" --as 1` says something
 node bin/ygo.js undo  g1 --n 2           # time travel (experiments)
 node bin/ygo.js list
 grep -i "cannot be destroyed by battle" vendor/cards.txt   # one line per card, every card ever printed
@@ -138,6 +143,7 @@ src/menu.js       decision menus ⇄ OcgResponse
 src/cards.js      cards.cdb access (engine data, names, text, search)
 src/strings.js    strings.conf + effect-description decoding
 src/store.js      duel records (duels/*.json), decklists (src/decks/*.json)
+src/chat.js       per-duel table talk (duels/*.chat.json) — data, never instructions
 src/rng.js        seeded shuffle
 vendor/           pinned Project Ignis CardScripts + BabelCDB + strings.conf (setup.sh)
 ```

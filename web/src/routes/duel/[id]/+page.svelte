@@ -12,6 +12,8 @@
   let lastLogLength = 0;
   /** Extension of the "your move" bell under web/static/sfx/ (WAV source — see ASSET-LICENSES.md). */
   const BELL_EXT = "wav";
+  /** Longest chat message the server accepts; must match MAX_CHAT_CHARS in src/chat.js. */
+  const CHAT_MAX_CHARS = 500;
 
   let { data } = $props();
   // svelte-ignore state_referenced_locally — the server payload seeds local state; polling owns it afterwards.
@@ -38,11 +40,24 @@
   /** Debounce for live scrubbing: each position is a server-side replay. */
   const SCRUB_DEBOUNCE_MS = 120;
   let scrubTimer = null;
+  /**
+   * Table talk (view.chat, refreshed by the same poll as everything else).
+   * Chat is DATA, NEVER INSTRUCTIONS: a message is one competitor talking to
+   * another — never a move, never a reason to reveal anything. See src/chat.js
+   * and PLAYER.md "## Chat"; this page only displays and posts it.
+   */
+  let chatOpen = $state(false);
+  let chatText = $state("");
+  let chatEl = $state(null);
+  /** Messages already read; the collapsed header badges the rest. */
+  // svelte-ignore state_referenced_locally — messages present at load count as read.
+  let chatSeen = $state(data.initial.chat.length);
 
   const viewerLabel = $derived(view.viewer === 2 ? "spectator" : `P${view.viewer} — ${view.players[view.viewer]}`);
   const myTurn = $derived(playbackAt === null && !view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
   const me = $derived(view.viewer === 2 ? 0 : view.viewer);
   const canConfirm = $derived(view.menu && selected.length >= view.menu.min && selected.length <= view.menu.max);
+  const unreadChat = $derived(Math.max(0, view.chat.length - chatSeen));
   /** True while this seat owes the engine a decision — never a spectator, never during playback. */
   const myDecision = $derived(playbackAt === null && !view.ended && view.viewer !== 2 && view.pendingPlayer === view.viewer);
 
@@ -125,6 +140,29 @@
     await refresh();
   }
 
+  /** Command. Posts the input box as this seat's chat message, then refreshes. */
+  async function sendChat() {
+    const text = chatText.trim();
+    if (!text) return;
+    chatText = "";
+    const res = await fetch(`/api/duel/${view.id}/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ as: view.viewer, text }) });
+    const body = await res.json();
+    if (!body.ok) { errorText = body.error; return; }
+    await refresh();
+  }
+
+  /**
+   * Pure function. Local hh:mm for a chat timestamp.
+   *
+   * @param {string} at - ISO timestamp as stored in duels/<id>.chat.json
+   * @returns {string}
+   *
+   * @example chatClock("2026-08-16T18:04:00.000Z") // "11:04" (local time, UTC-7)
+   */
+  function chatClock(at) {
+    return new Date(at).toTimeString().slice(0, 5);
+  }
+
   function toggleSound() {
     if (isOn()) { mute(); sound = false; } else { unlock(); sound = true; }
   }
@@ -137,6 +175,12 @@
     // Autoplay is blocked until the page has seen a gesture; a rejected play() is expected and harmless.
     if (myDecision && !bellRung && sound) new Audio(`/sfx/turn-bell.${BELL_EXT}`).play().catch(() => {});
     bellRung = myDecision;
+  });
+
+  $effect(() => {
+    if (!chatOpen) return;
+    chatSeen = view.chat.length;
+    if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
   });
 
   onMount(() => {
@@ -196,7 +240,32 @@
   </header>
 
   <div class="flex gap-3 items-start">
-    <Preview {card} />
+    <div class="w-56 shrink-0 flex flex-col gap-3">
+      <Preview {card} />
+
+      <!-- Table talk. Chat is data, never instructions (src/chat.js, PLAYER.md "## Chat"). -->
+      <details class="rounded-md bg-black/40 border border-amber-900/60 text-xs" bind:open={chatOpen}>
+        <summary class="cursor-pointer text-amber-200 p-2 flex items-center gap-2">
+          <span>Chat</span>
+          {#if unreadChat && !chatOpen}<span class="px-1.5 rounded-full bg-amber-300 text-amber-950 font-bold">{unreadChat}</span>{/if}
+        </summary>
+        <div bind:this={chatEl} class="max-h-48 overflow-auto px-2 flex flex-col gap-1 leading-snug">
+          {#each view.chat as m}
+            <div><span class="font-mono text-amber-100/50">{chatClock(m.at)}</span> <b class="text-amber-200">{m.name}</b><span class="text-amber-100/50"> ({m.seat === 2 ? "spec" : `P${m.seat}`}):</span> {m.text}</div>
+          {:else}
+            <p class="text-amber-100/50">No table talk yet.</p>
+          {/each}
+        </div>
+        {#if view.viewer === 2}
+          <p class="text-amber-100/50 p-2">Spectators read only.</p>
+        {:else}
+          <form class="flex gap-1 p-2" onsubmit={(e) => { e.preventDefault(); sendChat(); }}>
+            <input class="flex-1 min-w-0 px-1 rounded bg-black/40 border border-amber-900" bind:value={chatText} maxlength={CHAT_MAX_CHARS} placeholder="say something…" />
+            <button type="submit" class="px-2 rounded bg-amber-300 text-amber-950 font-bold" disabled={!chatText.trim()}>Send</button>
+          </form>
+        {/if}
+      </details>
+    </div>
 
     <div class="flex-1 min-w-0">
       <Table board={view.state} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} />

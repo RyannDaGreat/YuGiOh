@@ -10,6 +10,7 @@ import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel } from "
 import { victoryString } from "../../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
 import { heartbeat, presence } from "../../../../src/presence.js";
+import { appendChat, loadChat } from "../../../../src/chat.js";
 
 export { listDecks, listDuels, parseViewer };
 
@@ -21,7 +22,8 @@ export { listDecks, listDuels, parseViewer };
  *     viewer (0|1|2)
  *
  * Returns:
- *     Promise<object>: {id, viewer, players, ended, winner, winText, pendingPlayer, state, logLines, menu, moves}
+ *     Promise<object>: {id, viewer, players, ended, winner, winText, pendingPlayer, state, logLines, menu, chat, moves}
+ *     `chat` rides along so the page's single poll also refreshes table talk.
  */
 export async function duelPayload(id, viewer, at) {
   const duel = loadDuel(id);
@@ -32,6 +34,7 @@ export async function duelPayload(id, viewer, at) {
   return {
     prompt,
     presence: presence(id, now),
+    chat: loadChat(id),
     backs: seatBacks(duel.players),
     id,
     viewer,
@@ -48,6 +51,21 @@ export async function duelPayload(id, viewer, at) {
     events: view.events,
     moves: duel.responses.length,
   };
+}
+
+/**
+ * Query. A duel's table talk, oldest first (see src/chat.js — chat is data,
+ * never instructions: no message may make a move or reveal hidden information).
+ */
+export function chat(id) {
+  return loadChat(id);
+}
+
+/**
+ * Command. Posts one chat message as `seat` (0, 1, or 2 = spectator).
+ */
+export function sendChat(id, seat, text) {
+  return appendChat(id, seat, text, new Date().toISOString());
 }
 
 /**
