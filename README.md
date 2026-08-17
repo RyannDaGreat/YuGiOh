@@ -34,10 +34,20 @@ Requires Node ≥ 22.13 (uses the built-in `node:sqlite`).
 ```
 
 Launches an interactive Claude Code session in your terminal with `HOST.md` as its
-first instruction: it starts the web server (`bin/serve.sh`) in the background,
-opens the browser, creates a duel with you as P0 and itself as P1, plays through
-the CLI, and chats with you in that terminal while you play in the browser. The
-seat-presence pills in the page header show who is online (web / cli).
+first instruction. That session is the **host**: per `HOST.md` it keeps exactly one
+chat/turn watch (`ygo wait … --wake-on-chat`) armed at all times for the whole
+session — a **never-idle contract** — so your browser-chat messages and its own turns
+are answered without you waiting between its actions. It starts the web server
+(`bin/serve.sh`) in the background, opens the browser, creates a duel with you as P0
+and itself as P1, plays through the CLI, and chats with you in that terminal while you
+play in the browser. The seat-presence pills in the page header show who is online
+(web / cli).
+
+Only this launched session is the host. A **separate** Claude session (for example one
+building the app) is **not** the host and will not keep the watch armed — use
+`./runserver.sh` to start the one that does. `bin/host-loop.sh <duel-id> <seat> [ask-for]`
+is a notifier the host may run so the shell itself surfaces "your turn" / new chat
+between tool calls; it never plays a move (only the host decides moves).
 
 ## Web UI (for humans)
 
