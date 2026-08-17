@@ -1,6 +1,7 @@
 {
   "name": "Yugi",
   "category": "structure",
+  "setCode": "SDY",
   "format": "classic",
   "note": "Starter Deck: Yugi (SDY), TCG North American print, 50 cards, SDY-001..050. Verified against Yugipedia + YGOPRODeck.",
   "manual": "Vanilla beatdown with a light spell/trap toolbox.\nLand your biggest body (Dark Magician, Summoned Skull, Gaia) and swing; tribute up with Ultimate Offering when you must.\nHold Dark Hole / Fissure / Trap Hole for their threats, and grab a monster with Change of Heart or Monster Reborn for a tempo turn.\nMan-Eater Bug and Trap Master are your set-and-flip removal.",

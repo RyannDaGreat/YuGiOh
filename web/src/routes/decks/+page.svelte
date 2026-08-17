@@ -2,12 +2,13 @@
   import Icon from "@iconify/svelte";
   import cardsIcon from "@iconify-icons/mdi/cards";
   import arrowLeft from "@iconify-icons/mdi/arrow-left";
-  import CardArt from "$lib/pretty/CardArt.svelte";
+  import DeckThumb from "$lib/pretty/DeckThumb.svelte";
 
   let { data } = $props();
 
-  /** Decks split into the two library sections; either may be empty. */
+  /** Decks split into the three library sections; any may be empty. */
   const structure = $derived(data.library.filter((d) => d.category === "structure"));
+  const curated = $derived(data.library.filter((d) => d.category === "curated"));
   const user = $derived(data.library.filter((d) => d.category === "user"));
 
   /**
@@ -52,7 +53,7 @@
     class="group flex flex-col gap-2 rounded-lg bg-black/40 border border-amber-900/60 p-3 hover:border-amber-500/70 hover:bg-black/60 transition-colors"
   >
     <div class="self-center transition-transform group-hover:scale-105">
-      <CardArt code={d.signatureCode} name={d.name} size="tile" />
+      <DeckThumb setCode={d.setCode} signatureCode={d.signatureCode} name={d.name} category={d.category} size="tile" />
     </div>
     <div class="flex items-center justify-between gap-2">
       <span class="font-bold text-amber-100 leading-tight">{d.name}</span>
@@ -89,5 +90,6 @@
   </header>
 
   {@render section("Structure Decks", structure, "No structure decks found.")}
+  {@render section("Curated Decks", curated, "No curated decks yet.")}
   {@render section("User Decks", user, "No user decks yet. To add your own deck, ask Claude to research and author one.")}
 </main>

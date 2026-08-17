@@ -8,6 +8,7 @@
   // printed name matched the current DB exactly (no renamed cards).
   "name": "Spellcaster's Command (SDSC)",
   "category": "structure",
+  "setCode": "SDSC",
   "format": "classic",
   "sources": [
     "https://yugipedia.com/wiki/Spellcaster's_Command_Structure_Deck",

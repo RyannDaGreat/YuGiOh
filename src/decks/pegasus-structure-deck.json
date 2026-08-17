@@ -1,6 +1,7 @@
 {
   "name": "Starter Deck: Pegasus",
   "category": "structure",
+  "setCode": "SDP",
   "format": "classic",
   "note": "Starter Deck: Pegasus (TCG set code SDP, 2003-03-30) — exact printed 50-card product, one of each. docs/goat-decks.md §3B. Names validated against cards.cdb.",
   "sources": [

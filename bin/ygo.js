@@ -35,6 +35,7 @@ const DEFAULT_LOG_TAIL = 60;
 /** Card art source (Konami art, hosted by YGOPRODeck; their terms ask to cache, not hotlink). */
 const PICS_URL = "https://images.ygoprodeck.com/images/cards";
 const PICS_DIR = join(REPO_ROOT, "vendor/pics");
+const BOXART_DIR = join(REPO_ROOT, "vendor/boxart");
 /** How often `ygo wait` re-checks the duel file. */
 const WAIT_POLL_MS = 1000;
 /** Chat lines `wait`/`play` show when no --since-chat is given: just enough to notice someone spoke. */
@@ -409,6 +410,33 @@ program
       console.log(`fetched ${code} ${cardInfo(code)?.name}`);
     }
     console.log(`${codes.size} cards, ${fetched} fetched, ${codes.size - fetched} already cached in ${PICS_DIR}`);
+  });
+
+program
+  .command("fetch-boxart")
+  .description("Download the box cover art of every structure/starter deck (from each deck's boxArt URL) into vendor/boxart")
+  .action(async () => {
+    mkdirSync(BOXART_DIR, { recursive: true });
+    let fetched = 0, cached = 0, missing = 0;
+    for (const name of listDecks()) {
+      const deck = loadDeck(name);
+      if (deck.category !== "structure") continue;
+      if (!deck.setCode || !deck.boxArt) {
+        // Box art is required for a structure deck — say so loudly, don't skip silently.
+        console.log(`  MISSING boxArt/setCode: ${name} (${deck.name})`);
+        missing += 1;
+        continue;
+      }
+      const ext = deck.boxArt.match(/\.(png|jpe?g|webp)(?:[?#]|$)/i)?.[1].toLowerCase().replace("jpeg", "jpg") ?? "png";
+      const path = join(BOXART_DIR, `${deck.setCode}.${ext}`);
+      if (existsSync(path)) { cached += 1; continue; }
+      const res = await fetch(deck.boxArt, { headers: { "user-agent": "Mozilla/5.0 ygo-boxart" } });
+      if (!res.ok) throw new Error(`no box art for ${deck.setCode} (${deck.name}): HTTP ${res.status} from ${deck.boxArt}`);
+      writeFileSync(path, Buffer.from(await res.arrayBuffer()));
+      fetched += 1;
+      console.log(`fetched ${deck.setCode} ${deck.name}`);
+    }
+    console.log(`box art: ${fetched} fetched, ${cached} cached, ${missing} missing in ${BOXART_DIR}`);
   });
 
 program

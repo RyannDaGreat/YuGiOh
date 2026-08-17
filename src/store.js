@@ -23,9 +23,11 @@
  * DECK SCHEMA (src/decks/*.json, and the frozen copy inside a duel record).
  * A deck file is:
  *   {
- *     "name":     str,                     // display name, e.g. "GOAT Sample"
- *     "category": "structure" | "user",    // built-in list vs user-authored; default "user"
- *     "format":   "classic" | "goat",      // ruleset; default "classic"
+ *     "name":     str,                          // display name, e.g. "GOAT Sample"
+ *     "category": "structure"|"curated"|"user", // official product | research build | user; default "user"
+ *     "setCode":  str,                          // OPTIONAL official product code ("SD1", "SDY"); structure decks only
+ *     "boxArt":   str,                          // OPTIONAL URL of the product's real box cover art (structure decks)
+ *     "format":   "classic" | "goat",           // ruleset; default "classic"
  *     "main":     [[cardName, count], ...], // Main Deck; goat: 40..60 cards, classic: any
  *     "extra":    [[cardName, count], ...], // OPTIONAL Extra Deck; ≤ 15 cards
  *     "side":     [[cardName, count], ...], // OPTIONAL Side Deck; ≤ 15 cards
@@ -51,8 +53,15 @@ import stripJsonComments from "strip-json-comments";
 import { REPO_ROOT, cardInfo, codeOf, isExtraDeckCard, typeLabel } from "./cards.js";
 import { expandDeck, expandExtra, expandSide } from "./duel.js";
 
-/** A deck's `category`: a built-in list shipped with the repo, or user-authored. */
-const DECK_CATEGORIES = ["structure", "user"];
+/**
+ * A deck's `category`:
+ *   "structure" — an official Konami product (Structure/Starter Deck): a fixed
+ *                 printed list with an official name, a `setCode`, and box art.
+ *   "curated"   — a meta/theme deck we built from research (GOAT netdecks, anime
+ *                 themes). Not an official product; identified by a signature card.
+ *   "user"      — user-authored.
+ */
+const DECK_CATEGORIES = ["structure", "curated", "user"];
 /** A deck's `format`: the ruleset the duel is built under (see duel.js MODE_*). */
 const DECK_FORMATS = ["classic", "goat"];
 /** GOAT format is 40–60 Main Deck cards; classic imposes no size (starter decks are 50). */
@@ -147,6 +156,15 @@ export function loadDeck(nameOrPath) {
   if (!Array.isArray(sources) || sources.some((s) => typeof s !== "string")) {
     throw new Error(`"sources" must be an array of citation strings in ${path}`);
   }
+  // `setCode` is the official product code (e.g. "SD1", "SDY"); structure decks
+  // carry one and key their box art off it. Null for curated/user decks.
+  const setCode = deck.setCode ?? null;
+  if (setCode !== null && typeof setCode !== "string") throw new Error(`"setCode" must be a string in ${path}`);
+  // `boxArt` is the source URL of the product's real box cover art. `fetch-boxart`
+  // downloads it to vendor/boxart/<setCode>; the URL is recorded here so the image
+  // is reproducible (vendor/ is gitignored). Every structure deck should have one.
+  const boxArt = deck.boxArt ?? null;
+  if (boxArt !== null && typeof boxArt !== "string") throw new Error(`"boxArt" must be a URL string in ${path}`);
 
   validateSection(main, { path, section: "main", extraOnly: false });
   validateSection(extra, { path, section: "extra", extraOnly: true });
@@ -161,7 +179,7 @@ export function loadDeck(nameOrPath) {
   if (extraCount > MAX_EXTRA) throw new Error(`extra deck must be ≤ ${MAX_EXTRA} cards, got ${extraCount} in ${path}`);
   if (sideCount > MAX_SIDE) throw new Error(`side deck must be ≤ ${MAX_SIDE} cards, got ${sideCount} in ${path}`);
 
-  return { name: deck.name, category, format, main, extra, side, manual, sources };
+  return { name: deck.name, category, format, main, extra, side, manual, sources, setCode, boxArt };
 }
 
 /**

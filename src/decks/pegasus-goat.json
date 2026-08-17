@@ -1,6 +1,6 @@
 {
   "name": "Pegasus (GOAT-legal)",
-  "category": "structure",
+  "category": "curated",
   "format": "goat",
   "note": "Closest GOAT-legal build of Starter Deck: Pegasus — the SDP product minus Monster Reborn and Witch of the Black Forest (48 cards). docs/goat-decks.md §3B. Names validated against cards.cdb.",
   "sources": [

@@ -1,0 +1,61 @@
+{
+  "name": "Spellcaster's Judgment (SD6)",
+  "category": "structure",
+  "format": "classic",
+  "setCode": "SD6",
+  // Structure Deck: Spellcaster's Judgment — TCG-EN (North America), released
+  // 2005. 40-card Main Deck, no Extra Deck. Card numbers SD6-EN001..036 (36
+  // unique cards; four are x2). Contents and quantities verified against two
+  // independent YGOPRODeck listings of the sealed deck; every name validated
+  // against cards.cdb (node bin/ygo.js card ...). No renamed cards — all 36
+  // names match the current DB exactly. Six cards debuted in this set: Dark
+  // Eradicator Warlock, Rapid-Fire Magician, Ebon Magician Curran, White
+  // Magician Pikeru, Spell Shield Type-8, Pitch-Black Power Stone.
+  "manual": "Spellcaster control: a 16-Spell engine that assembles Dark Magician, then wins with his payoff Spells.\n\nMAIN COMBO — Skilled Dark Magician into Dark Magician: Skilled gains a Spell Counter whenever any Spell resolves; at 3, Tribute it to Special Summon Dark Magician from hand, Deck, or GY. Sixteen Spells charge it fast, and two copies of Skilled keep the engine online.\n\nDARK MAGICIAN PAYOFFS (why you summon him):\n- Dark Magic Attack: with Dark Magician face-up, destroy all of the opponent's Spells/Traps before you push.\n- Diffusion Wave-Motion: pay 1000 LP; Dark Magician (a Lv7 Spellcaster) must attack every monster they control — board wipe or lethal.\n- Magical Dimension (x2): while you control any Spellcaster, Tribute a monster to Special Summon Dark Magician FROM HAND and destroy a monster — instant boss plus removal at quick-play speed.\n- Dark Eradicator Warlock: Special Summon by Tributing 1 Dark Magician; then every Normal Spell you activate burns for 1000, which adds up fast in a 16-Spell deck.\n\nENGINE / TOOLBOX:\n- Apprentice Magician (x2): on summon it drops a Spell Counter onto your engine (Skilled / Breaker / Library / Power Stone), and when it dies in battle it Special Summons a Lv2-or-lower Spellcaster face-down from Deck (Magician of Faith, another Apprentice, Pikeru, Curran); also ideal Tribute fodder for Magical Dimension.\n- Magician of Faith (x2): flip to return Diffusion Wave-Motion, Dark Magic Attack, Premature Burial, or Reload from the GY; loop it with Magical Dimension.\n- Breaker the Magical Warrior: lands at 1900 ATK with a counter; spend it to pop a Spell/Trap.\n- Royal Magical Library + Pitch-Black Power Stone: Library banks a counter per Spell and cashes 3 for a draw; the Power Stone is a 3-counter battery you feed to Library, Skilled, Breaker, Blast Magician, or Cerberus. Spell Absorption gains 500 LP per Spell to pay for Diffusion and grind.\n- Beaters/removal: Chaos Sorcerer (banish a monster), Chaos Command Magician, Mythical Beast Cerberus, Gemini Elf, Blast Magician; Rapid-Fire Magician and Ebon Magician Curran chip in with burn. Control shell: Mystical Space Typhoon, Heavy Storm, Nobleman of Crossout, Lightning Vortex, Swords of Revealing Light, Nightmare's Steelcage, Mystic Box, plus Magic Cylinder, Divine Wrath, Spell Shield Type-8, and Call of the Haunted (revive Dark Magician or Warlock).\n\nWEAKNESSES: slow and grindy — the payoff Spells are dead until Dark Magician is on the field, so Nobleman of Crossout / D.D. removal or heavy backrow on your Skilled line can strand the whole plan. Only five traps means little disruption on the opponent's turn, and Diffusion's LP cost matters against burn/OTK decks.",
+  "sources": [
+    "https://yugipedia.com/wiki/Set_Card_Lists:Spellcaster's_Judgment_(TCG-EN)  (canonical set card list; SD6-EN001..036)",
+    "https://db.ygoprodeck.com/api/v7/cardinfo.php?cardset=Structure Deck: Spellcaster's Judgment  (36 unique cards with SD6-EN codes)",
+    "https://ygoprodeck.com/deck/structure-deck-spellcaster-s-judgment-542585  (sealed 40-card list with per-card quantities)",
+    "https://ygoprodeck.com/deck/structure-deck-spellcaster-s-judgment-336465  (second listing; quantities cross-checked, identical)"
+  ],
+  "main": [
+    ["Dark Eradicator Warlock", 1],   // SD6-EN001 (new in set)
+    ["Mythical Beast Cerberus", 1],   // SD6-EN002
+    ["Dark Magician", 1],             // SD6-EN003
+    ["Gemini Elf", 1],                // SD6-EN004
+    ["Magician of Faith", 2],         // SD6-EN005
+    ["Skilled Dark Magician", 2],     // SD6-EN006
+    ["Apprentice Magician", 2],       // SD6-EN007
+    ["Chaos Command Magician", 1],    // SD6-EN008
+    ["Breaker the Magical Warrior", 1], // SD6-EN009
+    ["Royal Magical Library", 1],     // SD6-EN010
+    ["Tsukuyomi", 1],                 // SD6-EN011
+    ["Chaos Sorcerer", 1],            // SD6-EN012
+    ["White Magician Pikeru", 1],     // SD6-EN013 (new in set)
+    ["Blast Magician", 1],            // SD6-EN014
+    ["Ebon Magician Curran", 1],      // SD6-EN015 (new in set)
+    ["Rapid-Fire Magician", 1],       // SD6-EN016 (new in set)
+    ["Magical Blast", 1],             // SD6-EN017
+    ["Mystical Space Typhoon", 1],    // SD6-EN018
+    ["Nobleman of Crossout", 1],      // SD6-EN019
+    ["Premature Burial", 1],          // SD6-EN020
+    ["Swords of Revealing Light", 1], // SD6-EN021
+    ["Mage Power", 1],                // SD6-EN022
+    ["Heavy Storm", 1],               // SD6-EN023
+    ["Diffusion Wave-Motion", 1],     // SD6-EN024
+    ["Reload", 1],                    // SD6-EN025
+    ["Dark Magic Attack", 1],         // SD6-EN026
+    ["Spell Absorption", 1],          // SD6-EN027
+    ["Lightning Vortex", 1],          // SD6-EN028
+    ["Magical Dimension", 2],         // SD6-EN029
+    ["Mystic Box", 1],                // SD6-EN030
+    ["Nightmare's Steelcage", 1],     // SD6-EN031
+    ["Call of the Haunted", 1],       // SD6-EN032
+    ["Spell Shield Type-8", 1],       // SD6-EN033 (new in set)
+    ["Pitch-Black Power Stone", 1],   // SD6-EN034 (new in set)
+    ["Divine Wrath", 1],              // SD6-EN035
+    ["Magic Cylinder", 1]             // SD6-EN036
+  ],
+  "extra": [],
+  "side": []
+}

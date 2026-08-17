@@ -1,6 +1,7 @@
 {
   "name": "Kaiba",
   "category": "structure",
+  "setCode": "SDK",
   "format": "classic",
   "note": "Starter Deck: Kaiba (SDK), TCG North American print, 50 cards, SDK-001..050. The Blue-Eyes deck. Verified against Yugipedia + YGOPRODeck.",
   "manual": "Blue-Eyes beatdown: land Blue-Eyes White Dragon (3000 ATK) and run everything over.\nLord of D. + The Flute of Summoning Dragon drops it for free and shields your dragons from targeting.\nFill the curve with Battle Ox / La Jinn / Rude Kaiser beaters; clear blockers with Dark Hole and Fissure.\nSet Trap Hole / Hane-Hane to punish their summons.",

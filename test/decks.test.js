@@ -43,7 +43,7 @@ function withDeckFile(json, fn) {
 
 test("loadDeck: the full schema (goat-sample) parses every field", () => {
   const d = loadDeck("goat-sample");
-  assert.equal(d.category, "structure");
+  assert.equal(d.category, "curated");
   assert.equal(d.format, "goat");
   assert.equal(expandDeck(d.main).length, 40, "40-card GOAT main");
   assert.equal(expandExtra(d.extra).length, 3, "three Fusion monsters in the extra deck");

@@ -1,6 +1,7 @@
 {
   "name": "Dragon's Roar (SD1)",
   "category": "structure",
+  "setCode": "SD1",
   "format": "classic",
 
   // The first TCG Structure Deck. Fixed 40-card product, SD1-EN001..028,
