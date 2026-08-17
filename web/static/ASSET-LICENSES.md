@@ -12,8 +12,8 @@ back is a generic ornate fantasy design, not Konami's card back.
 
 ## Sound effects (`web/static/sfx/`)
 
-All 12 files are copied byte-for-byte from their sources — no re-encoding, no quality
-loss. Eleven are **Ogg Vorbis** (`.ogg`); `turn-bell.wav` is 16-bit PCM WAV because that is
+All 14 files are copied byte-for-byte from their sources — no re-encoding, no quality
+loss. Thirteen are **Ogg Vorbis** (`.ogg`); `turn-bell.wav` is 16-bit PCM WAV because that is
 the format its CC0 source ships in. Peaks sit near -1 dBFS except `win.ogg` (-7 dBFS peak,
 but comparable mean loudness since it is sustained music rather than a transient).
 
@@ -29,6 +29,8 @@ but comparable mean loudness since it is sustained music rather than a transient
 | `activate.ogg` | 0.69 s | `Audio/glass_004.ogg` | Interface Sounds | Kenney | CC0 1.0 | https://kenney.nl/assets/interface-sounds |
 | `flip.ogg` | 0.77 s | `Audio/bookFlip1.ogg` | RPG Audio | Kenney | CC0 1.0 | https://kenney.nl/assets/rpg-audio |
 | `turn.ogg` | 0.02 s | `Audio/tick_002.ogg` | Interface Sounds | Kenney | CC0 1.0 | https://kenney.nl/assets/interface-sounds |
+| `lptick.ogg` | 0.04 s | `Audio/select_001.ogg` | Interface Sounds | Kenney | CC0 1.0 | https://kenney.nl/assets/interface-sounds |
+| `lpsettle.ogg` | 0.32 s | `Audio/confirmation_003.ogg` | Interface Sounds | Kenney | CC0 1.0 | https://kenney.nl/assets/interface-sounds |
 | `win.ogg` | 3.78 s | `winfretless_0.ogg` | Win Jingle | Fupi | CC0 1.0 | https://opengameart.org/content/win-jingle |
 | `turn-bell.wav` | 1.44 s | `bell_ding2.wav` | Bell dings/chimes | PWL | CC0 1.0 | https://opengameart.org/content/bell-dingschimes |
 
@@ -62,6 +64,8 @@ not a licensing claim** — nothing here was downloaded for the synth-only cues.
 | `hit` | `hit.ogg` | ours (impact before a battle death) |
 | `gainlp` | `recover.ogg` | filename kept from the old cue name `recover` |
 | `nextturn` | `turn.ogg` | filename kept from the old cue name `turn` |
+| `lptick` | `lptick.ogg` | anime life-point counter beep — `LPCounter` loops it while the number spins |
+| `lpsettle` | `lpsettle.ogg` | settle chime played once when the count lands |
 | `win` | `win.ogg` | |
 | `turn-bell` | `turn-bell.wav` | not an engine cue — see above |
 

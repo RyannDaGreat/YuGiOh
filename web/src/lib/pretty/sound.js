@@ -15,7 +15,7 @@
  * reveal, equip, destroyed, banished, attack, directattack, draw, shuffle,
  * damage, gainlp, addcounter, removecounter, coinflip, diceroll, nextturn,
  * phase, negate) plus ours for things EDOPro does not voice separately (hit,
- * tribute, chain, resolve, poschange, lose, turn-bell). One cue per distinct
+ * tribute, chain, resolve, poschange, lose, turn-bell, lptick, lpsettle). One cue per distinct
  * happening in the animation digest (src/events.js) — that is the point of the
  * set: the ear should be able to tell a tribute summon from a special summon
  * without looking. The single source of truth for which cues exist is `synth`
@@ -209,6 +209,11 @@ const synth = {
   // Life points.
   damage: () => { tone("sawtooth", 300, 60, 0.5, 0.6); },
   gainlp: () => { tone("sine", 600, 1200, 0.4, 0.4); },
+  // The anime "life-point counter": LPCounter fires `lptick` on an interval
+  // while the number spins (a bright fixed-pitch blip, meant to repeat), then
+  // `lpsettle` once when it lands (a rising two-note "po-pon" confirmation).
+  lptick: () => { tone("square", 1100, 1100, 0.05, 0.3); },
+  lpsettle: () => { tone("triangle", 784, 1046, 0.16, 0.4); tone("triangle", 1046, 1046, 0.14, 0.3, 0.08); },
   // Piles and randomness.
   draw: () => { noise(0.08, 2000, 500, 0.3); },
   shuffle: () => { ticks(4, 0.06, 0.05, 2500, 600, 0.25); },
