@@ -119,6 +119,7 @@ function claimTributes(released, controller) {
  *       recover  {player, amount}
  *       tograve  {from, name, reason}                     reason: see moveReason + "tribute"
  *       banish   {from, name, reason}
+ *       move     {from, to, name, faceFrom, faceTo, reason}  any zone→zone trip; drives the visual flyer
  *       pos      {at, name, position, prev}               position change that is not a flip
  *       shuffle  {player, what}                           what: deck|hand|extra|set
  *       equip    {at, target, name, targetName}
@@ -222,6 +223,21 @@ export function extractEvents(messages, viewer, startingLP, deckSizes) {
       case T.RECOVER: events.push({ i, kind: "recover", player: m.player, amount: m.amount }); break;
       case T.MOVE: {
         const label = m.card ? cardName(m.card) : name(m.from);
+        // Generic relocation, the ONE primitive the visual flyer rides (any zone
+        // → any zone). Fired for a real trip only: a zone/side change, or a shift
+        // between field slots ("one side of the field to the other"); internal
+        // hand/deck/GY re-ordering is left to the client's reflow, not a flyer.
+        // faceFrom/faceTo let the flyer flip mid-air when a card reveals or hides.
+        const cf = coord(m.from), ct = coord(m.to);
+        const fieldShift = cf.p === ct.p && cf.zone === ct.zone && (ct.zone === "m" || ct.zone === "s") && cf.seq !== ct.seq;
+        if (cf.p !== ct.p || cf.zone !== ct.zone || fieldShift) {
+          events.push({
+            i, kind: "move", from: cf, to: ct, name: label,
+            faceFrom: !!(m.from.position & OcgPosition.FACEUP),
+            faceTo: !!(m.to.position & OcgPosition.FACEUP),
+            reason: moveReason(windows),
+          });
+        }
         if (m.to.location === OcgLocation.REMOVED) {
           events.push({ i, kind: "banish", from: coord(m.from), name: label, reason: moveReason(windows) });
         } else if (m.to.location === OcgLocation.GRAVE && (m.from.location & FIELD)) {

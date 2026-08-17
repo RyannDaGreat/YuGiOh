@@ -36,7 +36,11 @@ const summoning = (code, p, seq) => ({ type: T.SUMMONING, code, controller: p, l
 /** Pure function. The MOVE from hand to field that precedes every summon. */
 const fromHand = (code, p, seq) => move(code, { controller: p, location: OcgLocation.HAND, sequence: 0, position: OcgPosition.FACEDOWN_ATTACK }, mzone(p, seq));
 
-const digest = (messages) => extractEvents(messages, SPECTATOR, STARTING_LP, DECK_SIZES);
+const rawDigest = (messages) => extractEvents(messages, SPECTATOR, STARTING_LP, DECK_SIZES);
+// The unit tests below guard the two things the digest INFERS (tribute / battle /
+// reason), not the generic `move` flyer layer, so they run on the digest with
+// `move` events filtered out. The dedicated `move` test uses `rawDigest`.
+const digest = (messages) => rawDigest(messages).filter((e) => e.kind !== "move");
 const kinds = (events) => events.map((e) => e.kind);
 const only = (events, kind) => events.filter((e) => e.kind === kind);
 
@@ -227,4 +231,27 @@ test("table-side happenings: shuffle, equip, counters, coin, dice", () => {
   assert.deepEqual(events.slice(3, 5).map((e) => [e.add, e.count]), [[true, 2], [false, 1]]);
   assert.deepEqual(events[5].results, [true, false]);
   assert.deepEqual(events[6].results, [6]);
+});
+
+test("move: every zone-changing relocation emits a from/to flyer event with face flags", () => {
+  const moves = rawDigest([
+    fromHand(BLUE_EYES, 0, 2),      // hand -> monster zone (reveals: facedown -> faceup)
+    toGrave(SUMMONED_SKULL, 0, 1),  // monster zone -> graveyard
+  ]).filter((e) => e.kind === "move");
+  assert.equal(moves.length, 2, "one move per zone-changing relocation");
+  assert.deepEqual(moves[0].from, { p: 0, zone: "hand", seq: 0 });
+  assert.deepEqual(moves[0].to, { p: 0, zone: "m", seq: 2 });
+  assert.equal(moves[0].faceFrom, false, "hand card was face-down");
+  assert.equal(moves[0].faceTo, true, "revealed on the field -> flyer flips mid-air");
+  assert.deepEqual(moves[1].from, { p: 0, zone: "m", seq: 1 });
+  assert.deepEqual(moves[1].to, { p: 0, zone: "grave", seq: 0 });
+});
+
+test("move: internal re-ordering within one zone does NOT emit a flyer", () => {
+  // A hand->hand shuffle (same zone, seq change) is reflow, not a flight.
+  const handToHand = (p, a, b) => move(BLUE_EYES,
+    { controller: p, location: OcgLocation.HAND, sequence: a, position: OcgPosition.FACEDOWN_ATTACK },
+    { controller: p, location: OcgLocation.HAND, sequence: b, position: OcgPosition.FACEDOWN_ATTACK });
+  const moves = rawDigest([handToHand(0, 0, 3)]).filter((e) => e.kind === "move");
+  assert.equal(moves.length, 0, "same-zone re-index is left to animate:flip reflow");
 });

@@ -24,6 +24,7 @@
 
 import { OcgLocation, OcgPhase, OcgPosition, OcgQueryFlags } from "ocgcore-wasm";
 import { cardInfo, cardName, typeLabel } from "./cards.js";
+import { coord } from "./events.js";
 import { cardAt } from "./field.js";
 import { posLabel, zoneLabel } from "./log.js";
 import { SPECTATOR } from "./view.js";
@@ -139,7 +140,12 @@ export function fieldCardData(card, known, isMonsterZone) {
   if (!known) return base;
   const data = { ...base, negated: Boolean(card.status & STATUS_DISABLED), typeLabel: typeLabel(cardInfo(card.code)?.type ?? 0) };
   if (isMonsterZone) Object.assign(data, { atk: card.attack, def: card.defense, baseAtk: card.baseAttack, baseDef: card.baseDefense, level: card.level, rank: card.rank, link: card.link?.rating ?? 0 });
-  if (card.equipCard) data.equippedTo = zoneLabel(card.equipCard.location, card.equipCard.sequence);
+  if (card.equipCard) {
+    data.equippedTo = zoneLabel(card.equipCard.location, card.equipCard.sequence);
+    // {p,zone,seq} of the linked card, so the client can draw a relationship line
+    // to its slot (the label above is for text; this is for the visual overlay).
+    data.equipTarget = coord(card.equipCard);
+  }
   if (card.targetCards?.length) data.targets = card.targetCards.map((t) => `P${t.controller} ${zoneLabel(t.location, t.sequence)}`);
   if (card.overlayCards?.length) data.materials = card.overlayCards.map(cardName);
   if (card.counters && Object.keys(card.counters).length) data.counters = card.counters;
