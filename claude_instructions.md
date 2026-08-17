@@ -101,8 +101,14 @@ browser, or subagent vs subagent — with:
   `src/duel.js` (`expandDeck`/`expandExtra`/`expandSide`, `replayDuel` extra-deck + MODE_GOAT wiring),
   `src/cards.js` (`EXTRA_DECK_TYPES`/`isExtraDeckCard`), `src/session.js` (viewDuel exposes
   `format` + per-seat deck metadata; promptText lists the extra deck), `bin/ygo.js` (`new --format`,
-  `deck`, `decks`), `README.md` "Decks", and the deck files `src/decks/*.json`
-  (`yugi.json`/`kaiba.json`/`goat-sample.json`).
+  `deck`, `decks`, and `fetch-pics` which pulls art for Main+Extra+Side of every deck and duel),
+  `README.md` "Decks", and the deck files `src/decks/*.json`.
+  Deck files are JSONC (loadDeck strips `//` and block comments, so a card row can cite its source
+  inline) and carry an optional `sources: [str]` array — the machine-readable citation list for the
+  decklist + manual. Every non-vanilla deck's list and combo manual comes from real research (see
+  `docs/goat-decks.md`, `docs/decks-structure-products.md`, `docs/decks-character.md`,
+  `docs/decks-archetypes.md`), never invented, with the exact printed products (Starter/Structure
+  Decks) transcribed verbatim.
 - `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
   `web/src/lib/server/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
   `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
