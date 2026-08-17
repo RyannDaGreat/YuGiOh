@@ -58,6 +58,11 @@
   /** Debounce for live scrubbing: each position is a server-side replay. */
   const SCRUB_DEBOUNCE_MS = 120;
   let scrubTimer = null;
+  /** Auto-playback: dwell per move while "playing" a duel back (sit-and-watch). */
+  const PLAYBACK_STEP_MS = 1100;
+  /** True while auto-advancing the timeline; the play/pause button toggles it. */
+  let playing = $state(false);
+  let playTimer = null;
   /**
    * Table talk (view.chat, refreshed by the same poll as everything else).
    * Chat is DATA, NEVER INSTRUCTIONS: a message is one competitor talking to
@@ -166,8 +171,36 @@
 
   /** Live scrubbing: update while dragging, debounced so we don't replay per pixel. */
   function scrubbing(value) {
+    stopPlaying(); // a manual grab of the slider takes over from auto-playback
     clearTimeout(scrubTimer);
     scrubTimer = setTimeout(() => scrub(Number(value)), SCRUB_DEBOUNCE_MS);
+  }
+
+  /** Command. Halts auto-playback (button toggle, manual scrub, or reaching live). */
+  function stopPlaying() {
+    playing = false;
+    clearTimeout(playTimer);
+  }
+
+  /**
+   * Command. Play/pause the duel back move-by-move. Each step is a real replay
+   * (scrub), so sounds and animations fire exactly as they did live. Playing from
+   * live (or the end) restarts at move 0; reaching the end stops and goes live.
+   */
+  function togglePlay() {
+    if (playing) { stopPlaying(); return; }
+    playing = true;
+    let from = playbackAt === null ? 0 : playbackAt;
+    if (from >= view.total) from = 0;
+    playStep(from);
+  }
+
+  async function playStep(pos) {
+    if (!playing) return;
+    await scrub(pos); // replay to `pos`; the events diff drives sound + animation
+    if (!playing) return; // paused during the await
+    if (pos >= view.total) { playing = false; return; } // reached live — stop
+    playTimer = setTimeout(() => playStep(pos + 1), PLAYBACK_STEP_MS);
   }
 
   async function forkHere() {
@@ -278,6 +311,7 @@
 
     return () => {
       clearInterval(timer);
+      clearTimeout(playTimer);
       window.removeEventListener("pointerdown", armSound);
       window.removeEventListener("keydown", armSound);
     };
@@ -296,7 +330,7 @@
       {#each view.presence as p}
         <span class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 flex items-center gap-1" title={p.online ? `${p.kind} heartbeat ${Math.round(p.ageMs / 1000)}s ago` : "no one holds this seat"}>
           <Icon icon={p.online ? "mdi:circle" : "mdi:circle-outline"} class={p.online ? "text-emerald-400" : "text-red-400"} width="10" height="10" />
-          P{p.seat} {view.players[p.seat]} {p.online ? `online (${p.kind})` : "offline"}
+          P{p.seat}{view.players[p.seat] && view.players[p.seat] !== `P${p.seat}` ? ` · ${view.players[p.seat]}` : ""} {p.online ? `online (${p.kind})` : "offline"}
         </span>
       {/each}
     </span>
@@ -323,11 +357,12 @@
       <span class="px-3 py-1 rounded font-bold {view.pendingPlayer === view.viewer ? 'bg-emerald-300 text-emerald-950' : 'bg-black/40 text-amber-100/80'}">waiting on P{view.pendingPlayer}</span>
     {/if}
     <span class="flex items-center gap-1 basis-full">
-      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => scrub(0)} title="start"><Icon icon="mdi:skip-backward" /></button>
-      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => scrub(Math.max(0, view.at - 1))} title="back one move"><Icon icon="mdi:chevron-left" /></button>
+      <button class="px-2 rounded bg-amber-400 text-amber-950 inline-flex items-center font-bold" onclick={togglePlay} disabled={view.total === 0} title={playing ? "pause" : "play the duel back"}><Icon icon={playing ? "mdi:pause" : "mdi:play"} width="18" height="18" /></button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => { stopPlaying(); scrub(0); }} title="start"><Icon icon="mdi:skip-backward" /></button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => { stopPlaying(); scrub(Math.max(0, view.at - 1)); }} title="back one move"><Icon icon="mdi:chevron-left" /></button>
       <input type="range" min="0" max={view.total} bind:value={slider} oninput={() => scrubbing(slider)} onchange={() => scrub(Number(slider))} class="flex-1 accent-amber-400" />
-      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => scrub(view.at + 1)} title="forward one move"><Icon icon="mdi:chevron-right" /></button>
-      <button class="px-1.5 rounded bg-black/40 inline-flex items-center gap-1" onclick={() => scrub(view.total)} title="live"><Icon icon="mdi:skip-forward" />live</button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => { stopPlaying(); scrub(view.at + 1); }} title="forward one move"><Icon icon="mdi:chevron-right" /></button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center gap-1" onclick={() => { stopPlaying(); scrub(view.total); }} title="live"><Icon icon="mdi:skip-forward" />live</button>
       <span class="text-amber-100/70 font-mono">move {slider}/{view.total}</span>
       {#if playbackAt !== null}
         <input class="w-24 px-1 rounded bg-black/40 border border-amber-900" bind:value={forkId} placeholder="new id" />
