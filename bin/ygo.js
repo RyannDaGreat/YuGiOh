@@ -17,7 +17,7 @@ import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
 import { expandDeck } from "../src/duel.js";
 import { playChoice, parseViewer, promptText, shouldAutoPass, viewDuel } from "../src/session.js";
-import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, saveDuel } from "../src/store.js";
+import { alignTimes, createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime, saveDuel } from "../src/store.js";
 import { victoryString } from "../src/strings.js";
 import { heartbeat } from "../src/presence.js";
 import { appendChat, chatSince, formatChat, loadChat } from "../src/chat.js";
@@ -31,6 +31,23 @@ const PICS_DIR = join(REPO_ROOT, "vendor/pics");
 const WAIT_POLL_MS = 1000;
 /** Chat lines `wait`/`play` show when no --since-chat is given: just enough to notice someone spoke. */
 const DEFAULT_CHAT_TAIL = 3;
+
+/**
+ * Pure function. A stored ISO timestamp as a short local date+time, or "—" when
+ * there is none — a duel with no moves yet, or one played before store.js
+ * recorded `times`.
+ *
+ * @param {string|null|undefined} at - ISO timestamp
+ * @returns {string}
+ *
+ * @example stamp("2026-08-16T18:04:00.000Z") // "2026-08-16 11:04" (local time, UTC-7)
+ * @example stamp(null)                       // "—"
+ */
+function stamp(at) {
+  if (!at) return "—";
+  const d = new Date(at);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${d.toTimeString().slice(0, 5)}`;
+}
 
 const program = new Command();
 program.name("ygo").description("Headless Yu-Gi-Oh! duels for humans and LLM agents");
@@ -239,19 +256,21 @@ program
     const n = Number(opts.n);
     if (n < 1 || n > duel.responses.length) throw new Error(`cannot undo ${n} of ${duel.responses.length} responses`);
     duel.responses.length -= n;
+    duel.times = alignTimes(duel.times, duel.responses.length);
     saveDuel(duel);
     console.log(`rewound ${n}; ${duel.responses.length} responses remain`);
   });
 
 program
   .command("list")
-  .description("List duels")
+  .description("List duels, including finished ones — every record is kept and replayable")
   .action(async () => {
     for (const id of listDuels()) {
       const duel = loadDuel(id);
       const view = await viewDuel(duel, 2);
-      const status = view.ended ? `over: P${view.winner} wins (${victoryString(view.winReason)})` : `waiting on P${view.pendingPlayer}`;
-      console.log(`${id}: ${duel.decks[0].name} (${duel.players[0]}) vs ${duel.decks[1].name} (${duel.players[1]}), ${duel.responses.length} moves, ${status}`);
+      const status = view.ended ? `over: ${view.winner === 2 ? "draw" : `P${view.winner} wins`} (${victoryString(view.winReason)})` : `waiting on P${view.pendingPlayer}`;
+      const when = `created ${stamp(duel.created)}, last move ${stamp(moveTime(duel.times, duel.responses.length))}`;
+      console.log(`${id}: ${duel.decks[0].name} (${duel.players[0]}) vs ${duel.decks[1].name} (${duel.players[1]}), ${duel.responses.length} moves, ${status}, ${when}`);
     }
   });
 

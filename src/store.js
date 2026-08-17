@@ -5,6 +5,14 @@
  * ordered list of responses so far. That is the ENTIRE game — replaying it
  * (see duel.js) reproduces every shuffle, draw, and decision.
  *
+ * `times` rides alongside as wall-clock ANNOTATION: `times[i]` is the ISO
+ * timestamp at which `responses[i]` was recorded. It is never fed to the core
+ * and never changes a replay; it exists so a stored duel can be put back on a
+ * clock — which move happened when, and therefore what had been said in chat
+ * by that move (see chat.js `chatUpTo`). Records written before `times` existed
+ * simply lack it, and every reader must cope: `alignTimes` pads the missing
+ * entries with null rather than letting the two arrays drift out of step.
+ *
  * WARNING — information boundary: the file holds the seed, from which both
  * hands and both decks follow. A player who reads the file (or replays as
  * SPECTATOR) sees everything. Playing honestly means touching a duel only
@@ -95,14 +103,63 @@ export function listDuels(dir = DUELS_DIR) {
 }
 
 /**
+ * Pure function. A record's `times` as exactly one entry per response: missing
+ * or short (a record from before timestamps existed, or one rewound by `undo`)
+ * is padded with null, longer is truncated. Every reader of `times` goes
+ * through this, so index i always means responses[i].
+ *
+ * Args:
+ *     times (Array<string|null>|undefined): The record's `times`, if any.
+ *     count (number): Number of responses to align to.
+ *
+ * Returns:
+ *     Array<string|null>: Length `count`.
+ *
+ * Examples:
+ *     >>> alignTimes(["2026-08-16T18:00:00.000Z"], 3)
+ *     ["2026-08-16T18:00:00.000Z", null, null]
+ *     >>> alignTimes(undefined, 2)   // [null, null]   (a record written before `times`)
+ *     >>> alignTimes(["a", "b"], 1)  // ["a"]
+ */
+export function alignTimes(times, count) {
+  const known = times ?? [];
+  return Array.from({ length: count }, (_, i) => known[i] ?? null);
+}
+
+/**
+ * Pure function. When the position "after `at` moves" happened: the timestamp
+ * of the last replayed response, or null if it is the start of the duel or
+ * that move predates timestamps.
+ *
+ * Args:
+ *     times (Array<string|null>|undefined): The record's `times`.
+ *     at (number): How many responses have been replayed.
+ *
+ * Returns:
+ *     string|null: ISO timestamp.
+ *
+ * Examples:
+ *     >>> moveTime(["2026-08-16T18:00:00.000Z", "2026-08-16T18:01:00.000Z"], 2)
+ *     "2026-08-16T18:01:00.000Z"
+ *     >>> moveTime(["2026-08-16T18:00:00.000Z"], 0)  // null  (nothing has been played yet)
+ *     >>> moveTime(undefined, 5)                     // null  (no timestamps in this record)
+ */
+export function moveTime(times, at) {
+  if (at <= 0) return null;
+  return (times ?? [])[at - 1] ?? null;
+}
+
+/**
  * Query. Reads a duel record.
  *
  * Args:
  *     id (string): Duel id.
  *
  * Returns:
- *     {id, created, seed, decks: [{name, main, codes}, {name, main, codes}], players: [string, string], responses: OcgResponse[]}
+ *     {id, created, seed, decks: [{name, main, codes}, {name, main, codes}], players: [string, string], responses: OcgResponse[], times?: Array<string|null>}
  *     `codes` are the passcodes frozen at creation (see replayDuel).
+ *     `times[i]` is when `responses[i]` was played; absent on old records, so
+ *     read it through `alignTimes`/`moveTime`, never by raw index.
  */
 export function loadDuel(id) {
   const path = duelPath(id);
@@ -131,7 +188,8 @@ export function saveDuel(duel) {
  * Args:
  *     id (string): Source duel id.
  *     newId (string): Id for the branch (must not exist).
- *     at (number): How many responses to keep.
+ *     at (number): How many responses to keep (their `times` come along, so the
+ *         branch keeps the original moves' clock and only diverges after `at`).
  *     players ([string, string]|undefined): New seat labels; default = source's.
  *     created (string): ISO timestamp.
  *
@@ -142,7 +200,7 @@ export function forkDuel(id, newId, at, players, created) {
   const source = loadDuel(id);
   if (!Number.isInteger(at) || at < 0 || at > source.responses.length) throw new Error(`--at must be 0..${source.responses.length}`);
   if (existsSync(duelPath(newId))) throw new Error(`duel already exists: ${newId}`);
-  const branch = { ...source, id: newId, created, players: players ?? source.players, responses: source.responses.slice(0, at), forkedFrom: { id, at } };
+  const branch = { ...source, id: newId, created, players: players ?? source.players, responses: source.responses.slice(0, at), times: alignTimes(source.times, source.responses.length).slice(0, at), forkedFrom: { id, at } };
   saveDuel(branch);
   return branch;
 }
@@ -158,11 +216,11 @@ export function forkDuel(id, newId, at, players, created) {
  *     opts.created (string): ISO timestamp.
  *
  * Returns:
- *     object: The saved record.
+ *     object: The saved record, with empty `responses` and `times`.
  */
 export function createDuel({ id, seed, decks, players, created }) {
   if (existsSync(duelPath(id))) throw new Error(`duel already exists: ${id}`);
-  const duel = { id, created, seed, decks: decks.map((d) => ({ name: d.name, main: d.main, codes: expandDeck(d.main) })), players, responses: [] };
+  const duel = { id, created, seed, decks: decks.map((d) => ({ name: d.name, main: d.main, codes: expandDeck(d.main) })), players, responses: [], times: [] };
   saveDuel(duel);
   return duel;
 }

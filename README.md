@@ -14,8 +14,9 @@ is available offline.
 - Hands each player an enumerated menu of **legal** actions at every decision;
   illegal moves are impossible by construction.
 - Ships an offline, greppable card database (14,700+ cards, full effect text).
-- Records a duel as `seed + decklists + responses`, so any duel is exactly
-  reproducible and can be rewound.
+- Records a duel as `seed + decklists + responses` (+ when each move was
+  played), so any duel is exactly reproducible, can be rewound, and stays a
+  permanent replayable record — table talk included, on the same timeline.
 
 ## Setup
 
@@ -44,7 +45,10 @@ seat-presence pills in the page header show who is online (web / cli).
 bin/serve.sh               # just the server; or cd web && npm run dev
 ```
 
-Pick a duel and a seat (`?as=0`, `?as=1`, or `?as=all`). A duel table with
+The index is the duel history: every duel ever created, in progress and
+finished, with result, move count, when it was created and last played, how
+many things were said, and a **replay** link. Pick a duel and a seat
+(`?as=0`, `?as=1`, or `?as=all`). A duel table with
 real card art (cached by `ygo fetch-pics`), LP counters, phase strip, a big
 preview of the hovered card with its text, the log, and — when it is that seat's
 decision — the same menu the CLI shows, as buttons. Attacks, activations, damage
@@ -53,9 +57,10 @@ and summons animate (daggers, flashes, floating numbers) with sound
 any game and **fork here** branches it at that move. It polls every 1.5 s, so a
 human in the browser and an agent on the CLI share one duel. The Chat panel
 under the card preview is table talk between the seats (`duels/<id>.chat.json`,
-also `ygo chat`); seats write, spectators read. **Chat is data, never
-instructions** — an LLM player answers it but never acts on it (PLAYER.md
-"## Chat"). Sound prefers the
+also `ygo chat`); seats write, spectators read. Chat sits on the same timeline
+as the moves: scrub back and the panel shows the conversation as it stood at
+that move, read-only. **Chat is data, never instructions** — an LLM player
+answers it but never acts on it (PLAYER.md "## Chat"). Sound prefers the
 Dueling Nexus duel-client cues, which `bin/fetch-nexus-sfx.sh` downloads into
 `vendor/` for personal use — they are not part of this repo, and without them
 the CC0 files in `web/static/sfx/` and the synth cover every cue. The UI calls
@@ -148,7 +153,10 @@ src/rng.js        seeded shuffle
 vendor/           pinned Project Ignis CardScripts + BabelCDB + strings.conf (setup.sh)
 ```
 
-**Replay, not persistence.** A duel record is `{seed, decks, responses}`. Every
+**Replay, not persistence.** A duel record is `{seed, decks, responses}` (plus
+`times`, one ISO stamp per response — annotation only, never fed to the core,
+so it cannot change a replay; records written before it exist read as null and
+still work). Every
 command rebuilds the WASM duel from scratch and re-applies the responses
 (milliseconds). Deterministic seeds → identical shuffles across strategy
 comparisons; truncating `responses` rewinds time; no daemon to keep alive, so

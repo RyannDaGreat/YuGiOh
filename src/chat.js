@@ -18,6 +18,9 @@
  * `{seat: 0|1|2, name: string, text: string, at: ISO string}`.
  * Deliberately NOT inside `duels/<id>.json`: that file is the engine's replay
  * record (seed + decks + responses) and nothing but decisions belongs in it.
+ * The two files meet on the clock instead: each message's `at` against the duel
+ * record's `times`, so replaying a move can show the conversation as it stood
+ * at that move (`chatUpTo`) without chat ever touching the replay.
  *
  * Concurrency: appends are read-modify-write plus an atomic rename, like
  * store.saveDuel. Two messages posted in the same millisecond from two
@@ -154,6 +157,37 @@ export function chatSince(messages, since) {
   const cutoff = Date.parse(since);
   if (Number.isNaN(cutoff)) throw new Error(`not an ISO timestamp: ${JSON.stringify(since)}`);
   return messages.filter((m) => Date.parse(m.at) > cutoff);
+}
+
+/**
+ * Pure function. The conversation as it stood at a moment: every message sent
+ * at or before `upTo`. This is what puts chat on the duel's timeline — pass the
+ * timestamp of the move being replayed (session.js `atTime`, from store.js
+ * `times`) and you get the table talk the players had actually exchanged by
+ * then, instead of the whole log.
+ *
+ * A null cutoff means "the start of the duel, as far as we can tell": position
+ * 0, or a move from a record written before timestamps existed. Nothing is
+ * known to have been said by then, so nothing is shown.
+ *
+ * Args:
+ *     messages (Array<{at: string}>): Chat log, oldest first.
+ *     upTo (string|null): ISO timestamp, or null.
+ *
+ * Returns:
+ *     Array: The prefix of `messages` sent at or before `upTo`; [] when null.
+ *
+ * Examples:
+ *     >>> const log = [{at: "2026-08-16T18:00:00.000Z"}, {at: "2026-08-16T18:05:00.000Z"}]
+ *     >>> chatUpTo(log, "2026-08-16T18:00:00.000Z")  // [{at: "2026-08-16T18:00:00.000Z"}]
+ *     >>> chatUpTo(log, "2026-08-16T19:00:00.000Z")  // both messages
+ *     >>> chatUpTo(log, null)                        // []
+ */
+export function chatUpTo(messages, upTo) {
+  if (upTo === null || upTo === undefined) return [];
+  const cutoff = Date.parse(upTo);
+  if (Number.isNaN(cutoff)) throw new Error(`not an ISO timestamp: ${JSON.stringify(upTo)}`);
+  return messages.filter((m) => Date.parse(m.at) <= cutoff);
 }
 
 /**

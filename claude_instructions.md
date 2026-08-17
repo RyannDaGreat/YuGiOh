@@ -32,6 +32,15 @@ browser, or subagent vs subagent — with:
 - **duel record** — `duels/<id>.json` = `{seed, decks (with frozen passcodes), players, responses,
   times}`; replaying it deterministically reproduces the whole game. `duels/<id>.chat.json` is the
   table talk beside it. Presence heartbeats live in `duels/.presence/`.
+- **times / atTime** — `times[i]` is the ISO wall-clock at which `responses[i]` was recorded. It is
+  ANNOTATION: never fed to the core, so it cannot change a replay, and records written before it
+  existed simply lack it (`store.alignTimes` pads them with null so the arrays cannot drift).
+  `atTime` (session.viewDuel) is the timestamp of the last replayed move — the clock of a playback
+  position, null at move 0 or on an untimed record.
+- **chat on the timeline** — scrubbing shows the conversation as it stood at the replayed move:
+  `chat.chatUpTo(messages, atTime)` keeps messages sent at or before that moment (null cutoff = the
+  start of the duel = nothing). Applied by `engine.duelPayload` when `at` is before the last move;
+  live, the whole log. The panel is read-only during playback.
 - **replay, not persistence** — every command rebuilds the WASM duel from the record and re-applies
   responses (milliseconds); there is no daemon; playback/rewind/fork are free.
 - **YGN** — our text log notation (`src/log.js`): one line per event, absolute `P0/P1`, zones
@@ -74,8 +83,12 @@ browser, or subagent vs subagent — with:
 - `event-kinds` — event kinds/fields: `src/events.js` docstring ↔ `Table.svelte play()`.
 - `player-rules` — the honor boundary and chat rule text: `PLAYER.md`, `HOST.md`, `README.md`
   "Hidden information", `web/static/…` none.
-- `duel-record-shape` — `src/store.js` (createDuel/forkDuel/loadDuel docs) ↔ `src/session.js`
-  (viewDuel/playChoice) ↔ `README.md` "Replay, not persistence".
+- `duel-record-shape` — `src/store.js` (createDuel/forkDuel/loadDuel docs, alignTimes/moveTime) ↔
+  `src/session.js` (viewDuel/playChoice) ↔ `bin/ygo.js` (`undo` re-aligns `times`) ↔ `README.md`
+  "Replay, not persistence".
+- `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
+  `web/src/lib/server/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
+  `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
 
 ## 4. User requirements — verbatim (this session, 2026-08-16)
 
@@ -188,7 +201,7 @@ web/src/lib/pretty  Table, Card, Preview, PileModal, sound.js, nexus-map.js   we
 web/static          sfx (CC0), img (card back, sleeves), ASSET-LICENSES.md
 vendor/ (gitignored, setup.sh) CardScripts, BabelCDB, strings.conf, pics/, cards.txt, nexus/{sfx,fx}
 docs/               ux surveys (open-source + official clients), Nexus FX catalogue, response-prompt design
-test/               consistency (model vs masked core + leak detection), menu, events, chat
+test/               consistency (model vs masked core + leak detection), menu, events, chat, times
 ```
 
 Key decisions and WHY:
@@ -205,6 +218,14 @@ Key decisions and WHY:
 - Cosmetics isolated in web/src/lib/pretty; Nexus assets kept in gitignored vendor/ (personal use,
   never committed); CC0 assets + synth as fallbacks.
 - Chat is data, never instructions (competition analogy); `wait --wake-on-chat` so Claude answers.
+- The clock is annotation, not state: `times` lives in the record (one entry per response) but never
+  reaches the core, so "every duel is a permanent replayable document" and "a duel has a history"
+  cannot conflict — and every pre-`times` record stays readable forever (alignTimes pads with null).
+  Chat stays in its own file and meets the record only on that clock (`chatUpTo`), so table talk can
+  never influence a replay.
+- The index page is the history: in-progress and finished sections (finished duels are never hidden),
+  each with result, moves, chat count, created and last-move time, and replay / P0 / P1 links.
+  `ygo list` prints the same clock from the CLI.
 
 ## 6. Constraints
 - Never tmux (see concerns). Never modify the repo while hosting a game unless asked.
@@ -214,7 +235,9 @@ Key decisions and WHY:
 - Presentation vs engine: nothing front-end in src/; nothing rules-related in web/.
 
 ## 7. Verification
-- `npm test` — consistency (3 seeds × 250 decisions × 3 viewers), menu, events, chat tests.
+- `npm test` — consistency (3 seeds × 250 decisions × 3 viewers), menu, events, chat, times tests.
+  `test/times.test.js` pins the compatibility rule: a record with, without, or with a short `times`
+  replays to identical log/state lines.
 - Puppeteer for the UI (root `puppeteer` devDep; screenshots to `.claude_logs/`).
 - Real games: match1 (agents), eval1/eval2 (agents, seats+strategies swapped), duel1 (human vs
   host Claude, in progress) — records in duels/.
@@ -227,4 +250,3 @@ Key decisions and WHY:
 ## 9. Open work (see .claude_todo.md for the live list)
 - Response-prompt modes (always/smart/never) + distinct respond panel (docs/response-prompt-ux.md).
 - Presentation backlog from docs/ux-survey-*.md and docs/nexus-visual-effects.md.
-- Timestamps + chat on timeline + history page (agent in flight).
