@@ -1,3 +1,14 @@
 node_modules/
 vendor/
 .claude_logs/
+
+# Agent/session scratch, not project content. .claude/ holds git worktrees that
+# are full copies of this repo (hundreds of MB), so committing it would balloon
+# the history; .frenzy/ is parallel-agent scratch meant to be deleted freely.
+.claude/
+.frenzy/
+
+# Seat heartbeats: runtime state written every 1-2s by any client holding a seat
+# (src/presence.js). It says nothing about the game and never touches the duel
+# record, so versioning it only produces churn on every session.
+duels/.presence/
