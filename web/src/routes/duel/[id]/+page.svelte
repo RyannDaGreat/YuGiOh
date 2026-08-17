@@ -51,13 +51,15 @@
   let chatEl = $state(null);
   /** Messages already read; the collapsed header badges the rest. */
   // svelte-ignore state_referenced_locally — messages present at load count as read.
-  let chatSeen = $state(data.initial.chat.length);
+  let chatSeen = $state((data.initial.chat ?? []).length);
 
   const viewerLabel = $derived(view.viewer === 2 ? "spectator" : `P${view.viewer} — ${view.players[view.viewer]}`);
   const myTurn = $derived(playbackAt === null && !view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
   const me = $derived(view.viewer === 2 ? 0 : view.viewer);
   const canConfirm = $derived(view.menu && selected.length >= view.menu.min && selected.length <= view.menu.max);
-  const unreadChat = $derived(Math.max(0, view.chat.length - chatSeen));
+  // `view.chat ?? []`: a tab that hot-reloaded across the chat feature still holds an older payload.
+  const chatMessages = $derived(view.chat ?? []);
+  const unreadChat = $derived(Math.max(0, chatMessages.length - chatSeen));
   /** True while this seat owes the engine a decision — never a spectator, never during playback. */
   const myDecision = $derived(playbackAt === null && !view.ended && view.viewer !== 2 && view.pendingPlayer === view.viewer);
 
@@ -179,7 +181,7 @@
 
   $effect(() => {
     if (!chatOpen) return;
-    chatSeen = view.chat.length;
+    chatSeen = chatMessages.length;
     if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
   });
 
@@ -250,7 +252,7 @@
           {#if unreadChat && !chatOpen}<span class="px-1.5 rounded-full bg-amber-300 text-amber-950 font-bold">{unreadChat}</span>{/if}
         </summary>
         <div bind:this={chatEl} class="max-h-48 overflow-auto px-2 flex flex-col gap-1 leading-snug">
-          {#each view.chat as m}
+          {#each chatMessages as m}
             <div><span class="font-mono text-amber-100/50">{chatClock(m.at)}</span> <b class="text-amber-200">{m.name}</b><span class="text-amber-100/50"> ({m.seat === 2 ? "spec" : `P${m.seat}`}):</span> {m.text}</div>
           {:else}
             <p class="text-amber-100/50">No table talk yet.</p>
