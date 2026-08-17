@@ -1,0 +1,131 @@
+{
+  "name": "Blue-Eyes Dragons",
+  "category": "structure",
+  "format": "classic",
+  "note": "Blue-Eyes Dragons (Lord of D. + Flute) — docs/goat-decks.md §3.1. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §3.1",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "**Game plan:** cheat big Dragons out early and beat down while they can't be targeted.\n\n**Key cards / engine:** Lord of D. + The Flute of Summoning Dragon; Kaiser Sea Horse; Masked Dragon.\n\n**How to pilot / combo lines:**\n- **The signature turn:** Normal Summon `Lord of D.` (its text: \"Neither player can target Dragon monsters on the field with card effects\" [CDB]), then `The Flute of Summoning Dragon` \"Special Summon up to 2 Dragon monsters from your hand\" [CDB] — drop two `Blue-Eyes White Dragon` behind a Lord of D. that makes them untargetable.\n- **`Kaiser Sea Horse`** counts as two tributes for a LIGHT Tribute Summon, so one tribute brings out `Blue-Eyes` the fair way. **`Masked Dragon`** recruits a Dragon on death (grab a Blue-Eyes or `Twin-Headed Behemoth`). `Spear Dragon` pierces; `Stamping Destruction` pops a backrow + burns 500 while you control a Dragon.\n\n**Weaknesses:** Lord of D. only stops *targeting* — `Torrential Tribute`, `Mirror Force`, `Dark Hole` still wipe the Dragons; drawing Blue-Eyes with no Flute/Kaiser Sea Horse is a slow brick.\n\n*Extra Deck:* none (optional `King Dragun` if you add `Polymerization` + `Divine Dragon Ragnarok`).",
+  "main": [
+    [
+      "Lord of D.",
+      3
+    ],
+    [
+      "Blue-Eyes White Dragon",
+      3
+    ],
+    [
+      "Luster Dragon",
+      2
+    ],
+    [
+      "Luster Dragon #2",
+      2
+    ],
+    [
+      "Spear Dragon",
+      2
+    ],
+    [
+      "Masked Dragon",
+      2
+    ],
+    [
+      "Twin-Headed Behemoth",
+      1
+    ],
+    [
+      "Kaiser Sea Horse",
+      1
+    ],
+    [
+      "Sangan",
+      1
+    ],
+    [
+      "Sinister Serpent",
+      1
+    ],
+    [
+      "The Flute of Summoning Dragon",
+      3
+    ],
+    [
+      "Stamping Destruction",
+      1
+    ],
+    [
+      "Pot of Greed",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Delinquent Duo",
+      1
+    ],
+    [
+      "Heavy Storm",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Premature Burial",
+      1
+    ],
+    [
+      "Snatch Steal",
+      1
+    ],
+    [
+      "Nobleman of Crossout",
+      1
+    ],
+    [
+      "Book of Moon",
+      1
+    ],
+    [
+      "Mirror Force",
+      1
+    ],
+    [
+      "Torrential Tribute",
+      1
+    ],
+    [
+      "Ring of Destruction",
+      1
+    ],
+    [
+      "Call of the Haunted",
+      1
+    ],
+    [
+      "Sakuretsu Armor",
+      2
+    ],
+    [
+      "Bottomless Trap Hole",
+      1
+    ],
+    [
+      "Solemn Judgment",
+      1
+    ],
+    [
+      "Dust Tornado",
+      1
+    ]
+  ],
+  "extra": [],
+  "side": []
+}

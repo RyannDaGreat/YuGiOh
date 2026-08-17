@@ -1,0 +1,195 @@
+{
+  "name": "Cyber-Stein Combo",
+  "category": "structure",
+  "format": "goat",
+  "note": "Cyber-Stein Combo/OTK inside a control shell — docs/goat-decks.md §2.8. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §2.8",
+    "https://ygoprodeck.com/an-introduction-to-goat-format/",
+    "https://www.goatformat.com/whatisgoat.html",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "*Legality flag:* the famous Stein OTK targets (`Cyber Twin Dragon`, `Cyber End Dragon`) are **post-TLM and illegal**. The GOAT-legal kill uses `Master of Oz` + `Megamorph`; `Cyber-Stein` is Limited (1) so this is a *backup* inside a control shell.\n\n**Game plan:** play straight Goat Control until you can assemble the one-card burst kill.\n\n**Key cards / engine:** Cyber-Stein → Master of Oz → Megamorph.\n\n**How to pilot / combo lines:**\n- **The math (all [CDB]):** `Cyber-Stein` \"pay 5000 LP; Special Summon 1 Fusion Monster from your Extra Deck in Attack Position\" → summon `Master of Oz` (4200 ATK). You are now at **3000 LP**. `Megamorph`: \"While your LP is lower than your opponent's, the equipped monster's ATK becomes double its original ATK\" → 4200 × 2 = **8400**, exactly lethal through an open board.\n- **Set it up:** clear blockers first with `Brain Control`/`Snatch Steal` (steal their monster, swing or tribute it) so Master of Oz connects; revive a used `Cyber-Stein` with `Premature Burial`/`Call of the Haunted` for a second attempt.\n- Until you draw the pieces, pilot Goat Control: Scapegoat→TER, Tsukuyomi value, full trap suite.\n\n**Weaknesses:** you dip to 3000 LP mid-combo, so a live `Ring of Destruction`/`Sakuretsu`/`Mirror Force` can kill or blank you — only commit when it ends the game; `Megamorph` and Master of Oz are otherwise dead draws.",
+  "main": [
+    [
+      "Cyber-Stein",
+      1
+    ],
+    [
+      "Black Luster Soldier - Envoy of the Beginning",
+      1
+    ],
+    [
+      "Chaos Sorcerer",
+      1
+    ],
+    [
+      "Airknight Parshath",
+      1
+    ],
+    [
+      "D.D. Warrior Lady",
+      2
+    ],
+    [
+      "D.D. Assailant",
+      1
+    ],
+    [
+      "Sangan",
+      1
+    ],
+    [
+      "Sinister Serpent",
+      1
+    ],
+    [
+      "Magician of Faith",
+      1
+    ],
+    [
+      "Tsukuyomi",
+      2
+    ],
+    [
+      "Dekoichi the Battlechanted Locomotive",
+      1
+    ],
+    [
+      "Breaker the Magical Warrior",
+      1
+    ],
+    [
+      "Spirit Reaper",
+      1
+    ],
+    [
+      "Exiled Force",
+      1
+    ],
+    [
+      "Megamorph",
+      1
+    ],
+    [
+      "Metamorphosis",
+      1
+    ],
+    [
+      "Scapegoat",
+      1
+    ],
+    [
+      "Brain Control",
+      1
+    ],
+    [
+      "Premature Burial",
+      1
+    ],
+    [
+      "Snatch Steal",
+      1
+    ],
+    [
+      "Pot of Greed",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Delinquent Duo",
+      1
+    ],
+    [
+      "Heavy Storm",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Nobleman of Crossout",
+      1
+    ],
+    [
+      "Book of Moon",
+      2
+    ],
+    [
+      "Mirror Force",
+      1
+    ],
+    [
+      "Torrential Tribute",
+      1
+    ],
+    [
+      "Ring of Destruction",
+      1
+    ],
+    [
+      "Call of the Haunted",
+      1
+    ],
+    [
+      "Sakuretsu Armor",
+      2
+    ],
+    [
+      "Bottomless Trap Hole",
+      1
+    ],
+    [
+      "Solemn Judgment",
+      1
+    ],
+    [
+      "Dust Tornado",
+      1
+    ],
+    [
+      "Ceasefire",
+      1
+    ]
+  ],
+  "extra": [
+    [
+      "Master of Oz",
+      1
+    ],
+    [
+      "Thousand-Eyes Restrict",
+      1
+    ],
+    [
+      "Ryu Senshi",
+      1
+    ],
+    [
+      "Dark Balter the Terrible",
+      1
+    ],
+    [
+      "Musician King",
+      1
+    ]
+  ],
+  "side": [
+    [
+      "Kycoo the Ghost Destroyer",
+      2
+    ],
+    [
+      "Nobleman of Extermination",
+      2
+    ],
+    [
+      "Royal Decree",
+      2
+    ]
+  ]
+}

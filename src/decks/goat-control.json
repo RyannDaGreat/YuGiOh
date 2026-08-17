@@ -1,0 +1,209 @@
+{
+  "name": "Goat Control",
+  "category": "structure",
+  "format": "goat",
+  "note": "GOAT Control (\"Chaos Goat\") — docs/goat-decks.md §2.1. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §2.1",
+    "docs/goat-decks.md §1 (format + Goat Control game plan)",
+    "https://ygoprodeck.com/an-introduction-to-goat-format/",
+    "https://www.goatformat.com/whatisgoat.html",
+    "https://formatlibrary.com/formats/goat",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "**Game plan:** grind card advantage with cheap removal and Flip recursion, then close with one protected beater. [YP-GOAT]\n\n**Key cards / engine:** Scapegoat + Metamorphosis → Thousand-Eyes Restrict; Tsukuyomi + Magician of Faith/Dekoichi; Book of Moon; BLS.\n\n**How to pilot / combo lines:**\n- **The TER swing is two turns, not one.** Scapegoat is a Quick-Play; its text says \"You cannot Summon other monsters the turn you activate this card\" [CDB], so you cannot Scapegoat and Metamorphosis a token on the same turn. Make goats on the *opponent's* End Phase (or a prior turn), then on *your* turn tribute one token to `Metamorphosis` → `Thousand-Eyes Restrict`, which absorbs their best monster and locks the board [CDB].\n- **Tsukuyomi is the value engine.** Flip your `Magician of Faith` face-down to re-use its flip (rebuy a Limited Spell), flip `Dekoichi` for another draw, or flip an opponent's face-up beater face-down — stripping its Equip and position and setting it up for `Nobleman of Crossout` or a clean attack. Tsukuyomi bounces to hand each End Phase [CDB], so it repeats.\n- **Book of Moon** is your Swiss-army trick: flip your monster face-down to dodge targeted removal or a battle, flip the opponent's attacker mid-combat to blank it, deny a Tribute Summon, or flip a monster to enable `Nobleman of Crossout` [CDB].\n- **Sequencing:** lead with floaters (`Sangan`, `Sinister Serpent`) and set one reactive trap; make the opponent commit into `Bottomless`/`Sakuretsu`/`Mirror Force`. Hold `Delinquent Duo` and `Graceful Charity` for when they refill your grip rather than emptying it.\n- **Closing:** bank chip damage, then drop `Black Luster Soldier`; banish their wall (no attack that turn) or swing and take the double attack for lethal [CDB]. `Cyber-Stein → Master of Oz` is an emergency finisher, not the plan.\n\n**Weaknesses:** soft to a fast `Heavy Storm` blowing out a set-heavy board, to being out-tempoed by pure aggro before the grind starts, and to your own brick hands (all traps / all monsters). Watch LP vs `Ring of Destruction`.",
+  "main": [
+    [
+      "Black Luster Soldier - Envoy of the Beginning",
+      1
+    ],
+    [
+      "Chaos Sorcerer",
+      1
+    ],
+    [
+      "Airknight Parshath",
+      1
+    ],
+    [
+      "Sangan",
+      1
+    ],
+    [
+      "Sinister Serpent",
+      1
+    ],
+    [
+      "Magician of Faith",
+      1
+    ],
+    [
+      "Tsukuyomi",
+      2
+    ],
+    [
+      "Dekoichi the Battlechanted Locomotive",
+      1
+    ],
+    [
+      "Breaker the Magical Warrior",
+      1
+    ],
+    [
+      "D.D. Warrior Lady",
+      2
+    ],
+    [
+      "D.D. Assailant",
+      1
+    ],
+    [
+      "Exiled Force",
+      1
+    ],
+    [
+      "Spirit Reaper",
+      1
+    ],
+    [
+      "Cyber-Stein",
+      1
+    ],
+    [
+      "Night Assailant",
+      1
+    ],
+    [
+      "Pot of Greed",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Delinquent Duo",
+      1
+    ],
+    [
+      "Heavy Storm",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Premature Burial",
+      1
+    ],
+    [
+      "Snatch Steal",
+      1
+    ],
+    [
+      "Scapegoat",
+      1
+    ],
+    [
+      "Metamorphosis",
+      1
+    ],
+    [
+      "Nobleman of Crossout",
+      1
+    ],
+    [
+      "Book of Moon",
+      2
+    ],
+    [
+      "Mirror Force",
+      1
+    ],
+    [
+      "Torrential Tribute",
+      1
+    ],
+    [
+      "Ring of Destruction",
+      1
+    ],
+    [
+      "Call of the Haunted",
+      1
+    ],
+    [
+      "Sakuretsu Armor",
+      2
+    ],
+    [
+      "Bottomless Trap Hole",
+      1
+    ],
+    [
+      "Solemn Judgment",
+      1
+    ],
+    [
+      "Dust Tornado",
+      1
+    ],
+    [
+      "Ceasefire",
+      1
+    ],
+    [
+      "Trap Dustshoot",
+      1
+    ]
+  ],
+  "extra": [
+    [
+      "Thousand-Eyes Restrict",
+      1
+    ],
+    [
+      "Ryu Senshi",
+      1
+    ],
+    [
+      "Dark Balter the Terrible",
+      1
+    ],
+    [
+      "Musician King",
+      1
+    ],
+    [
+      "Master of Oz",
+      1
+    ],
+    [
+      "Flame Swordsman",
+      1
+    ]
+  ],
+  "side": [
+    [
+      "Kycoo the Ghost Destroyer",
+      2
+    ],
+    [
+      "Royal Decree",
+      2
+    ],
+    [
+      "Nobleman of Extermination",
+      2
+    ],
+    [
+      "Divine Wrath",
+      1
+    ],
+    [
+      "Ceasefire",
+      1
+    ]
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "name": "Warrior Toolbox",
+  "category": "structure",
+  "format": "goat",
+  "note": "Warrior Toolbox — docs/goat-decks.md §2.2. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §2.2",
+    "https://ygoprodeck.com/an-introduction-to-goat-format/",
+    "https://formatlibrary.com/formats/goat",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "**Game plan:** faster \"fair\" deck — tutor the right Warrior, apply board+hand pressure, still keep the Chaos/Metamorphosis reach.\n\n**Key cards / engine:** Reinforcement of the Army toolbox; Marauding Captain; D.D. Warrior Lady; BLS.\n\n**How to pilot / combo lines:**\n- **`Reinforcement of the Army` is your answer tutor** — fetch `D.D. Warrior Lady` into a big beater (banishes both in battle — denies the opponent's Chaos fuel), `Exiled Force` to pop a problem, or `Marauding Captain` to develop.\n- **`Marauding Captain` doubles up:** on Normal Summon it Special Summons a Level-4-or-lower monster from hand [CDB], so one card becomes two bodies, and while it's up the opponent \"cannot target Warrior monsters for attacks, except this one\" [CDB] — your backrow-light board survives a turn.\n- **`Blade Knight` is 2000 ATK when you hold ≤1 card**, so empty your hand into the board and let it close; `Don Zaloog` chips the hand/deck on damage; `Exarion Universe` pierces defense.\n- Lead with `Trap Dustshoot` where possible to strip their key card and read the game plan; use `Book of Moon`/`Sakuretsu` to punch a lane open, then race.\n- The `Scapegoat`→`Metamorphosis`→TER package is still here as a defensive reset when the race stalls — same two-turn timing as Goat Control.\n\n**Weaknesses:** thinner trap suite than Control means it folds to a bigger control deck's grind if the aggression stalls; mass removal (`Torrential`, `Mirror Force`) punishes over-committing your Warriors.",
+  "main": [
+    [
+      "Black Luster Soldier - Envoy of the Beginning",
+      1
+    ],
+    [
+      "Chaos Sorcerer",
+      1
+    ],
+    [
+      "Exarion Universe",
+      1
+    ],
+    [
+      "D.D. Warrior Lady",
+      2
+    ],
+    [
+      "D.D. Assailant",
+      1
+    ],
+    [
+      "Don Zaloog",
+      1
+    ],
+    [
+      "Gearfried the Iron Knight",
+      1
+    ],
+    [
+      "Marauding Captain",
+      2
+    ],
+    [
+      "Blade Knight",
+      1
+    ],
+    [
+      "Exiled Force",
+      1
+    ],
+    [
+      "Breaker the Magical Warrior",
+      1
+    ],
+    [
+      "Mystic Swordsman LV2",
+      1
+    ],
+    [
+      "Sangan",
+      1
+    ],
+    [
+      "Sinister Serpent",
+      1
+    ],
+    [
+      "Magician of Faith",
+      1
+    ],
+    [
+      "Spirit Reaper",
+      1
+    ],
+    [
+      "Reinforcement of the Army",
+      1
+    ],
+    [
+      "Pot of Greed",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Delinquent Duo",
+      1
+    ],
+    [
+      "Heavy Storm",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Premature Burial",
+      1
+    ],
+    [
+      "Snatch Steal",
+      1
+    ],
+    [
+      "Scapegoat",
+      1
+    ],
+    [
+      "Metamorphosis",
+      1
+    ],
+    [
+      "Book of Moon",
+      2
+    ],
+    [
+      "Mirror Force",
+      1
+    ],
+    [
+      "Torrential Tribute",
+      1
+    ],
+    [
+      "Ring of Destruction",
+      1
+    ],
+    [
+      "Call of the Haunted",
+      1
+    ],
+    [
+      "Sakuretsu Armor",
+      2
+    ],
+    [
+      "Bottomless Trap Hole",
+      1
+    ],
+    [
+      "Solemn Judgment",
+      1
+    ],
+    [
+      "Dust Tornado",
+      1
+    ],
+    [
+      "Trap Dustshoot",
+      1
+    ]
+  ],
+  "extra": [
+    [
+      "Thousand-Eyes Restrict",
+      1
+    ],
+    [
+      "Ryu Senshi",
+      1
+    ],
+    [
+      "Dark Balter the Terrible",
+      1
+    ],
+    [
+      "Musician King",
+      1
+    ],
+    [
+      "Master of Oz",
+      1
+    ]
+  ],
+  "side": []
+}
