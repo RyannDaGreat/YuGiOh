@@ -320,3 +320,27 @@ card content but different manuals. So they should have different names." A deck
 its NAME/id (unique), not by its card list. Two decks may share identical main/extra/side and
 differ only in name + manual (same 40 cards piloted aggressively vs as control = two decks). The
 loader/store must never dedupe or merge decks by card content; the manual is intrinsic to the deck.
+
+## 11. Visual overlay layer — card-move animation, reflow, life points, relationship lines (added 2026-08-16, user requirement)
+
+**Intent.** Every card that changes zones should ANIMATE from where it was to where it goes (deck→hand draw, hand→field summon, field→GY, deck→GY, GY→field revival, field→field, hand→deck, …), optionally flipping mid-flight when its face-up-ness changes (a drawn card reveals; a set card hides). Hands and zones should reflow smoothly (neighbours slide over) instead of snapping. Life points should tween up/down with the anime "life-point ticking" sound while moving and a "settle" sound when they land. When an equip card is attached to a monster, a faint dashed line links the two cards.
+
+**Unifying principle (WHY — this is what stops it being whack-a-mole).** An animation is just *interpolating the delta between state N and state N+1*. You never write a "deck→hand" animation vs a "field→GY" animation; you interpolate whatever moved. Three interpolators cover everything:
+- position of a card → a flyer that travels from the source slot's screen rect to the destination slot's rect;
+- layout of a zone (neighbours) → Svelte `animate:flip` on a keyed `{#each}`;
+- a scalar (life points) → a number tween.
+There is ONE flyer for ALL zone permutations because it is driven by physical MOVEs (a `from` and a `to`), not by semantics. Semantics (summon/tribute/destroy) keep driving *sounds and flashes* separately.
+
+**Reuses existing infrastructure (Table.svelte).** `centerOf(id)` already resolves a `data-zone` id to a table-relative point; `dagger(fromId,toId)` already spawns an SVG element that travels between two zones and auto-removes; `play(ev)` already dispatches per-event sound+flash; `fx` is a per-zone effect-class map; `floats`/`daggers`/`toss` are the existing overlay lists. Every zone already carries `data-zone={zoneId(p,zone,seq)}`, whose `{p,zone,seq}` matches `events.js coord()`. The flyer is `dagger` carrying a card face; relationship lines are a second SVG overlay; LP is a number tween. Everything lives in `web/src/lib/pretty/` (the pretty boundary — bells and whistles never leak into the engine).
+
+**Data additions (backend).**
+- `src/events.js`: emit a generic `move {i, kind:"move", from, to, name, faceFrom, faceTo, reason}` for every `T.MOVE` (both coords already available as `m.from`/`m.to`). Drives the flyer for ALL permutations. Existing `banish`/`tograve`/`summon`/`set` events stay for their sounds/flashes. `draw` (which is per-count, not per-card) animates `count` deck→hand flyers. (event-kinds binding gains `move`.)
+- `src/state.js`: alongside the existing `equippedTo` label, add `equipTarget: coord(card.equipCard)` so the client can resolve the target *slot* for the relationship line. (Query already requests `EQUIP_CARD`.)
+
+**Files.** `web/src/lib/pretty/FlyingCard.svelte` (a card face that animates from→to, rotateY flip at the midpoint when `faceFrom≠faceTo`), `web/src/lib/pretty/RelationLines.svelte` (dashed SVG lines over the mat, one per equip link, endpoints from `centerOf`), `web/src/lib/pretty/LPCounter.svelte` (tweens the displayed LP; loops an anime tick sound while moving, plays a settle sound on land), plus `sound.js` cues `lptick`/`lpsettle` and the sourced anime sounds under `web/static/sfx` (licences noted, personal-use like the other Nexus assets). `Table.svelte` wires them: overlay lists for flyers, `<RelationLines>` mount, `animate:flip` + stable keys on the hand/zone `{#each}`, and `<LPCounter>` replacing the static `{lp}`.
+
+**Scrubber/playback integration.** Animate only on a SINGLE-step advance (a live move, or one 1.1s play/pause tick). On a multi-move scrub jump, snap (no flyers). One guard; reuses the same flyer.
+
+**Masking.** The flyer and lines are driven by the MASKED event/state stream, so they can never reveal more than the viewer may see (an opponent's draw flies as a face-down back; a hidden equip is simply not linked).
+
+**Card identity.** The flyer needs none — the `move` event already carries `from`+`to`. Only the intra-zone reflow keys (`animate:flip`) need a stable per-card key; a deterministic per-move id (or hand order + code) suffices. This is the ONLY identity surface — deliberately small.

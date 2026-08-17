@@ -98,3 +98,18 @@ delete. The manifest says WHAT the project is; this says HOW it got here, includ
   - Manifest-first was violated here: this agent started before the manifest existed on its base
     commit and only received it by merging main mid-task, so the manifest was updated after the
     code. Sections 2/3/5/7/9 now describe what shipped.
+
+---
+
+## 2026-08-16 — Visual overlay layer (animations) workstream START
+
+**What / why:** User asked (green-lit "go build everything") for: unified card-movement animations (any zone→any zone, flip mid-flight), smooth hand/zone reflow, life-point tween with the anime tick/settle sound, and dashed equip relationship lines. Design discussion first (they explicitly wanted to avoid "whack-a-mole / patching a sinking ship").
+
+**Design decisions recorded (see claude_instructions.md §11):**
+- Chose "interpolate the delta between state N and N+1" as the ONE abstraction, so all zone permutations share a single flyer instead of N² hand-written transitions. This directly answers the user's whack-a-mole concern.
+- Grounded it in EXISTING infra rather than greenfield: `centerOf`/`data-zone` anchors, the `dagger` overlay pattern, `play(ev)` dispatcher, `fx` map — all already in Table.svelte (daggers already fly between two zones).
+- Backend unifying primitive: a generic `move {from,to,…}` event on every T.MOVE (both coords already present in the core MOVE message). Existing semantic events keep driving sounds.
+
+**Divvy decision (user asked me to manage/divvy agents):** Table.svelte is the shared hinge for flyer + reflow + equip lines + LP-mount, so parallel worktree agents on it would collide badly. Therefore I serialize the Table-coupled work MYSELF (one owner, no merge conflicts) and hand the ONE genuinely-independent + slow chunk — sourcing the anime LP tick/settle sounds + a self-contained LPCounter component + sound.js cues — to a single worktree agent. Honest engineering over parallelism theatre. (Prior architecture Q&A: rejected swapping SQLite for a DB server — SQLite is in-process/µs, a server adds socket round-trips; the real cost was replay, fixed by memoizing card lookups (immutable data, not a fragile cache) and caching finished-duel summaries keyed on move-count (self-invalidating). Recorded here so the "why not a second server" reasoning isn't lost.)
+
+**Risks to watch:** (1) coord() zone names vs zoneId() names must line up for slot lookup (spot-checked: both use m/s/hand/grave/removed/deck/extra). (2) masking — flyer/lines must ride the masked stream only. (3) scrubber: must NOT fire flyers on multi-move jumps. (4) pile anchors (deck/GY) have a single data-zone rect, which is the intended source/dest for cards entering/leaving a stack. Append snags below as they occur.
