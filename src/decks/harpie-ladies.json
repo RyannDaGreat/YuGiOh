@@ -1,0 +1,46 @@
+{
+  // Classic archetype build (2002-2008 era), not an official product — see docs/decks-archetypes.md §1.
+  // Names verified verbatim against vendor/BabelCDB/cards.cdb via `node bin/ygo.js card`.
+  "name": "Harpie Ladies",
+  "category": "curated",
+  "format": "classic",
+  "manual": "**Game plan:** swarm cheap WIND fliers, pump them with field/equip boosts, and use every Harpie summon to blow up the opponent's backrow — overwhelm through accumulated attack power and spell/trap destruction while controlling their S/T.\n\n**Key cards / engine:** Harpie Lady 1 (+300 to all WIND) + Harpies' Hunting Ground; Elegant Egotist -> Harpie Lady Sisters; Hysteric Party mass-revival.\n\n**How to pilot / combo lines:**\n- **The core swarm loop is Elegant Egotist.** With any \"Harpie Lady\" already up, Egotist Special Summons 1 \"Harpie Lady\" or \"Harpie Lady Sisters\" from your hand or Deck [CDB]. Each Harpie that hits the field triggers `Harpies' Hunting Ground` — destroy 1 Spell/Trap whenever a Harpie Lady/Sisters is Normal or Special Summoned [CDB] — so every summon doubles as 1-for-1 backrow removal.\n- **Stat stacking is real.** `Harpie Lady 1` gives all WIND +300 [CDB]; `Harpies' Hunting Ground` gives all Winged Beasts +200/200 [CDB]; `Cyber Shield` equips a Harpie for +500 [CDB]. A 1300-base Harpie under all three swings for ~2300.\n- **`Harpie's Pet Dragon` scales with the board:** gains 300 ATK/DEF for each Harpie Lady on the field [CDB] — three Harpies make it a 2000+900=2900 boss. Tribute a spent flier into it as your finisher.\n- **Harpie Lady Sisters + Triangle Ecstasy Spark:** Sisters must be Special Summoned by Elegant Egotist [CDB]; once out, `Triangle Ecstasy Spark` makes all Harpie Lady Sisters 2700 ATK, stops the opponent from activating Traps, and negates their Trap effects already on the field [CDB].\n- **`Hysteric Party` is the recursion engine:** discard 1 card to Special Summon as many \"Harpie Lady\" as possible from your GY [CDB]; every revived Harpie re-triggers Hunting Ground. Rebuild an entire board after a Mirror Force.\n- **`Birdface`** adds a Harpie Lady from Deck to hand on battle-death, and **`Flying Kamakiri #1`** Special Summons a WIND monster with ATK <=1500 from Deck on battle-death [CDB] — both refuel the swarm. `Harpie Queen` discards to search Harpies' Hunting Ground [CDB].\n- **`Sonic Shooter`** can attack directly if the opponent's Spell & Trap Zone is empty [CDB] — Hunting Ground clears it for you, so it's a reliable direct hit. `Icarus Attack` tributes a spent Winged Beast to destroy 2 cards.\n\n**Weaknesses:** individual Harpies have low ATK, so a big single beater walls the swarm; the deck folds hard to Torrential Tribute/Mirror Force into an over-committed board; and negating name-treatment shuts off Elegant Egotist.",
+  "sources": [
+    "docs/decks-archetypes.md",
+    "https://yugipedia.com/wiki/Harpie",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "main": [
+    ["Harpie Lady 1", 3],
+    ["Harpie Lady 2", 1],
+    ["Harpie Lady 3", 1],
+    ["Cyber Harpie Lady", 2],
+    ["Harpie Lady Sisters", 1],
+    ["Harpie Queen", 1],
+    ["Harpie's Pet Dragon", 1],
+    ["Birdface", 2],
+    ["Flying Kamakiri #1", 2],
+    ["Sonic Shooter", 2],
+    ["Harpies' Hunting Ground", 3],
+    ["Elegant Egotist", 2],
+    ["Cyber Shield", 1],
+    ["Triangle Ecstasy Spark", 1],
+    ["Harpie's Feather Duster", 1],
+    ["Pot of Greed", 1],
+    ["Graceful Charity", 1],
+    ["Heavy Storm", 1],
+    ["Mystical Space Typhoon", 1],
+    ["Swords of Revealing Light", 1],
+    ["Book of Moon", 1],
+    ["Hysteric Party", 3],
+    ["Icarus Attack", 1],
+    ["Mirror Force", 1],
+    ["Torrential Tribute", 1],
+    ["Call of the Haunted", 1],
+    ["Bottomless Trap Hole", 1],
+    ["Sakuretsu Armor", 1],
+    ["Widespread Ruin", 1]
+  ],
+  "extra": [],
+  "side": []
+}

@@ -1,0 +1,45 @@
+{
+  // Classic archetype build (2002-2008 era), not an official product — see docs/decks-archetypes.md §5.
+  // Names verified verbatim against vendor/BabelCDB/cards.cdb via `node bin/ygo.js card`.
+  "name": "Insect Queen",
+  "category": "curated",
+  "format": "classic",
+  "manual": "**Game plan:** cheat the boss `Insect Queen` onto the board fast, make it enormous, and lock the opponent out of attacking while your recruiters keep the swarm topped up.\n\n**Key cards / engine:** Pinch Hopper -> Insect Queen; DNA Surgery (type-flip) -> Queen ATK + Insect Barrier lock + Doom Dozer fuel.\n\n**How to pilot / combo lines:**\n- **`Pinch Hopper` cheats out the Queen.** When it's sent to your GY, Special Summon 1 Insect monster from your hand [CDB] — chump `Pinch Hopper` (or feed it to a trap), then drop **`Insect Queen`** from hand, skipping the two-tribute cost; Insect Queen can also be Special Summoned this way per its own text.\n- **`DNA Surgery` is the payoff multiplier.** Declare Insect, and all face-up monsters on the field become that Type [CDB]. Now: (1) **`Insect Queen` balloons** — it gains 200 ATK for each Insect monster on the field [CDB], and every monster on both sides now counts, so a full board can push it past 3000+. (2) **`Insect Barrier` becomes a hard lock** — Insect monsters the opponent controls cannot declare an attack [CDB]; with DNA Surgery active, all their monsters are Insects, so they cannot attack at all.\n- **Feed the Queen its attack tax for free.** Insect Queen cannot declare an attack unless you Tribute 1 monster, and during the End Phase, if it destroyed a monster by battle, Special Summon 1 Insect Monster Token [CDB] — use the Token as tribute fodder so the Queen's tax is painless and the swarm never shrinks.\n- **`Doom Dozer` off the recruiters:** Special Summon by banishing 2 Insect monsters from your GY, for a 2800 trampler that mills on damage [CDB]. Your recruiters stock the GY: **`Gokipon`** searches an Insect with ATK <=1500 on battle-death [CDB]; **`Howling Insect`** Special Summons an Insect with ATK <=1500 from Deck on battle-death [CDB]; **`Flying Kamakiri #1`** (an Insect) Special Summons a WIND monster with ATK <=1500. Chumping into their attacks builds your board and Doom Dozer fuel.\n- **`Insect Imitation`** tributes 1 monster to Special Summon 1 Insect from your Deck that is 1 Level higher [CDB] — turn a Level 5 into `Insect Queen` (Lv7) directly, or ladder up your recruiters. **`Verdant Sanctuary`** replaces any destroyed Insect with a same-Level Insect from Deck [CDB], flooding the GY/hand relentlessly.\n- **`Chainsaw Insect`** is a 2400 beater whose drawback (the opponent draws 1) barely matters in an aggressive shell [CDB]; use it to trade up early. `Anteatereatingant` / `Insect Knight` are clean beaters to fill curve.\n\n**Weaknesses:** `DNA Surgery` is a floodgate you want face-up but it can be MST'd off, undoing the Barrier lock; the deck is monster-heavy so a resolved Mirror Force/Torrential Tribute sets you back; Insect Queen dies to targeted removal like any single boss.",
+  "sources": [
+    "docs/decks-archetypes.md",
+    "https://yugipedia.com/wiki/Card_Tips:Insect_Queen",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "main": [
+    ["Insect Queen", 2],
+    ["Pinch Hopper", 3],
+    ["Gokipon", 3],
+    ["Howling Insect", 2],
+    ["Chainsaw Insect", 2],
+    ["Insect Knight", 2],
+    ["Doom Dozer", 1],
+    ["Flying Kamakiri #1", 1],
+    ["Ultimate Insect LV3", 1],
+    ["Anteatereatingant", 1],
+    ["Insect Barrier", 2],
+    ["Insect Imitation", 2],
+    ["Verdant Sanctuary", 1],
+    ["Pot of Greed", 1],
+    ["Graceful Charity", 1],
+    ["Heavy Storm", 1],
+    ["Mystical Space Typhoon", 1],
+    ["Premature Burial", 1],
+    ["Snatch Steal", 1],
+    ["Book of Moon", 1],
+    ["DNA Surgery", 2],
+    ["Mirror Force", 1],
+    ["Torrential Tribute", 1],
+    ["Call of the Haunted", 1],
+    ["Bottomless Trap Hole", 1],
+    ["Sakuretsu Armor", 2],
+    ["Dust Tornado", 1],
+    ["Solemn Judgment", 1]
+  ],
+  "extra": [],
+  "side": []
+}

@@ -1,0 +1,51 @@
+{
+  // Classic archetype build (2002-2008 era), not an official product — see docs/decks-archetypes.md §3.
+  // Distinct from the Zombie Madness (SD2) structure deck and the Zombie Zoo goat build already in this repo.
+  // Names verified verbatim against vendor/BabelCDB/cards.cdb via `node bin/ygo.js card`.
+  "name": "Zombie Graveyard",
+  "category": "curated",
+  "format": "classic",
+  "manual": "**Game plan:** a resilient grave-value beatdown — chump and crash your recruiters into their monsters to cheat out big Zombies, then loop them back with revival spells.\n\n**Key cards / engine:** Pyramid Turtle toolbox; Book of Life / Mezuki / Call of the Haunted revival; Vampire Lord self-revive.\n\n**How to pilot / combo lines:**\n- **`Pyramid Turtle` is the toolbox.** On battle-destruction, Special Summon 1 Zombie with DEF <=2000 from your Deck [CDB] — one of the few battle recruiters that can Special Summon in Defense Position, and DEF-gated so you crash it to fetch offensive threats. Prime targets: **`Ryu Kokki`** (2400 ATK; also destroys any Warrior/Spellcaster it battles at the end of the Damage Step [CDB]), **`Vampire Lord`**, **`Il Blud`**, or another Pyramid Turtle to chain.\n- **`Book of Life` is a two-for-one swing:** target 1 Zombie in your GY and 1 monster in the opponent's GY; Special Summon the first, also banish the second [CDB] — revive Ryu Kokki/Vampire Lord and strip a piece of their graveyard fuel at once. (`Mezuki` banishes itself from GY to revive any GY Zombie [CDB] as a second engine.)\n- **`Vampire Lord` grinds forever:** on damage, declare a card type and the opponent sends 1 of that type from their Deck to the GY; once per turn, if it was destroyed by an opponent's card effect, it Special Summons itself back from your GY [CDB] — it comes back on its own if they use targeted/effect removal, so force them to answer it with battle.\n- **`Creature Swap` + `Pyramid Turtle`:** Swap gives them the Turtle and takes their monster; run your borrowed beater into the Turtle to trigger its recruit for value. It's also a clean way to hand off a used `Goblin Zombie` (which searches a Zombie with DEF <=1200 when it leaves the field [CDB]).\n- **`Zombie Master`** sends 1 monster from hand to GY, then Special Summons 1 Level 4 or lower Zombie from either GY [CDB] — fuels the GY and re-summons a body every turn (revive `Pyramid Turtle` to re-arm the recruit, or a `Goblin Zombie`).\n- **`Despair from the Dark`** Special Summons itself if it's sent from hand or Deck to GY by an opponent's card effect [CDB] — a free 2800 beater whenever they mill you.\n- **`Double Coston`** counts as 2 Tributes for a DARK Tribute Summon [CDB] — hard-cast Vampire Lord off one card. **`Zombie World`** turns everything (including both GYs) into Zombies and locks non-Zombie Tribute Summons [CDB], powering your `Pyramid Turtle`/`Book of Life` targeting off the opponent's monsters.\n\n**Weaknesses:** leans on the GY, so `Necrovalley`/banish effects and D.D. removal hurt; `Ryu Kokki` does nothing special into non-Warrior/Spellcaster boards; over-extending walks into `Torrential Tribute`.",
+  "sources": [
+    "docs/decks-archetypes.md",
+    "https://yugipedia.com/wiki/Card_Tips:Pyramid_Turtle",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "main": [
+    ["Pyramid Turtle", 3],
+    ["Vampire Lord", 2],
+    ["Zombie Master", 2],
+    ["Goblin Zombie", 2],
+    ["Ryu Kokki", 1],
+    ["Despair from the Dark", 1],
+    ["Il Blud", 1],
+    ["Mezuki", 1],
+    ["Double Coston", 1],
+    ["Patrician of Darkness", 1],
+    ["Regenerating Mummy", 1],
+    ["Master Kyonshee", 1],
+    ["Spirit Reaper", 1],
+    ["Book of Life", 2],
+    ["Zombie World", 1],
+    ["Creature Swap", 1],
+    ["Smashing Ground", 1],
+    ["Premature Burial", 1],
+    ["Snatch Steal", 1],
+    ["Book of Moon", 1],
+    ["Pot of Greed", 1],
+    ["Graceful Charity", 1],
+    ["Heavy Storm", 1],
+    ["Mystical Space Typhoon", 1],
+    ["Mirror Force", 1],
+    ["Torrential Tribute", 1],
+    ["Call of the Haunted", 1],
+    ["Sakuretsu Armor", 2],
+    ["Bottomless Trap Hole", 1],
+    ["Ring of Destruction", 1],
+    ["Widespread Ruin", 1],
+    ["Dust Tornado", 1],
+    ["Solemn Judgment", 1]
+  ],
+  "extra": [],
+  "side": []
+}

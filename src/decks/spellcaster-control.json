@@ -1,0 +1,43 @@
+{
+  "name": "Spellcaster Control",
+  "category": "curated",
+  "format": "classic",
+  "note": "Dark Magician / Magician's Circle Spellcaster deck — docs/decks-archetypes.md §8. Distinct build from src/decks/dark-magician.json. Names validated against cards.cdb.",
+  "sources": [
+    "docs/decks-archetypes.md",
+    "https://yugipedia.com/wiki/Card_Tips:Magician's_Circle"
+  ],
+  "manual": "**Game plan:** get `Dark Magician` (2500) onto the board cheaply through a web of Spellcaster tutors and swing with a protected wizard, using `Magician's Circle` and `Magical Dimension` for free bodies and removal.\n\n**Key cards / engine:** Skilled Dark Magician / Sage's Stone into Dark Magician; Magician's Circle; Magical Dimension; Spell-Counter cheaters.\n\n**How to pilot / combo lines:**\n- **Three ways to cheat out Dark Magician:** (1) `Skilled Dark Magician` banks a Spell Counter per spell resolved, then tributes itself at 3 counters to Special Summon Dark Magician from hand, Deck, or GY — this deck plays many spells, so it charges fast. (2) `Sage's Stone`: while you control a face-up Dark Magician Girl, Special Summon Dark Magician from hand or Deck. (3) `Magical Dimension`: tribute a monster you control to Special Summon a Spellcaster from hand, then you can destroy 1 monster on the field — tribute a spent Apprentice/Magician of Faith into Dark Magician and blow up a threat, all at instant speed.\n- **`Magician's Circle` is a two-way ambush.** When a Spellcaster declares an attack, each player Special Summons a Spellcaster with 2000 or less ATK from their Deck — attack with any wizard to pull a free Chaos Command Magician/Valkyria. It works best when every card in the deck is a Spellcaster that qualifies as a hit.\n- **`Apprentice Magician` chains bodies:** on summon it places a Spell Counter (feeding Skilled Dark Magician), and on battle-death it Special Summons a Level-2-or-lower Spellcaster from Deck face-down — fetch `Old Vindictive Magician` (FLIP destroys an opponent's monster) or `Magician of Faith` (rebuy a key spell).\n- **Protect the ace.** `Magician's Valkyria` stops the opponent's monsters from targeting face-up Spellcasters for attacks (except itself), bodyguarding Dark Magician. `Chaos Command Magician` negates monster effects that target it. `Book of Moon` flips Dark Magician face-down to dodge targeted removal.\n- **Reach:** `Dark Magic Attack` (while you control Dark Magician, destroy all opposing Spells/Traps) clears the way for lethal; `Thousand Knives` with Dark Magician up destroys 1 monster; `Breaker the Magical Warrior` pops a backrow on summon.\n\n**Weaknesses:** somewhat reliant on drawing an enabler for Dark Magician; Magician's Circle hands the opponent a body too; wizards outside Dark Magician are individually mid-sized, so a resolved big beater stalls you until you assemble removal.",
+  "main": [
+    ["Dark Magician", 3],
+    ["Skilled Dark Magician", 2],
+    ["Dark Magician Girl", 1],
+    ["Magician's Valkyria", 2],
+    ["Apprentice Magician", 2],
+    ["Old Vindictive Magician", 2],
+    ["Magician of Faith", 2],
+    ["Breaker the Magical Warrior", 1],
+    ["Chaos Command Magician", 1],
+    ["Defender, the Magical Knight", 1],
+    ["Magical Dimension", 3],
+    ["Sage's Stone", 1],
+    ["Dark Magic Attack", 1],
+    ["Thousand Knives", 1],
+    ["Pot of Greed", 1],
+    ["Graceful Charity", 1],
+    ["Heavy Storm", 1],
+    ["Mystical Space Typhoon", 1],
+    ["Premature Burial", 1],
+    ["Snatch Steal", 1],
+    ["Book of Moon", 1],
+    ["Magician's Circle", 3],
+    ["Mirror Force", 1],
+    ["Torrential Tribute", 1],
+    ["Call of the Haunted", 1],
+    ["Bottomless Trap Hole", 1],
+    ["Sakuretsu Armor", 2],
+    ["Solemn Judgment", 1]
+  ],
+  "extra": [],
+  "side": []
+}

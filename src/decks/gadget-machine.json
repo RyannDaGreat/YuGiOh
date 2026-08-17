@@ -1,0 +1,45 @@
+{
+  // Classic archetype build (2002-2008 era), not an official product — see docs/decks-archetypes.md §4.
+  // Names verified verbatim against vendor/BabelCDB/cards.cdb via `node bin/ygo.js card`.
+  "name": "Gadgets / Machine Beatdown",
+  "category": "curated",
+  "format": "classic",
+  "manual": "**Game plan:** grind pure card advantage with the self-replacing Gadget trio, run a pile of 1-for-1 removal to clear the way, and close with a Machine haymaker — the classic Gadget philosophy of swarming the field and running lots of one-for-one removal.\n\n**Key cards / engine:** Green -> Red -> Yellow -> Green search loop; Ultimate Offering; Ancient Gear Golem / Monarch payoffs.\n\n**How to pilot / combo lines:**\n- **The Gadgets never cost you a card.** Each, on Normal or Special Summon, adds the next in the cycle: Green -> `Red Gadget`, Red -> `Yellow Gadget`, Yellow -> `Green Gadget` [CDB]. Every turn you Normal-Summon a Gadget you replace it — a 1600 body and a fresh card, indefinitely.\n- **`Ultimate Offering` doubles your Gadget output.** Pay 500 LP to Normal Summon/Set 1 monster during your Main Phase or the opponent's Battle Phase [CDB]. Pay 500 to Normal-Summon a second Gadget, it searches again, netting +1 card and +1 body per activation. During the opponent's attack you can flash in a Gadget (searching) as a surprise blocker.\n- **Gadgets are Tribute fuel that replace themselves**, so Tribute-Summoning a Monarch is card-neutral: sac a Gadget (which already drew its replacement) for **`Mobius the Frost Monarch`** (pop 2 backrow) or **`Thestalos the Firestorm Monarch`** (random discard + burn). With `Ultimate Offering` you can Normal-Summon a Gadget and then Tribute-Summon a Monarch the same turn.\n- **`Ancient Gear Golem` is the finisher:** if it attacks, the opponent cannot activate any Spell/Trap until the end of the Damage Step, and it has piercing damage into Defense [CDB] — swings for 3000 through set monsters and their traps. (`Ancient Gear Beast` is the smaller, effect-negating version [CDB].) Both cannot be Special Summoned [CDB], so hard-tribute them off Gadgets.\n- **`Limiter Removal` is the surprise kill:** double the ATK of all Machine monsters you control, then destroy them in the End Phase [CDB] — three 1600 Gadgets become 3200 each for one lethal alpha strike (their self-replacement already banked the cards). `Machine King` also gains 100 ATK per Machine on the field [CDB].\n- **Removal suite:** `Smashing Ground`/`Fissure`/`Bottomless Trap Hole`/`Sakuretsu Armor`/`Mirror Force` keep the board clear so your fair Machines always trade up. `Cyber Dragon` is a free 2100 body when they have a monster and you don't.\n\n**Weaknesses:** Machine-specific hate (System Down, mass banish) and anti-search floodgates shut the engine off; individual Gadgets are small, so a resolved big body stalls you until you draw a Monarch/Golem.",
+  "sources": [
+    "docs/decks-archetypes.md",
+    "https://yugipedia.com/wiki/Gadget",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "main": [
+    ["Green Gadget", 3],
+    ["Red Gadget", 3],
+    ["Yellow Gadget", 3],
+    ["Cyber Dragon", 1],
+    ["Ancient Gear Golem", 1],
+    ["Ancient Gear Beast", 1],
+    ["Machine King", 1],
+    ["Roboyarou", 2],
+    ["Thestalos the Firestorm Monarch", 1],
+    ["Mobius the Frost Monarch", 1],
+    ["Smashing Ground", 2],
+    ["Fissure", 1],
+    ["Limiter Removal", 1],
+    ["Brain Control", 1],
+    ["Pot of Greed", 1],
+    ["Graceful Charity", 1],
+    ["Heavy Storm", 1],
+    ["Mystical Space Typhoon", 1],
+    ["Premature Burial", 1],
+    ["Snatch Steal", 1],
+    ["Book of Moon", 2],
+    ["Ultimate Offering", 3],
+    ["Mirror Force", 1],
+    ["Torrential Tribute", 1],
+    ["Call of the Haunted", 1],
+    ["Bottomless Trap Hole", 1],
+    ["Sakuretsu Armor", 2],
+    ["Dust Tornado", 1]
+  ],
+  "extra": [],
+  "side": []
+}
