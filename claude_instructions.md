@@ -280,3 +280,9 @@ ask Claude to do it."
 - Adding a deck is a Claude task: research the deck deeply (frenzy-style per deck), author the
   JSON + manual to this template, validate names against cards.cdb, fetch its art. The deck
   viewer's "add a deck" affordance should tell the user to ask Claude to do it.
+
+**Deck identity** (user, 2026-08-16): "you may actually have multiple decks that have the same
+card content but different manuals. So they should have different names." A deck is identified by
+its NAME/id (unique), not by its card list. Two decks may share identical main/extra/side and
+differ only in name + manual (same 40 cards piloted aggressively vs as control = two decks). The
+loader/store must never dedupe or merge decks by card content; the manual is intrinsic to the deck.
