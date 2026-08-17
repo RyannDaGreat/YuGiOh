@@ -17,7 +17,7 @@ import { test } from "node:test";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { appendChat, chatPath, chatSince, formatChat, loadChat, MAX_CHAT_CHARS } from "../src/chat.js";
+import { appendChat, chatPath, chatSince, chatUpTo, formatChat, loadChat, MAX_CHAT_CHARS } from "../src/chat.js";
 import { listDuels } from "../src/store.js";
 
 /** A duel record stub: chat only ever reads `players` from it. */
@@ -100,4 +100,23 @@ test("chatSince / formatChat", () => {
 
   assert.match(formatChat(log[0]), /^\[\d\d:\d\d:\d\d\] ryan \(P0\): gl hf$/);
   assert.match(formatChat({ ...log[0], seat: 2, name: "spectator" }), /spectator \(spectator\): gl hf$/);
+});
+
+test("chatUpTo puts the conversation on the duel's timeline", () => {
+  const log = [
+    { seat: 0, name: "ryan", text: "gl hf", at: "2026-08-16T18:00:00.000Z" },
+    { seat: 1, name: "claude", text: "same", at: "2026-08-16T18:05:00.000Z" },
+    { seat: 0, name: "ryan", text: "ouch", at: "2026-08-16T18:20:00.000Z" },
+  ];
+  // The cutoff a caller passes is store.js `times[at - 1]` (session.js `atTime`).
+  const times = ["2026-08-16T18:02:00.000Z", "2026-08-16T18:10:00.000Z"];
+  assert.deepEqual(chatUpTo(log, times[0]), [log[0]], "replaying move 1 shows only what had been said by then");
+  assert.deepEqual(chatUpTo(log, times[1]), [log[0], log[1]]);
+  assert.deepEqual(chatUpTo(log, log[1].at), [log[0], log[1]], "a message sent exactly at the cutoff counts");
+  assert.deepEqual(chatUpTo(log, "2026-08-16T23:00:00.000Z"), log, "past the last move, the whole log");
+
+  assert.deepEqual(chatUpTo(log, null), [], "move 0 / a record without times: nothing is known to have been said");
+  assert.deepEqual(chatUpTo(log, undefined), []);
+  assert.deepEqual(chatUpTo([], "2026-08-16T18:00:00.000Z"), []);
+  assert.throws(() => chatUpTo(log, "yesterday"), /not an ISO timestamp/);
 });

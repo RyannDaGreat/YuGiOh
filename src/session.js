@@ -11,7 +11,7 @@ import { OcgMessageType } from "ocgcore-wasm";
 import { buildMenu, chooseFromMenu, hintsBefore, renderMenu, timingWords } from "./menu.js";
 import { mulberry32 } from "./rng.js";
 import { collectState, renderState } from "./state.js";
-import { loadDuel, saveDuel } from "./store.js";
+import { alignTimes, loadDuel, moveTime, saveDuel } from "./store.js";
 import { cardInfo, summarizeCard } from "./cards.js";
 import { maskStream, SPECTATOR } from "./view.js";
 
@@ -59,6 +59,10 @@ export function parseViewer(text) {
  *       messageCount: number,                total masked messages for this viewer
  *       applied: number,                     recorded responses consumed
  *       at: number, total: number,           position shown / moves in the record
+ *       atTime: string|null,                 when the last replayed move was played (store.js
+ *                                            `times`); null at move 0 or on a record without
+ *                                            timestamps. This is the clock a caller filters
+ *                                            chat against (chat.js `chatUpTo`).
  *       events: object[],                    animation digest (events.js), indices into the masked stream
  *     }
  */
@@ -101,6 +105,7 @@ export async function viewDuel(duel, viewer, at) {
       messageCount: masked.length,
       applied: result.applied,
       at: responses.length,
+      atTime: moveTime(duel.times, responses.length),
       total: duel.responses.length,
       events: extractEvents(masked, viewer, STARTING_LP, deckSizes),
     };
@@ -113,10 +118,15 @@ export async function viewDuel(duel, viewer, at) {
  * Command. Applies a player's choice to a duel: validates it against the menu,
  * checks the core accepts it, appends it to the record, and saves.
  *
+ * The move is also stamped: `now` is appended to the record's `times` so the
+ * duel keeps a clock (store.js). `responses` itself is untouched in shape and
+ * meaning — a replay reads it exactly as before.
+ *
  * Args:
  *     id (string): Duel id.
  *     player (0|1): Who is answering (must match whom the core is asking).
  *     choice (string): Menu choice text (see menu.js), or "random".
+ *     now (string): ISO timestamp recorded for this move; defaults to the clock.
  *
  * Returns:
  *     {response: OcgResponse, chosenLabel: string, newLogLines: string[], next: {pendingPlayer, ended}}
@@ -126,7 +136,7 @@ export async function viewDuel(duel, viewer, at) {
  *     Error: not this player's turn to answer, malformed choice, or the core
  *     rejected the response. Nothing is saved in any of those cases.
  */
-export async function playChoice(id, player, choice) {
+export async function playChoice(id, player, choice, now = new Date().toISOString()) {
   const duel = loadDuel(id);
   const before = await viewDuel(duel, player);
   if (before.ended) throw new Error(`duel ${id} is over`);
@@ -139,7 +149,7 @@ export async function playChoice(id, player, choice) {
 
   // Dry-run: the replay throws on MSG_RETRY, so a core-rejected response never
   // reaches the file.
-  const trial = { ...duel, responses: [...duel.responses, response] };
+  const trial = { ...duel, responses: [...duel.responses, response], times: [...alignTimes(duel.times, duel.responses.length), now] };
   const after = await viewDuel(trial, player);
   saveDuel(trial);
   const newLogLines = after.logLines.slice(before.logLines.length);

@@ -1,4 +1,7 @@
-/** Index page: list duels, create a duel. */
+/**
+ * Index page: the duel history (every stored duel, in progress and finished,
+ * with when it was played and how much was said) and the create form.
+ */
 import { fail, redirect } from "@sveltejs/kit";
 import { duelSummaries, listDecks, newDuel } from "$lib/server/engine.js";
 

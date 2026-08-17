@@ -6,11 +6,11 @@
 
 import { cardInfo, codeOf, summarizeCard } from "../../../../src/cards.js";
 import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../../../../src/session.js";
-import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel } from "../../../../src/store.js";
+import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime } from "../../../../src/store.js";
 import { victoryString } from "../../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
 import { heartbeat, presence } from "../../../../src/presence.js";
-import { appendChat, loadChat } from "../../../../src/chat.js";
+import { appendChat, chatUpTo, loadChat } from "../../../../src/chat.js";
 
 export { listDecks, listDuels, parseViewer };
 
@@ -20,10 +20,14 @@ export { listDecks, listDuels, parseViewer };
  * Args:
  *     id (string): Duel id.
  *     viewer (0|1|2)
+ *     at (number|undefined): Playback position; undefined = live.
  *
  * Returns:
- *     Promise<object>: {id, viewer, players, ended, winner, winText, pendingPlayer, state, logLines, menu, chat, moves}
+ *     Promise<object>: {id, viewer, players, ended, winner, winText, pendingPlayer, state, logLines, menu, chat, atTime, playback, moves}
  *     `chat` rides along so the page's single poll also refreshes table talk.
+ *     During playback (`at` before the last move) it is cut off at `atTime`, so
+ *     scrubbing shows the conversation as it stood at that move rather than
+ *     leaking what the players said later; live, it is the whole log.
  */
 export async function duelPayload(id, viewer, at) {
   const duel = loadDuel(id);
@@ -31,14 +35,17 @@ export async function duelPayload(id, viewer, at) {
   if (viewer !== 2) heartbeat(id, viewer, "web", now);
   const view = await viewDuel(duel, viewer, at);
   const prompt = await promptText(duel, viewer, at);
+  const playback = at !== undefined && at < view.total;
   return {
     prompt,
     presence: presence(id, now),
-    chat: loadChat(id),
+    chat: playback ? chatUpTo(loadChat(id), view.atTime) : loadChat(id),
     backs: seatBacks(duel.players),
     id,
     viewer,
     at: view.at,
+    atTime: view.atTime,
+    playback,
     total: view.total,
     players: duel.players,
     ended: view.ended,
@@ -100,7 +107,14 @@ export function cardText(name) {
 }
 
 /**
- * Command. One-line summaries of every duel for the index page.
+ * Command. One row per stored duel for the index page's history: who played
+ * what, how it went, and when — every duel is a permanent record, so finished
+ * games stay listed and replayable forever. Replays each duel.
+ *
+ * Returns:
+ *     Promise<Array<{id, decks, players, moves, ended, status, created, lastMove, chatCount}>>
+ *     `lastMove` is null for a duel whose moves predate store.js `times` (or
+ *     which has no moves yet). Newest activity first.
  */
 export async function duelSummaries() {
   const rows = [];
@@ -112,8 +126,12 @@ export async function duelSummaries() {
       decks: duel.decks.map((d) => d.name),
       players: duel.players,
       moves: duel.responses.length,
-      status: view.ended ? `over — P${view.winner} wins (${victoryString(view.winReason)})` : `waiting on P${view.pendingPlayer}`,
+      ended: view.ended,
+      status: view.ended ? `${view.winner === 2 ? "draw" : `P${view.winner} (${duel.players[view.winner]}) wins`} — ${victoryString(view.winReason)}` : `waiting on P${view.pendingPlayer}`,
+      created: duel.created ?? null,
+      lastMove: moveTime(duel.times, duel.responses.length),
+      chatCount: loadChat(id).length,
     });
   }
-  return rows;
+  return rows.sort((a, b) => String(b.lastMove ?? b.created ?? "").localeCompare(String(a.lastMove ?? a.created ?? "")));
 }
