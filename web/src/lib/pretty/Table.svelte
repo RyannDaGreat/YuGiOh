@@ -17,6 +17,8 @@
    */
   import Card from "./Card.svelte";
   import PileModal from "./PileModal.svelte";
+  import Icon from "@iconify/svelte";
+  import { scale } from "svelte/transition";
   import { sfx } from "./sound.js";
 
   let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"] } = $props();
@@ -39,6 +41,38 @@
   const MAX_BURST = 10;
   /** Stagger used when many events land at once (scrubbing), so a burst still finishes quickly. */
   const FAST_STEP_MS = 160;
+  /** How long a coin/dice toss stays on screen (about one second, matching the SFX). */
+  const TOSS_MS = 1100;
+
+  /**
+   * Pure function. Which of a 3×3 pip grid are inked for a die face 1–6.
+   * Cells are indexed row-major (0 = top-left, 4 = centre, 8 = bottom-right).
+   *
+   * @param {number} n - Die face, 1–6
+   * @returns {number[]} indices of filled pips, ascending
+   *
+   * @example diePips(1) // [4]
+   * @example diePips(3) // [0, 4, 8]
+   * @example diePips(6) // [0, 2, 3, 5, 6, 8]
+   */
+  function diePips(n) {
+    const faces = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+    return faces[n] ?? [4];
+  }
+
+  /** A brief centered coin/dice result overlay: {kind, results, id} or null. */
+  let toss = $state(null);
+  let tossTimer = null;
+
+  /**
+   * Command. Flashes a coin/dice result in the middle of the table for ~1s.
+   * A fresh toss replaces any still on screen (id bumps the keyed transition).
+   */
+  function showToss(kind, results) {
+    clearTimeout(tossTimer);
+    toss = { kind, results, id: daggerId++ };
+    tossTimer = setTimeout(() => { toss = null; }, TOSS_MS);
+  }
 
   const bottom = $derived(board.players[me]);
   const top = $derived(board.players[1 - me]);
@@ -218,9 +252,11 @@
         if (sound) sfx.shuffle();
         break;
       case "coin":
+        showToss("coin", ev.results);
         if (sound) sfx.coinflip();
         break;
       case "dice":
+        showToss("dice", ev.results);
         if (sound) sfx.diceroll();
         break;
       case "draw":
@@ -390,6 +426,38 @@
   {#each floats as f (f.id)}
     <div class="absolute fx-float font-black text-2xl pointer-events-none {f.cls} [text-shadow:0_0_6px_#000]" style="left:{f.x}px; top:{f.y}px">{f.text}</div>
   {/each}
+
+  <!-- Coin / dice toss result, centered for ~1s (paired with the coinflip/diceroll SFX). -->
+  {#if toss}
+    {#key toss.id}
+      <div class="absolute inset-0 z-30 flex items-center justify-center pointer-events-none" transition:scale={{ duration: 200, start: 0.6 }}>
+        <div class="flex flex-col items-center gap-2 rounded-2xl bg-black/75 px-6 py-4 border border-amber-400/40 shadow-2xl">
+          <span class="text-[0.6rem] uppercase tracking-widest text-amber-200/80">{toss.kind === "coin" ? "coin toss" : "dice roll"}</span>
+          <div class="flex gap-3">
+            {#each toss.results as r}
+              {#if toss.kind === "coin"}
+                <div class="flex flex-col items-center gap-1">
+                  <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-200 to-amber-500 text-amber-950 flex items-center justify-center shadow-inner ring-2 ring-amber-100">
+                    <Icon icon={r ? "mdi:crown" : "mdi:shield-outline"} width="26" height="26" />
+                  </div>
+                  <span class="text-[0.6rem] font-bold text-amber-100">{r ? "heads" : "tails"}</span>
+                </div>
+              {:else}
+                <div class="flex flex-col items-center gap-1">
+                  <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-100 to-slate-300 p-1.5 grid grid-cols-3 grid-rows-3 gap-0.5 shadow-inner ring-1 ring-slate-400">
+                    {#each Array(9) as _, cell}
+                      <span class="rounded-full {diePips(r).includes(cell) ? 'bg-slate-900' : ''}"></span>
+                    {/each}
+                  </div>
+                  <span class="text-[0.6rem] font-bold text-amber-100">{r}</span>
+                </div>
+              {/if}
+            {/each}
+          </div>
+        </div>
+      </div>
+    {/key}
+  {/if}
 </div>
 
 {#if pileModal}

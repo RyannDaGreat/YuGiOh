@@ -27,6 +27,14 @@
    */
   const mode = $derived(!card ? "empty" : !known ? "back" : !faceDown ? "art" : own || debug ? "peek" : "back");
   const hoverable = $derived(mode === "art" || mode === "peek");
+  /**
+   * Total counters resting on this card (spell counters, etc.). fieldCardData
+   * carries them as {counterType: count}; the pip shows the running total and
+   * the tooltip breaks it down by type. Hidden while the card is a mere back —
+   * you cannot see counters on a card you cannot identify.
+   */
+  const counterTotal = $derived(card?.counters ? Object.values(card.counters).reduce((a, b) => a + b, 0) : 0);
+  const counterTitle = $derived(card?.counters ? Object.entries(card.counters).map(([type, n]) => `${n}×#${type}`).join(", ") : "");
 </script>
 
 <div class="relative card-box card-{size} shrink-0 {fx}" role="presentation" onmouseenter={() => hoverable && onhover(card)}>
@@ -51,6 +59,10 @@
       {/if}
       {#if count !== null}
         <span class="absolute right-0.5 bottom-0.5 text-[0.6rem] font-bold bg-black/70 text-amber-100 px-1 rounded">{count}</span>
+      {/if}
+      {#if counterTotal > 0 && mode !== "back"}
+        <!-- Distinct from the pile `count` badge: a counters pip, top-left. -->
+        <span class="absolute left-0.5 top-0.5 min-w-[1rem] text-center text-[0.6rem] leading-none font-bold bg-sky-500/90 text-white ring-1 ring-sky-200 rounded-full px-1 py-0.5" title="counters: {counterTitle}">{counterTotal}</span>
       {/if}
     </button>
     {#if card.atk !== undefined && mode !== "back"}
