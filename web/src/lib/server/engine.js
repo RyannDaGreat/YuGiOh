@@ -128,20 +128,36 @@ export function cardText(name) {
  *     `lastMove` is null for a duel whose moves predate store.js `times` (or
  *     which has no moves yet). Newest activity first.
  */
+/**
+ * Per-duel cache of the one expensive part of a summary: the replay result.
+ * A duel's outcome is fully determined by its move list, so we key on the move
+ * count — a finished duel is replayed ONCE ever, and an in-progress one only when
+ * it gains a move. Everything else in a summary row (chat count, timestamps) is a
+ * cheap file/array read and is recomputed fresh each call. `id -> {moves, result}`.
+ */
+const summaryReplayCache = new Map();
+
 export async function duelSummaries() {
   const rows = [];
   for (const id of listDuels()) {
     const duel = loadDuel(id);
-    const view = await viewDuel(duel, 2);
+    const moves = duel.responses.length;
+    const cached = summaryReplayCache.get(id);
+    let r = cached && cached.moves === moves ? cached.result : null;
+    if (!r) {
+      const view = await viewDuel(duel, 2); // the costly step: a full engine replay
+      r = { ended: view.ended, winner: view.winner, pendingPlayer: view.pendingPlayer, winReason: view.winReason };
+      summaryReplayCache.set(id, { moves, result: r });
+    }
     rows.push({
       id,
       decks: duel.decks.map((d) => d.name),
       players: duel.players,
-      moves: duel.responses.length,
-      ended: view.ended,
-      status: view.ended ? `${view.winner === 2 ? "draw" : `P${view.winner} (${duel.players[view.winner]}) wins`} — ${victoryString(view.winReason)}` : `waiting on P${view.pendingPlayer}`,
+      moves,
+      ended: r.ended,
+      status: r.ended ? `${r.winner === 2 ? "draw" : `P${r.winner} (${duel.players[r.winner]}) wins`} — ${victoryString(r.winReason)}` : `waiting on P${r.pendingPlayer}`,
       created: duel.created ?? null,
-      lastMove: moveTime(duel.times, duel.responses.length),
+      lastMove: moveTime(duel.times, moves),
       chatCount: loadChat(id).length,
     });
   }
