@@ -1,0 +1,53 @@
+{
+  // Structure Deck: Blaze of Destruction (SD3), TCG-EN print, 40 cards,
+  // SD3-EN001..031. North American release May 9, 2005 (en_database_id 14401002).
+  // Contents + counts from Yugipedia's set article; every name verified against
+  // cards.cdb via `node bin/ygo.js card`. No renamed cards — all names match the
+  // DB exactly. Note the DB spelling "Tribute to The Doomed" (capital "The").
+  "name": "Blaze of Destruction (SD3)",
+  "category": "structure",
+  "format": "classic",
+  "manual": "FIRE/Pyro burn-beatdown: chip with effect damage and a UFO Turtle recruiter engine, then close with a fat Pyro.\nCore engine — Solar Flare Dragon + UFO Turtle: Solar Flare Dragon cannot be attacked as long as you control another Pyro (itself protected by any second Pyro), and burns 500 each of your End Phases. UFO Turtle, when destroyed by battle, Special Summons a FIRE monster (≤1500 ATK) from the Deck — search out a Solar Flare Dragon (or a second Turtle) to keep the wall/burn going. Two-plus Solar Flares stacked = unblockable 1000+ per turn while they sit safe.\nBurn multipliers: Dark Room of Nightmare tacks +300 onto each burn/effect-damage instance, and Backfire pings 500 every time a FIRE monster is destroyed — so your Turtles/Sprites dying is still profit. Meteor of Destruction throws a flat 1000 when they are at 3000+ LP; Raging Flame Sprite starts at 100 ATK but attacks directly and gains 1000 each time it connects, snowballing into a kill if unanswered.\nPayoff — Infernal Flame Emperor: a Lv9 you must Tribute Summon (no Special Summon); on Tribute Summon, banish up to 5 FIRE monsters from your GY to destroy that many Spells/Traps — your dead Turtles, Sprites, and Flares refuel it, and it clears their backrow before the 2700 body swings. Feed the GY first with Tribute to The Doomed (discard 1 to destroy a monster) and Molten Zombie (Special Summons itself when it hits the GY by a card effect, e.g. discarded), then tribute up.\nField + support: Molten Destruction (FIRE +500 ATK / -400 DEF) turns Gaia Soul, Blazing Inpachi, and Great Angus into real beaters and pushes Emperor to 3200. Thestalos the Firestorm Monarch is a Tribute-Summon body that discards from their hand for burn. Level Limit - Area B flips their attackers to Defense so your Solar Flares out-race them; Snatch Steal / Premature Burial / Monster theft and revival plug tempo; Heavy Storm, Mystical Space Typhoon, Dust Tornado, Spell Shield Type-8, Nobleman of Crossout handle their backrow and threats; Pot of Greed, Reload, and Jar of Greed refill; Call of the Haunted recurs a body.\nWeaknesses: slow and grindy — dedicated aggro can race the burn before it adds up; the whole plan is FIRE, so a single Solemn/removal answer plus GY hate (banishing your Flares/Turtles) starves both the Solar Flare wall and Infernal Flame Emperor's fuel; no Extra Deck, so there is no combo escape hatch if the engine is broken up.",
+  "sources": [
+    "https://yugipedia.com/wiki/Structure_Deck:_Blaze_of_Destruction",
+    "https://yugipedia.com/wiki/Set_Card_Lists:Blaze_of_Destruction_(TCG-EN)"
+  ],
+  "main": [
+    // Monsters (18)
+    ["Infernal Flame Emperor", 1],   // SD3-EN001 (Ultra Rare) — boss / backrow nuke
+    ["Great Angus", 1],              // SD3-EN002
+    ["Blazing Inpachi", 1],          // SD3-EN003
+    ["UFO Turtle", 3],               // SD3-EN004 — FIRE recruiter engine
+    ["Little Chimera", 1],           // SD3-EN005
+    ["Inferno", 2],                  // SD3-EN006
+    ["Molten Zombie", 1],            // SD3-EN007 — self-SS from GY when discarded
+    ["Solar Flare Dragon", 2],       // SD3-EN008 — burn wall
+    ["Ultimate Baseball Kid", 2],    // SD3-EN009 — +1000 ATK per FIRE monster
+    ["Raging Flame Sprite", 1],      // SD3-EN010 — direct-attack snowball
+    ["Thestalos the Firestorm Monarch", 1], // SD3-EN011
+    ["Gaia Soul the Combustible Collective", 1], // SD3-EN012
+    ["Fox Fire", 1],                 // SD3-EN013
+    // Spells (15)
+    ["Snatch Steal", 1],             // SD3-EN014
+    ["Mystical Space Typhoon", 1],   // SD3-EN015
+    ["Molten Destruction", 2],       // SD3-EN016 — Field: FIRE +500 ATK / -400 DEF
+    ["Nobleman of Crossout", 1],     // SD3-EN017
+    ["Premature Burial", 1],         // SD3-EN018
+    ["Pot of Greed", 1],             // SD3-EN019
+    ["Tribute to The Doomed", 1],    // SD3-EN020 — DB spelling: capital "The"
+    ["Heavy Storm", 1],              // SD3-EN021
+    ["Dark Room of Nightmare", 1],   // SD3-EN022 — +300 per burn instance
+    ["Reload", 1],                   // SD3-EN023
+    ["Level Limit - Area B", 2],     // SD3-EN024
+    ["Necklace of Command", 1],      // SD3-EN025
+    ["Meteor of Destruction", 1],    // SD3-EN026 — 1000 burn when they're at 3000+
+    // Traps (7)
+    ["Dust Tornado", 2],             // SD3-EN027
+    ["Call of the Haunted", 1],      // SD3-EN028
+    ["Jar of Greed", 1],             // SD3-EN029
+    ["Spell Shield Type-8", 1],      // SD3-EN030
+    ["Backfire", 2]                  // SD3-EN031 — 500 burn per FIRE destroyed
+  ],
+  "extra": [],
+  "side": []
+}

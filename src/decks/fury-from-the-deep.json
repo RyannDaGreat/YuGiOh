@@ -1,0 +1,53 @@
+{
+  // Structure Deck: Fury from the Deep (SD4), TCG North American print.
+  // 40 cards, 32 distinct, SD4-EN001..032. Released July 27, 2005 (TCG-EN).
+  // Contents verified against Yugipedia + Yu-Gi-Oh! Fandom wiki (see "sources");
+  // every card name validated exactly against cards.cdb. Placement: all main
+  // (no Fusion/Synchro/Xyz/Link cards exist in this set), so extra/side empty.
+  "name": "Fury from the Deep (SD4)",
+  "category": "structure",
+  "format": "classic",
+  "note": "Structure Deck: Fury from the Deep (SD4), TCG-EN. 40 cards (1 Ultra Rare + 39 Common), SD4-EN001..032, released 2005-07-27. The WATER control/beatdown deck built around A Legendary Ocean.",
+  "manual": "WATER beatdown-control built on A Legendary Ocean (= \"Umi\"): it gives every WATER monster +200 ATK/DEF and drops all WATER in hand/field by 1 Level. That Level cut is the whole engine.\n\nCore lock (lead here): with A Legendary Ocean up, your Level-4 bodies become Level 3 at 2000 ATK (7 Colored Fish, Sea Serpent Warrior of Darkness). Set Gravity Bind — \"Level 4 or higher cannot attack\" — and only your shrunken Level-3 team can still swing while the opponent's board is frozen. Add Tornado Wall (no battle damage while Umi is up) for a near-total stall. Mermaid Knight (Level 3 under Ocean) attacks twice = 2x1700; Amphibious Bugroth MK-3 attacks directly for 1700; Star Boy pumps all WATER +500 on top.\n\nMobius line: A Legendary Ocean makes Mobius the Frost Monarch cheap to land off one tribute (feed it a spent Mother Grizzly); on Tribute Summon it pops up to 2 Spell/Traps and stays as a 2600 body. Clears the path for the beatdown.\n\nDaedalus wipe: A Legendary Ocean turns Levia-Dragon - Daedalus into a Level-6 ONE-tribute 2800 beater. With Umi + Levia on board, send Umi to the GY to destroy every OTHER card on the field, then swing. Finisher: Tribute Levia-Dragon - Daedalus (while you control Umi) to Special Summon Ocean Dragon Lord - Neo-Daedalus, then send Umi to GY to send both players' hands AND fields to the GY except Neo-Daedalus (2900) for the kill.\n\nGrind engine: Mother Grizzly (x3) dies in battle to fetch any <=1500 ATK WATER from Deck (Fenrir, Bugroth, Mermaid Knight, Star Boy, another Grizzly); Salvage (x2) returns two <=1500 ATK WATER from GY; Reload (x2) refreshes dead hands into fresh Ocean draws. Fenrir (x2) Special Summons free by banishing 2 WATER from GY and skips the opponent's Draw Phase when it runs over a monster. Standard staples round it out: Snatch Steal, Premature Burial, Call of the Haunted, Pot of Greed, Heavy Storm, Mystical Space Typhoon, Torrential Tribute, Creature Swap, Hammer Shot, Big Wave Small Wave, Dust Tornado, Xing Zhen Hu, Spell Shield Type-8.\n\nWeaknesses: everything hangs on A Legendary Ocean. Kill it (their MST/Heavy Storm/Dust Tornado) and Levia goes back to 2 tributes, the beaters shrink below their locks, and Tornado Wall self-destructs. Both Daedalus nukes also blow up your own Umi and board, so they are all-in. Off-Ocean the small bodies have a low ATK ceiling.",
+  "sources": [
+    "https://yugipedia.com/wiki/Structure_Deck:_Fury_from_the_Deep",
+    "https://yugipedia.com/wiki/Set_Card_Lists:Fury_from_the_Deep_(TCG-EN)",
+    "https://yugioh.fandom.com/wiki/Structure_Deck:_Fury_from_the_Deep"
+  ],
+  "extra": [],
+  "side": [],
+  "main": [
+    ["Ocean Dragon Lord - Neo-Daedalus", 1],
+    ["7 Colored Fish", 1],
+    ["Sea Serpent Warrior of Darkness", 1],
+    ["Space Mambo", 1],
+    ["Mother Grizzly", 3],
+    ["Star Boy", 1],
+    ["Tribe-Infecting Virus", 1],
+    ["Fenrir", 2],
+    ["Amphibious Bugroth MK-3", 1],
+    ["Levia-Dragon - Daedalus", 1],
+    ["Mermaid Knight", 1],
+    ["Mobius the Frost Monarch", 1],
+    ["Unshaven Angler", 1],
+    ["Creeping Doom Manta", 1],
+    ["Snatch Steal", 1],
+    ["Mystical Space Typhoon", 1],
+    ["Premature Burial", 1],
+    ["Pot of Greed", 1],
+    ["Heavy Storm", 1],
+    ["A Legendary Ocean", 3],
+    ["Creature Swap", 1],
+    ["Reload", 2],
+    ["Salvage", 2],
+    ["Hammer Shot", 1],
+    ["Big Wave Small Wave", 1],
+    ["Dust Tornado", 1],
+    ["Call of the Haunted", 1],
+    ["Gravity Bind", 2],
+    ["Tornado Wall", 1],
+    ["Torrential Tribute", 1],
+    ["Spell Shield Type-8", 1],
+    ["Xing Zhen Hu", 1]
+  ]
+}

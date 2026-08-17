@@ -1,0 +1,57 @@
+{
+  "name": "Dragon's Roar (SD1)",
+  "category": "structure",
+  "format": "classic",
+
+  // The first TCG Structure Deck. Fixed 40-card product, SD1-EN001..028,
+  // released 2005-01-01 (OCG 2004-12-09). All names verified against cards.cdb.
+  // Original 2005 print spelled the boss enabler "Red-Eyes B. Dragon"; the
+  // current DB name is "Red-Eyes Black Dragon" (used below). No Extra Deck.
+
+  "manual": "Dragon beatdown built around the Red-Eyes engine, with three Stamping Destruction to clear the way and a Dragon toolbox to grind.\n\n## Boss line — Red-Eyes Darkness Dragon\nGet **Red-Eyes Black Dragon** onto the field, then from your hand **Tribute it to Special Summon Red-Eyes Darkness Dragon**. Darkness Dragon is 2400 base and **gains +300 ATK for every Dragon in YOUR Graveyard**, so fill the yard first and it swings for 3000-4000+.\nThree ways to land Red-Eyes Black Dragon:\n- Normal Summon it (2400 vanilla body on its own).\n- **Black Dragon's Chick**: send the Chick you control to the GY to Special Summon Red-Eyes Black Dragon *from your hand* — a Level 1 becomes your enabler for free.\n- **Premature Burial / Call of the Haunted**: revive a Red-Eyes Black Dragon already in the GY, then tribute it up.\nStock the Graveyard before the summon (Masked Dragon deaths, the Armed Dragon send, Reload/Reckless Greed discards, the tributed Red-Eyes itself) so Darkness Dragon comes down big.\n\n## Masked Dragon toolbox (x3)\nMasked Dragon (1400) trades in combat, and **when destroyed by battle it Special Summons a Dragon with 1500 or less ATK straight from the Deck** — Twin-Headed Behemoth, Armed Dragon LV3, Element Dragon, Black Dragon's Chick, or another Masked Dragon. Every trade refuels the board AND loads a Dragon into the yard for Darkness Dragon.\n\n## Armed Dragon climb\nNormal Summon **Armed Dragon LV3**; on your next Standby Phase send it to the GY to Special Summon **Armed Dragon LV5** (2400). LV5 can **pitch a card from hand to destroy an opponent monster whose ATK ≤ the pitched monster's ATK** — spot removal attached to a real body. (No LV7 in this deck, so LV5 is the ceiling here.)\n\n## Stamping Destruction (x3) — the deck's identity\nWith any face-up Dragon out (trivial in this deck), **destroy 1 Spell/Trap AND burn 500**. Three copies keep the opponent's backrow honest and open your attacks.\n\n## Grind & disruption\n- **Snatch Steal** — steal their best monster (also perfect tribute fodder for Darkness Dragon, or fodder to hand off with Creature Swap).\n- **Creature Swap (x2)** — trade a spent/weak Dragon for their beater.\n- **Curse of Anubis** — flip all Effect Monsters to Defense with DEF 0 and lock their positions; your Dragons then trample the board.\n- **Dragon's Rage** — your Dragons deal piercing to Defense monsters; pairs with Curse of Anubis.\n- **The Dragon's Bead** — discard 1 to negate and destroy a Trap that targets a face-up Dragon (protects your boss).\n- **Twin-Headed Behemoth** — comes back once per Duel at 1000/1000 after it dies, a resilient wall.\n- Draw/tempo: Pot of Greed, Reload, Reckless Greed (draw 2), Swords of Revealing Light to stall while you set up. Nobleman of Crossout (x2) answers face-downs; Heavy Storm / Mystical Space Typhoon clear backrow.\n\n## Weaknesses\n- ⚠ Slow and inconsistent: many one-ofs, no hand traps, and the boss line needs setup — a single Bottomless/removal on the freshly-summoned Darkness Dragon undoes a whole turn's investment.\n- ⚠ Darkness Dragon is weak off an empty Graveyard, so a turn-1 Red-Eyes with nothing in the yard underwhelms.\n- Power cards here (Snatch Steal, Premature Burial, Heavy Storm, Pot of Greed) are Forbidden in modern formats — this is a strong-for-2005 artifact that later decks outclass.",
+
+  "sources": [
+    "https://yugipedia.com/wiki/Structure_Deck:_Dragon%27s_Roar",
+    "https://yugipedia.com/wiki/Set_Card_Lists:Dragon%27s_Roar_(TCG-EN)",
+    "https://yugioh.fandom.com/wiki/Structure_Deck:_Dragon%27s_Roar"
+  ],
+
+  "main": [
+    // --- Monsters (14) ---
+    ["Red-Eyes Darkness Dragon", 1],   // SD1-EN001 Ultra Rare — boss
+    ["Red-Eyes Black Dragon", 1],      // SD1-EN002 (printed 2005 as "Red-Eyes B. Dragon")
+    ["Luster Dragon", 2],              // SD1-EN003
+    ["Twin-Headed Behemoth", 1],       // SD1-EN004
+    ["Armed Dragon LV3", 2],           // SD1-EN005
+    ["Armed Dragon LV5", 2],           // SD1-EN006
+    ["Black Dragon's Chick", 1],       // SD1-EN007
+    ["Element Dragon", 1],             // SD1-EN008
+    ["Masked Dragon", 3],              // SD1-EN009
+
+    // --- Spells (16) ---
+    ["Snatch Steal", 1],                        // SD1-EN010
+    ["Mystical Space Typhoon", 1],              // SD1-EN011
+    ["Nobleman of Crossout", 2],                // SD1-EN012
+    ["Premature Burial", 1],                    // SD1-EN013
+    ["Swords of Revealing Light", 1],           // SD1-EN014
+    ["Pot of Greed", 1],                        // SD1-EN015
+    ["Heavy Storm", 1],                         // SD1-EN016
+    ["Stamping Destruction", 3],                // SD1-EN017
+    ["Creature Swap", 2],                       // SD1-EN018
+    ["Reload", 2],                              // SD1-EN019
+    ["The Graveyard in the Fourth Dimension", 1], // SD1-EN020
+
+    // --- Traps (10) ---
+    ["Call of the Haunted", 1],                 // SD1-EN021
+    ["Ceasefire", 1],                           // SD1-EN022
+    ["The Dragon's Bead", 1],                   // SD1-EN023
+    ["Dragon's Rage", 2],                       // SD1-EN024
+    ["Reckless Greed", 1],                      // SD1-EN025
+    ["Interdimensional Matter Transporter", 2], // SD1-EN026
+    ["Trap Jammer", 1],                         // SD1-EN027
+    ["Curse of Anubis", 1]                      // SD1-EN028
+  ],
+
+  "extra": [],
+  "side": []
+}

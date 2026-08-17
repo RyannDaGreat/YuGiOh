@@ -1,0 +1,59 @@
+{
+  // Structure Deck: Spellcaster's Command (SDSC) — TCG-EN print, 40 cards.
+  // Set prefix SDSC-EN001..038. 1 Ultra Rare (Endymion) + 39 Commons.
+  // Two copies each of Apprentice Magician (EN008) and Pitch-Black Power Stone (EN036).
+  // TCG-EN release: March 31, 2009 (OCG "Structure Deck: Spellcaster's Command"
+  // released in Japan Nov 15, 2008 — hence the deck is often dated 2008).
+  // Verified card-by-card against cards.cdb via `node bin/ygo.js card`; every
+  // printed name matched the current DB exactly (no renamed cards).
+  "name": "Spellcaster's Command (SDSC)",
+  "category": "structure",
+  "format": "classic",
+  "sources": [
+    "https://yugipedia.com/wiki/Spellcaster's_Command_Structure_Deck",
+    "https://yugipedia.com/api.php?action=parse&page=Set_Card_Lists:Spellcaster's_Command_Structure_Deck_(TCG-EN)&prop=wikitext"
+  ],
+  "manual": "Spellcaster spell-counter control built on the Endymion engine. You bank Spell Counters every time you cast, then cash them in for a 2700 boss and repeatable removal.\n\n## The engine (do this first)\n- **Magical Citadel of Endymion** (Field Spell) is the heart: every Spell you *resolve* banks 1 Spell Counter on it, it soaks counters off any counter-card that dies, and it can pay counter-costs for your other cards. Open on it (fetch with **Terraforming**) and just start casting.\n- **Win line:** once Citadel holds 6 counters, Special Summon **Endymion, the Master Magician** (2700) by removing all 6 — on summon add a Spell back from GY, and every turn after, discard 1 Spell to **destroy ANY 1 card** on the field. That recurring pop is your control loop; feed it with Spells you've already used.\n- **Counter accelerants (stack these):** **Spell Power Grasp** places a counter AND fetches the next copy (chains its own draw of gas); **Apprentice Magician** drops a counter on summon; **Breaker** / **Defender** each place 1 on Normal Summon; **Pitch-Black Power Stone** banks 3 and ferries them one-per-turn onto Citadel. **Magical Exemplar** banks 2 per Spell and dumps them to revive a Spellcaster from hand/GY (re-summon a popped Endymion or Breaker).\n\n## Payoffs that spend counters\n- **Breaker the Magical Warrior** — summon, then pop a Spell/Trap for free (1600, briefly 1900).\n- **Blast Magician** — remove counters to snipe a monster (counters x700 ATK cap).\n- **Dark Red Enchanter** — enters with 2 counters, +300 ATK each, and rips a random card from their hand.\n- **Mythical Beast Cerberus** — grows +500 per counter (swings huge, but dumps its own counters after battle).\n\n## Spellcaster tricks\n- **Magical Dimension** is the glue: control any Spellcaster, tribute a monster, Special Summon a Spellcaster from hand AND destroy a monster — tribute a spent **Apprentice Magician** / **Old Vindictive Magician** to drop **Endymion** and blow something up at instant speed.\n- **Defender, the Magical Knight** shields your Spellcasters from destruction (pay 1 counter each). **Old Vindictive Magician** flips to pop a monster. **Summoner Monk** discards a Spell to swarm a Level 4. **Magician's Circle** searches a Spellcaster on any attack. **Magicians Unite** pumps one Spellcaster to 3000 for a finisher.\n- **Field Barrier** locks Citadel down — it can't be destroyed and the opponent can't set their own Field Spell.\n\n## Control shell\n- Board wipes / removal: **Fissure**, **Swords of Revealing Light**, **Magic Cylinder**, **Enemy Controller**, **Book of Moon**.\n- Tempo & reuse: **Giant Trunade** (bounce your own backrow to re-cast for more counters), **Twister**.\n- Equips for a beater: **Mage Power**, **Malevolent Nuzzler**, **Mist Body** (untargetable-by-destruction wall).\n- **Royal Magical Library** turns your Spell spam into draws (3 counters -> draw). **Magical Blast** burns 200 per Spellcaster and recurs itself.\n\n## Weaknesses\n- ⚠ Slow: you need to survive long enough to bank 6 counters — fast aggro can race you before Endymion lands.\n- ⚠ Field-Spell dependent: if Citadel is destroyed before **Field Barrier** protects it (Mystical Space Typhoon, an opposing Field Spell, etc.), the engine sputters.\n- ⚠ **Tower of Babel** is anti-synergy with your own gameplan — its 4th Spell Counter blasts *the player who cast that Spell*, i.e. YOU, the spell-spammer. Many pilots cut it; play around it or leave it in the box.\n- ⚠ Endymion is one fat target — Bottomless / banish / bounce removes your payoff and the counters spent to summon it.",
+  "main": [
+    ["Endymion, the Master Magician", 1],
+    ["Disenchanter", 1],
+    ["Defender, the Magical Knight", 1],
+    ["Hannibal Necromancer", 1],
+    ["Summoner Monk", 1],
+    ["Dark Red Enchanter", 1],
+    ["Skilled Dark Magician", 1],
+    ["Apprentice Magician", 2],
+    ["Old Vindictive Magician", 1],
+    ["Magical Marionette", 1],
+    ["Breaker the Magical Warrior", 1],
+    ["Magical Plant Mandragola", 1],
+    ["Royal Magical Library", 1],
+    ["Blast Magician", 1],
+    ["Mythical Beast Cerberus", 1],
+    ["Mei-Kou, Master of Barriers", 1],
+    ["Crystal Seer", 1],
+    ["Magical Exemplar", 1],
+    ["Magical Citadel of Endymion", 1],
+    ["Spell Power Grasp", 1],
+    ["Magicians Unite", 1],
+    ["Mist Body", 1],
+    ["Malevolent Nuzzler", 1],
+    ["Giant Trunade", 1],
+    ["Fissure", 1],
+    ["Swords of Revealing Light", 1],
+    ["Mage Power", 1],
+    ["Terraforming", 1],
+    ["Enemy Controller", 1],
+    ["Book of Moon", 1],
+    ["Magical Blast", 1],
+    ["Magical Dimension", 1],
+    ["Twister", 1],
+    ["Field Barrier", 1],
+    ["Magician's Circle", 1],
+    ["Pitch-Black Power Stone", 2],
+    ["Tower of Babel", 1],
+    ["Magic Cylinder", 1]
+  ],
+  "extra": [],
+  "side": []
+}
