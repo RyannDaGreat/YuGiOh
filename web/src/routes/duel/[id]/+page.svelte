@@ -8,6 +8,8 @@
   const POLL_MS = 1500;
   /** Log lines kept in the pane; older lines are still available via the CLI. */
   const LOG_TAIL = 400;
+  /** Extension of the "your move" bell under web/static/sfx/ (WAV source — see ASSET-LICENSES.md). */
+  const BELL_EXT = "wav";
 
   let { data } = $props();
   // svelte-ignore state_referenced_locally — the server payload seeds local state; polling owns it afterwards.
@@ -39,6 +41,8 @@
   const myTurn = $derived(playbackAt === null && !view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
   const me = $derived(view.viewer === 2 ? 0 : view.viewer);
   const canConfirm = $derived(view.menu && selected.length >= view.menu.min && selected.length <= view.menu.max);
+  /** True while this seat owes the engine a decision — never a spectator, never during playback. */
+  const myDecision = $derived(playbackAt === null && !view.ended && view.viewer !== 2 && view.pendingPlayer === view.viewer);
 
   async function refresh() {
     const atParam = playbackAt === null ? "" : `&at=${playbackAt}`;
@@ -118,6 +122,16 @@
   function toggleSound() {
     if (isOn()) { mute(); sound = false; } else { unlock(); sound = true; }
   }
+
+  /** Ensures the bell rings on the transition into myDecision, not on every poll. */
+  let bellRung = false;
+
+  $effect(() => {
+    document.title = myDecision ? `🔔 your move — YuGi ${view.id}` : `YuGi — ${view.id}`;
+    // Autoplay is blocked until the page has seen a gesture; a rejected play() is expected and harmless.
+    if (myDecision && !bellRung && sound) new Audio(`/sfx/turn-bell.${BELL_EXT}`).play().catch(() => {});
+    bellRung = myDecision;
+  });
 
   onMount(() => {
     loadSleeves();

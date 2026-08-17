@@ -12,8 +12,9 @@ back is a generic ornate fantasy design, not Konami's card back.
 
 ## Sound effects (`web/static/sfx/`)
 
-All 11 files are **Ogg Vorbis** (`.ogg`), copied byte-for-byte from their source packs —
-no re-encoding, no quality loss. Peaks sit near -1 dBFS except `win.ogg` (-7 dBFS peak,
+All 12 files are copied byte-for-byte from their sources — no re-encoding, no quality
+loss. Eleven are **Ogg Vorbis** (`.ogg`); `turn-bell.wav` is 16-bit PCM WAV because that is
+the format its CC0 source ships in. Peaks sit near -1 dBFS except `win.ogg` (-7 dBFS peak,
 but comparable mean loudness since it is sustained music rather than a transient).
 
 | File | Duration | Source file | Pack | Author | License | Source URL |
@@ -29,11 +30,17 @@ but comparable mean loudness since it is sustained music rather than a transient
 | `flip.ogg` | 0.77 s | `Audio/bookFlip1.ogg` | RPG Audio | Kenney | CC0 1.0 | https://kenney.nl/assets/rpg-audio |
 | `turn.ogg` | 0.02 s | `Audio/tick_002.ogg` | Interface Sounds | Kenney | CC0 1.0 | https://kenney.nl/assets/interface-sounds |
 | `win.ogg` | 3.78 s | `winfretless_0.ogg` | Win Jingle | Fupi | CC0 1.0 | https://opengameart.org/content/win-jingle |
+| `turn-bell.wav` | 1.44 s | `bell_ding2.wav` | Bell dings/chimes | PWL | CC0 1.0 | https://opengameart.org/content/bell-dingschimes |
+
+`turn-bell.wav` is not an engine cue — the duel page rings it with `new Audio()` when the
+pending decision becomes yours, so a backgrounded tab still gets your attention. Of the four
+dings in that pack it is the only one under 1.5 s, and it peaks at full scale.
 
 Courtesy credit (optional, requested by the authors):
 
 > Sound effects by Kenney (https://kenney.nl) — CC0.
 > "Win Jingle" by Fupi (https://opengameart.org/content/win-jingle) — CC0.
+> "Bell dings/chimes" by PWL (https://opengameart.org/content/bell-dingschimes) — CC0.
 
 ## Images (`web/static/img/`)
 
