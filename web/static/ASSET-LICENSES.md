@@ -3,7 +3,7 @@
 Every media file under `web/static/sfx/` and `web/static/img/` is listed here with its
 source, author, and license.
 
-**All assets are CC0 (public domain).** No attribution is legally required for any file
+**All assets are CC0 (public domain) except the two `classic-*` sleeves, which are CC-BY 3.0 (credit jeffshee — see Sleeves).** No attribution is legally required for the CC0 files
 below. The "courtesy credit" lines are what the authors *ask* for but do not mandate;
 including them is recommended.
 
@@ -51,3 +51,42 @@ Courtesy credit (optional):
 - Kenney's pack license (verbatim from each pack's `License.txt`): "This content is free
   to use in personal, educational and commercial projects. Support us by crediting Kenney
   or www.kenney.nl (this is not mandatory)."
+
+## Sleeves (`web/static/img/sleeves/`)
+
+Selectable card backs ("sleeves"). Machine-readable copy of this table lives in
+`web/static/img/sleeves/manifest.json`. **None of these are Konami / Yu-Gi-Oh! artwork** —
+they are generic fantasy and playing-card backs from OpenGameArt.
+
+Six are CC0 (no attribution required); the two `classic-*` backs are **CC-BY 3.0**, so
+crediting jeffshee is **mandatory** if they ship.
+
+| File | Dimensions | Source file | Pack | Author | License | Source URL |
+|---|---|---|---|---|---|---|
+| `dark-cosmic.png` | 500x667 | `Card_Back_1.png` | Fantasy Card - Dark Cosmic | Cethiel | CC0 1.0 | https://opengameart.org/content/fantasy-card-dark-cosmic |
+| `blue-crystal.png` | 600x768 | `Card Sprites/Card Back/crystal (1).png` | Mechanized Magic: 2D Vector Cards Pack | Dumivid | CC0 1.0 | https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack |
+| `gold-hammer.png` | 600x775 | `Card Sprites/Card Back/contrast emblem (1).png` | Mechanized Magic: 2D Vector Cards Pack | Dumivid | CC0 1.0 | https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack |
+| `green-dice.png` | 600x775 | `Card Sprites/Card Back/contrast emblem (2).png` | Mechanized Magic: 2D Vector Cards Pack | Dumivid | CC0 1.0 | https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack |
+| `amber-prism.png` | 600x777 | `Card Sprites/Card Back/_experimental (3).png` | Mechanized Magic: 2D Vector Cards Pack | Dumivid | CC0 1.0 | https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack |
+| `crimson-circuit.png` | 600x823 | `Card Sprites/Card Back/_experimental (11).png` | Mechanized Magic: 2D Vector Cards Pack | Dumivid | CC0 1.0 | https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack |
+| `classic-blue.png` | 686x976 | `card back blue.png` | Colorful Poker Card Back | jeffshee | CC-BY 3.0 | https://opengameart.org/content/colorful-poker-card-back |
+| `classic-red.png` | 686x976 | `card back red.png` | Colorful Poker Card Back | jeffshee | CC-BY 3.0 | https://opengameart.org/content/colorful-poker-card-back |
+
+Modifications applied (all lossless-in-spirit, no re-drawing):
+
+- Mechanized Magic backs were cropped to their alpha bounding box (the pack ships each
+  card centred on a large transparent canvas) and resampled to 600 px wide.
+- All PNGs except `classic-*` were palette-quantised to 256 colours to cut page weight
+  (e.g. `blue-crystal.png` 874 KB -> 127 KB). Verified by eye — no visible banding.
+- `classic-*` and `dark-cosmic.png` are otherwise unaltered crops of the originals.
+
+Required credit (CC-BY 3.0, **not optional**):
+
+> "Colorful Poker Card Back" by jeffshee (https://opengameart.org/content/colorful-poker-card-back) — CC-BY 3.0.
+
+Courtesy credit (optional, CC0 authors):
+
+> Card backs by Cethiel (https://opengameart.org/users/cethiel) and Dumivid
+> (https://opengameart.org/users/dumivid) — CC0.
+
+- CC-BY 3.0 license text: https://creativecommons.org/licenses/by/3.0/

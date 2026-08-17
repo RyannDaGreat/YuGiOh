@@ -9,11 +9,25 @@ import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../.
 import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel } from "../../../../src/store.js";
 import { victoryString } from "../../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
-import { spawn } from "node:child_process";
-import { openSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { heartbeat, presence } from "../../../../src/presence.js";
 import { REPO_ROOT } from "../../../../src/cards.js";
+
+/**
+ * Command. Records a heartbeat for a seat held by the in-browser Claude bot
+ * (the page beats on its behalf while its pod is running).
+ */
+export function botHeartbeat(id, seat) {
+  heartbeat(id, seat, "bot", Date.now());
+}
+
+/**
+ * Query. PLAYER.md, for the in-pod CLAUDE.md.
+ */
+export function playerInstructions() {
+  return readFileSync(join(REPO_ROOT, "PLAYER.md"), "utf8");
+}
 
 export { listDecks, listDuels, parseViewer };
 
@@ -68,25 +82,6 @@ export function newDuel({ id, p0, p1, seed, players }) {
   const decks = [loadDeck(p0), loadDeck(p1)];
   const seedValue = seed === "" || seed === undefined ? Math.floor(Math.random() * 2 ** 32) : Number(seed);
   return createDuel({ id, seed: seedValue, decks, players, created: new Date().toISOString() });
-}
-
-/**
- * Command. Boots a headless Claude Code bot for a seat (bin/claude-player.sh),
- * detached, logging to .claude_logs/bot-<id>-<seat>.log. Presence shows it.
- *
- * Args:
- *     id (string): Duel id.
- *     seat (0|1)
- *     strategy (string): Path to a strategy brief, relative to the repo root.
- *
- * Returns:
- *     {pid: number}
- */
-export function summonBot(id, seat, strategy) {
-  const log = openSync(join(REPO_ROOT, ".claude_logs", `bot-${id}-${seat}.spawn.log`), "a");
-  const child = spawn(join(REPO_ROOT, "bin/claude-player.sh"), [id, String(seat), strategy], { cwd: REPO_ROOT, detached: true, stdio: ["ignore", log, log] });
-  child.unref();
-  return { pid: child.pid };
 }
 
 /**

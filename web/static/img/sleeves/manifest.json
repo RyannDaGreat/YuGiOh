@@ -1,0 +1,66 @@
+[
+  {
+    "id": "dark-cosmic",
+    "name": "Dark Cosmic",
+    "file": "dark-cosmic.png",
+    "author": "Cethiel",
+    "source": "https://opengameart.org/content/fantasy-card-dark-cosmic",
+    "license": "CC0 1.0"
+  },
+  {
+    "id": "blue-crystal",
+    "name": "Blue Crystal",
+    "file": "blue-crystal.png",
+    "author": "Dumivid",
+    "source": "https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack",
+    "license": "CC0 1.0"
+  },
+  {
+    "id": "gold-hammer",
+    "name": "Gilded Hammer",
+    "file": "gold-hammer.png",
+    "author": "Dumivid",
+    "source": "https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack",
+    "license": "CC0 1.0"
+  },
+  {
+    "id": "green-dice",
+    "name": "Verdant Dice",
+    "file": "green-dice.png",
+    "author": "Dumivid",
+    "source": "https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack",
+    "license": "CC0 1.0"
+  },
+  {
+    "id": "amber-prism",
+    "name": "Amber Prism",
+    "file": "amber-prism.png",
+    "author": "Dumivid",
+    "source": "https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack",
+    "license": "CC0 1.0"
+  },
+  {
+    "id": "crimson-circuit",
+    "name": "Crimson Circuit",
+    "file": "crimson-circuit.png",
+    "author": "Dumivid",
+    "source": "https://opengameart.org/content/mechanized-magic-2d-vector-cards-pack",
+    "license": "CC0 1.0"
+  },
+  {
+    "id": "classic-blue",
+    "name": "Classic Blue",
+    "file": "classic-blue.png",
+    "author": "jeffshee",
+    "source": "https://opengameart.org/content/colorful-poker-card-back",
+    "license": "CC-BY 3.0"
+  },
+  {
+    "id": "classic-red",
+    "name": "Classic Red",
+    "file": "classic-red.png",
+    "author": "jeffshee",
+    "source": "https://opengameart.org/content/colorful-poker-card-back",
+    "license": "CC-BY 3.0"
+  }
+]
