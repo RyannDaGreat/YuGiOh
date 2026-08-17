@@ -50,16 +50,21 @@ Status: ✅ done & merged · 🔨 next/in-flight · 📋 researched, not built y
 - ✅ Deck schema: identity by name (same cards + different manual = different deck)
 - ✅ Research: 10 GOAT meta decks + era/theme decks (incl. Umi/Water) + the exact
       Starter Deck: Pegasus — docs/goat-decks.md (all names validated vs cards.cdb)
-- ✅ Agent-vs-agent games for the playback section
-- 🔨 Author the actual deck JSON files from the research (only goat-sample exists so far)
-- 🔨 Deck viewer with PICTURES: structure-decks + user-decks sections, each with its manual
-- 🔨 Home-screen deck selector (pick each player's deck, with art)
-- 🔨 Extra Deck zone you can open/click on the mat
-- 🔨 Visualize spell counters (badges on cards) and dice/coin rolls
-- 🔨 "Add a deck" affordance = ask Claude to research + author one
-- 📋 Deck manuals authored per template (combo-lines-first, weaknesses small, research-sourced)
+- ✅ Agent-vs-agent games for the playback section (self-play showcase deferred to Haiku, on request)
+- ✅ Deck JSON files authored from the research — 27 decks (11 official products + 16 curated), all validated
+- ✅ THREE deck categories: Structure (official Konami products) / Curated (research meta+theme) / User
+- ✅ Real BOX COVER ART on every structure/starter deck (setCode + boxArt URL, /boxart route, `fetch-boxart`, DeckThumb)
+- ✅ Deck viewer with PICTURES: /decks browser (3 sections) + /decks/[id] detail (card-art grids + manual + Sources)
+- ✅ Home-screen deck selector grouped by category, with box-art / signature previews
+- ✅ Extra Deck zone opens a pile modal on the mat
+- ✅ Spell-counter badges on cards; dice/coin roll overlay
+- ✅ `fetch-pics` covers Main + Extra + Side (fixed the blank-Extra-Deck-cards bug)
+- ✅ JSONC deck files with a machine-readable `sources[]` citation array
+- ✅ Emoji buttons replaced with Iconify app-wide; home page full-width
+- ✅ "Add a deck" affordance = ask Claude to research + author one (empty User Decks note)
+- ✅ Deck manuals authored per template (combo-lines-first, weaknesses small, research-sourced)
+- 📋 Character/anime + more archetype decks researched (docs/decks-character.md, decks-archetypes.md) — authoring as Curated decks in progress
 
 ## Response prompts (UI)
-- 📋 Distinct "respond?" panel (colour + "Respond to: <event> — <timing>" header) and
-      always / smart / never modes — designed in docs/response-prompt-ux.md; CLI `--auto-pass`
-      exists, the UI piece is not built yet
+- ✅ Distinct indigo "Respond" panel (header + timing) with always / smart / never modes
+      (smart uses ocgcore's spe_count); auto-decline posts "0" as a real recorded response
