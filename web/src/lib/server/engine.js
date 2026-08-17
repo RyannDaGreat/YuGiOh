@@ -140,3 +140,83 @@ export async function duelSummaries() {
   }
   return rows.sort((a, b) => String(b.lastMove ?? b.created ?? "").localeCompare(String(a.lastMove ?? a.created ?? "")));
 }
+
+/** OcgType bit marking a monster card; a deck's signature is a monster, not a Spell/Trap. */
+const MONSTER_TYPE = 0x1;
+
+/**
+ * Query. Passcode of a deck's "signature" card for a thumbnail: the highest-ATK
+ * monster in the Main Deck, falling back to the first Main card when the list
+ * has no monster. Resolves names against cards.cdb (codeOf/cardInfo).
+ *
+ * Args:
+ *     main (Array<[string, number]>): A deck's `main` section ([name, count] rows).
+ *
+ * Returns:
+ *     number: A passcode that appears in `main`.
+ */
+function signatureCode(main) {
+  let best = codeOf(main[0][0]);
+  let bestAtk = -1;
+  for (const [name] of main) {
+    const code = codeOf(name);
+    const info = cardInfo(code);
+    if (info && (info.type & MONSTER_TYPE) && info.atk > bestAtk) {
+      best = code;
+      bestAtk = info.atk;
+    }
+  }
+  return best;
+}
+
+/**
+ * Query. One tile-worth of metadata per built-in deck for the /decks browser:
+ * identity, total card counts, and a `signatureCode` passcode for the thumbnail
+ * art. Loads every deck (loadDeck), so a malformed deck file fails loudly here.
+ *
+ * Returns:
+ *     Array<{id, name, category, format, mainCount, extraCount, sideCount, signatureCode}>
+ *     `*Count` are total card counts (the sum of each section's [name, count] rows).
+ */
+export function deckLibrary() {
+  const total = (section) => section.reduce((n, [, count]) => n + count, 0);
+  return listDecks().map((id) => {
+    const deck = loadDeck(id);
+    return {
+      id,
+      name: deck.name,
+      category: deck.category,
+      format: deck.format,
+      mainCount: total(deck.main),
+      extraCount: total(deck.extra),
+      sideCount: total(deck.side),
+      signatureCode: signatureCode(deck.main),
+    };
+  });
+}
+
+/**
+ * Query. Full contents of one deck for the /decks/[id] detail page: its
+ * identity, its pilot manual, and each section resolved to cards with art
+ * passcodes. Loads the deck (loadDeck) and resolves every name (codeOf).
+ *
+ * Args:
+ *     id (string): Deck id — a built-in name under src/decks, or a path loadDeck accepts.
+ *
+ * Returns:
+ *     {name, category, format, manual, main, extra, side}
+ *     Each section is Array<{code, name, count}> in decklist order.
+ */
+export function deckDetail(id) {
+  const deck = loadDeck(id);
+  const rows = (section) => section.map(([name, count]) => ({ code: codeOf(name), name, count }));
+  return {
+    name: deck.name,
+    category: deck.category,
+    format: deck.format,
+    manual: deck.manual,
+    main: rows(deck.main),
+    extra: rows(deck.extra),
+    side: rows(deck.side),
+  };
+}
