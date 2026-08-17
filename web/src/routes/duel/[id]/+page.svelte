@@ -12,6 +12,8 @@
   let lastLogLength = 0;
   /** Extension of the "your move" bell under web/static/sfx/ (WAV source — see ASSET-LICENSES.md). */
   const BELL_EXT = "wav";
+  /** localStorage key holding the sound preference ("on" | "off"), persisted across reloads. */
+  const SOUND_PREF_KEY = "ygo-sound";
   /** Longest chat message the server accepts; must match MAX_CHAT_CHARS in src/chat.js. */
   const CHAT_MAX_CHARS = 500;
 
@@ -167,6 +169,7 @@
 
   function toggleSound() {
     if (isOn()) { mute(); sound = false; } else { unlock(); sound = true; }
+    localStorage.setItem(SOUND_PREF_KEY, sound ? "on" : "off");
   }
 
   /** Ensures the bell rings on the transition into myDecision, not on every poll. */
@@ -189,7 +192,25 @@
     loadSleeves();
     const timer = setInterval(() => { if (playbackAt === null) refresh(); }, POLL_MS);
     if (logEl) logEl.scrollTop = logEl.scrollHeight;
-    return () => clearInterval(timer);
+
+    // Restore the sound preference. Browsers block audio until a user gesture,
+    // so we can only show the toggle in its stored state now and actually arm
+    // the AudioContext on the first pointer/key event on the page.
+    const wantsSound = localStorage.getItem(SOUND_PREF_KEY) === "on";
+    if (wantsSound) sound = true;
+    const armSound = () => {
+      window.removeEventListener("pointerdown", armSound);
+      window.removeEventListener("keydown", armSound);
+      if (wantsSound && !isOn()) { unlock(); sound = true; }
+    };
+    window.addEventListener("pointerdown", armSound, { once: true });
+    window.addEventListener("keydown", armSound, { once: true });
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("pointerdown", armSound);
+      window.removeEventListener("keydown", armSound);
+    };
   });
 </script>
 
