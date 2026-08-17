@@ -17,6 +17,8 @@
   --flash-ms: 700ms;
   --float-ms: 1200ms;
   --shake-ms: 400ms;
+  /* Replay: how long the "this is the option they took" press-flash lasts. */
+  --pick-ms: 400ms;
   /* Equip / relationship line: faint emerald dashes that march slowly. */
   --equip-line-color: rgba(52, 211, 153, 0.5);
   --equip-line-width: 2px;
@@ -37,6 +39,8 @@
 @keyframes dagger { 0% { offset-distance: 0%; opacity: 0.2; } 15% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
 /* Mid-flight card flip: a scaleX squash that swaps art <-> back at the midpoint. */
 @keyframes fly-flip { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.06); } }
+/* Replay: the option a seat actually took, flashed as the scrubber lands on that move. */
+@keyframes pick { 0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } 45% { box-shadow: 0 0 16px 5px rgba(250, 204, 21, 0.85); } }
 /* Themed scrollbars app-wide. Defining ::-webkit-scrollbar makes any overflowing container
    show a classic (non-overlay) bar instead of macOS's hide-until-scroll overlay, so a scrollbar
    is always visible exactly when there is something to scroll — and never an empty track. */
@@ -48,6 +52,7 @@
 .fx-shake { animation: shake var(--shake-ms) ease-in-out; }
 .fx-float { animation: floatup var(--float-ms) ease-out forwards; }
 .fx-dagger { animation: dagger var(--dagger-ms) ease-in forwards; offset-rotate: auto; }
+.fx-pick { animation: pick var(--pick-ms) ease-out; }
 /* A card in flight between two slots (unified move animation, see FlyingCard.svelte). */
 .fly-card { position: absolute; z-index: 40; pointer-events: none; }
 .fly-flip { animation: fly-flip var(--fly-ms) ease-in-out; }

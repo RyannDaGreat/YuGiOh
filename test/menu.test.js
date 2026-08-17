@@ -8,7 +8,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { OcgHintTiming, OcgLocation, OcgMessageType, OcgResponseType } from "ocgcore-wasm";
-import { buildMenu, chooseFromMenu, disambiguate, fillTemplate, hintsBefore, selectableZones, timingWords } from "../src/menu.js";
+import { buildMenu, chooseFromMenu, chosenOption, disambiguate, fillTemplate, hintsBefore, selectableZones, timingWords } from "../src/menu.js";
 import { shouldAutoPass } from "../src/session.js";
 import { moveHidesCode } from "../src/view.js";
 
@@ -31,6 +31,21 @@ test("select-card menu enforces min/max and cancel", () => {
   assert.deepEqual(chooseFromMenu(menu, "0"), { type: OcgResponseType.SELECT_CARD, indicies: null });
   assert.throws(() => chooseFromMenu(menu, "1,2,3"), /choose 1-2/);
   assert.throws(() => chooseFromMenu(menu, "2,2"), /duplicate/);
+});
+
+test("chosenOption inverts chooseFromMenu, and declines to guess a multi-pick", () => {
+  const yesNo = buildMenu({ type: OcgMessageType.SELECT_YESNO, player: 0, description: 0n }, NO_CTX);
+  assert.deepEqual(chosenOption(yesNo, chooseFromMenu(yesNo, "1")), { choice: "1", index: 0, label: "Yes" });
+  assert.deepEqual(chosenOption(yesNo, chooseFromMenu(yesNo, "2")), { choice: "2", index: 1, label: "No" });
+  assert.equal(chosenOption(yesNo, { type: OcgResponseType.SELECT_YESNO, yes: null }), null, "no near-misses");
+  assert.equal(chosenOption(null, { type: 3, yes: true }), null);
+
+  const selects = [0, 1, 2].map((i) => ({ code: 0, controller: 1, location: OcgLocation.MZONE, sequence: i, position: 1 }));
+  const cards = buildMenu({ type: OcgMessageType.SELECT_CARD, player: 0, can_cancel: true, min: 1, max: 2, selects }, NO_CTX);
+  // A single pick inverts; the cancel ("0") option inverts; two picks are combinatorial, so null.
+  assert.equal(chosenOption(cards, chooseFromMenu(cards, "3")).choice, "3");
+  assert.equal(chosenOption(cards, chooseFromMenu(cards, "0")).choice, "0");
+  assert.equal(chosenOption(cards, chooseFromMenu(cards, "1,3")), null);
 });
 
 test("field mask: set bit = unavailable, low half = asking player", () => {

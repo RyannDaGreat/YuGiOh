@@ -75,6 +75,8 @@
   /** Messages already read; the collapsed header badges the rest. */
   // svelte-ignore state_referenced_locally — messages present at load count as read.
   let chatSeen = $state((data.initial.chat ?? []).length);
+  /** Chat length at the last auto-scroll; like lastLogLength, following happens only when it grows. */
+  let lastChatLength = 0;
 
   const viewerLabel = $derived(view.viewer === 2 ? "spectator" : `P${view.viewer} — ${view.players[view.viewer]}`);
   const myTurn = $derived(playbackAt === null && !view.ended && view.menu && (view.viewer === view.pendingPlayer || view.viewer === 2));
@@ -286,7 +288,14 @@
     // During playback the list is truncated to the replayed move, so reading it says nothing about the live log.
     if (!chatOpen || playbackAt !== null) return;
     chatSeen = chatMessages.length;
-    if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
+    // Follow the chat only when it grew, so the reader can scroll up between messages.
+    // The poll reassigns `view` every tick, so this effect re-runs constantly; without
+    // the length gate every tick would yank the pane back to the bottom. `chatEl` is
+    // null until the <details> opens, so the growth is only consumed once it can scroll.
+    if (chatMessages.length !== lastChatLength && chatEl) {
+      lastChatLength = chatMessages.length;
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
   });
 
   onMount(() => {
@@ -393,11 +402,9 @@
         </div>
         {#if playbackAt !== null}
           <p class="text-amber-100/50 p-2 inline-flex items-center gap-1"><Icon icon="mdi:skip-forward" />live to talk.</p>
-        {:else if view.viewer === 2}
-          <p class="text-amber-100/50 p-2">Spectators read only.</p>
         {:else}
           <form class="flex gap-1 p-2" onsubmit={(e) => { e.preventDefault(); sendChat(); }}>
-            <input class="flex-1 min-w-0 px-1 rounded bg-black/40 border border-amber-900" bind:value={chatText} maxlength={CHAT_MAX_CHARS} placeholder="say something…" />
+            <input class="flex-1 min-w-0 px-1 rounded bg-black/40 border border-amber-900" bind:value={chatText} maxlength={CHAT_MAX_CHARS} placeholder={view.viewer === 2 ? "say something as spectator…" : "say something…"} />
             <button type="submit" class="px-2 rounded bg-amber-300 text-amber-950 font-bold" disabled={!chatText.trim()}>Send</button>
           </form>
         {/if}
@@ -412,7 +419,36 @@
       <section class="scroll-themed rounded-md p-2 max-h-[26rem] overflow-y-auto border-l-4 {myTurn && isRespond ? 'bg-indigo-950/60 border border-l-4 border-indigo-400/50 border-l-indigo-300' : 'bg-black/40 border border-amber-900/60 border-l-amber-900/60'}">
         {#if playbackAt !== null}
           <p class="text-amber-100/70 text-xs"><Icon icon="mdi:skip-forward" class="inline align-text-bottom" /> live to return, or fork here to play on from this point. (position after move {view.at})</p>
-          {#if view.menu}<p class="text-amber-100/70 text-xs mt-1">Decision at this point: {view.menu.title}</p>{/if}
+          {#if view.menu}
+            <!--
+              The decision as it stood at this move, read-only: the same options the seat saw,
+              with the one they actually took flashed (view.chosen, reverse-mapped server-side by
+              menu.chosenOption). Keyed on view.at so scrubbing to a new move replays the flash.
+            -->
+            <h3 class="font-bold text-amber-200 text-sm mt-2">{view.menu.title}</h3>
+            <p class="text-amber-100/45 text-[0.6rem] mb-1">P{view.pendingPlayer} to decide — replay, not interactive</p>
+            {#key view.at}
+              <div class="flex flex-col gap-1">
+                {#each view.menu.items as label, i}
+                  {@const taken = view.chosen?.index === i}
+                  <div class="text-left text-xs px-2 py-1 rounded border {taken ? 'fx-pick border-yellow-300 bg-yellow-300 text-yellow-950 font-bold' : 'border-amber-900/60 bg-black/30 text-amber-100/55'}">
+                    <span class="font-mono mr-1 {taken ? 'text-yellow-900' : 'text-amber-300/50'}">{i + 1}</span>{label}
+                    {#if taken}<Icon icon="mdi:cursor-default-click" class="inline align-text-bottom ml-1" width="13" height="13" />{/if}
+                  </div>
+                {/each}
+                {#if view.menu.zero}
+                  {@const takenZero = view.chosen?.choice === "0"}
+                  <div class="text-left text-xs px-2 py-1 rounded border border-dashed {takenZero ? 'fx-pick border-yellow-300 bg-yellow-300 text-yellow-950 font-bold' : 'border-amber-900/60 bg-black/30 text-amber-100/55'}">
+                    <span class="font-mono mr-1 {takenZero ? 'text-yellow-900' : 'text-amber-300/50'}">0</span>{view.menu.zero}
+                    {#if takenZero}<Icon icon="mdi:cursor-default-click" class="inline align-text-bottom ml-1" width="13" height="13" />{/if}
+                  </div>
+                {/if}
+              </div>
+            {/key}
+            {#if !view.chosen}
+              <p class="text-amber-100/40 text-[0.6rem] mt-1">Multi-select answer — no single option to highlight.</p>
+            {/if}
+          {/if}
         {:else if view.ended}
           <p class="text-amber-100/70 text-xs">The duel is over.</p>
         {:else if myTurn && isRespond}

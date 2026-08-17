@@ -533,6 +533,66 @@ export function chooseFromMenu(menu, text) {
 }
 
 /**
+ * Pure function. Structural equality for two OcgResponses. Recorded responses
+ * are plain JSON (numbers, nulls, arrays of small objects), so a recursive
+ * compare is exact — no key-order or reference assumptions.
+ *
+ * Examples:
+ *     >>> sameResponse({type: 3, yes: true}, {yes: true, type: 3})   // true
+ *     >>> sameResponse({type: 1, index: 0}, {type: 1, index: 2})     // false
+ */
+function sameResponse(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((k) => sameResponse(a[k], b[k]));
+}
+
+/**
+ * Pure function. Which option produced a recorded response — the inverse of
+ * chooseFromMenu, so a replay can show what the player actually picked.
+ *
+ * Only single-pick answers are inverted: the zero option and each individual
+ * item. That covers every yes/no, activate-or-not and single-target menu, which
+ * is nearly all of them. A multi-pick answer ("order" and "counters", or a
+ * "many" that took several items) has a combinatorial answer space, so this
+ * returns null rather than guessing — the caller shows no highlight. Matches are
+ * exact structural equality, so a returned option is never a near-miss.
+ *
+ * Args:
+ *     menu (Menu|null): From buildMenu — the menu that was pending.
+ *     response (OcgResponse|null): The recorded answer to that menu.
+ *
+ * Returns:
+ *     {choice: string, index: number|null, label: string}|null
+ *     `choice` is what a player would have typed ("0" or a 1-based number);
+ *     `index` is the 0-based item index, or null for the zero option.
+ *
+ * Examples:
+ *     >>> const yesNo = buildMenu({type: 13, player: 0, description: 0n}, {selectHint: 0n, eventHint: 0n, field: null})
+ *     >>> chosenOption(yesNo, {type: 3, yes: true})
+ *     {choice: "1", index: 0, label: "Yes"}
+ *     >>> chosenOption(yesNo, {type: 3, yes: false})
+ *     {choice: "2", index: 1, label: "No"}
+ *     >>> chosenOption(yesNo, {type: 99, nonsense: true})   // null — nothing matched
+ */
+export function chosenOption(menu, response) {
+  if (!menu || !response) return null;
+  if (menu.zero && sameResponse(menu.zero.response, response)) {
+    return { choice: "0", index: null, label: menu.zero.label };
+  }
+  if (menu.mode !== "one" && menu.mode !== "many") return null;
+  for (let i = 0; i < menu.items.length; i++) {
+    if (sameResponse(menu.build([menu.items[i].value]), response)) {
+      return { choice: String(i + 1), index: i, label: menu.items[i].label };
+    }
+  }
+  return null;
+}
+
+/**
  * Pure function. Parses "3" into the 0-based item index, validating range.
  *
  * Examples:

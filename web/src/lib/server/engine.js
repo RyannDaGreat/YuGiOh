@@ -5,6 +5,7 @@
  */
 
 import { cardInfo, codeOf, summarizeCard } from "../../../../src/cards.js";
+import { chosenOption } from "../../../../src/menu.js";
 import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../../../../src/session.js";
 import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime } from "../../../../src/store.js";
 import { victoryString } from "../../../../src/strings.js";
@@ -67,6 +68,10 @@ export async function duelPayload(id, viewer, at) {
     state: view.state,
     logLines: view.logLines,
     menu: menuSummary(view.menu),
+    // Replay only: which option the seat actually took at this position, so the
+    // scrubber can show the decision being made rather than just its title. null
+    // when live, or when the answer was a multi-pick (see menu.chosenOption).
+    chosen: playback ? chosenOption(view.menu, duel.responses[view.at]) : null,
     events: view.events,
     moves: duel.responses.length,
   };
