@@ -9,6 +9,7 @@
   "name": "Spellcaster's Command (SDSC)",
   "category": "structure",
   "setCode": "SDSC",
+  "boxArt": "https://ms.yugipedia.com//7/78/SDSC-DeckEN.png",
   "format": "classic",
   "sources": [
     "https://yugipedia.com/wiki/Spellcaster's_Command_Structure_Deck",
