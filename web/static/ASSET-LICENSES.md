@@ -42,6 +42,37 @@ Courtesy credit (optional, requested by the authors):
 > "Win Jingle" by Fupi (https://opengameart.org/content/win-jingle) — CC0.
 > "Bell dings/chimes" by PWL (https://opengameart.org/content/bell-dingschimes) — CC0.
 
+## Cue map
+
+`web/src/lib/pretty/sound.js` names its cues after EDOPro's, one per distinct
+happening in the animation digest (`src/events.js`). A cue plays
+`/sfx/<cue>.(ogg|mp3|wav)` when such a file exists and a WebAudio synth
+otherwise, so **the list below is a record of which cues have real audio today,
+not a licensing claim** — nothing here was downloaded for the synth-only cues.
+
+| Cue | File | Note |
+|---|---|---|
+| `summon` | `summon.ogg` | |
+| `activate` | `activate.ogg` | |
+| `set` | `set.ogg` | |
+| `flip` | `flip.ogg` | |
+| `attack` | `attack.ogg` | |
+| `draw` | `draw.ogg` | |
+| `damage` | `damage.ogg` | |
+| `hit` | `hit.ogg` | ours (impact before a battle death) |
+| `gainlp` | `recover.ogg` | filename kept from the old cue name `recover` |
+| `nextturn` | `turn.ogg` | filename kept from the old cue name `turn` |
+| `win` | `win.ogg` | |
+| `turn-bell` | `turn-bell.wav` | not an engine cue — see above |
+
+Synth fallback, no file yet: `specialsummon`, `tribute`, `poschange`, `chain`,
+`resolve`, `reveal`, `equip`, `addcounter`, `removecounter`, `directattack`,
+`destroyed`, `banished`, `shuffle`, `coinflip`, `diceroll`, `phase`, `lose`.
+
+Dropping a correctly-named CC0 file into `web/static/sfx/` is all it takes to
+promote one of those — add its row to the table above and its provenance to the
+sound-effects table when you do.
+
 ## Images (`web/static/img/`)
 
 | File | Dimensions | Source file | Pack | Author | License | Source URL |

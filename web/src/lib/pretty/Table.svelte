@@ -77,18 +77,45 @@
     setTimeout(() => { floats = floats.filter((f) => f.id !== key); }, FLOAT_MS);
   }
 
+  /** Beat between the two halves of a two-part cue (release then summon, impact then death). */
+  const CUE_GAP_MS = 180;
+
+  /**
+   * Command. Plays `second` a beat after `first`, so a two-part event still
+   * reads as one gesture instead of a chord.
+   */
+  function pair(first, second) {
+    first();
+    setTimeout(second, CUE_GAP_MS);
+  }
+
+  /**
+   * Command. Animates one event from the digest and plays its cue.
+   *
+   * Each distinct happening gets a distinct cue (EDOPro's naming — see
+   * sound.js), which is why the digest carries `tribute`, `special`, `reason`
+   * and friends: they are what tells a tribute summon from a special summon,
+   * or a monster dying in battle from one banished by an effect. Cues are not
+   * doubled up — a card that goes to the graveyard from a battle stays silent
+   * because the `battle` event already played the impact and the death.
+   *
+   * @param {object} ev - One event from src/events.js
+   */
   function play(ev) {
     const z = (c) => zoneId(c.p, c.zone, c.seq);
     const lpId = (p) => `${p}-lp-0`;
     switch (ev.kind) {
       case "attack":
         dagger(z(ev.from), ev.to ? z(ev.to) : lpId(1 - ev.from.p));
-        if (sound) sfx.attack();
+        if (sound) (ev.to ? sfx.attack : sfx.directattack)();
         break;
       case "battle":
         if (ev.targetDestroyed) pulse(z(ev.target), "fx-shake", FLASH_MS);
         if (ev.attackerDestroyed) pulse(z(ev.attacker), "fx-shake", FLASH_MS);
-        if (sound) sfx.hit();
+        if (sound) {
+          if (ev.targetDestroyed || ev.attackerDestroyed) pair(sfx.hit, sfx.destroyed);
+          else sfx.hit();
+        }
         break;
       case "damage":
         pulse(lpId(ev.player), "fx-shake", FLASH_MS);
@@ -97,31 +124,80 @@
         break;
       case "recover":
         floatText(lpId(ev.player), `+${ev.amount}`, "text-emerald-300");
-        if (sound) sfx.recover();
+        if (sound) sfx.gainlp();
         break;
-      case "summon": case "flip":
+      case "summon":
         pulse(z(ev.at), "fx-flash", FLASH_MS);
-        if (sound) (ev.kind === "flip" ? sfx.flip : sfx.summon)();
+        if (!sound) break;
+        if (ev.tribute) pair(sfx.tribute, sfx.summon);
+        else if (ev.special) sfx.specialsummon();
+        else sfx.summon();
+        break;
+      case "flip":
+        pulse(z(ev.at), "fx-flash", FLASH_MS);
+        if (sound) sfx.flip();
+        break;
+      case "pos":
+        pulse(z(ev.at), "fx-flash", FLASH_MS);
+        if (sound) sfx.poschange();
         break;
       case "activate":
         pulse(z(ev.at), "fx-flash", FLASH_MS);
         floatText(z(ev.at), ev.name, "text-yellow-200 text-xs");
-        if (sound) sfx.activate();
+        if (sound) {
+          sfx.activate();
+          if (ev.chainLink > 1) sfx.chain();
+        }
+        break;
+      case "resolve":
+        if (sound) sfx.resolve();
         break;
       case "set":
-        if (sound) sfx.set();
+        if (!sound) break;
+        if (ev.tribute) pair(sfx.tribute, sfx.set);
+        else sfx.set();
+        break;
+      case "equip":
+        pulse(z(ev.target), "fx-flash", FLASH_MS);
+        if (sound) sfx.equip();
         break;
       case "tograve":
         pulse(z(ev.from), "fx-shake", FLASH_MS);
+        // "battle" was already voiced by the battle event; "tribute" by the summon.
+        if (sound && ev.reason !== "battle" && ev.reason !== "tribute") sfx.destroyed();
+        break;
+      case "banish":
+        pulse(z(ev.from), "fx-shake", FLASH_MS);
+        if (sound) sfx.banished();
+        break;
+      case "counter":
+        pulse(z(ev.at), "fx-flash", FLASH_MS);
+        if (sound) (ev.add ? sfx.addcounter : sfx.removecounter)();
+        break;
+      case "reveal":
+        if (sound) sfx.reveal();
+        break;
+      case "shuffle":
+        if (sound) sfx.shuffle();
+        break;
+      case "coin":
+        if (sound) sfx.coinflip();
+        break;
+      case "dice":
+        if (sound) sfx.diceroll();
         break;
       case "draw":
         if (sound) sfx.draw();
         break;
       case "turn":
-        if (sound) sfx.turn();
+        if (sound) sfx.nextturn();
+        break;
+      case "phase":
+        if (sound) sfx.phase();
         break;
       case "win":
-        if (sound) sfx.win();
+        // A spectator has no seat to lose from, so the duel ending is a win cue.
+        if (sound) (viewer === 2 || ev.player === viewer ? sfx.win : sfx.lose)();
         break;
       default:
         break;
