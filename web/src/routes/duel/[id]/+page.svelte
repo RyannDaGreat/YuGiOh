@@ -45,8 +45,19 @@
   let slider = $state(data.initial.at);
   let forkId = $state("");
   let sound = $state(false);
-  /** Spectator debug: peek at hidden face-down cards. */
+  /**
+   * Debug: peek at every hidden card — face-downs and both hands — so you can judge
+   * whether an AI's move was reasonable given what it actually held. Available from
+   * any seat, deliberately: this is a development tool for the person building the
+   * agents, not a fair-play affordance.
+   */
   let debug = $state(false);
+  /**
+   * The unmasked (spectator) payload, held only while debug is on in a seat view.
+   * src/view.js masks hidden card codes SERVER-side for a seat, so the seat's own
+   * payload simply does not contain them — peeking has to read the spectator view.
+   */
+  let debugView = $state(null);
   /** How respond? windows are answered: "always" | "smart" | "never" (localStorage). */
   let respondMode = $state("always");
   /** Guards the auto-decline effect so it fires at most once per decision point. */
@@ -85,6 +96,8 @@
   // `view.chat ?? []`: a tab that hot-reloaded across the chat feature still holds an older payload.
   // While scrubbing, the server has already cut this off at the replayed move (engine.duelPayload).
   const chatMessages = $derived(view.chat ?? []);
+  /** The board to draw: unmasked while debug is on, otherwise this seat's masked view. */
+  const boardView = $derived(debug && debugView ? debugView.state : view.state);
   const unreadChat = $derived(Math.max(0, chatMessages.length - chatSeen));
   /** True while this seat owes the engine a decision — never a spectator, never during playback. */
   const myDecision = $derived(playbackAt === null && !view.ended && view.viewer !== 2 && view.pendingPlayer === view.viewer);
@@ -120,9 +133,31 @@
     return respondSpeCount === 0; // smart
   });
 
+  /** The playback suffix for an API call, so every fetch reads the same position. */
+  const atSuffix = () => (playbackAt === null ? "" : `&at=${playbackAt}`);
+
+  /**
+   * Command. Loads the unmasked board when debug is on in a seat view, and drops it
+   * otherwise. A seat's own payload has hidden codes stripped server-side, so without
+   * this second read the debug toggle would light up and reveal nothing.
+   */
+  async function refreshDebugView() {
+    if (!debug || view.viewer === 2) {
+      debugView = null;
+      return;
+    }
+    const res = await fetch(`/api/duel/${view.id}?as=all${atSuffix()}`);
+    if (res.ok) debugView = await res.json();
+  }
+
+  /** Command. Toggles peek and reloads the unmasked board at once, not on the next poll. */
+  function toggleDebug() {
+    debug = !debug;
+    refreshDebugView();
+  }
+
   async function refresh() {
-    const atParam = playbackAt === null ? "" : `&at=${playbackAt}`;
-    const res = await fetch(`/api/duel/${view.id}?as=${view.viewer === 2 ? "all" : view.viewer}${atParam}`);
+    const res = await fetch(`/api/duel/${view.id}?as=${view.viewer === 2 ? "all" : view.viewer}${atSuffix()}`);
     if (!res.ok) return;
     const next = await res.json();
     if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) selected = [];
@@ -133,6 +168,7 @@
       lastLogLength = next.logLines.length;
       queueMicrotask(() => { if (logEl) logEl.scrollTop = logEl.scrollHeight; });
     }
+    await refreshDebugView();
   }
 
   async function submit(choice) {
@@ -329,6 +365,16 @@
 
 <svelte:head><title>YuGi — {view.id}</title></svelte:head>
 
+<!--
+  The ONE respond-mode control, rendered in two places: the header (pre-set the
+  mode before a window opens) and the response panel (change it while one is
+  open). Both call sites render this same markup, so they read as the same
+  button and cannot drift apart; `extraClass` only adjusts fit, never identity.
+-->
+{#snippet respondModeButton(extraClass = "")}
+  <button class="px-2 py-0.5 rounded border border-indigo-400/60 bg-indigo-900/50 text-indigo-100 inline-flex items-center gap-1 hover:bg-indigo-700/60 {extraClass}" onclick={cycleRespondMode} title="how respond? windows are answered — click to cycle. {RESPOND_MODE_NOTE[respondMode]}"><Icon icon="mdi:shield-flash-outline" />respond: {respondMode}</button>
+{/snippet}
+
 <main class="min-h-screen bg-[#120c08] text-amber-50 p-3 flex flex-col gap-3">
   <header class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
     <a href="/" class="text-amber-300 hover:underline inline-flex items-center gap-1"><Icon icon="mdi:arrow-left" />duels</a>
@@ -345,8 +391,7 @@
     </span>
     <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 inline-flex items-center gap-1" onclick={toggleSound}><Icon icon={sound ? "mdi:volume-high" : "mdi:volume-off"} />{sound ? "sound on" : "sound off"}</button>
     {#if view.viewer !== 2}
-      <!-- Respond-mode control, pre-settable here and mirrored in the response panel. -->
-      <button class="px-2 py-0.5 rounded border border-indigo-400/60 bg-indigo-900/50 text-indigo-100 inline-flex items-center gap-1" onclick={cycleRespondMode} title="how respond? windows are answered — click to cycle. {RESPOND_MODE_NOTE[respondMode]}"><Icon icon="mdi:shield-flash-outline" />respond: {respondMode}</button>
+      {@render respondModeButton()}
     {/if}
     {#if view.viewer !== 2 && sleeves.length}
       <label class="text-amber-100/70">sleeve
@@ -355,9 +400,7 @@
         </select>
       </label>
     {/if}
-    {#if view.viewer === 2}
-      <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={() => (debug = !debug)} title="peek at hidden face-down cards (spectator only)"><Icon icon="mdi:bug" />{debug ? "debug on" : "debug off"}</button>
-    {/if}
+    <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={toggleDebug} title="peek at every hidden card — face-downs and both hands — to judge whether a move was reasonable"><Icon icon="mdi:bug" />{debug ? "debug on" : "debug off"}</button>
     {#if playbackAt !== null}
       <span class="px-3 py-1 rounded bg-yellow-300 text-yellow-950 font-bold">PLAYBACK — move {view.at} of {view.total}</span>
     {:else if view.ended}
@@ -412,7 +455,7 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <Table board={view.state} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} />
+      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
@@ -456,7 +499,7 @@
           <div class="flex items-center gap-2 mb-1">
             <Icon icon="mdi:shield-flash-outline" class="text-indigo-300" width="18" height="18" />
             <h3 class="font-bold text-indigo-200 text-sm tracking-wide uppercase">Respond{respondForced ? " — must activate" : ""}</h3>
-            <button class="ml-auto text-[0.65rem] px-2 py-0.5 rounded bg-indigo-500/30 border border-indigo-400/60 text-indigo-100 inline-flex items-center gap-1 hover:bg-indigo-500/50" onclick={cycleRespondMode} title="cycle how respond windows are answered"><Icon icon="mdi:autorenew" width="12" height="12" />{respondMode}</button>
+            {@render respondModeButton("ml-auto text-[0.65rem]")}
           </div>
           <p class="text-indigo-100/80 text-[0.7rem] mb-1">{respondHeader}</p>
           <p class="text-indigo-100/45 text-[0.6rem] mb-2">mode: <b class="text-indigo-100/70">{respondMode}</b> — {RESPOND_MODE_NOTE[respondMode]}{respondMode === "smart" ? ` (this window: ${respondSpeCount > 0 ? "worth stopping" : "would auto-decline"})` : ""}</p>

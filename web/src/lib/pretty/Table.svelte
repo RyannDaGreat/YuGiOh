@@ -12,7 +12,7 @@
    * @prop {(card) => void} onclick
    * @prop {boolean} sound
    * @prop {number} viewer      the seat viewing (0|1|2): own set cards show art; 2 = spectator
-   * @prop {boolean} debug      spectator debug: peek at hidden face-downs
+   * @prop {boolean} debug      debug peek: show hidden face-downs (any seat)
    * @prop {string[]} backs     card-back image URL per seat (sleeves)
    */
   import Card from "./Card.svelte";
