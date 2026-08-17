@@ -367,7 +367,8 @@ export function buildMenu(msg, ctx) {
       return { title: `P${msg.player}: ${selectPrompt(SYS_DECLARE_ATTRIBUTE)} (choose ${msg.count})`, items, zero: null, mode: "many", min: msg.count, max: msg.count, build: (attributes) => ({ type: R.ANNOUNCE_ATTRIB, attributes }) };
     }
     case T.ANNOUNCE_NUMBER:
-      return one(`P${msg.player}: ${selectPrompt(SYS_DECLARE_NUMBER)}`, msg.options.map((n) => ({ label: `${n}`, value: { type: R.ANNOUNCE_NUMBER, value: Number(n) } })));
+      // The core wants the INDEX into its announced options, not the number itself.
+      return one(`P${msg.player}: ${selectPrompt(SYS_DECLARE_NUMBER)}`, msg.options.map((n, i) => ({ label: `${n}`, value: { type: R.ANNOUNCE_NUMBER, value: i } })));
     case T.ANNOUNCE_CARD:
       return { title: `P${msg.player}: ${selectPrompt(SYS_DECLARE_CARD)} — answer as name:<exact card name>`, items: [], zero: null, mode: "name", min: 1, max: 1, build: ([code]) => ({ type: R.ANNOUNCE_CARD, card: code }) };
     case T.ROCK_PAPER_SCISSORS:
