@@ -2,7 +2,7 @@
   import Icon from "@iconify/svelte";
   import cardsIcon from "@iconify-icons/mdi/cards";
   import playIcon from "@iconify-icons/mdi/play";
-  import CardArt from "$lib/pretty/CardArt.svelte";
+  import DeckThumb from "$lib/pretty/DeckThumb.svelte";
 
   let { data, form } = $props();
 
@@ -12,9 +12,12 @@
 
   /** Deck library, split for the two <optgroup>s and indexed for the live art previews. */
   const structure = $derived(data.library.filter((d) => d.category === "structure"));
+  const curated = $derived(data.library.filter((d) => d.category === "curated"));
   const user = $derived(data.library.filter((d) => d.category === "user"));
   const sigOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.signatureCode])));
   const nameOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.name])));
+  const catOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.category])));
+  const setOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.setCode])));
 
   /**
    * Pure function. A valid seat default: the requested deck id if it exists,
@@ -90,6 +93,7 @@
 
 {#snippet deckOptions()}
   {#if structure.length}<optgroup label="Structure Decks">{#each structure as d}<option value={d.id}>{d.name}</option>{/each}</optgroup>{/if}
+  {#if curated.length}<optgroup label="Curated Decks">{#each curated as d}<option value={d.id}>{d.name}</option>{/each}</optgroup>{/if}
   {#if user.length}<optgroup label="User Decks">{#each user as d}<option value={d.id}>{d.name}</option>{/each}</optgroup>{/if}
 {/snippet}
 
@@ -131,13 +135,13 @@
       <label class="flex flex-col gap-1">P0 deck (goes first)
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p0" bind:value={p0}>{@render deckOptions()}</select>
-          <a href="/decks/{p0}" title="inspect {nameOf[p0]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><CardArt code={sigOf[p0]} name={nameOf[p0]} size="mini" /></a>
+          <a href="/decks/{p0}" title="inspect {nameOf[p0]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p0]} signatureCode={sigOf[p0]} name={nameOf[p0]} category={catOf[p0]} size="mini" /></a>
         </div>
       </label>
       <label class="flex flex-col gap-1">P1 deck
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p1" bind:value={p1}>{@render deckOptions()}</select>
-          <a href="/decks/{p1}" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><CardArt code={sigOf[p1]} name={nameOf[p1]} size="mini" /></a>
+          <a href="/decks/{p1}" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p1]} signatureCode={sigOf[p1]} name={nameOf[p1]} category={catOf[p1]} size="mini" /></a>
         </div>
       </label>
       <label class="flex flex-col gap-1">P0 player <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player0" placeholder="ryan" /></label>
