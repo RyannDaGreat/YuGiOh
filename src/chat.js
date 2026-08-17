@@ -27,7 +27,7 @@
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { DUEL_ID_PATTERN, DUELS_DIR } from "./store.js";
+import { CHAT_SUFFIX, DUEL_ID_PATTERN, DUELS_DIR } from "./store.js";
 
 /** Seat 2 = spectator: no seat at the table, still allowed to talk. */
 export const SPECTATOR_SEAT = 2;
@@ -50,7 +50,7 @@ export const MAX_CHAT_CHARS = 500;
  */
 export function chatPath(id, dir = DUELS_DIR) {
   if (!DUEL_ID_PATTERN.test(id)) throw new Error(`invalid duel id: ${JSON.stringify(id)}`);
-  return join(dir, `${id}.chat.json`);
+  return join(dir, `${id}${CHAT_SUFFIX}`);
 }
 
 /**

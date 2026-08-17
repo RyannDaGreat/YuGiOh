@@ -18,6 +18,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { appendChat, chatPath, chatSince, formatChat, loadChat, MAX_CHAT_CHARS } from "../src/chat.js";
+import { listDuels } from "../src/store.js";
 
 /** A duel record stub: chat only ever reads `players` from it. */
 const DUEL = { id: "g1", players: ["ryan", "claude"], seed: 1, decks: [], responses: [] };
@@ -72,6 +73,16 @@ test("rejected messages: empty, over the length cap, unknown seat, unknown duel"
     const atCap = appendChat("g1", 0, "x".repeat(MAX_CHAT_CHARS), now, dir);
     assert.equal(atCap.text.length, MAX_CHAT_CHARS, "exactly the cap is allowed");
     assert.equal(loadChat("g1", dir).length, 1, "nothing rejected was written");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("a chat log beside a duel record is not itself a duel", () => {
+  const dir = tempDuels();
+  try {
+    appendChat("g1", 0, "gl hf", "2026-08-16T18:00:00.000Z", dir);
+    assert.deepEqual(listDuels(dir), ["g1"], "duels/<id>.chat.json must not show up as a duel id");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
