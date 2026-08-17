@@ -19,12 +19,42 @@
  * through `ygo state/log/play --as <you>`. This is an honor-system boundary,
  * chosen over a token-authenticated daemon because every participant runs on
  * one machine anyway; see README "Hidden information".
+ *
+ * DECK SCHEMA (src/decks/*.json, and the frozen copy inside a duel record).
+ * A deck file is:
+ *   {
+ *     "name":     str,                     // display name, e.g. "GOAT Sample"
+ *     "category": "structure" | "user",    // built-in list vs user-authored; default "user"
+ *     "format":   "classic" | "goat",      // ruleset; default "classic"
+ *     "main":     [[cardName, count], ...], // Main Deck; goat: 40..60 cards, classic: any
+ *     "extra":    [[cardName, count], ...], // OPTIONAL Extra Deck; ≤ 15 cards
+ *     "side":     [[cardName, count], ...], // OPTIONAL Side Deck; ≤ 15 cards
+ *     "manual":   str                       // OPTIONAL concise markdown: how to pilot it
+ *   }
+ * Card placement is enforced (loadDeck): every `extra` entry MUST be a
+ * Fusion/Synchro/Xyz/Link monster (cards.isExtraDeckCard) and no `main` entry
+ * may be — the core keeps those in OcgLocation.EXTRA, not the deck. Both decks
+ * of a duel must share one `format`; that becomes the duel-level `format`
+ * (createDuel), which duel.js maps to MODE_GOAT vs MODE_MR5. Backward compat: a
+ * legacy `{name, main}` file still loads (category "user", format "classic",
+ * empty extra/side, empty manual). See the `deck-schema` semantic binding.
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { REPO_ROOT, codeOf } from "./cards.js";
-import { expandDeck } from "./duel.js";
+import { REPO_ROOT, cardInfo, codeOf, isExtraDeckCard, typeLabel } from "./cards.js";
+import { expandDeck, expandExtra, expandSide } from "./duel.js";
+
+/** A deck's `category`: a built-in list shipped with the repo, or user-authored. */
+const DECK_CATEGORIES = ["structure", "user"];
+/** A deck's `format`: the ruleset the duel is built under (see duel.js MODE_*). */
+const DECK_FORMATS = ["classic", "goat"];
+/** GOAT format is 40–60 Main Deck cards; classic imposes no size (starter decks are 50). */
+const GOAT_MAIN_MIN = 40;
+const GOAT_MAIN_MAX = 60;
+/** Extra and Side decks are each capped at 15 cards, as in every real format. */
+const MAX_EXTRA = 15;
+const MAX_SIDE = 15;
 
 export const DUELS_DIR = join(REPO_ROOT, "duels");
 export const DECKS_DIR = join(REPO_ROOT, "src/decks");
@@ -35,32 +65,110 @@ export const DUEL_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 export const CHAT_SUFFIX = ".chat.json";
 
 /**
- * Query. Loads a decklist by name (built-in under src/decks) or by path.
+ * Query. Validates one `[name, count]` section: every name resolves (loud on a
+ * typo), every count is a positive integer, and — when `extraOnly` is set —
+ * every card is (true) or is not (false) an Extra-Deck monster. `extraOnly`
+ * undefined skips the placement check (the side deck may hold anything).
+ *
+ * Args:
+ *     entries (Array<[string, number]>): The section's rows.
+ *     opts.path (string): Deck file path, for error messages.
+ *     opts.section (string): "main" | "extra" | "side", for error messages.
+ *     opts.extraOnly (boolean|undefined): Required extra-deck membership, or skip.
+ *
+ * Throws:
+ *     Error: on an unknown card, a bad count, or a misplaced card.
+ */
+function validateSection(entries, { path, section, extraOnly }) {
+  for (const [name, count] of entries) {
+    const code = codeOf(name);
+    if (!Number.isInteger(count) || count < 1) throw new Error(`bad count for ${name} in ${path}`);
+    if (extraOnly === true && !isExtraDeckCard(code)) {
+      throw new Error(`${name} is not an Extra Deck monster but is listed in "extra" of ${path}; move it to "main"`);
+    }
+    if (extraOnly === false && isExtraDeckCard(code)) {
+      throw new Error(`${name} is an Extra Deck monster (${typeLabel(cardInfo(code).type)}) but is listed in "main" of ${path}; Fusion/Synchro/Xyz/Link cards go in "extra"`);
+    }
+  }
+}
+
+/**
+ * Query. Loads a decklist by name (built-in under src/decks) or by path, in the
+ * full schema (see the DECK SCHEMA block at the top of this file). Backward
+ * compatible: a legacy `{name, main}` file loads with category "user", format
+ * "classic", and empty extra/side/manual.
  *
  * Args:
  *     nameOrPath (string): "yugi", "kaiba", or a path to a deck JSON.
  *
  * Returns:
- *     {name: string, main: Array<[string, number]>}
+ *     {name, category, format, main, extra, side, manual}: `main`/`extra`/`side`
+ *     are Array<[string, number]>; `manual` is a (possibly empty) markdown string.
  *
  * Throws:
- *     Error: if the file is missing, or any card name is not in cards.cdb —
- *     a typo in a decklist must fail before the duel is created.
+ *     Error: if the file is missing or malformed; if any card name is not in
+ *     cards.cdb (a decklist typo must fail before the duel is created); if an
+ *     Extra-Deck monster sits in `main` (or a main-deck card in `extra`); or if
+ *     the sizes are illegal (goat main 40–60, extra ≤ 15, side ≤ 15).
  *
  * Examples:
  *     >>> loadDeck("kaiba").name          // "Kaiba"
  *     >>> loadDeck("kaiba").main.length   // 50
+ *     >>> loadDeck("kaiba").format        // "classic"
+ *     >>> loadDeck("goat-sample").format  // "goat"
  */
 export function loadDeck(nameOrPath) {
   const path = existsSync(nameOrPath) ? nameOrPath : join(DECKS_DIR, `${nameOrPath.toLowerCase()}.json`);
   if (!existsSync(path)) throw new Error(`no such deck: ${nameOrPath} (looked for ${path})`);
   const deck = JSON.parse(readFileSync(path, "utf8"));
   if (!Array.isArray(deck.main) || !deck.name) throw new Error(`malformed deck file: ${path}`);
-  for (const [name, count] of deck.main) {
-    codeOf(name);
-    if (!Number.isInteger(count) || count < 1) throw new Error(`bad count for ${name} in ${path}`);
+
+  const category = deck.category ?? "user";
+  if (!DECK_CATEGORIES.includes(category)) throw new Error(`bad category ${JSON.stringify(category)} in ${path} (expected one of ${DECK_CATEGORIES.join(", ")})`);
+  const format = deck.format ?? "classic";
+  if (!DECK_FORMATS.includes(format)) throw new Error(`bad format ${JSON.stringify(format)} in ${path} (expected one of ${DECK_FORMATS.join(", ")})`);
+
+  const main = deck.main;
+  const extra = deck.extra ?? [];
+  const side = deck.side ?? [];
+  if (!Array.isArray(extra) || !Array.isArray(side)) throw new Error(`"extra"/"side" must be arrays in ${path}`);
+  const manual = deck.manual ?? "";
+
+  validateSection(main, { path, section: "main", extraOnly: false });
+  validateSection(extra, { path, section: "extra", extraOnly: true });
+  validateSection(side, { path, section: "side", extraOnly: undefined });
+
+  const mainCount = expandDeck(main).length;
+  const extraCount = expandExtra(extra).length;
+  const sideCount = expandSide(side).length;
+  if (format === "goat" && (mainCount < GOAT_MAIN_MIN || mainCount > GOAT_MAIN_MAX)) {
+    throw new Error(`goat main deck must be ${GOAT_MAIN_MIN}–${GOAT_MAIN_MAX} cards, got ${mainCount} in ${path}`);
   }
-  return { name: deck.name, main: deck.main };
+  if (extraCount > MAX_EXTRA) throw new Error(`extra deck must be ≤ ${MAX_EXTRA} cards, got ${extraCount} in ${path}`);
+  if (sideCount > MAX_SIDE) throw new Error(`side deck must be ≤ ${MAX_SIDE} cards, got ${sideCount} in ${path}`);
+
+  return { name: deck.name, category, format, main, extra, side, manual };
+}
+
+/**
+ * Pure function. The single format shared by a pair of decks, or a loud error
+ * if they disagree — a duel is one ruleset, so mixed formats are rejected at
+ * creation rather than silently coerced.
+ *
+ * Args:
+ *     decks ([deck, deck]): Loaded decks (loadDeck), each with a `format`.
+ *
+ * Returns:
+ *     "classic" | "goat"
+ *
+ * Examples:
+ *     >>> sharedFormat([{format: "goat"}, {format: "goat"}]) // "goat"
+ *     >>> // sharedFormat([{format: "classic"}, {format: "goat"}]) throws
+ */
+export function sharedFormat(decks) {
+  const [a, b] = decks.map((d) => d.format ?? "classic");
+  if (a !== b) throw new Error(`both decks must share a format (P0 is "${a}", P1 is "${b}")`);
+  return a;
 }
 
 /**
@@ -156,8 +264,12 @@ export function moveTime(times, at) {
  *     id (string): Duel id.
  *
  * Returns:
- *     {id, created, seed, decks: [{name, main, codes}, {name, main, codes}], players: [string, string], responses: OcgResponse[], times?: Array<string|null>}
- *     `codes` are the passcodes frozen at creation (see replayDuel).
+ *     {id, created, seed, format, decks: [deck, deck], players: [string, string], responses: OcgResponse[], times?: Array<string|null>}
+ *     Each `deck` is {name, category, format, main, extra, side, manual, codes,
+ *     extraCodes, sideCodes}. `codes`/`extraCodes`/`sideCodes` are the passcodes
+ *     frozen at creation (see replayDuel). `format` is the duel-level ruleset.
+ *     Records written before extra decks/format existed lack those fields; every
+ *     reader defaults them (format "classic", empty extra/side).
  *     `times[i]` is when `responses[i]` was played; absent on old records, so
  *     read it through `alignTimes`/`moveTime`, never by raw index.
  */
@@ -183,7 +295,10 @@ export function saveDuel(duel) {
 
 /**
  * Command. Copies a duel truncated to its first `at` responses under a new id —
- * a branch point for "what if I had played differently here".
+ * a branch point for "what if I had played differently here". The spread copies
+ * everything the source froze — `format` and both decks' `extraCodes`/`sideCodes`
+ * included — so a branch of a GOAT duel is itself a GOAT duel with the same extra
+ * deck.
  *
  * Args:
  *     id (string): Source duel id.
@@ -208,6 +323,11 @@ export function forkDuel(id, newId, at, players, created) {
 /**
  * Command. Creates and saves a new duel record.
  *
+ * Both decks must share a `format` (sharedFormat throws otherwise); it becomes
+ * the duel-level `format`. Each deck is frozen with its main/extra/side lists and
+ * their passcodes (`codes`/`extraCodes`/`sideCodes`), plus category and manual, so
+ * a record replays identically and a later deck viewer can show what was played.
+ *
  * Args:
  *     opts.id (string): Duel id (must not already exist).
  *     opts.seed (number): 32-bit seed.
@@ -220,7 +340,20 @@ export function forkDuel(id, newId, at, players, created) {
  */
 export function createDuel({ id, seed, decks, players, created }) {
   if (existsSync(duelPath(id))) throw new Error(`duel already exists: ${id}`);
-  const duel = { id, created, seed, decks: decks.map((d) => ({ name: d.name, main: d.main, codes: expandDeck(d.main) })), players, responses: [], times: [] };
+  const format = sharedFormat(decks);
+  const frozen = decks.map((d) => ({
+    name: d.name,
+    category: d.category,
+    format: d.format,
+    main: d.main,
+    extra: d.extra,
+    side: d.side,
+    manual: d.manual,
+    codes: expandDeck(d.main),
+    extraCodes: expandExtra(d.extra),
+    sideCodes: expandSide(d.side),
+  }));
+  const duel = { id, created, seed, format, decks: frozen, players, responses: [], times: [] };
   saveDuel(duel);
   return duel;
 }

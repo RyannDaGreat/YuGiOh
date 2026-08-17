@@ -29,9 +29,19 @@ browser, or subagent vs subagent — with:
   (Project Ignis `CardScripts`) and `cards.cdb` (Project Ignis `BabelCDB`) IS the rules.
 - **seat / viewer** — `0` and `1` are the players (P0 always takes turn 1); `all`/`2` is the
   spectator (omniscient; for judging/replay, never for playing).
-- **duel record** — `duels/<id>.json` = `{seed, decks (with frozen passcodes), players, responses,
-  times}`; replaying it deterministically reproduces the whole game. `duels/<id>.chat.json` is the
-  table talk beside it. Presence heartbeats live in `duels/.presence/`.
+- **duel record** — `duels/<id>.json` = `{seed, format, decks (each frozen with main/extra/side +
+  their passcodes codes/extraCodes/sideCodes, plus category/manual), players, responses, times}`;
+  replaying it deterministically reproduces the whole game. `duels/<id>.chat.json` is the table talk
+  beside it. Presence heartbeats live in `duels/.presence/`. Old records lack `format`/extra fields;
+  readers default them (classic / empty).
+- **deck / deck schema** — a deck file `src/decks/<name>.json` = `{name, category ("structure"|
+  "user"), format ("classic"|"goat"), main:[[cardName,count]…], extra?, side?, manual}`. Fusion/
+  Synchro/Xyz/Link monsters (Extra-Deck types, `cards.isExtraDeckCard`) MUST be in `extra`, never
+  `main`; the core keeps them in `OcgLocation.EXTRA`. `goat` main is 40–60, extra/side ≤ 15; a
+  `goat` duel builds under `OcgDuelMode.MODE_GOAT` (else MODE_MR5). Both decks of a duel share one
+  format (`store.sharedFormat`). A deck's identity is its FILE NAME, never its card contents —
+  same cards + different name/manual = two distinct decks; nothing dedupes by content. Legacy
+  `{name, main}` files still load (defaults user / classic / empty). See the `deck-schema` binding.
 - **times / atTime** — `times[i]` is the ISO wall-clock at which `responses[i]` was recorded. It is
   ANNOTATION: never fed to the core, so it cannot change a replay, and records written before it
   existed simply lack it (`store.alignTimes` pads them with null so the arrays cannot drift).
@@ -86,6 +96,13 @@ browser, or subagent vs subagent — with:
 - `duel-record-shape` — `src/store.js` (createDuel/forkDuel/loadDuel docs, alignTimes/moveTime) ↔
   `src/session.js` (viewDuel/playChoice) ↔ `bin/ygo.js` (`undo` re-aligns `times`) ↔ `README.md`
   "Replay, not persistence".
+- `deck-schema` — the deck JSON shape and its validation/placement/format rules, kept in step across:
+  `src/store.js` (DECK SCHEMA header comment, `loadDeck`/`sharedFormat`/`createDuel`),
+  `src/duel.js` (`expandDeck`/`expandExtra`/`expandSide`, `replayDuel` extra-deck + MODE_GOAT wiring),
+  `src/cards.js` (`EXTRA_DECK_TYPES`/`isExtraDeckCard`), `src/session.js` (viewDuel exposes
+  `format` + per-seat deck metadata; promptText lists the extra deck), `bin/ygo.js` (`new --format`,
+  `deck`, `decks`), `README.md` "Decks", and the deck files `src/decks/*.json`
+  (`yugi.json`/`kaiba.json`/`goat-sample.json`).
 - `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
   `web/src/lib/server/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
   `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
@@ -186,15 +203,16 @@ never suppress command output; use packages instead of hand-rolling; test websit
 bin/ygo.js         CLI: new state log prompt menu wait play undo fork list tally card search deck decks
                    dump-cards fetch-pics brief chat
 bin/serve.sh       web dev server (LAN)          runserver.sh  interactive host Claude (HOST.md)
-src/duel.js        ocgcore-wasm wrapper; replayDuel({seed, deckCodes, responses}); autoResponse (declines
-                   empty chain windows); WIN terminal; RETRY = error
+src/duel.js        ocgcore-wasm wrapper; replayDuel({seed, deckCodes, extraCodes, responses, format});
+                   goat->MODE_GOAT else MR5; extra cards -> EXTRA; expandDeck/Extra/Side; autoResponse
+                   (declines empty chain windows); WIN terminal; RETRY = error
 src/view.js        per-viewer masking (port of single_duel.cpp)      src/field.js  client field model
 src/log.js         YGN log                                            src/state.js  state data + text
 src/menu.js        SELECT_*/ANNOUNCE_* -> menus -> OcgResponse         src/events.js animation/sound digest
 src/session.js     viewDuel/playChoice/promptText/shouldAutoPass       src/store.js  records, decks, fork
 src/chat.js        table talk                                          src/presence.js seat heartbeats
 src/cards.js       cards.cdb (node:sqlite), names/text/search          src/strings.js strings.conf decode
-src/rng.js         seeded shuffle                                      src/decks/*.json  SDY / SDK lists
+src/rng.js         seeded shuffle                            src/decks/*.json  SDY/SDK + goat-sample (deck-schema)
 web/               SvelteKit; routes: / (history), /duel/[id] (table), /api/duel/[id] (+/chat),
                    /api/card, /api/sleeves, /pics/[code], /nexus-sfx/[file]
 web/src/lib/pretty  Table, Card, Preview, PileModal, sound.js, nexus-map.js   web/src/lib/server engine.js, sleeves.js

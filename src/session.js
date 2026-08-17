@@ -49,6 +49,9 @@ export function parseViewer(text) {
  * Returns:
  *     {
  *       ended: boolean, winner: number|null, winReason: number|null,
+ *       format: "classic"|"goat",            the duel's ruleset
+ *       decks: [{name, category, format, manual}, ...],  per-seat deck metadata
+ *                                            (for a deck viewer / home selector)
  *       pendingPlayer: number|null,          who the core is waiting on
  *       logLines: string[],                  YGN log for the viewer
  *       state: object,                       structured state (state.js collectState)
@@ -68,8 +71,10 @@ export function parseViewer(text) {
  */
 export async function viewDuel(duel, viewer, at) {
   const deckCodes = duel.decks.map((d) => d.codes);
+  const extraCodes = duel.decks.map((d) => d.extraCodes ?? []);
+  const format = duel.format ?? "classic";
   const responses = at === undefined ? duel.responses : duel.responses.slice(0, at);
-  const result = await replayDuel({ seed: duel.seed, deckCodes, responses });
+  const result = await replayDuel({ seed: duel.seed, deckCodes, extraCodes, responses, format });
   try {
     const masked = maskStream(result.messages, viewer);
     const deckSizes = deckCodes.map((c) => c.length);
@@ -79,6 +84,7 @@ export async function viewDuel(duel, viewer, at) {
       deckNames: duel.decks.map((d) => d.name),
       deckCodes,
       model: field,
+      format,
     });
     const stateLines = renderState(state);
     const pendingPlayer = result.pending ? result.pending.player : null;
@@ -95,6 +101,10 @@ export async function viewDuel(duel, viewer, at) {
       ended: result.ended,
       winner: field.winner,
       winReason: field.winReason,
+      format,
+      // Per-seat deck metadata for a deck viewer / home selector — identity and
+      // pilot notes, not the frozen passcodes. Defaulted for legacy records.
+      decks: duel.decks.map((d) => ({ name: d.name, category: d.category ?? "user", format: d.format ?? "classic", manual: d.manual ?? "" })),
       pendingPlayer,
       logLines,
       state,
@@ -195,11 +205,17 @@ export function deckReference(deck) {
 export async function promptText(duel, viewer, at) {
   const view = await viewDuel(duel, viewer, at);
   const who = viewer === SPECTATOR ? "You are the spectator (omniscient)." : `You are P${viewer} (${duel.players[viewer]}), playing the ${duel.decks[viewer].name} deck.`;
+  const deckSection = (d, p) => {
+    const block = [`## P${p} decklist — ${d.name} (${d.codes.length} cards)`, ...deckReference(d)];
+    if (d.extraCodes?.length) block.push(`### Extra Deck (${d.extraCodes.length})`, ...deckReference({ codes: d.extraCodes }));
+    block.push("");
+    return block;
+  };
   const sections = [
     `# Duel ${duel.id}`,
-    `${who} P0 (${duel.players[0]}, ${duel.decks[0].name}) took turn 1. Both decklists are public knowledge.`,
+    `${who} P0 (${duel.players[0]}, ${duel.decks[0].name}) took turn 1. Both decklists are public knowledge.${view.format === "goat" ? " Format: GOAT." : ""}`,
     "",
-    ...duel.decks.map((d, p) => [`## P${p} decklist — ${d.name} (${d.codes.length} cards)`, ...deckReference(d), ""]).flat(),
+    ...duel.decks.map(deckSection).flat(),
     "## Log (your perspective)",
     ...view.logLines,
     "",

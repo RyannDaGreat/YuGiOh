@@ -198,12 +198,37 @@ machine; the daemon can wrap `session.js` later without changing anything else.
 
 `src/decks/yugi.json` and `kaiba.json` are the 50-card North-American Starter
 Deck Yugi / Starter Deck Kaiba lists (SDY/SDK), verified against Yugipedia and
-YGOPRODeck. Any JSON `{name, main: [[cardName, count], ...]}` works; names must
-match cards.cdb exactly (`ygo search` to check).
+YGOPRODeck. `goat-sample.json` is a worked GOAT-format example with an Extra
+Deck. A deck JSON is:
+
+```json
+{
+  "name":     "GOAT Sample",
+  "category": "structure",              // "structure" (built-in) | "user"; default "user"
+  "format":   "goat",                   // "classic" | "goat"; default "classic"
+  "main":     [["Pot of Greed", 1]],    // Main Deck; goat: 40–60 cards, classic: any
+  "extra":    [["Thousand-Eyes Restrict", 1]],  // optional Extra Deck; ≤ 15
+  "side":     [["Mystical Space Typhoon", 2]],  // optional Side Deck; ≤ 15
+  "manual":   "concise markdown: how to pilot it"  // optional
+}
+```
+
+Names must match cards.cdb exactly (`ygo search` to check). Card placement is
+enforced: Fusion/Synchro/Xyz/Link monsters (Extra-Deck types) must go in
+`extra`, never `main` — the core keeps them in a separate pile
+(`OcgLocation.EXTRA`), and a duel built with `--format goat` runs under
+`OcgDuelMode.MODE_GOAT` (April 2005 rules). Both decks of a duel must share one
+format. A legacy `{name, main}` file still loads (defaults: user / classic /
+empty). `ygo decks` lists decks grouped by category; `ygo deck <name>` shows the
+category, format, all three piles, and the manual. A deck's identity is its
+file name, never its card contents — two files with the same cards but different
+names/manuals are two distinct decks.
 
 ## Known limitations / next
 
-- Duel format is Master Rule 5, 8000 LP, 5-card hand, no side deck, no match play.
+- Duel format is Master Rule 5 by default (8000 LP, 5-card hand); `--format goat`
+  builds under MODE_GOAT instead. Extra decks are dealt into `OcgLocation.EXTRA`;
+  side decks are recorded but not swapped in-engine, and there is no match play.
 - Card art is fetched from YGOPRODeck by `ygo fetch-pics` (setup.sh does it) into `vendor/pics/`; sounds and the card back are CC0 (see `web/static/ASSET-LICENSES.md`).
 - `ocgcore-wasm@0.1.2` quirks: `createCore` is the default export; `constant.lua`
   and `utility.lua` must be preloaded; `OcgQueryFlags.TYPE` mis-parses (we take
