@@ -250,3 +250,33 @@ Key decisions and WHY:
 ## 9. Open work (see .claude_todo.md for the live list)
 - Response-prompt modes (always/smart/never) + distinct respond panel (docs/response-prompt-ux.md).
 - Presentation backlog from docs/ux-survey-*.md and docs/nexus-visual-effects.md.
+
+## 10. Deck manuals (added 2026-08-16, user requirement)
+
+Verbatim: "having a playbook or a manual for every deck will be useful because i want to be
+able to make claude as vicious and capable as possible to play with every deck… these manuals
+should be gotten from doing heavy research into the deck they shouldn't be necessarily made up
+by claude because claude might not know how to play decks there's a lot of combinations that
+claude might not be aware of." And: "every manual has both weaknesses and how to play. But
+weaknesses are the smaller part, the most important part is how to play it. That should be the
+part most emphasized. Especially combo lines. After doing research, figure out how people
+typically write these manuals… strategies people have devised over the years." And: "decks are
+going to be created by Claude. We can select through the decks… if I want to add another deck…
+ask Claude to do it."
+
+**Rules for the `manual` field of every deck (structure or user):**
+- SOURCED FROM RESEARCH, never fabricated. Study real primers/tournament reports/combo videos
+  first; cite sources. Where a line is uncertain or unsourced, SAY SO — do not invent combos.
+  Claude does not reliably know intricate lines; a confidently-wrong manual is worse than none.
+- Tight, not a wall of text (~15–35 lines). Structure, biggest section first:
+  1. **Game plan** (1–2 lines) — what the deck is trying to do.
+  2. **Key cards / engine** — the pieces and their role.
+  3. **How to pilot it / combo lines** — THE emphasis, the largest section: the actual opening
+     and core sequences in order, as pilots really play them, with key interactions and
+     decision points (mulligans, when to hold, baiting, resource management).
+  4. **Weaknesses** (smaller) — what it is soft to, its bricks, how an opponent attacks it (so a
+     Claude on either side knows the matchup).
+  5. **Sources** — URLs the manual was built from.
+- Adding a deck is a Claude task: research the deck deeply (frenzy-style per deck), author the
+  JSON + manual to this template, validate names against cards.cdb, fetch its art. The deck
+  viewer's "add a deck" affordance should tell the user to ask Claude to do it.
