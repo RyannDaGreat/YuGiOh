@@ -11,6 +11,8 @@
   --card-w-zone: 4.4rem;
   --card-w-hand: 3.6rem;
   --card-w-preview: 14rem;
+  --card-w-tile: 7.5rem;
+  --card-w-mini: 3.2rem;
   --dagger-ms: 650ms;
   --flash-ms: 700ms;
   --float-ms: 1200ms;
@@ -20,6 +22,10 @@
 .card-zone { --card-w: var(--card-w-zone); }
 .card-hand { --card-w: var(--card-w-hand); }
 .card-preview { --card-w: var(--card-w-preview); }
+.card-tile { --card-w: var(--card-w-tile); }
+.card-mini { --card-w: var(--card-w-mini); }
+/* The table's card-back gradient, factored out so the deck viewer's art fallback matches it. */
+.card-back-bg { background: radial-gradient(circle at 50% 40%, #7a4a2a 0, #3b2314 70%); }
 @keyframes flash { 0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } 40% { box-shadow: 0 0 22px 8px rgba(250, 204, 21, 0.9); } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes floatup { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)); } }
