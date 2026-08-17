@@ -13,7 +13,9 @@
  * The alias keys (`recover`, `turn`) mirror sound.js's ALIASES so a lookup by
  * either name works. Cues with no Nexus file — hit, destroyed, banished,
  * tribute, poschange, resolve, reveal, removecounter, directattack, win, lose,
- * turn-bell — are deliberately absent; the set simply has nothing for them.
+ * turn-bell, lptick, lpsettle — are deliberately absent; the set simply has
+ * nothing for them (the Nexus LP animation plays life-damage/life-recover once,
+ * with no separate counter-tick sound), so those fall through to /sfx/.
  */
 
 /** Cue name -> filename in vendor/nexus/sfx/. Absent key = no Nexus sound. */
