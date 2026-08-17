@@ -1,0 +1,1485 @@
+{
+ "id": "PegasusVsKaiba",
+ "created": "2026-08-17T19:00:20.353Z",
+ "seed": 3159634817,
+ "format": "classic",
+ "decks": [
+  {
+   "name": "Starter Deck: Pegasus",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Relinquished",
+     1
+    ],
+    [
+     "Red Archery Girl",
+     1
+    ],
+    [
+     "Ryu-Ran",
+     1
+    ],
+    [
+     "Illusionist Faceless Mage",
+     1
+    ],
+    [
+     "Rogue Doll",
+     1
+    ],
+    [
+     "Uraby",
+     1
+    ],
+    [
+     "Giant Soldier of Stone",
+     1
+    ],
+    [
+     "Aqua Madoor",
+     1
+    ],
+    [
+     "Toon Alligator",
+     1
+    ],
+    [
+     "Hane-Hane",
+     1
+    ],
+    [
+     "Sonic Bird",
+     1
+    ],
+    [
+     "Jigen Bakudan",
+     1
+    ],
+    [
+     "Mask of Darkness",
+     1
+    ],
+    [
+     "Witch of the Black Forest",
+     1
+    ],
+    [
+     "Man-Eater Bug",
+     1
+    ],
+    [
+     "Muka Muka",
+     1
+    ],
+    [
+     "Dream Clown",
+     1
+    ],
+    [
+     "Armed Ninja",
+     1
+    ],
+    [
+     "Hiro's Shadow Scout",
+     1
+    ],
+    [
+     "Blue-Eyes Toon Dragon",
+     1
+    ],
+    [
+     "Toon Summoned Skull",
+     1
+    ],
+    [
+     "Manga Ryu-Ran",
+     1
+    ],
+    [
+     "Toon Mermaid",
+     1
+    ],
+    [
+     "Toon World",
+     1
+    ],
+    [
+     "Black Pendant",
+     1
+    ],
+    [
+     "Dark Hole",
+     1
+    ],
+    [
+     "Dian Keto the Cure Master",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "De-Spell",
+     1
+    ],
+    [
+     "Change of Heart",
+     1
+    ],
+    [
+     "Stop Defense",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Rush Recklessly",
+     1
+    ],
+    [
+     "Remove Trap",
+     1
+    ],
+    [
+     "Monster Reborn",
+     1
+    ],
+    [
+     "Soul Release",
+     1
+    ],
+    [
+     "Yami",
+     1
+    ],
+    [
+     "Black Illusion Ritual",
+     1
+    ],
+    [
+     "Ring of Magnetism",
+     1
+    ],
+    [
+     "Graceful Charity",
+     1
+    ],
+    [
+     "Gryphon Wing",
+     1
+    ],
+    [
+     "Trap Hole",
+     1
+    ],
+    [
+     "Reinforcements",
+     1
+    ],
+    [
+     "Castle Walls",
+     1
+    ],
+    [
+     "Waboku",
+     1
+    ],
+    [
+     "Seven Tools of the Bandit",
+     1
+    ],
+    [
+     "Ultimate Offering",
+     1
+    ],
+    [
+     "Robbin' Goblin",
+     1
+    ],
+    [
+     "Magic Jammer",
+     1
+    ],
+    [
+     "Enchanted Javelin",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "**Starter Deck: Pegasus** (TCG set code SDP, released 2003-03-30) [SDP] — the exact printed product, one copy of each card (50 cards). Pegasus J. Crawford is a **Toon** duelist whose ace is **Relinquished** [WIKI-PEG]. A legal deck as-is (≥40). Retro spellings preserved exactly (`Red Archery Girl`, `Ryu-Ran`, `Robbin' Goblin`, `Hiro's Shadow Scout`). No Extra Deck — the ace `Relinquished` is a Ritual (via `Black Illusion Ritual`), not a Fusion.\n\n**Game plan:** open `Toon World`, then either beat down with direct-attacking Toons or grind with Relinquished's absorb.\n\n**Key cards / engine:** Toon World enabler; Toon monsters; Relinquished (Black Illusion Ritual).\n\n**How to pilot / combo lines (all [CDB]):**\n- **Open Toon World, mind the tax.** `Toon World`: \"Activate this card by paying 1000 LP\" [CDB]. Once it's up, your Toons can be Special Summoned from hand and — per each Toon's text — \"Can attack your opponent directly, unless they control a Toon monster\" [CDB]. But every attack costs \"pay 500 LP\" and **\"If 'Toon World' on the field is destroyed, destroy this card\"** [CDB]: the Toons live and die with Toon World.\n- **Toon curve:** `Toon Mermaid` needs no tribute (just Toon World); `Toon Summoned Skull` tributes 1; `Manga Ryu-Ran` and `Blue-Eyes Toon Dragon` tribute 2 [CDB]. Summon the cheapest that closes, swing directly, and watch your LP (1000 for the field + 500 per attack).\n- **Relinquished control line:** Ritual-summon `Relinquished` with `Black Illusion Ritual` (tribute a Level-1+ monster [CDB]), then \"equip [an opponent monster] … ATK/DEF become equal … battle damage you take … inflicts equal effect damage to your opponent\" [CDB] — steal their attacker and turn its swings into burn. `Mask of Darkness`/`Magician of Faith`-style recursion and `Monster Reborn`/`Premature`-style revival rebuy Relinquished if it's removed.\n- **Decision:** go Toon beatdown when the opponent's board is empty (direct damage races); switch to Relinquished control when they have a big threat worth absorbing.\n\n**Weaknesses (small but fatal):** **`Toon World` is a single point of failure** — `Mystical Space Typhoon`/`Heavy Storm`/`De-Spell` on it destroys **every** Toon at once [CDB]; the **1000 LP + 500-per-attack tax** bleeds you into `Ring`/burn range; and `Relinquished` is a **Ritual brick** without both halves. A flavor/rogue deck, not tier-0.\n\n*Note:* `Thousand-Eyes Restrict`, `Dragon Piper`, and `Parrot Dragon` are anime-only Pegasus cards **not** in SDP; for a tournament-legal build see the `pegasus-goat` deck.",
+   "codes": [
+    64631466,
+    65570596,
+    2964201,
+    28546905,
+    91939608,
+    1784619,
+    13039848,
+    85639257,
+    59383041,
+    7089711,
+    57617178,
+    90020065,
+    28933734,
+    78010363,
+    54652250,
+    46657337,
+    13215230,
+    9076207,
+    81863068,
+    53183600,
+    91842653,
+    38369349,
+    65458948,
+    15259703,
+    65169794,
+    53129443,
+    84257639,
+    66788016,
+    19159413,
+    4031928,
+    63102017,
+    5318639,
+    70046172,
+    51482758,
+    83764718,
+    5758500,
+    59197169,
+    41426869,
+    20436034,
+    79571449,
+    55608151,
+    4206964,
+    17814387,
+    44209392,
+    12607053,
+    3819470,
+    80604091,
+    88279736,
+    77414722,
+    96355986
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  },
+  {
+   "name": "Kaiba",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Blue-Eyes White Dragon",
+     1
+    ],
+    [
+     "Hitotsu-Me Giant",
+     1
+    ],
+    [
+     "Ryu-Kishin",
+     1
+    ],
+    [
+     "The Wicked Worm Beast",
+     1
+    ],
+    [
+     "Battle Ox",
+     1
+    ],
+    [
+     "Koumori Dragon",
+     1
+    ],
+    [
+     "Judge Man",
+     1
+    ],
+    [
+     "Rogue Doll",
+     1
+    ],
+    [
+     "Kojikocy",
+     1
+    ],
+    [
+     "Uraby",
+     1
+    ],
+    [
+     "Gyakutenno Megami",
+     1
+    ],
+    [
+     "Mystic Horseman",
+     1
+    ],
+    [
+     "Terra the Terrible",
+     1
+    ],
+    [
+     "Dark Titan of Terror",
+     1
+    ],
+    [
+     "Dark Assailant",
+     1
+    ],
+    [
+     "Master & Expert",
+     1
+    ],
+    [
+     "Unknown Warrior of Fiend",
+     1
+    ],
+    [
+     "Mystic Clown",
+     1
+    ],
+    [
+     "Ogre of the Black Shadow",
+     1
+    ],
+    [
+     "Dark Energy",
+     1
+    ],
+    [
+     "Invigoration",
+     1
+    ],
+    [
+     "Dark Hole",
+     1
+    ],
+    [
+     "Ookazi",
+     1
+    ],
+    [
+     "Ryu-Kishin Powered",
+     1
+    ],
+    [
+     "Swordstalker",
+     1
+    ],
+    [
+     "La Jinn the Mystical Genie of the Lamp",
+     1
+    ],
+    [
+     "Rude Kaiser",
+     1
+    ],
+    [
+     "Destroyer Golem",
+     1
+    ],
+    [
+     "Skull Red Bird",
+     1
+    ],
+    [
+     "D. Human",
+     1
+    ],
+    [
+     "Pale Beast",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "Trap Hole",
+     1
+    ],
+    [
+     "Two-Pronged Attack",
+     1
+    ],
+    [
+     "De-Spell",
+     1
+    ],
+    [
+     "Monster Reborn",
+     1
+    ],
+    [
+     "The Inexperienced Spy",
+     1
+    ],
+    [
+     "Reinforcements",
+     1
+    ],
+    [
+     "Ancient Telescope",
+     1
+    ],
+    [
+     "Just Desserts",
+     1
+    ],
+    [
+     "Lord of D.",
+     1
+    ],
+    [
+     "The Flute of Summoning Dragon",
+     1
+    ],
+    [
+     "Mysterious Puppeteer",
+     1
+    ],
+    [
+     "Trap Master",
+     1
+    ],
+    [
+     "Sogen",
+     1
+    ],
+    [
+     "Hane-Hane",
+     1
+    ],
+    [
+     "Reverse Trap",
+     1
+    ],
+    [
+     "Remove Trap",
+     1
+    ],
+    [
+     "Castle Walls",
+     1
+    ],
+    [
+     "Ultimate Offering",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "Blue-Eyes beatdown: land Blue-Eyes White Dragon (3000 ATK) and run everything over.\nLord of D. + The Flute of Summoning Dragon drops it for free and shields your dragons from targeting.\nFill the curve with Battle Ox / La Jinn / Rude Kaiser beaters; clear blockers with Dark Hole and Fissure.\nSet Trap Hole / Hane-Hane to punish their summons.",
+   "codes": [
+    89631139,
+    76184692,
+    15303296,
+    6285791,
+    5053103,
+    67724379,
+    30113682,
+    91939608,
+    1184620,
+    1784619,
+    31122090,
+    68516705,
+    63308047,
+    89494469,
+    41949033,
+    75499502,
+    97360116,
+    47060154,
+    45121025,
+    4614116,
+    98374133,
+    53129443,
+    19523799,
+    24611934,
+    50005633,
+    97590747,
+    26378150,
+    73481154,
+    10202894,
+    81057959,
+    21263083,
+    66788016,
+    4206964,
+    83887306,
+    19159413,
+    83764718,
+    81820689,
+    17814387,
+    17092736,
+    24068492,
+    17985575,
+    43973174,
+    54098121,
+    46461247,
+    86318356,
+    7089711,
+    77622396,
+    51482758,
+    44209392,
+    80604091
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "Pegasus-Haiku",
+  "Kaiba-Haiku"
+ ],
+ "responses": [
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 2,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 1
+  },
+  {
+   "type": 12,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 2,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 2,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 12,
+   "indicies": [
+    0,
+    1
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  }
+ ],
+ "times": [
+  "2026-08-17T19:01:15.522Z",
+  "2026-08-17T19:01:20.619Z",
+  "2026-08-17T19:01:24.589Z",
+  "2026-08-17T19:01:28.587Z",
+  "2026-08-17T19:01:42.189Z",
+  "2026-08-17T19:01:46.086Z",
+  "2026-08-17T19:01:51.529Z",
+  "2026-08-17T19:01:55.627Z",
+  "2026-08-17T19:01:59.022Z",
+  "2026-08-17T19:02:03.847Z",
+  "2026-08-17T19:02:08.884Z",
+  "2026-08-17T19:02:12.278Z",
+  "2026-08-17T19:02:16.010Z",
+  "2026-08-17T19:02:21.122Z",
+  "2026-08-17T19:02:25.774Z",
+  "2026-08-17T19:02:29.310Z",
+  "2026-08-17T19:02:32.981Z",
+  "2026-08-17T19:02:42.640Z",
+  "2026-08-17T19:02:47.752Z",
+  "2026-08-17T19:02:51.580Z",
+  "2026-08-17T19:02:54.958Z",
+  "2026-08-17T19:02:58.704Z",
+  "2026-08-17T19:03:03.658Z",
+  "2026-08-17T19:03:09.099Z",
+  "2026-08-17T19:03:13.330Z",
+  "2026-08-17T19:03:18.035Z",
+  "2026-08-17T19:03:22.803Z",
+  "2026-08-17T19:03:23.482Z",
+  "2026-08-17T19:03:23.542Z",
+  "2026-08-17T19:03:32.339Z",
+  "2026-08-17T19:03:39.388Z",
+  "2026-08-17T19:03:43.322Z",
+  "2026-08-17T19:03:46.510Z",
+  "2026-08-17T19:03:50.636Z",
+  "2026-08-17T19:03:56.827Z",
+  "2026-08-17T19:04:00.871Z",
+  "2026-08-17T19:04:04.372Z",
+  "2026-08-17T19:04:07.688Z",
+  "2026-08-17T19:04:11.451Z",
+  "2026-08-17T19:04:18.461Z",
+  "2026-08-17T19:04:19.000Z",
+  "2026-08-17T19:04:19.061Z",
+  "2026-08-17T19:04:19.109Z",
+  "2026-08-17T19:04:19.158Z",
+  "2026-08-17T19:04:19.204Z",
+  "2026-08-17T19:04:19.249Z",
+  "2026-08-17T19:04:19.294Z",
+  "2026-08-17T19:04:30.695Z",
+  "2026-08-17T19:04:34.795Z",
+  "2026-08-17T19:04:38.471Z",
+  "2026-08-17T19:04:41.916Z",
+  "2026-08-17T19:04:45.493Z",
+  "2026-08-17T19:04:49.516Z",
+  "2026-08-17T19:04:54.975Z",
+  "2026-08-17T19:04:58.681Z",
+  "2026-08-17T19:05:02.055Z",
+  "2026-08-17T19:05:05.787Z",
+  "2026-08-17T19:05:09.239Z",
+  "2026-08-17T19:05:12.580Z",
+  "2026-08-17T19:05:16.461Z",
+  "2026-08-17T19:05:20.972Z",
+  "2026-08-17T19:05:24.771Z",
+  "2026-08-17T19:05:28.065Z",
+  "2026-08-17T19:05:31.481Z",
+  "2026-08-17T19:05:35.109Z",
+  "2026-08-17T19:05:43.806Z",
+  "2026-08-17T19:05:48.095Z",
+  "2026-08-17T19:05:52.446Z",
+  "2026-08-17T19:05:57.157Z",
+  "2026-08-17T19:06:00.754Z",
+  "2026-08-17T19:06:04.437Z",
+  "2026-08-17T19:06:08.194Z",
+  "2026-08-17T19:06:19.966Z",
+  "2026-08-17T19:06:21.078Z",
+  "2026-08-17T19:06:28.655Z",
+  "2026-08-17T19:06:32.180Z",
+  "2026-08-17T19:06:32.622Z",
+  "2026-08-17T19:06:41.129Z",
+  "2026-08-17T19:06:42.178Z",
+  "2026-08-17T19:06:42.232Z",
+  "2026-08-17T19:06:42.280Z",
+  "2026-08-17T19:06:42.328Z",
+  "2026-08-17T19:06:42.375Z",
+  "2026-08-17T19:06:49.284Z",
+  "2026-08-17T19:06:53.015Z",
+  "2026-08-17T19:06:56.257Z",
+  "2026-08-17T19:06:59.785Z",
+  "2026-08-17T19:07:03.160Z",
+  "2026-08-17T19:07:03.615Z",
+  "2026-08-17T19:07:07.796Z",
+  "2026-08-17T19:07:07.855Z",
+  "2026-08-17T19:07:07.909Z",
+  "2026-08-17T19:07:13.527Z",
+  "2026-08-17T19:07:16.895Z",
+  "2026-08-17T19:07:20.144Z",
+  "2026-08-17T19:07:24.436Z",
+  "2026-08-17T19:07:29.071Z",
+  "2026-08-17T19:07:29.128Z",
+  "2026-08-17T19:07:36.734Z",
+  "2026-08-17T19:07:40.263Z",
+  "2026-08-17T19:07:40.614Z",
+  "2026-08-17T19:07:40.680Z",
+  "2026-08-17T19:07:52.392Z",
+  "2026-08-17T19:07:53.447Z",
+  "2026-08-17T19:07:53.503Z",
+  "2026-08-17T19:07:53.553Z",
+  "2026-08-17T19:07:53.602Z",
+  "2026-08-17T19:07:53.651Z",
+  "2026-08-17T19:08:01.605Z",
+  "2026-08-17T19:08:05.044Z",
+  "2026-08-17T19:08:08.850Z",
+  "2026-08-17T19:08:12.704Z",
+  "2026-08-17T19:08:16.920Z",
+  "2026-08-17T19:08:20.605Z",
+  "2026-08-17T19:08:23.802Z",
+  "2026-08-17T19:08:24.790Z",
+  "2026-08-17T19:08:28.700Z",
+  "2026-08-17T19:08:28.757Z",
+  "2026-08-17T19:08:28.812Z",
+  "2026-08-17T19:08:33.819Z",
+  "2026-08-17T19:08:37.386Z",
+  "2026-08-17T19:08:38.418Z",
+  "2026-08-17T19:08:42.211Z",
+  "2026-08-17T19:08:42.267Z",
+  "2026-08-17T19:08:42.326Z",
+  "2026-08-17T19:08:47.082Z",
+  "2026-08-17T19:08:51.176Z",
+  "2026-08-17T19:08:54.577Z",
+  "2026-08-17T19:08:59.360Z",
+  "2026-08-17T19:08:59.419Z",
+  "2026-08-17T19:08:59.476Z",
+  "2026-08-17T19:09:33.944Z",
+  "2026-08-17T19:09:37.268Z",
+  "2026-08-17T19:09:37.486Z",
+  "2026-08-17T19:09:57.568Z",
+  "2026-08-17T19:09:58.619Z",
+  "2026-08-17T19:09:58.682Z",
+  "2026-08-17T19:09:58.733Z",
+  "2026-08-17T19:10:01.632Z",
+  "2026-08-17T19:10:01.906Z",
+  "2026-08-17T19:10:02.748Z",
+  "2026-08-17T19:10:02.983Z",
+  "2026-08-17T19:10:03.869Z",
+  "2026-08-17T19:10:11.039Z",
+  "2026-08-17T19:10:15.357Z",
+  "2026-08-17T19:10:18.836Z",
+  "2026-08-17T19:10:22.786Z",
+  "2026-08-17T19:10:23.540Z",
+  "2026-08-17T19:10:32.443Z",
+  "2026-08-17T19:10:33.073Z",
+  "2026-08-17T19:10:37.110Z",
+  "2026-08-17T19:10:37.247Z",
+  "2026-08-17T19:10:42.065Z",
+  "2026-08-17T19:10:45.650Z",
+  "2026-08-17T19:10:46.593Z",
+  "2026-08-17T19:10:50.408Z",
+  "2026-08-17T19:10:50.806Z",
+  "2026-08-17T19:10:51.497Z",
+  "2026-08-17T19:10:51.557Z"
+ ]
+}

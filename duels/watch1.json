@@ -1,0 +1,1174 @@
+{
+ "id": "watch1",
+ "created": "2026-08-17T09:31:02.371Z",
+ "seed": 1624680161,
+ "format": "classic",
+ "decks": [
+  {
+   "name": "Blue-Eyes Dragons",
+   "category": "curated",
+   "format": "classic",
+   "main": [
+    [
+     "Lord of D.",
+     3
+    ],
+    [
+     "Blue-Eyes White Dragon",
+     3
+    ],
+    [
+     "Luster Dragon",
+     2
+    ],
+    [
+     "Luster Dragon #2",
+     2
+    ],
+    [
+     "Spear Dragon",
+     2
+    ],
+    [
+     "Masked Dragon",
+     2
+    ],
+    [
+     "Twin-Headed Behemoth",
+     1
+    ],
+    [
+     "Kaiser Sea Horse",
+     1
+    ],
+    [
+     "Sangan",
+     1
+    ],
+    [
+     "Sinister Serpent",
+     1
+    ],
+    [
+     "The Flute of Summoning Dragon",
+     3
+    ],
+    [
+     "Stamping Destruction",
+     1
+    ],
+    [
+     "Pot of Greed",
+     1
+    ],
+    [
+     "Graceful Charity",
+     1
+    ],
+    [
+     "Delinquent Duo",
+     1
+    ],
+    [
+     "Heavy Storm",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Premature Burial",
+     1
+    ],
+    [
+     "Snatch Steal",
+     1
+    ],
+    [
+     "Nobleman of Crossout",
+     1
+    ],
+    [
+     "Book of Moon",
+     1
+    ],
+    [
+     "Mirror Force",
+     1
+    ],
+    [
+     "Torrential Tribute",
+     1
+    ],
+    [
+     "Ring of Destruction",
+     1
+    ],
+    [
+     "Call of the Haunted",
+     1
+    ],
+    [
+     "Sakuretsu Armor",
+     2
+    ],
+    [
+     "Bottomless Trap Hole",
+     1
+    ],
+    [
+     "Solemn Judgment",
+     1
+    ],
+    [
+     "Dust Tornado",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "**Game plan:** cheat big Dragons out early and beat down while they can't be targeted.\n\n**Key cards / engine:** Lord of D. + The Flute of Summoning Dragon; Kaiser Sea Horse; Masked Dragon.\n\n**How to pilot / combo lines:**\n- **The signature turn:** Normal Summon `Lord of D.` (its text: \"Neither player can target Dragon monsters on the field with card effects\" [CDB]), then `The Flute of Summoning Dragon` \"Special Summon up to 2 Dragon monsters from your hand\" [CDB] — drop two `Blue-Eyes White Dragon` behind a Lord of D. that makes them untargetable.\n- **`Kaiser Sea Horse`** counts as two tributes for a LIGHT Tribute Summon, so one tribute brings out `Blue-Eyes` the fair way. **`Masked Dragon`** recruits a Dragon on death (grab a Blue-Eyes or `Twin-Headed Behemoth`). `Spear Dragon` pierces; `Stamping Destruction` pops a backrow + burns 500 while you control a Dragon.\n\n**Weaknesses:** Lord of D. only stops *targeting* — `Torrential Tribute`, `Mirror Force`, `Dark Hole` still wipe the Dragons; drawing Blue-Eyes with no Flute/Kaiser Sea Horse is a slow brick.\n\n*Extra Deck:* none (optional `King Dragun` if you add `Polymerization` + `Divine Dragon Ragnarok`).",
+   "codes": [
+    17985575,
+    17985575,
+    17985575,
+    89631139,
+    89631139,
+    89631139,
+    11091375,
+    11091375,
+    17658803,
+    17658803,
+    31553716,
+    31553716,
+    39191307,
+    39191307,
+    43586926,
+    17444133,
+    26202165,
+    8131171,
+    43973174,
+    43973174,
+    43973174,
+    81385346,
+    55144522,
+    79571449,
+    44763025,
+    19613556,
+    5318639,
+    70828912,
+    45986603,
+    71044499,
+    14087893,
+    44095762,
+    53582587,
+    83555666,
+    97077563,
+    56120475,
+    56120475,
+    29401950,
+    41420027,
+    60082869
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  },
+  {
+   "name": "Dark Magician",
+   "category": "curated",
+   "format": "classic",
+   "main": [
+    [
+     "Dark Magician",
+     2
+    ],
+    [
+     "Dark Magician Girl",
+     1
+    ],
+    [
+     "Dark Magician of Chaos",
+     1
+    ],
+    [
+     "Skilled Dark Magician",
+     2
+    ],
+    [
+     "Skilled White Magician",
+     2
+    ],
+    [
+     "Apprentice Magician",
+     3
+    ],
+    [
+     "Old Vindictive Magician",
+     1
+    ],
+    [
+     "Magician of Faith",
+     1
+    ],
+    [
+     "Breaker the Magical Warrior",
+     1
+    ],
+    [
+     "Tsukuyomi",
+     1
+    ],
+    [
+     "Spirit Reaper",
+     1
+    ],
+    [
+     "Sangan",
+     1
+    ],
+    [
+     "Sinister Serpent",
+     1
+    ],
+    [
+     "Magical Dimension",
+     1
+    ],
+    [
+     "Dark Magic Attack",
+     1
+    ],
+    [
+     "Thousand Knives",
+     1
+    ],
+    [
+     "Magical Hats",
+     1
+    ],
+    [
+     "Pot of Greed",
+     1
+    ],
+    [
+     "Graceful Charity",
+     1
+    ],
+    [
+     "Delinquent Duo",
+     1
+    ],
+    [
+     "Heavy Storm",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Premature Burial",
+     1
+    ],
+    [
+     "Snatch Steal",
+     1
+    ],
+    [
+     "Book of Moon",
+     2
+    ],
+    [
+     "Mirror Force",
+     1
+    ],
+    [
+     "Torrential Tribute",
+     1
+    ],
+    [
+     "Ring of Destruction",
+     1
+    ],
+    [
+     "Call of the Haunted",
+     1
+    ],
+    [
+     "Sakuretsu Armor",
+     2
+    ],
+    [
+     "Bottomless Trap Hole",
+     1
+    ],
+    [
+     "Solemn Judgment",
+     1
+    ],
+    [
+     "Dust Tornado",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "**Game plan:** Spellcaster control-beatdown that tutors and cheats out Dark Magician for 2-for-1s.\n\n**Key cards / engine:** Apprentice Magician + Skilled Magicians; Magical Dimension.\n\n**How to pilot / combo lines:**\n- **`Apprentice Magician`** searches another Level-2 Spellcaster on death (chain Apprentices, or grab `Old Vindictive Magician`/`Magician of Faith`) and builds counters on `Skilled Dark/White Magician`, which Special Summon `Dark Magician` at three counters.\n- **`Magical Dimension` is the payoff:** \"Tribute [a Spellcaster you control]; Special Summon 1 Spellcaster from your hand, then you can destroy 1 monster on the field\" [CDB] — tribute a token/Apprentice, drop `Dark Magician`, and blow up an opponent's monster in one card.\n- `Thousand Knives` (with Dark Magician out) and `Dark Magic Attack` clear threats/backrow; `Dark Magician of Chaos` is a Level-8 finisher that rebuys a Spell on summon.\n\n**Weaknesses:** the vanilla Dark Magicians are slow if you don't draw the Apprentice/Skilled engine; `Nobleman of Crossout` and mass removal punish the set-up bodies.\n\n*Note:* do **not** use `Magician's Circle` — it is Cybernetic Revolution, illegal in GOAT/era play.",
+   "codes": [
+    46986414,
+    46986414,
+    38033121,
+    40737112,
+    73752131,
+    73752131,
+    46363422,
+    46363422,
+    9156135,
+    9156135,
+    9156135,
+    45141844,
+    31560081,
+    71413901,
+    34853266,
+    23205979,
+    26202165,
+    8131171,
+    28553439,
+    2314238,
+    63391643,
+    81210420,
+    55144522,
+    79571449,
+    44763025,
+    19613556,
+    5318639,
+    70828912,
+    45986603,
+    14087893,
+    14087893,
+    44095762,
+    53582587,
+    83555666,
+    97077563,
+    56120475,
+    56120475,
+    29401950,
+    41420027,
+    60082869
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "Blue-Eyes AI",
+  "Dark Magician AI"
+ ],
+ "responses": [
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 2
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 2,
+   "yes": true
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 0,
+   "action": 2,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 2,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 3,
+   "yes": true
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 0,
+   "action": 2,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 12,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 2,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  }
+ ],
+ "times": [
+  "2026-08-17T09:31:52.504Z",
+  "2026-08-17T09:31:54.913Z",
+  "2026-08-17T09:31:57.786Z",
+  "2026-08-17T09:32:00.589Z",
+  "2026-08-17T09:32:02.433Z",
+  "2026-08-17T09:32:04.200Z",
+  "2026-08-17T09:32:06.404Z",
+  "2026-08-17T09:32:08.070Z",
+  "2026-08-17T09:32:09.570Z",
+  "2026-08-17T09:32:11.899Z",
+  "2026-08-17T09:32:13.526Z",
+  "2026-08-17T09:32:15.210Z",
+  "2026-08-17T09:32:17.366Z",
+  "2026-08-17T09:32:18.936Z",
+  "2026-08-17T09:32:22.118Z",
+  "2026-08-17T09:32:22.371Z",
+  "2026-08-17T09:32:24.889Z",
+  "2026-08-17T09:32:25.558Z",
+  "2026-08-17T09:32:25.953Z",
+  "2026-08-17T09:32:26.643Z",
+  "2026-08-17T09:32:27.015Z",
+  "2026-08-17T09:32:35.516Z",
+  "2026-08-17T09:32:37.326Z",
+  "2026-08-17T09:32:37.417Z",
+  "2026-08-17T09:32:37.458Z",
+  "2026-08-17T09:32:40.281Z",
+  "2026-08-17T09:32:40.325Z",
+  "2026-08-17T09:32:40.633Z",
+  "2026-08-17T09:32:47.630Z",
+  "2026-08-17T09:32:49.389Z",
+  "2026-08-17T09:32:51.673Z",
+  "2026-08-17T09:32:52.143Z",
+  "2026-08-17T09:32:58.223Z",
+  "2026-08-17T09:33:00.067Z",
+  "2026-08-17T09:33:00.574Z",
+  "2026-08-17T09:33:05.569Z",
+  "2026-08-17T09:33:05.869Z",
+  "2026-08-17T09:33:05.920Z",
+  "2026-08-17T09:33:09.811Z",
+  "2026-08-17T09:33:11.809Z",
+  "2026-08-17T09:33:12.185Z",
+  "2026-08-17T09:33:12.241Z",
+  "2026-08-17T09:33:18.927Z",
+  "2026-08-17T09:33:21.916Z",
+  "2026-08-17T09:33:23.599Z",
+  "2026-08-17T09:33:25.766Z",
+  "2026-08-17T09:33:26.825Z",
+  "2026-08-17T09:33:26.879Z",
+  "2026-08-17T09:33:29.972Z",
+  "2026-08-17T09:33:31.965Z",
+  "2026-08-17T09:33:32.066Z",
+  "2026-08-17T09:33:36.708Z",
+  "2026-08-17T09:33:37.392Z",
+  "2026-08-17T09:33:37.443Z",
+  "2026-08-17T09:33:37.486Z",
+  "2026-08-17T09:33:38.606Z",
+  "2026-08-17T09:33:39.580Z",
+  "2026-08-17T09:33:39.676Z",
+  "2026-08-17T09:33:40.668Z",
+  "2026-08-17T09:33:40.739Z",
+  "2026-08-17T09:33:50.977Z",
+  "2026-08-17T09:33:57.431Z",
+  "2026-08-17T09:33:58.425Z",
+  "2026-08-17T09:34:00.005Z",
+  "2026-08-17T09:34:00.593Z",
+  "2026-08-17T09:34:10.982Z",
+  "2026-08-17T09:34:13.330Z",
+  "2026-08-17T09:34:14.231Z",
+  "2026-08-17T09:34:19.607Z",
+  "2026-08-17T09:34:20.626Z",
+  "2026-08-17T09:34:20.684Z",
+  "2026-08-17T09:34:24.240Z",
+  "2026-08-17T09:34:25.997Z",
+  "2026-08-17T09:34:27.014Z",
+  "2026-08-17T09:34:27.061Z",
+  "2026-08-17T09:34:33.874Z",
+  "2026-08-17T09:34:34.496Z",
+  "2026-08-17T09:34:34.552Z",
+  "2026-08-17T09:34:34.595Z",
+  "2026-08-17T09:34:34.638Z",
+  "2026-08-17T09:34:34.682Z",
+  "2026-08-17T09:34:34.725Z",
+  "2026-08-17T09:34:34.769Z",
+  "2026-08-17T09:34:40.990Z",
+  "2026-08-17T09:34:43.194Z",
+  "2026-08-17T09:34:43.383Z",
+  "2026-08-17T09:34:45.617Z",
+  "2026-08-17T09:34:45.667Z",
+  "2026-08-17T09:34:49.003Z",
+  "2026-08-17T09:34:50.713Z",
+  "2026-08-17T09:34:51.825Z",
+  "2026-08-17T09:34:53.304Z",
+  "2026-08-17T09:34:55.784Z",
+  "2026-08-17T09:34:58.972Z",
+  "2026-08-17T09:35:00.725Z",
+  "2026-08-17T09:35:02.487Z",
+  "2026-08-17T09:35:04.347Z",
+  "2026-08-17T09:35:05.389Z",
+  "2026-08-17T09:35:06.610Z",
+  "2026-08-17T09:35:09.561Z",
+  "2026-08-17T09:35:11.382Z",
+  "2026-08-17T09:35:11.738Z",
+  "2026-08-17T09:35:17.072Z",
+  "2026-08-17T09:35:18.757Z",
+  "2026-08-17T09:35:20.691Z",
+  "2026-08-17T09:35:22.739Z",
+  "2026-08-17T09:35:24.459Z",
+  "2026-08-17T09:35:34.735Z",
+  "2026-08-17T09:35:36.616Z",
+  "2026-08-17T09:35:38.603Z",
+  "2026-08-17T09:35:40.815Z",
+  "2026-08-17T09:35:41.363Z",
+  "2026-08-17T09:35:50.490Z",
+  "2026-08-17T09:35:55.828Z",
+  "2026-08-17T09:35:59.229Z",
+  "2026-08-17T09:36:02.320Z",
+  "2026-08-17T09:36:04.315Z",
+  "2026-08-17T09:36:07.893Z",
+  "2026-08-17T09:36:09.673Z",
+  "2026-08-17T09:36:13.032Z",
+  "2026-08-17T09:36:18.913Z",
+  "2026-08-17T09:36:22.314Z",
+  "2026-08-17T09:36:23.322Z",
+  "2026-08-17T09:36:27.903Z",
+  "2026-08-17T09:36:29.614Z",
+  "2026-08-17T09:36:31.419Z",
+  "2026-08-17T09:36:33.667Z",
+  "2026-08-17T09:36:35.542Z",
+  "2026-08-17T09:36:41.375Z",
+  "2026-08-17T09:36:43.185Z"
+ ]
+}

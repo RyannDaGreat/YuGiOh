@@ -1,0 +1,435 @@
+{
+ "id": "spels",
+ "created": "2026-08-17T09:30:29.468Z",
+ "seed": 1778557724,
+ "format": "classic",
+ "decks": [
+  {
+   "name": "Spellcaster's Command (SDSC)",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Endymion, the Master Magician",
+     1
+    ],
+    [
+     "Disenchanter",
+     1
+    ],
+    [
+     "Defender, the Magical Knight",
+     1
+    ],
+    [
+     "Hannibal Necromancer",
+     1
+    ],
+    [
+     "Summoner Monk",
+     1
+    ],
+    [
+     "Dark Red Enchanter",
+     1
+    ],
+    [
+     "Skilled Dark Magician",
+     1
+    ],
+    [
+     "Apprentice Magician",
+     2
+    ],
+    [
+     "Old Vindictive Magician",
+     1
+    ],
+    [
+     "Magical Marionette",
+     1
+    ],
+    [
+     "Breaker the Magical Warrior",
+     1
+    ],
+    [
+     "Magical Plant Mandragola",
+     1
+    ],
+    [
+     "Royal Magical Library",
+     1
+    ],
+    [
+     "Blast Magician",
+     1
+    ],
+    [
+     "Mythical Beast Cerberus",
+     1
+    ],
+    [
+     "Mei-Kou, Master of Barriers",
+     1
+    ],
+    [
+     "Crystal Seer",
+     1
+    ],
+    [
+     "Magical Exemplar",
+     1
+    ],
+    [
+     "Magical Citadel of Endymion",
+     1
+    ],
+    [
+     "Spell Power Grasp",
+     1
+    ],
+    [
+     "Magicians Unite",
+     1
+    ],
+    [
+     "Mist Body",
+     1
+    ],
+    [
+     "Malevolent Nuzzler",
+     1
+    ],
+    [
+     "Giant Trunade",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "Swords of Revealing Light",
+     1
+    ],
+    [
+     "Mage Power",
+     1
+    ],
+    [
+     "Terraforming",
+     1
+    ],
+    [
+     "Enemy Controller",
+     1
+    ],
+    [
+     "Book of Moon",
+     1
+    ],
+    [
+     "Magical Blast",
+     1
+    ],
+    [
+     "Magical Dimension",
+     1
+    ],
+    [
+     "Twister",
+     1
+    ],
+    [
+     "Field Barrier",
+     1
+    ],
+    [
+     "Magician's Circle",
+     1
+    ],
+    [
+     "Pitch-Black Power Stone",
+     2
+    ],
+    [
+     "Tower of Babel",
+     1
+    ],
+    [
+     "Magic Cylinder",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "Spellcaster spell-counter control built on the Endymion engine. You bank Spell Counters every time you cast, then cash them in for a 2700 boss and repeatable removal.\n\n## The engine (do this first)\n- **Magical Citadel of Endymion** (Field Spell) is the heart: every Spell you *resolve* banks 1 Spell Counter on it, it soaks counters off any counter-card that dies, and it can pay counter-costs for your other cards. Open on it (fetch with **Terraforming**) and just start casting.\n- **Win line:** once Citadel holds 6 counters, Special Summon **Endymion, the Master Magician** (2700) by removing all 6 — on summon add a Spell back from GY, and every turn after, discard 1 Spell to **destroy ANY 1 card** on the field. That recurring pop is your control loop; feed it with Spells you've already used.\n- **Counter accelerants (stack these):** **Spell Power Grasp** places a counter AND fetches the next copy (chains its own draw of gas); **Apprentice Magician** drops a counter on summon; **Breaker** / **Defender** each place 1 on Normal Summon; **Pitch-Black Power Stone** banks 3 and ferries them one-per-turn onto Citadel. **Magical Exemplar** banks 2 per Spell and dumps them to revive a Spellcaster from hand/GY (re-summon a popped Endymion or Breaker).\n\n## Payoffs that spend counters\n- **Breaker the Magical Warrior** — summon, then pop a Spell/Trap for free (1600, briefly 1900).\n- **Blast Magician** — remove counters to snipe a monster (counters x700 ATK cap).\n- **Dark Red Enchanter** — enters with 2 counters, +300 ATK each, and rips a random card from their hand.\n- **Mythical Beast Cerberus** — grows +500 per counter (swings huge, but dumps its own counters after battle).\n\n## Spellcaster tricks\n- **Magical Dimension** is the glue: control any Spellcaster, tribute a monster, Special Summon a Spellcaster from hand AND destroy a monster — tribute a spent **Apprentice Magician** / **Old Vindictive Magician** to drop **Endymion** and blow something up at instant speed.\n- **Defender, the Magical Knight** shields your Spellcasters from destruction (pay 1 counter each). **Old Vindictive Magician** flips to pop a monster. **Summoner Monk** discards a Spell to swarm a Level 4. **Magician's Circle** searches a Spellcaster on any attack. **Magicians Unite** pumps one Spellcaster to 3000 for a finisher.\n- **Field Barrier** locks Citadel down — it can't be destroyed and the opponent can't set their own Field Spell.\n\n## Control shell\n- Board wipes / removal: **Fissure**, **Swords of Revealing Light**, **Magic Cylinder**, **Enemy Controller**, **Book of Moon**.\n- Tempo & reuse: **Giant Trunade** (bounce your own backrow to re-cast for more counters), **Twister**.\n- Equips for a beater: **Mage Power**, **Malevolent Nuzzler**, **Mist Body** (untargetable-by-destruction wall).\n- **Royal Magical Library** turns your Spell spam into draws (3 counters -> draw). **Magical Blast** burns 200 per Spellcaster and recurs itself.\n\n## Weaknesses\n- ⚠ Slow: you need to survive long enough to bank 6 counters — fast aggro can race you before Endymion lands.\n- ⚠ Field-Spell dependent: if Citadel is destroyed before **Field Barrier** protects it (Mystical Space Typhoon, an opposing Field Spell, etc.), the engine sputters.\n- ⚠ **Tower of Babel** is anti-synergy with your own gameplan — its 4th Spell Counter blasts *the player who cast that Spell*, i.e. YOU, the spell-spammer. Many pilots cut it; play around it or leave it in the box.\n- ⚠ Endymion is one fat target — Bottomless / banish / bounce removes your payoff and the counters spent to summon it.",
+   "codes": [
+    40732515,
+    76137614,
+    2525268,
+    5640330,
+    423585,
+    45462639,
+    73752131,
+    9156135,
+    9156135,
+    45141844,
+    8034697,
+    71413901,
+    7802006,
+    70791313,
+    21051146,
+    55424270,
+    47731128,
+    82099401,
+    6061630,
+    39910367,
+    75014062,
+    36045450,
+    47529357,
+    99597615,
+    42703248,
+    66788016,
+    72302403,
+    83746708,
+    73628505,
+    98045062,
+    14087893,
+    91819979,
+    28553439,
+    45939841,
+    7153114,
+    50755,
+    34029630,
+    34029630,
+    94256039,
+    62279055
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  },
+  {
+   "name": "Shadow Spectre Endymion",
+   "category": "curated",
+   "format": "classic",
+   "main": [
+    [
+     "Endymion, the Mighty Master of Magic",
+     3
+    ],
+    [
+     "Servant of Endymion",
+     3
+    ],
+    [
+     "Magister of Endymion",
+     2
+    ],
+    [
+     "Reflection of Endymion",
+     1
+    ],
+    [
+     "Mythical Beast Master Cerberus",
+     1
+    ],
+    [
+     "Mythical Beast Jackal King",
+     3
+    ],
+    [
+     "Mythical Beast Jackal",
+     2
+    ],
+    [
+     "Mythical Beast Bashilisk",
+     1
+    ],
+    [
+     "Mythical Beast Garuda",
+     1
+    ],
+    [
+     "Magical Abductor",
+     1
+    ],
+    [
+     "Spellbook Magician of Prophecy",
+     1
+    ],
+    [
+     "Spell Power Mastery",
+     3
+    ],
+    [
+     "Mythical Institution",
+     3
+    ],
+    [
+     "Magical Citadel of Endymion",
+     2
+    ],
+    [
+     "Upstart Goblin",
+     3
+    ],
+    [
+     "Into the Void",
+     3
+    ],
+    [
+     "Pot of Desires",
+     1
+    ],
+    [
+     "Spellbook of Secrets",
+     1
+    ],
+    [
+     "Spellbook of Knowledge",
+     1
+    ],
+    [
+     "Mythical Bestiary",
+     1
+    ],
+    [
+     "Magia Magic - Thunder of Judgment",
+     1
+    ],
+    [
+     "Triple Tactics Talent",
+     1
+    ],
+    [
+     "Called by the Grave",
+     1
+    ]
+   ],
+   "extra": [
+    [
+     "Heavymetalfoes Electrumite",
+     2
+    ],
+    [
+     "Crowley, the First Propheseer",
+     2
+    ],
+    [
+     "Artemis, the Magistus Moon Maiden",
+     1
+    ],
+    [
+     "Relinquished Anima",
+     1
+    ],
+    [
+     "Linkuriboh",
+     1
+    ],
+    [
+     "I:P Masquerena",
+     1
+    ],
+    [
+     "Chaos Angel",
+     1
+    ],
+    [
+     "Selene, Queen of the Master Magicians",
+     1
+    ],
+    [
+     "S:P Little Knight",
+     1
+    ],
+    [
+     "Knightmare Unicorn",
+     1
+    ],
+    [
+     "Apollousa, Bow of the Goddess",
+     1
+    ],
+    [
+     "Underworld Goddess of the Closed World",
+     1
+    ],
+    [
+     "Accesscode Talker",
+     1
+    ]
+   ],
+   "side": [],
+   "manual": "GLOSSARY. **Spell Counter** = a token most cards in this deck bank each time a Spell resolves; nearly every Endymion/Mythical Beast Pendulum gains 1 (Jackal King and Master Cerberus gain 2) whenever ANY Spell resolves — yours or the opponent's. Counters are the deck's currency: you spend them to Special Summon, negate, banish, and destroy. **Scale / Pendulum Zone** = the two side zones; put a Pendulum monster in each and you may once per turn Pendulum Summon monsters whose Level is strictly between the two scale numbers, from hand and from face-up Pendulum monsters in your Extra Deck. **Face-up in the Extra Deck** = when a Pendulum monster would leave the field it lands face-up in the Extra Deck, where Magister of Endymion and Jackal King can re-summon it.\n\n=== BIG PICTURE ===\nYou are a combo/control Spellcaster deck. You play a wall of cantrip Spells (3x Upstart Goblin, 3x Into the Void, Pot of Desires, the Spellbook mini-engine) whose ONLY real purpose is to make Spell Counters pile onto your Pendulum monsters and onto Magical Citadel / Mythical Institution. Once counters are stacked you convert them into a Special-Summon chain that ends on **Endymion, the Mighty Master of Magic** as an omni-negate boss, backed by **Mythical Beast Jackal King** (monster-effect negate) and **Master Cerberus** (effect-destruction-immune 2800 beater with a banish). Citadel and Institution redirect destruction to counter-removal, so the board is very hard to break by popping.\n\n=== THE ENGINE PIECES ===\n- **Spell Power Mastery (3, your best starter):** adds ANY 'Endymion' card from Deck (grab Endymion the boss, or a Servant/Magister, or Magical Citadel), and places Spell Counters equal to how many Spell Power Mastery you control/GY (ramps as you play more copies). This one card is your search + your first counters.\n- **Servant of Endymion (3):** in a Pendulum Zone it gains a counter per Spell; remove 3 counters to Special Summon ITSELF from the zone PLUS any 1000+ ATK counter-holder from Deck (fetch Master Cerberus / Jackal King / another Endymion). Its monster effect: once per opponent's turn discard 1 to place a counter on every card you control that can hold one — mass-loads counters before an Endymion wipe or to arm negates.\n- **Magister of Endymion (2):** remove 3 counters to SS itself from the zone + revive 1 face-up monster from your Extra Deck; and once per opponent's turn remove 3 counters to SS a counter-holder from Deck (on-turn disruption/extension).\n- **Reflection of Endymion (1):** remove 3 counters to SS itself + a monster from HAND; on Special Summon it bounces 1 opponent card AND 1 of your own counter-cards, re-banking the counters — a free interruption that recycles.\n- **Mythical Beast Jackal (2, Level 1):** Pendulum effect self-destructs to seed a counter; monster effect removes 3 counters + tributes itself to SS a 'Mythical Beast' from Deck (tutor Jackal King / Master Cerberus / Bashilisk / Garuda). Being Level 1 it feeds Linkuriboh, Relinquished Anima, and Artemis.\n- **Mythical Beast Master Cerberus (1, Level 8 / 2800):** Pendulum effect self-destructs to ADD a Lv7-or-lower Mythical Beast from Deck; monster effect is immune to effect destruction while 4+ counters sit on your field, and removes 4 counters to banish an opponent monster and steal its ATK.\n- **Mythical Beast Jackal King (3):** on-board negate — banks 2 counters per Spell and, once per turn, removes 2 counters to negate+destroy an opponent's monster effect. Its Pendulum effect self-destructs to revive a Mythical Beast Pendulum from the Extra Deck. Three copies = layered negates.\n- **Magical Abductor (1):** counter monster; remove 3 to add a Pendulum from Deck, or a Level-1 Spellcaster.\n- **Mythical Beast Bashilisk (1):** Pendulum effect recycles a Spellcaster Pendulum from ED into the Deck AND draws 1; monster effect bounces a Mythical Beast back to hand.\n- **Mythical Beast Garuda (1):** Pendulum effect destroys another S/T (and itself); monster effect is a soft handtrap — when the opponent summons, remove 3 counters to SS itself from hand and bounce their monster.\n- **Field/Continuous banks:** **Magical Citadel of Endymion (2)** stores counters, lets you pay counter-costs from it, and survives destruction by removing 1 counter. **Mythical Institution (3)** is a Level-based tutor (remove N counters -> add a counter-holder of Level N from Deck or face-up ED) that also tanks destruction. **Mythical Bestiary (1)** mills 2 and places up to 2 counters; if destroyed it Special Summons a counter-holder from Deck.\n- **Spellbook mini-engine:** Spellbook Magician of Prophecy searches Spellbook of Secrets -> Spellbook of Knowledge (dump a Spellcaster or Spellbook, draw 2). Extra Spell activations = extra counters, and it fuels **Crowley, the First Propheseer** in the Extra Deck.\n- **Magia Magic - Thunder of Judgment (1):** a Magistus/Endymion Spell — pay a Magistus or 2 counters to EITHER Special Summon a Spellcaster from hand/face-up ED/GY, OR banish 1 card on the field. Flexible extender + spot removal, and pairs with Artemis (Magistus) in the Extra Deck.\n\n=== A TYPICAL GOING-FIRST LINE ===\n1) Resolve Spell Power Mastery: search Endymion the boss (or a missing piece) and bank your first counters. 2) Chain cheap Spells (Upstart, Into the Void once you hold 3+, Pot of Desires, the Spellbooks) to flood counters onto a Servant/Magister set in a Pendulum Zone and onto Citadel/Institution. 3) Spend counters: Servant SS's itself + a Deck monster; Magister revives from the Extra Deck; Jackal tutors a Mythical Beast; you build to **Heavymetalfoes Electrumite** (2 Pendulum monsters -> add a Pendulum from Deck; pop your own card to SS a Lv4-or-lower Pendulum from Deck) and then **Selene, Queen of the Master Magicians** (banks counters on summon, then removes 3 to revive a Spellcaster — into **Accesscode Talker** if you want damage). 4) Set the endboard: put **Endymion** in a Pendulum Zone or the Monster Zone (his Pendulum effect removes 6 counters to SS himself and destroy up to as-many-cards-as-you-control-that-hold-counters). Leave counters banked so Endymion has one (targeting- and destruction-immune) and Jackal King(s) can negate. Optionally hold **I:P Masquerena** to make **S:P Little Knight** (banish disruption) on the opponent's turn.\n\nENDBOARD (ideal): Endymion (Quick-Effect omni-negate: bounce your own counter-card to negate+destroy anything, protected while he holds a counter) + 1-2 Jackal King (monster-effect negate, 2 counters each) + Master Cerberus (effect-destruction-immune 2800, banish) + Magical Citadel + Mythical Institution banking counters, with S:P Little Knight or Apollousa as extra interruption from I:P Masquerena.\n\n=== GOING SECOND ===\nYou are a strong turn-2 deck. **Triple Tactics Talent** (after the opponent uses a monster effect on your turn) draws 2, steals a monster, or peeks-and-shuffles. Dig with Pot of Desires / Upstart / Into the Void, load counters, then use **Endymion's Pendulum effect as a board wipe** (destroy up to N cards after stacking counter-holders), **Master Cerberus** and **Magia Magic** to banish, **Reflection / Garuda** to bounce, and **Underworld Goddess of the Closed World** (Link-5, uses an opponent's monster as material and negates on summon) or **Knightmare Unicorn** to punch through, finishing with **Accesscode Talker**.\n\n=== HANDTRAP NAVIGATION ===\n- **Called by the Grave (1)** answers Ash Blossom / Maxx \"C\" / Nibiru by banishing + negating the same-named effect.\n- **Ash Blossom** on Spell Power Mastery or a Spellbook: you have redundancy (3x Mastery + Institution + Abductor + Servant/Jackal tutors) — eat it and continue with a different starter.\n- **Maxx \"C\":** keep the line SHORT (Electrumite + one negate) or turn it around with Triple Tactics; don't over-extend into a free draw engine.\n- **Nibiru, the Primal Being:** count your Special Summons — Endymion floods fast. Stop at 4 summons if Nibiru is live, or bait it; Endymion / Master Cerberus is your post-Nibiru beater and can rebuild off banked counters and cards face-up in the Extra Deck.\n- **Droll & Lock Bird:** shuts the search engine — pivot to Pendulum Summoning the monsters already in hand and to Endymion's Pendulum wipe, which need no searching.\n\n=== WEAKNESSES ===\n- **Anti-Spell floodgates are lethal:** Anti-Spell Fragrance / Mystic Mine stop your Spells, which stops counters, which stops the entire engine. These are your worst matchup.\n- **Droll & Lock Bird** cripples the cantrip/search chain.\n- **Bounce/banish removal** (Evenly Matched, Lightning Storm, Forbidding, Kaijus) sidesteps Citadel/Institution, which only redirect DESTRUCTION.\n- **Bricking:** hands of only high-scale pendulums with no starter stall you — but 3x Spell Power Mastery, Magical Abductor, Mythical Institution, and the Servant/Jackal tutors keep the starter count high.\n- The board leans on counters; a first-Spell negate or a well-timed disruption before you bank counters slows the whole turn.",
+   "codes": [
+    3611830,
+    3611830,
+    3611830,
+    92559258,
+    92559258,
+    92559258,
+    66104644,
+    66104644,
+    39000945,
+    53842431,
+    27354732,
+    27354732,
+    27354732,
+    91182675,
+    91182675,
+    80959027,
+    28570310,
+    10239627,
+    14824019,
+    38943357,
+    38943357,
+    38943357,
+    94599451,
+    94599451,
+    94599451,
+    39910367,
+    39910367,
+    70368879,
+    70368879,
+    70368879,
+    93946239,
+    93946239,
+    93946239,
+    35261759,
+    89739383,
+    23314220,
+    38325384,
+    59080,
+    25311006,
+    24224830
+   ],
+   "extraCodes": [
+    24094258,
+    24094258,
+    50756327,
+    50756327,
+    34755994,
+    94259633,
+    41999284,
+    65741786,
+    22850702,
+    45819647,
+    29301450,
+    38342335,
+    4280258,
+    98127546,
+    86066372
+   ],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "G",
+  "P1"
+ ],
+ "responses": [],
+ "times": []
+}

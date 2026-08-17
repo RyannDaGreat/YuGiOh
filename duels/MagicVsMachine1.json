@@ -1,0 +1,441 @@
+{
+ "id": "MagicVsMachine1",
+ "created": "2026-08-17T03:10:03.445Z",
+ "seed": 947895503,
+ "format": "classic",
+ "decks": [
+  {
+   "name": "Spellcaster's Command (SDSC)",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Endymion, the Master Magician",
+     1
+    ],
+    [
+     "Disenchanter",
+     1
+    ],
+    [
+     "Defender, the Magical Knight",
+     1
+    ],
+    [
+     "Hannibal Necromancer",
+     1
+    ],
+    [
+     "Summoner Monk",
+     1
+    ],
+    [
+     "Dark Red Enchanter",
+     1
+    ],
+    [
+     "Skilled Dark Magician",
+     1
+    ],
+    [
+     "Apprentice Magician",
+     2
+    ],
+    [
+     "Old Vindictive Magician",
+     1
+    ],
+    [
+     "Magical Marionette",
+     1
+    ],
+    [
+     "Breaker the Magical Warrior",
+     1
+    ],
+    [
+     "Magical Plant Mandragola",
+     1
+    ],
+    [
+     "Royal Magical Library",
+     1
+    ],
+    [
+     "Blast Magician",
+     1
+    ],
+    [
+     "Mythical Beast Cerberus",
+     1
+    ],
+    [
+     "Mei-Kou, Master of Barriers",
+     1
+    ],
+    [
+     "Crystal Seer",
+     1
+    ],
+    [
+     "Magical Exemplar",
+     1
+    ],
+    [
+     "Magical Citadel of Endymion",
+     1
+    ],
+    [
+     "Spell Power Grasp",
+     1
+    ],
+    [
+     "Magicians Unite",
+     1
+    ],
+    [
+     "Mist Body",
+     1
+    ],
+    [
+     "Malevolent Nuzzler",
+     1
+    ],
+    [
+     "Giant Trunade",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "Swords of Revealing Light",
+     1
+    ],
+    [
+     "Mage Power",
+     1
+    ],
+    [
+     "Terraforming",
+     1
+    ],
+    [
+     "Enemy Controller",
+     1
+    ],
+    [
+     "Book of Moon",
+     1
+    ],
+    [
+     "Magical Blast",
+     1
+    ],
+    [
+     "Magical Dimension",
+     1
+    ],
+    [
+     "Twister",
+     1
+    ],
+    [
+     "Field Barrier",
+     1
+    ],
+    [
+     "Magician's Circle",
+     1
+    ],
+    [
+     "Pitch-Black Power Stone",
+     2
+    ],
+    [
+     "Tower of Babel",
+     1
+    ],
+    [
+     "Magic Cylinder",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "Spellcaster spell-counter control built on the Endymion engine. You bank Spell Counters every time you cast, then cash them in for a 2700 boss and repeatable removal.\n\n## The engine (do this first)\n- **Magical Citadel of Endymion** (Field Spell) is the heart: every Spell you *resolve* banks 1 Spell Counter on it, it soaks counters off any counter-card that dies, and it can pay counter-costs for your other cards. Open on it (fetch with **Terraforming**) and just start casting.\n- **Win line:** once Citadel holds 6 counters, Special Summon **Endymion, the Master Magician** (2700) by removing all 6 — on summon add a Spell back from GY, and every turn after, discard 1 Spell to **destroy ANY 1 card** on the field. That recurring pop is your control loop; feed it with Spells you've already used.\n- **Counter accelerants (stack these):** **Spell Power Grasp** places a counter AND fetches the next copy (chains its own draw of gas); **Apprentice Magician** drops a counter on summon; **Breaker** / **Defender** each place 1 on Normal Summon; **Pitch-Black Power Stone** banks 3 and ferries them one-per-turn onto Citadel. **Magical Exemplar** banks 2 per Spell and dumps them to revive a Spellcaster from hand/GY (re-summon a popped Endymion or Breaker).\n\n## Payoffs that spend counters\n- **Breaker the Magical Warrior** — summon, then pop a Spell/Trap for free (1600, briefly 1900).\n- **Blast Magician** — remove counters to snipe a monster (counters x700 ATK cap).\n- **Dark Red Enchanter** — enters with 2 counters, +300 ATK each, and rips a random card from their hand.\n- **Mythical Beast Cerberus** — grows +500 per counter (swings huge, but dumps its own counters after battle).\n\n## Spellcaster tricks\n- **Magical Dimension** is the glue: control any Spellcaster, tribute a monster, Special Summon a Spellcaster from hand AND destroy a monster — tribute a spent **Apprentice Magician** / **Old Vindictive Magician** to drop **Endymion** and blow something up at instant speed.\n- **Defender, the Magical Knight** shields your Spellcasters from destruction (pay 1 counter each). **Old Vindictive Magician** flips to pop a monster. **Summoner Monk** discards a Spell to swarm a Level 4. **Magician's Circle** searches a Spellcaster on any attack. **Magicians Unite** pumps one Spellcaster to 3000 for a finisher.\n- **Field Barrier** locks Citadel down — it can't be destroyed and the opponent can't set their own Field Spell.\n\n## Control shell\n- Board wipes / removal: **Fissure**, **Swords of Revealing Light**, **Magic Cylinder**, **Enemy Controller**, **Book of Moon**.\n- Tempo & reuse: **Giant Trunade** (bounce your own backrow to re-cast for more counters), **Twister**.\n- Equips for a beater: **Mage Power**, **Malevolent Nuzzler**, **Mist Body** (untargetable-by-destruction wall).\n- **Royal Magical Library** turns your Spell spam into draws (3 counters -> draw). **Magical Blast** burns 200 per Spellcaster and recurs itself.\n\n## Weaknesses\n- ⚠ Slow: you need to survive long enough to bank 6 counters — fast aggro can race you before Endymion lands.\n- ⚠ Field-Spell dependent: if Citadel is destroyed before **Field Barrier** protects it (Mystical Space Typhoon, an opposing Field Spell, etc.), the engine sputters.\n- ⚠ **Tower of Babel** is anti-synergy with your own gameplan — its 4th Spell Counter blasts *the player who cast that Spell*, i.e. YOU, the spell-spammer. Many pilots cut it; play around it or leave it in the box.\n- ⚠ Endymion is one fat target — Bottomless / banish / bounce removes your payoff and the counters spent to summon it.",
+   "codes": [
+    40732515,
+    76137614,
+    2525268,
+    5640330,
+    423585,
+    45462639,
+    73752131,
+    9156135,
+    9156135,
+    45141844,
+    8034697,
+    71413901,
+    7802006,
+    70791313,
+    21051146,
+    55424270,
+    47731128,
+    82099401,
+    6061630,
+    39910367,
+    75014062,
+    36045450,
+    47529357,
+    99597615,
+    42703248,
+    66788016,
+    72302403,
+    83746708,
+    73628505,
+    98045062,
+    14087893,
+    91819979,
+    28553439,
+    45939841,
+    7153114,
+    50755,
+    34029630,
+    34029630,
+    94256039,
+    62279055
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  },
+  {
+   "name": "Machine Re-Volt (SD10)",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Ancient Gear Gadjiltron Dragon",
+     1
+    ],
+    [
+     "Ancient Gear Gadjiltron Chimera",
+     1
+    ],
+    [
+     "Ancient Gear Engineer",
+     1
+    ],
+    [
+     "Boot-Up Soldier - Dread Dynamo",
+     1
+    ],
+    [
+     "Mechanicalchaser",
+     1
+    ],
+    [
+     "Green Gadget",
+     1
+    ],
+    [
+     "Red Gadget",
+     1
+    ],
+    [
+     "Yellow Gadget",
+     1
+    ],
+    [
+     "Cannon Soldier",
+     1
+    ],
+    [
+     "Gear Golem the Moving Fortress",
+     1
+    ],
+    [
+     "Heavy Mech Support Platform",
+     2
+    ],
+    [
+     "Ancient Gear Golem",
+     1
+    ],
+    [
+     "Ancient Gear Beast",
+     1
+    ],
+    [
+     "Ancient Gear Soldier",
+     1
+    ],
+    [
+     "Ancient Gear",
+     2
+    ],
+    [
+     "Ancient Gear Cannon",
+     1
+    ],
+    [
+     "Ancient Gear Workshop",
+     1
+    ],
+    [
+     "Ancient Gear Tank",
+     1
+    ],
+    [
+     "Ancient Gear Explosive",
+     1
+    ],
+    [
+     "Ancient Gear Fist",
+     1
+    ],
+    [
+     "Ancient Gear Factory",
+     1
+    ],
+    [
+     "Ancient Gear Drill",
+     1
+    ],
+    [
+     "Ancient Gear Castle",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Limiter Removal",
+     1
+    ],
+    [
+     "Heavy Storm",
+     1
+    ],
+    [
+     "Enemy Controller",
+     1
+    ],
+    [
+     "Weapon Change",
+     1
+    ],
+    [
+     "Machine Duplication",
+     1
+    ],
+    [
+     "Pot of Avarice",
+     1
+    ],
+    [
+     "Stronghold the Moving Fortress",
+     1
+    ],
+    [
+     "Ultimate Offering",
+     1
+    ],
+    [
+     "Sakuretsu Armor",
+     2
+    ],
+    [
+     "Micro Ray",
+     1
+    ],
+    [
+     "Rare Metalmorph",
+     1
+    ],
+    [
+     "Covering Fire",
+     1
+    ],
+    [
+     "Roll Out!",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "Machine beatdown + Gadget grind. Signature engine FIRST: the Gadgets loop forever - Green Gadget searches Red, Red searches Yellow, Yellow searches Green. Normal Summon one every turn to draw-plus-one in monsters, never run out of 1200-1400 bodies, and keep tribute fodder on tap. Land all three and Stronghold the Moving Fortress flips up as a 3000-ATK wall/attacker.\nBosses that ignore their backrow: Ancient Gear Golem (3000, piercing, opponent can't activate Spells/Traps while it attacks) and Ancient Gear Gadjiltron Dragon (3000, same Spell/Trap lock). Tribute a Gadget to Normal Summon the Dragon to bolt on a mode - Green = piercing, Red = +400 burn on damage, Yellow = +600 burn on kill. Ancient Gear Soldier / Beast carry the same attack-through-traps lock at lower cost; Ancient Gear Factory and Ancient Gear Castle (counters cut the Tributes, +300/+ ATK) cheat the big ones out.\nFinisher - Limiter Removal: double the ATK of every Machine you control the turn you swing (Golem/Dragon 3000 -> 6000, plus doubled Gadgets) for a frequent one-turn kill. They self-destruct in the End Phase, so fire it as the closer, not to trade.\nSwarm/burn line: Machine Duplication on a 500-or-less-ATK Machine SS's 2 more copies from Deck - stack Ancient Gear Cannon (Tribute each for 500 damage + Battle-Phase Trap lock) or feed Cannon Soldier tribute shots for 500 apiece. Ultimate Offering buys extra Normal Summons to chain more Gadgets/tributes.\nRecursion & disruption: Roll Out! re-equips Heavy Mech Support Platform (+500/+500 and eats one destruction) from the GY onto a boss; Pot of Avarice refuels; Sakuretsu Armor, Enemy Controller, Micro Ray, Covering Fire, Rare Metalmorph, plus MST / Heavy Storm keep the lane clear.\nWeaknesses: no Extra Deck; Ancient Gear Golem and Beast cannot be Special Summoned and are slow/tribute-heavy; the whole plan leans on the Normal Summon, so summon-negation or a well-timed removal stalls it; Gadgets have flimsy DEF; a whiffed Limiter Removal wipes your own board.\n⚠ Card interactions above are read straight from cards.cdb text (sourced); the play-priority ordering is my own synthesis, not a cited competitive primer.",
+   "codes": [
+    50933533,
+    86321248,
+    1953925,
+    13316346,
+    7359741,
+    41172955,
+    86445415,
+    13839120,
+    11384280,
+    30190809,
+    23265594,
+    23265594,
+    83104731,
+    10509340,
+    56094445,
+    31557782,
+    31557782,
+    80045583,
+    59811955,
+    37457534,
+    4446672,
+    40830387,
+    30435145,
+    67829249,
+    92001300,
+    5318639,
+    23171610,
+    19613556,
+    98045062,
+    10035717,
+    63995093,
+    67169062,
+    13955608,
+    80604091,
+    56120475,
+    56120475,
+    18190572,
+    12503902,
+    74458486,
+    91597389
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "Clara",
+  "P1"
+ ],
+ "responses": [
+  {
+   "type": 1,
+   "action": 3,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  }
+ ],
+ "times": [
+  "2026-08-17T03:41:02.528Z",
+  "2026-08-17T03:41:06.217Z"
+ ]
+}

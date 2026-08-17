@@ -1,0 +1,476 @@
+{
+ "id": "goat",
+ "created": "2026-08-17T02:33:49.823Z",
+ "seed": 1668125914,
+ "format": "goat",
+ "decks": [
+  {
+   "name": "GOAT Sample",
+   "category": "structure",
+   "format": "goat",
+   "main": [
+    [
+     "Breaker the Magical Warrior",
+     1
+    ],
+    [
+     "Tribe-Infecting Virus",
+     1
+    ],
+    [
+     "Sinister Serpent",
+     1
+    ],
+    [
+     "Sangan",
+     1
+    ],
+    [
+     "Magician of Faith",
+     1
+    ],
+    [
+     "Airknight Parshath",
+     1
+    ],
+    [
+     "D.D. Warrior Lady",
+     1
+    ],
+    [
+     "Exiled Force",
+     1
+    ],
+    [
+     "Spirit Reaper",
+     1
+    ],
+    [
+     "Mystic Tomato",
+     1
+    ],
+    [
+     "Night Assailant",
+     1
+    ],
+    [
+     "Asura Priest",
+     1
+    ],
+    [
+     "Twin-Headed Behemoth",
+     1
+    ],
+    [
+     "Dark Magician of Chaos",
+     1
+    ],
+    [
+     "Cyber Jar",
+     1
+    ],
+    [
+     "Morphing Jar",
+     1
+    ],
+    [
+     "Injection Fairy Lily",
+     1
+    ],
+    [
+     "Pot of Greed",
+     1
+    ],
+    [
+     "Graceful Charity",
+     1
+    ],
+    [
+     "Delinquent Duo",
+     1
+    ],
+    [
+     "Snatch Steal",
+     1
+    ],
+    [
+     "Premature Burial",
+     1
+    ],
+    [
+     "Heavy Storm",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Nobleman of Crossout",
+     1
+    ],
+    [
+     "Book of Moon",
+     1
+    ],
+    [
+     "Scapegoat",
+     1
+    ],
+    [
+     "Metamorphosis",
+     1
+    ],
+    [
+     "Creature Swap",
+     1
+    ],
+    [
+     "Reinforcement of the Army",
+     1
+    ],
+    [
+     "Smashing Ground",
+     1
+    ],
+    [
+     "Swords of Revealing Light",
+     1
+    ],
+    [
+     "Mirror Force",
+     1
+    ],
+    [
+     "Torrential Tribute",
+     1
+    ],
+    [
+     "Ring of Destruction",
+     1
+    ],
+    [
+     "Call of the Haunted",
+     1
+    ],
+    [
+     "Sakuretsu Armor",
+     1
+    ],
+    [
+     "Ceasefire",
+     1
+    ],
+    [
+     "Dust Tornado",
+     1
+    ],
+    [
+     "Bottomless Trap Hole",
+     1
+    ]
+   ],
+   "extra": [
+    [
+     "Thousand-Eyes Restrict",
+     1
+    ],
+    [
+     "Ryu Senshi",
+     1
+    ],
+    [
+     "Reaper on the Nightmare",
+     1
+    ]
+   ],
+   "side": [],
+   "manual": "GOAT control: grind card advantage, then close with a fat beater.\nKey combo: Scapegoat into Metamorphosis — tribute one Sheep Token to Special Summon Thousand-Eyes Restrict, then absorb their best monster.\nOpen with Pot of Greed / Graceful Charity / Delinquent Duo to dig; hold Heavy Storm and Mystical Space Typhoon for their backrow.\nTrade with Tribe-Infecting Virus, Breaker, and Airknight Parshath; recur threats with Premature Burial and Call of the Haunted.\nProtect the combo with Book of Moon and the trap suite (Mirror Force, Torrential Tribute, Ring of Destruction).",
+   "codes": [
+    71413901,
+    33184167,
+    8131171,
+    26202165,
+    31560081,
+    18036057,
+    7572887,
+    74131780,
+    23205979,
+    83011277,
+    16226786,
+    2134346,
+    43586926,
+    40737112,
+    34124316,
+    33508719,
+    79575620,
+    55144522,
+    79571449,
+    44763025,
+    45986603,
+    70828912,
+    19613556,
+    5318639,
+    71044499,
+    14087893,
+    73915051,
+    46411259,
+    31036355,
+    32807846,
+    97169186,
+    72302403,
+    44095762,
+    53582587,
+    83555666,
+    97077563,
+    56120475,
+    36468556,
+    60082869,
+    29401950
+   ],
+   "extraCodes": [
+    63519819,
+    49868263,
+    85684223
+   ],
+   "sideCodes": []
+  },
+  {
+   "name": "GOAT Sample",
+   "category": "structure",
+   "format": "goat",
+   "main": [
+    [
+     "Breaker the Magical Warrior",
+     1
+    ],
+    [
+     "Tribe-Infecting Virus",
+     1
+    ],
+    [
+     "Sinister Serpent",
+     1
+    ],
+    [
+     "Sangan",
+     1
+    ],
+    [
+     "Magician of Faith",
+     1
+    ],
+    [
+     "Airknight Parshath",
+     1
+    ],
+    [
+     "D.D. Warrior Lady",
+     1
+    ],
+    [
+     "Exiled Force",
+     1
+    ],
+    [
+     "Spirit Reaper",
+     1
+    ],
+    [
+     "Mystic Tomato",
+     1
+    ],
+    [
+     "Night Assailant",
+     1
+    ],
+    [
+     "Asura Priest",
+     1
+    ],
+    [
+     "Twin-Headed Behemoth",
+     1
+    ],
+    [
+     "Dark Magician of Chaos",
+     1
+    ],
+    [
+     "Cyber Jar",
+     1
+    ],
+    [
+     "Morphing Jar",
+     1
+    ],
+    [
+     "Injection Fairy Lily",
+     1
+    ],
+    [
+     "Pot of Greed",
+     1
+    ],
+    [
+     "Graceful Charity",
+     1
+    ],
+    [
+     "Delinquent Duo",
+     1
+    ],
+    [
+     "Snatch Steal",
+     1
+    ],
+    [
+     "Premature Burial",
+     1
+    ],
+    [
+     "Heavy Storm",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Nobleman of Crossout",
+     1
+    ],
+    [
+     "Book of Moon",
+     1
+    ],
+    [
+     "Scapegoat",
+     1
+    ],
+    [
+     "Metamorphosis",
+     1
+    ],
+    [
+     "Creature Swap",
+     1
+    ],
+    [
+     "Reinforcement of the Army",
+     1
+    ],
+    [
+     "Smashing Ground",
+     1
+    ],
+    [
+     "Swords of Revealing Light",
+     1
+    ],
+    [
+     "Mirror Force",
+     1
+    ],
+    [
+     "Torrential Tribute",
+     1
+    ],
+    [
+     "Ring of Destruction",
+     1
+    ],
+    [
+     "Call of the Haunted",
+     1
+    ],
+    [
+     "Sakuretsu Armor",
+     1
+    ],
+    [
+     "Ceasefire",
+     1
+    ],
+    [
+     "Dust Tornado",
+     1
+    ],
+    [
+     "Bottomless Trap Hole",
+     1
+    ]
+   ],
+   "extra": [
+    [
+     "Thousand-Eyes Restrict",
+     1
+    ],
+    [
+     "Ryu Senshi",
+     1
+    ],
+    [
+     "Reaper on the Nightmare",
+     1
+    ]
+   ],
+   "side": [],
+   "manual": "GOAT control: grind card advantage, then close with a fat beater.\nKey combo: Scapegoat into Metamorphosis — tribute one Sheep Token to Special Summon Thousand-Eyes Restrict, then absorb their best monster.\nOpen with Pot of Greed / Graceful Charity / Delinquent Duo to dig; hold Heavy Storm and Mystical Space Typhoon for their backrow.\nTrade with Tribe-Infecting Virus, Breaker, and Airknight Parshath; recur threats with Premature Burial and Call of the Haunted.\nProtect the combo with Book of Moon and the trap suite (Mirror Force, Torrential Tribute, Ring of Destruction).",
+   "codes": [
+    71413901,
+    33184167,
+    8131171,
+    26202165,
+    31560081,
+    18036057,
+    7572887,
+    74131780,
+    23205979,
+    83011277,
+    16226786,
+    2134346,
+    43586926,
+    40737112,
+    34124316,
+    33508719,
+    79575620,
+    55144522,
+    79571449,
+    44763025,
+    45986603,
+    70828912,
+    19613556,
+    5318639,
+    71044499,
+    14087893,
+    73915051,
+    46411259,
+    31036355,
+    32807846,
+    97169186,
+    72302403,
+    44095762,
+    53582587,
+    83555666,
+    97077563,
+    56120475,
+    36468556,
+    60082869,
+    29401950
+   ],
+   "extraCodes": [
+    63519819,
+    49868263,
+    85684223
+   ],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "gaga",
+  "P1"
+ ],
+ "responses": [],
+ "times": []
+}

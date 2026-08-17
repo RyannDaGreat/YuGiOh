@@ -1,0 +1,1246 @@
+{
+ "id": "PendyVsSpell",
+ "created": "2026-08-17T08:42:27.512Z",
+ "seed": 2882696703,
+ "format": "classic",
+ "decks": [
+  {
+   "name": "Spellcaster's Command (SDSC)",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Endymion, the Master Magician",
+     1
+    ],
+    [
+     "Disenchanter",
+     1
+    ],
+    [
+     "Defender, the Magical Knight",
+     1
+    ],
+    [
+     "Hannibal Necromancer",
+     1
+    ],
+    [
+     "Summoner Monk",
+     1
+    ],
+    [
+     "Dark Red Enchanter",
+     1
+    ],
+    [
+     "Skilled Dark Magician",
+     1
+    ],
+    [
+     "Apprentice Magician",
+     2
+    ],
+    [
+     "Old Vindictive Magician",
+     1
+    ],
+    [
+     "Magical Marionette",
+     1
+    ],
+    [
+     "Breaker the Magical Warrior",
+     1
+    ],
+    [
+     "Magical Plant Mandragola",
+     1
+    ],
+    [
+     "Royal Magical Library",
+     1
+    ],
+    [
+     "Blast Magician",
+     1
+    ],
+    [
+     "Mythical Beast Cerberus",
+     1
+    ],
+    [
+     "Mei-Kou, Master of Barriers",
+     1
+    ],
+    [
+     "Crystal Seer",
+     1
+    ],
+    [
+     "Magical Exemplar",
+     1
+    ],
+    [
+     "Magical Citadel of Endymion",
+     1
+    ],
+    [
+     "Spell Power Grasp",
+     1
+    ],
+    [
+     "Magicians Unite",
+     1
+    ],
+    [
+     "Mist Body",
+     1
+    ],
+    [
+     "Malevolent Nuzzler",
+     1
+    ],
+    [
+     "Giant Trunade",
+     1
+    ],
+    [
+     "Fissure",
+     1
+    ],
+    [
+     "Swords of Revealing Light",
+     1
+    ],
+    [
+     "Mage Power",
+     1
+    ],
+    [
+     "Terraforming",
+     1
+    ],
+    [
+     "Enemy Controller",
+     1
+    ],
+    [
+     "Book of Moon",
+     1
+    ],
+    [
+     "Magical Blast",
+     1
+    ],
+    [
+     "Magical Dimension",
+     1
+    ],
+    [
+     "Twister",
+     1
+    ],
+    [
+     "Field Barrier",
+     1
+    ],
+    [
+     "Magician's Circle",
+     1
+    ],
+    [
+     "Pitch-Black Power Stone",
+     2
+    ],
+    [
+     "Tower of Babel",
+     1
+    ],
+    [
+     "Magic Cylinder",
+     1
+    ]
+   ],
+   "extra": [],
+   "side": [],
+   "manual": "Spellcaster spell-counter control built on the Endymion engine. You bank Spell Counters every time you cast, then cash them in for a 2700 boss and repeatable removal.\n\n## The engine (do this first)\n- **Magical Citadel of Endymion** (Field Spell) is the heart: every Spell you *resolve* banks 1 Spell Counter on it, it soaks counters off any counter-card that dies, and it can pay counter-costs for your other cards. Open on it (fetch with **Terraforming**) and just start casting.\n- **Win line:** once Citadel holds 6 counters, Special Summon **Endymion, the Master Magician** (2700) by removing all 6 — on summon add a Spell back from GY, and every turn after, discard 1 Spell to **destroy ANY 1 card** on the field. That recurring pop is your control loop; feed it with Spells you've already used.\n- **Counter accelerants (stack these):** **Spell Power Grasp** places a counter AND fetches the next copy (chains its own draw of gas); **Apprentice Magician** drops a counter on summon; **Breaker** / **Defender** each place 1 on Normal Summon; **Pitch-Black Power Stone** banks 3 and ferries them one-per-turn onto Citadel. **Magical Exemplar** banks 2 per Spell and dumps them to revive a Spellcaster from hand/GY (re-summon a popped Endymion or Breaker).\n\n## Payoffs that spend counters\n- **Breaker the Magical Warrior** — summon, then pop a Spell/Trap for free (1600, briefly 1900).\n- **Blast Magician** — remove counters to snipe a monster (counters x700 ATK cap).\n- **Dark Red Enchanter** — enters with 2 counters, +300 ATK each, and rips a random card from their hand.\n- **Mythical Beast Cerberus** — grows +500 per counter (swings huge, but dumps its own counters after battle).\n\n## Spellcaster tricks\n- **Magical Dimension** is the glue: control any Spellcaster, tribute a monster, Special Summon a Spellcaster from hand AND destroy a monster — tribute a spent **Apprentice Magician** / **Old Vindictive Magician** to drop **Endymion** and blow something up at instant speed.\n- **Defender, the Magical Knight** shields your Spellcasters from destruction (pay 1 counter each). **Old Vindictive Magician** flips to pop a monster. **Summoner Monk** discards a Spell to swarm a Level 4. **Magician's Circle** searches a Spellcaster on any attack. **Magicians Unite** pumps one Spellcaster to 3000 for a finisher.\n- **Field Barrier** locks Citadel down — it can't be destroyed and the opponent can't set their own Field Spell.\n\n## Control shell\n- Board wipes / removal: **Fissure**, **Swords of Revealing Light**, **Magic Cylinder**, **Enemy Controller**, **Book of Moon**.\n- Tempo & reuse: **Giant Trunade** (bounce your own backrow to re-cast for more counters), **Twister**.\n- Equips for a beater: **Mage Power**, **Malevolent Nuzzler**, **Mist Body** (untargetable-by-destruction wall).\n- **Royal Magical Library** turns your Spell spam into draws (3 counters -> draw). **Magical Blast** burns 200 per Spellcaster and recurs itself.\n\n## Weaknesses\n- ⚠ Slow: you need to survive long enough to bank 6 counters — fast aggro can race you before Endymion lands.\n- ⚠ Field-Spell dependent: if Citadel is destroyed before **Field Barrier** protects it (Mystical Space Typhoon, an opposing Field Spell, etc.), the engine sputters.\n- ⚠ **Tower of Babel** is anti-synergy with your own gameplan — its 4th Spell Counter blasts *the player who cast that Spell*, i.e. YOU, the spell-spammer. Many pilots cut it; play around it or leave it in the box.\n- ⚠ Endymion is one fat target — Bottomless / banish / bounce removes your payoff and the counters spent to summon it.",
+   "codes": [
+    40732515,
+    76137614,
+    2525268,
+    5640330,
+    423585,
+    45462639,
+    73752131,
+    9156135,
+    9156135,
+    45141844,
+    8034697,
+    71413901,
+    7802006,
+    70791313,
+    21051146,
+    55424270,
+    47731128,
+    82099401,
+    6061630,
+    39910367,
+    75014062,
+    36045450,
+    47529357,
+    99597615,
+    42703248,
+    66788016,
+    72302403,
+    83746708,
+    73628505,
+    98045062,
+    14087893,
+    91819979,
+    28553439,
+    45939841,
+    7153114,
+    50755,
+    34029630,
+    34029630,
+    94256039,
+    62279055
+   ],
+   "extraCodes": [],
+   "sideCodes": []
+  },
+  {
+   "name": "Master of Pendulum (SDMP)",
+   "category": "structure",
+   "format": "classic",
+   "main": [
+    [
+     "Dragonpulse Magician",
+     1
+    ],
+    [
+     "Dragonpit Magician",
+     1
+    ],
+    [
+     "Nobledragon Magician",
+     1
+    ],
+    [
+     "Oafdragon Magician",
+     1
+    ],
+    [
+     "Wisdom-Eye Magician",
+     1
+    ],
+    [
+     "Performapal Skullcrobat Joker",
+     1
+    ],
+    [
+     "Stargazer Magician",
+     1
+    ],
+    [
+     "Timegazer Magician",
+     1
+    ],
+    [
+     "Odd-Eyes Pendulum Dragon",
+     1
+    ],
+    [
+     "Performapal Silver Claw",
+     1
+    ],
+    [
+     "Performapal Salutiger",
+     1
+    ],
+    [
+     "Performapal Trump Witch",
+     1
+    ],
+    [
+     "Metaphys Armed Dragon",
+     1
+    ],
+    [
+     "Chaos Hunter",
+     1
+    ],
+    [
+     "Fusilier Dragon, the Dual-Mode Beast",
+     1
+    ],
+    [
+     "Lyla, Lightsworn Sorceress",
+     1
+    ],
+    [
+     "Fencing Fire Ferret",
+     1
+    ],
+    [
+     "Inari Fire",
+     1
+    ],
+    [
+     "Nefarious Archfiend Eater of Nefariousness",
+     1
+    ],
+    [
+     "Jigabyte",
+     1
+    ],
+    [
+     "Goblindbergh",
+     1
+    ],
+    [
+     "X-Saber Airbellum",
+     1
+    ],
+    [
+     "Magna Drago",
+     1
+    ],
+    [
+     "Re-Cover",
+     1
+    ],
+    [
+     "Sky Iris",
+     1
+    ],
+    [
+     "Pendulum Call",
+     1
+    ],
+    [
+     "Pendulum Shift",
+     1
+    ],
+    [
+     "Pendulum Rising",
+     1
+    ],
+    [
+     "Sacred Sword of Seven Stars",
+     1
+    ],
+    [
+     "Summoner's Art",
+     1
+    ],
+    [
+     "Mystical Space Typhoon",
+     1
+    ],
+    [
+     "Scapegoat",
+     1
+    ],
+    [
+     "Forbidden Dress",
+     1
+    ],
+    [
+     "Polymerization",
+     1
+    ],
+    [
+     "Terraforming",
+     1
+    ],
+    [
+     "Pendulum Back",
+     1
+    ],
+    [
+     "Powerful Rebirth",
+     1
+    ],
+    [
+     "Traptrix Trap Hole Nightmare",
+     1
+    ],
+    [
+     "Torrential Tribute",
+     1
+    ],
+    [
+     "Eradicator Epidemic Virus",
+     1
+    ]
+   ],
+   "extra": [
+    [
+     "Odd-Eyes Meteorburst Dragon",
+     1
+    ],
+    [
+     "Odd-Eyes Absolute Dragon",
+     1
+    ],
+    [
+     "Rune-Eyes Pendulum Dragon",
+     1
+    ]
+   ],
+   "side": [],
+   "manual": "PENDULUM MECHANICS (this is the library's only Pendulum deck). Pendulum Monsters double as Spells: place one in your left Pendulum Zone and one in your right, each showing a blue Pendulum Scale number. With a low scale L on one side and a high scale R on the other, ONCE per turn you Pendulum Summon any number of monsters at once whose Levels are strictly between L and R — from your hand, AND any face-up Pendulum Monsters sitting in your Extra Deck. The payoff loop: a Pendulum Monster that would go to the GY from the field instead lands FACE-UP in your Extra Deck, so you re-summon the same board again next turn. This deck runs two 1<->8 scale pairs — Stargazer Magician (scale 1) + Timegazer Magician (scale 8), and Dragonpulse Magician (1) + Dragonpit Magician (8) — both of which open the full Level 2-7 range, enough for the entire lineup including Odd-Eyes Pendulum Dragon (Lv7).\n\nCORE COMBO — set a scale, then swarm.\n1) OPEN with Performapal Skullcrobat Joker: Normal Summon it to search ANY Performapal, Magician Pendulum, or Odd-Eyes monster from Deck — your best turn-1 card, it digs to whatever scale piece you're missing.\n2) COMPLETE THE SCALE fast: Wisdom-Eye Magician's Pendulum Effect destroys itself (needs a Magician/Performapal in the other zone) to place any Magician Pendulum Monster from Deck straight into a Pendulum Zone. Pendulum Call discards 1 card to add TWO different-named Magician Pendulums from Deck to hand, and locks your Magician scales against card-effect destruction. Sky Iris (Field) searches an Odd-Eyes by destroying one of your own cards (blow up a spent scale you already used this turn) and stops the opponent targeting your Pendulum-Zone cards.\n3) PENDULUM SUMMON the board: with a 1/8 scale up, drop Odd-Eyes Pendulum Dragon plus beaters (Chaos Hunter, Fusilier Dragon, the Level-4 Performapals) from hand in one shot, reclaiming any Pendulum Monsters already face-up in your Extra Deck.\n\nREMOVAL ENGINE (the Dragon-Magician scale is also disruption): while a Magician sits in your OTHER zone, Dragonpulse Magician's Pendulum Effect discards a Pendulum Monster to destroy a face-up monster, and Dragonpit Magician's discards to destroy a Spell/Trap. So a Dragonpulse(1)/Dragonpit(8) scale is simultaneously your scale AND two shots of removal each turn (fuel the discards with dead Pendulums — you get them back from the Extra Deck).\n\nEXTRA DECK PAYOFFS — one of each Summon type:\n- XYZ: overlay two Level-7s (Odd-Eyes Pendulum Dragon + a second Lv7 you Pendulum Summoned, e.g. Dragonpit) into Odd-Eyes Absolute Dragon.\n- SYNCHRO: a Tuner (Nobledragon Magician, Magna Drago, or X-Saber Airbellum / Re-Cover) + non-Tuners into Odd-Eyes Meteorburst Dragon.\n- FUSION: Polymerization fuses Odd-Eyes Pendulum Dragon + any Spellcaster into Rune-Eyes Pendulum Dragon (Lv8, 3000 ATK) for multi-attacks. Oafdragon Magician recycles a Magician/Odd-Eyes Pendulum from GY or Extra Deck to grind the loop.\n\nWEAKNESSES (short): you brick if you draw only high scales or only low scales — you need one of each to Summon. Floodgates and heavy backrow that stop Special Summons shut the engine off, and there are no hand traps to fight back. Targeted destruction of an uncovered scale stalls you a turn (Timegazer protects one Pendulum-Zone card from effect destruction, Pendulum Call and Sky Iris cover the rest).",
+   "codes": [
+    15146890,
+    51531505,
+    88935103,
+    14920218,
+    72714461,
+    40318957,
+    94415058,
+    20409757,
+    16178681,
+    26270847,
+    44364077,
+    91584698,
+    89189982,
+    97940434,
+    51632798,
+    22624373,
+    97396380,
+    62953041,
+    60666820,
+    40894584,
+    25259669,
+    90508760,
+    36750412,
+    58695102,
+    27813661,
+    53208660,
+    69982329,
+    74926274,
+    45725480,
+    79816536,
+    5318639,
+    73915051,
+    96864811,
+    24094653,
+    73628505,
+    76660409,
+    84298614,
+    29616929,
+    53582587,
+    54974237
+   ],
+   "extraCodes": [
+    80696379,
+    16691074,
+    1516510
+   ],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "Clara",
+  "P1"
+ ],
+ "responses": [
+  {
+   "type": 1,
+   "action": 0,
+   "index": 2
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 3,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 19,
+   "value": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 3,
+   "index": 2
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 4
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 7,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 4
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 2,
+   "yes": true
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 3
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 2,
+   "yes": true
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    4
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 2
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 8,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 2,
+   "yes": true
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 3,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": 0
+  }
+ ],
+ "times": [
+  "2026-08-17T08:45:51.517Z",
+  "2026-08-17T08:45:54.566Z",
+  "2026-08-17T08:45:59.718Z",
+  "2026-08-17T08:46:01.655Z",
+  "2026-08-17T08:46:09.899Z",
+  "2026-08-17T08:46:35.065Z",
+  "2026-08-17T08:46:36.467Z",
+  "2026-08-17T08:46:40.953Z",
+  "2026-08-17T08:48:08.893Z",
+  "2026-08-17T08:48:18.227Z",
+  "2026-08-17T08:52:08.020Z",
+  "2026-08-17T08:52:12.252Z",
+  "2026-08-17T08:52:18.050Z",
+  "2026-08-17T08:52:43.389Z",
+  "2026-08-17T08:52:45.235Z",
+  "2026-08-17T08:52:48.788Z",
+  "2026-08-17T08:52:50.706Z",
+  "2026-08-17T08:52:52.672Z",
+  "2026-08-17T08:52:58.207Z",
+  "2026-08-17T08:52:59.886Z",
+  "2026-08-17T08:53:07.992Z",
+  "2026-08-17T08:53:11.458Z",
+  "2026-08-17T08:53:14.042Z",
+  "2026-08-17T08:53:19.855Z",
+  "2026-08-17T08:53:22.480Z",
+  "2026-08-17T08:53:29.575Z",
+  "2026-08-17T08:54:37.388Z",
+  "2026-08-17T08:54:41.271Z",
+  "2026-08-17T08:54:47.717Z",
+  "2026-08-17T08:55:29.417Z",
+  "2026-08-17T08:55:34.152Z",
+  "2026-08-17T08:55:35.581Z",
+  "2026-08-17T08:55:38.033Z",
+  "2026-08-17T08:55:40.126Z",
+  "2026-08-17T08:55:42.054Z",
+  "2026-08-17T08:55:42.228Z",
+  "2026-08-17T08:55:42.287Z",
+  "2026-08-17T08:55:42.342Z",
+  "2026-08-17T08:56:43.404Z",
+  "2026-08-17T08:56:48.050Z",
+  "2026-08-17T08:56:52.172Z",
+  "2026-08-17T08:56:56.248Z",
+  "2026-08-17T08:57:00.272Z",
+  "2026-08-17T08:57:04.396Z",
+  "2026-08-17T08:57:11.481Z",
+  "2026-08-17T08:57:15.848Z",
+  "2026-08-17T08:57:20.176Z",
+  "2026-08-17T08:57:25.807Z",
+  "2026-08-17T08:57:29.701Z",
+  "2026-08-17T08:57:34.279Z",
+  "2026-08-17T08:57:39.002Z",
+  "2026-08-17T08:59:39.936Z",
+  "2026-08-17T09:00:21.871Z",
+  "2026-08-17T09:00:25.819Z",
+  "2026-08-17T09:00:34.441Z",
+  "2026-08-17T09:00:39.860Z",
+  "2026-08-17T09:01:32.253Z",
+  "2026-08-17T09:01:36.262Z",
+  "2026-08-17T09:01:40.151Z",
+  "2026-08-17T09:01:53.699Z",
+  "2026-08-17T09:01:57.372Z",
+  "2026-08-17T09:02:03.580Z",
+  "2026-08-17T09:02:07.896Z",
+  "2026-08-17T09:02:11.987Z",
+  "2026-08-17T09:02:15.982Z",
+  "2026-08-17T09:02:23.640Z",
+  "2026-08-17T09:02:35.135Z",
+  "2026-08-17T09:02:38.752Z",
+  "2026-08-17T09:02:43.986Z",
+  "2026-08-17T09:02:48.103Z",
+  "2026-08-17T09:04:19.755Z",
+  "2026-08-17T09:04:21.231Z",
+  "2026-08-17T09:04:22.393Z",
+  "2026-08-17T09:04:22.462Z",
+  "2026-08-17T09:04:38.353Z",
+  "2026-08-17T09:04:39.835Z",
+  "2026-08-17T09:04:43.656Z",
+  "2026-08-17T09:04:43.808Z",
+  "2026-08-17T09:04:43.872Z",
+  "2026-08-17T09:05:45.794Z",
+  "2026-08-17T09:05:46.560Z",
+  "2026-08-17T09:05:46.630Z",
+  "2026-08-17T09:05:46.690Z",
+  "2026-08-17T09:05:46.749Z",
+  "2026-08-17T09:05:46.809Z",
+  "2026-08-17T09:06:18.178Z",
+  "2026-08-17T09:06:37.188Z",
+  "2026-08-17T09:06:41.775Z",
+  "2026-08-17T09:07:27.036Z",
+  "2026-08-17T09:07:52.586Z",
+  "2026-08-17T09:07:57.147Z",
+  "2026-08-17T09:08:57.323Z",
+  "2026-08-17T09:09:01.601Z",
+  "2026-08-17T09:09:06.499Z",
+  "2026-08-17T09:09:06.574Z",
+  "2026-08-17T09:09:06.643Z",
+  "2026-08-17T09:09:16.336Z",
+  "2026-08-17T09:09:17.738Z",
+  "2026-08-17T09:10:12.841Z",
+  "2026-08-17T09:10:32.859Z",
+  "2026-08-17T09:10:34.824Z",
+  "2026-08-17T09:10:38.364Z",
+  "2026-08-17T09:10:39.370Z",
+  "2026-08-17T09:10:39.445Z",
+  "2026-08-17T09:11:19.579Z",
+  "2026-08-17T09:11:20.731Z",
+  "2026-08-17T09:11:20.798Z",
+  "2026-08-17T09:11:26.251Z",
+  "2026-08-17T09:11:27.659Z",
+  "2026-08-17T09:11:59.181Z",
+  "2026-08-17T09:12:05.712Z",
+  "2026-08-17T09:12:16.334Z",
+  "2026-08-17T09:12:22.031Z",
+  "2026-08-17T09:12:25.559Z",
+  "2026-08-17T09:12:28.704Z",
+  "2026-08-17T09:13:39.861Z",
+  "2026-08-17T09:13:43.645Z",
+  "2026-08-17T09:13:47.477Z",
+  "2026-08-17T09:13:51.655Z",
+  "2026-08-17T09:13:55.550Z",
+  "2026-08-17T09:13:59.696Z"
+ ]
+}

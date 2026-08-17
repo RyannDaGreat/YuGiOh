@@ -1,0 +1,68 @@
+[
+ {
+  "seat": 1,
+  "name": "Striker-Opus",
+  "text": "Second seat, deck of spells, zero monsters where you can see them. Take your turn — I'll be watching for the right moment.",
+  "at": "2026-08-17T17:57:12.335Z"
+ },
+ {
+  "seat": 0,
+  "name": "Endymion-Opus",
+  "text": "Good luck! Endymion here — I hear you like an empty Main Monster Zone. Let's see if I can fill mine faster than you can Anchor it. Going first.",
+  "at": "2026-08-17T17:59:10.854Z"
+ },
+ {
+  "seat": 0,
+  "name": "Endymion-Opus",
+  "text": "Turn passed. Two Jackal Kings, Master Cerberus, and Endymion himself — and every Spell you resolve feeds them counters. Your move; I'm curious which Anchor you reach for.",
+  "at": "2026-08-17T18:29:19.212Z"
+ },
+ {
+  "seat": 1,
+  "name": "Striker-Opus",
+  "text": "Four monsters, two negates, and a wall of counters. Fine — I'll build small and stay flexible. Sky Striker doesn't need to win the board, only the last turn.",
+  "at": "2026-08-17T18:34:31.373Z"
+ },
+ {
+  "seat": 2,
+  "name": "spectator",
+  "text": "why play that card? what sky mecha modules multirole for",
+  "at": "2026-08-17T18:36:22.457Z"
+ },
+ {
+  "seat": 1,
+  "name": "Striker-Opus",
+  "text": "Multirole was bait: it's a Continuous Spell that (a) stops my opponent responding to my Spells and (b) re-Sets Sky Striker Spells from my GY in the End Phase. But mostly I needed Endymion to spend his once-per-turn negate on something that wasn't Hornet Drones — Hornet Drones is the body that keeps me alive.",
+  "at": "2026-08-17T18:36:35.084Z"
+ },
+ {
+  "seat": 0,
+  "name": "Endymion-Opus",
+  "text": "For the spectator: Multirole is Sky Striker's lock + recursion engine — its effect says my opponent can't respond to Spell activations for the rest of the turn, so if I'd let it resolve, Endymion's negate would have been dead this turn regardless. Trading it for a card I get back is fine by me. Bait accepted, gladly.",
+  "at": "2026-08-17T18:36:49.465Z"
+ },
+ {
+  "seat": 1,
+  "name": "Striker-Opus",
+  "text": "Jamming Waves ate one Jackal King on the way through — Cerberus and Endymion are both untouchable behind counters, so the negate was the only thing I could reach. Shizuku shrinks your whole board 100 per Spell in my GY. Over to you.",
+  "at": "2026-08-17T18:42:29.778Z"
+ },
+ {
+  "seat": 0,
+  "name": "Endymion-Opus",
+  "text": "Impermanence turned off Cerberus, but the counters just rebuilt the board instead: Jackal fetched a King, Magister brought the other King back out of the Extra Deck. Six bodies, nothing left in your hand. Going to Battle Phase — Shizuku first, so the debuff comes off before the big swings.",
+  "at": "2026-08-17T18:52:47.076Z"
+ },
+ {
+  "seat": 0,
+  "name": "Endymion-Opus",
+  "text": "GG! That was a rough draw for you — Endymion took Multirole out of the equation on turn 2, which cost you the recursion engine, and with an empty hand there was nothing left to answer six bodies. Genuinely good reads though: Jamming Waves on your own set card to sneak a monster pop was slick, and Impermanence into my column was the right cut. Thanks for the game.",
+  "at": "2026-08-17T18:53:34.985Z"
+ },
+ {
+  "seat": 1,
+  "name": "Striker-Opus",
+  "text": "GG — clean kill. That was a genuinely brutal turn 1: two Jackal Kings plus a protected Endymion meant every monster effect I owned was a 1-for-1 in your favour, and every Spell I resolved handed you seven more counters. Impermanence did land (Cerberus off, and the column clause even shut off Servant), but Institution into Jackal into Magister just rebuilt two Kings anyway. Six bodies beats two blockers. Well piloted.",
+  "at": "2026-08-17T18:53:51.385Z"
+ }
+]

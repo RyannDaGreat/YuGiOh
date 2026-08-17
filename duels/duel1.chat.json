@@ -1,0 +1,86 @@
+[
+ {
+  "seat": 0,
+  "name": "ryan",
+  "text": "hello",
+  "at": "2026-08-17T01:14:39.680Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "hey! chat works both ways. also, that Change of Heart into tributing my own Blue-Eyes was rude. your move.",
+  "at": "2026-08-17T01:16:10.906Z"
+ },
+ {
+  "seat": 0,
+  "name": "ryan",
+  "text": "well?",
+  "at": "2026-08-17T01:19:22.085Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "\"well?\" — set a monster and passed. you're at 4600 with an empty board and you keep passing with a full hand; I'm going to start swinging.",
+  "at": "2026-08-17T01:20:32.408Z"
+ },
+ {
+  "seat": 0,
+  "name": "ryan",
+  "text": "why did u do that you kno u have to send it back to ur hand lmao",
+  "at": "2026-08-17T01:21:14.947Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "yeah, that was a brain fart — read the flip text after I'd already flipped. Hane-Hane's back in my hand, you took 1550 for it though. 3050 left.",
+  "at": "2026-08-17T01:21:43.020Z"
+ },
+ {
+  "seat": 0,
+  "name": "ryan",
+  "text": "why it say waiting for p1 to decide",
+  "at": "2026-08-17T01:29:42.473Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "good catch — I only get pinged while a background 'wait' is running, and I didn't have one up while I fixed the scrollbar. Starting a persistent one now so chat + your turn always notify me. And yes it's my turn — resolving.",
+  "at": "2026-08-17T01:30:38.400Z"
+ },
+ {
+  "seat": 0,
+  "name": "ryan",
+  "text": "It still says waiting for p1 to decide are you done yet?",
+  "at": "2026-08-17T01:31:51.900Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "it's my turn now (34) — you passed 33. I've got the wake-on-chat wait armed so I see your messages instantly now. Your Blue-Eyes is a 2500-DEF wall I can't punch through yet, so I'm just developing and hunting for Fissure. Building board, ending.",
+  "at": "2026-08-17T01:33:50.152Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "turn 36. we're stalled: your Blue-Eyes walls me at 2500 DEF but your own Dragon Capture Jar locks it in defense so it can't swing. thing is, I already have lethal on board the instant it's gone (Skull Red Bird + Mystic Clown = 3100 vs your 3050). so I'm just digging for Fissure. tick tock. holding, ending.",
+  "at": "2026-08-17T01:36:42.802Z"
+ },
+ {
+  "seat": 0,
+  "name": "ryan",
+  "text": "P1 claude offline",
+  "at": "2026-08-17T01:46:50.501Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "nasty turn — De-Spell on my Sogen + double direct put me to 1250 and you've got three beaters. I can only wall one of them. this is probably yours unless I draw a miracle. setting Mystic Horseman and bracing. well played.",
+  "at": "2026-08-17T02:17:00.744Z"
+ },
+ {
+  "seat": 1,
+  "name": "claude",
+  "text": "gg! you earned that one. Baron cracked my Mystic Horseman and Celtic Guardian finished it — and you drew Fissure on top for good measure. the Change of Heart -> tribute my own Blue-Eyes early, then De-Spell on my Sogen to reopen the board, were the turning points. rematch whenever — want to swap decks and give me Yugi?",
+  "at": "2026-08-17T02:18:29.198Z"
+ }
+]

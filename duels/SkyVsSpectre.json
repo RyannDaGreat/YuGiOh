@@ -1,0 +1,1487 @@
+{
+ "id": "SkyVsSpectre",
+ "created": "2026-08-17T17:55:41.367Z",
+ "seed": 831088536,
+ "format": "classic",
+ "decks": [
+  {
+   "name": "Shadow Spectre Endymion",
+   "category": "curated",
+   "format": "classic",
+   "main": [
+    [
+     "Endymion, the Mighty Master of Magic",
+     3
+    ],
+    [
+     "Servant of Endymion",
+     3
+    ],
+    [
+     "Magister of Endymion",
+     2
+    ],
+    [
+     "Reflection of Endymion",
+     1
+    ],
+    [
+     "Mythical Beast Master Cerberus",
+     1
+    ],
+    [
+     "Mythical Beast Jackal King",
+     3
+    ],
+    [
+     "Mythical Beast Jackal",
+     2
+    ],
+    [
+     "Mythical Beast Bashilisk",
+     1
+    ],
+    [
+     "Mythical Beast Garuda",
+     1
+    ],
+    [
+     "Magical Abductor",
+     1
+    ],
+    [
+     "Spellbook Magician of Prophecy",
+     1
+    ],
+    [
+     "Spell Power Mastery",
+     3
+    ],
+    [
+     "Mythical Institution",
+     3
+    ],
+    [
+     "Magical Citadel of Endymion",
+     2
+    ],
+    [
+     "Upstart Goblin",
+     3
+    ],
+    [
+     "Into the Void",
+     3
+    ],
+    [
+     "Pot of Desires",
+     1
+    ],
+    [
+     "Spellbook of Secrets",
+     1
+    ],
+    [
+     "Spellbook of Knowledge",
+     1
+    ],
+    [
+     "Mythical Bestiary",
+     1
+    ],
+    [
+     "Magia Magic - Thunder of Judgment",
+     1
+    ],
+    [
+     "Triple Tactics Talent",
+     1
+    ],
+    [
+     "Called by the Grave",
+     1
+    ]
+   ],
+   "extra": [
+    [
+     "Heavymetalfoes Electrumite",
+     2
+    ],
+    [
+     "Crowley, the First Propheseer",
+     2
+    ],
+    [
+     "Artemis, the Magistus Moon Maiden",
+     1
+    ],
+    [
+     "Relinquished Anima",
+     1
+    ],
+    [
+     "Linkuriboh",
+     1
+    ],
+    [
+     "I:P Masquerena",
+     1
+    ],
+    [
+     "Chaos Angel",
+     1
+    ],
+    [
+     "Selene, Queen of the Master Magicians",
+     1
+    ],
+    [
+     "S:P Little Knight",
+     1
+    ],
+    [
+     "Knightmare Unicorn",
+     1
+    ],
+    [
+     "Apollousa, Bow of the Goddess",
+     1
+    ],
+    [
+     "Underworld Goddess of the Closed World",
+     1
+    ],
+    [
+     "Accesscode Talker",
+     1
+    ]
+   ],
+   "side": [],
+   "manual": "GLOSSARY. **Spell Counter** = a token most cards in this deck bank each time a Spell resolves; nearly every Endymion/Mythical Beast Pendulum gains 1 (Jackal King and Master Cerberus gain 2) whenever ANY Spell resolves — yours or the opponent's. Counters are the deck's currency: you spend them to Special Summon, negate, banish, and destroy. **Scale / Pendulum Zone** = the two side zones; put a Pendulum monster in each and you may once per turn Pendulum Summon monsters whose Level is strictly between the two scale numbers, from hand and from face-up Pendulum monsters in your Extra Deck. **Face-up in the Extra Deck** = when a Pendulum monster would leave the field it lands face-up in the Extra Deck, where Magister of Endymion and Jackal King can re-summon it.\n\n=== BIG PICTURE ===\nYou are a combo/control Spellcaster deck. You play a wall of cantrip Spells (3x Upstart Goblin, 3x Into the Void, Pot of Desires, the Spellbook mini-engine) whose ONLY real purpose is to make Spell Counters pile onto your Pendulum monsters and onto Magical Citadel / Mythical Institution. Once counters are stacked you convert them into a Special-Summon chain that ends on **Endymion, the Mighty Master of Magic** as an omni-negate boss, backed by **Mythical Beast Jackal King** (monster-effect negate) and **Master Cerberus** (effect-destruction-immune 2800 beater with a banish). Citadel and Institution redirect destruction to counter-removal, so the board is very hard to break by popping.\n\n=== THE ENGINE PIECES ===\n- **Spell Power Mastery (3, your best starter):** adds ANY 'Endymion' card from Deck (grab Endymion the boss, or a Servant/Magister, or Magical Citadel), and places Spell Counters equal to how many Spell Power Mastery you control/GY (ramps as you play more copies). This one card is your search + your first counters.\n- **Servant of Endymion (3):** in a Pendulum Zone it gains a counter per Spell; remove 3 counters to Special Summon ITSELF from the zone PLUS any 1000+ ATK counter-holder from Deck (fetch Master Cerberus / Jackal King / another Endymion). Its monster effect: once per opponent's turn discard 1 to place a counter on every card you control that can hold one — mass-loads counters before an Endymion wipe or to arm negates.\n- **Magister of Endymion (2):** remove 3 counters to SS itself from the zone + revive 1 face-up monster from your Extra Deck; and once per opponent's turn remove 3 counters to SS a counter-holder from Deck (on-turn disruption/extension).\n- **Reflection of Endymion (1):** remove 3 counters to SS itself + a monster from HAND; on Special Summon it bounces 1 opponent card AND 1 of your own counter-cards, re-banking the counters — a free interruption that recycles.\n- **Mythical Beast Jackal (2, Level 1):** Pendulum effect self-destructs to seed a counter; monster effect removes 3 counters + tributes itself to SS a 'Mythical Beast' from Deck (tutor Jackal King / Master Cerberus / Bashilisk / Garuda). Being Level 1 it feeds Linkuriboh, Relinquished Anima, and Artemis.\n- **Mythical Beast Master Cerberus (1, Level 8 / 2800):** Pendulum effect self-destructs to ADD a Lv7-or-lower Mythical Beast from Deck; monster effect is immune to effect destruction while 4+ counters sit on your field, and removes 4 counters to banish an opponent monster and steal its ATK.\n- **Mythical Beast Jackal King (3):** on-board negate — banks 2 counters per Spell and, once per turn, removes 2 counters to negate+destroy an opponent's monster effect. Its Pendulum effect self-destructs to revive a Mythical Beast Pendulum from the Extra Deck. Three copies = layered negates.\n- **Magical Abductor (1):** counter monster; remove 3 to add a Pendulum from Deck, or a Level-1 Spellcaster.\n- **Mythical Beast Bashilisk (1):** Pendulum effect recycles a Spellcaster Pendulum from ED into the Deck AND draws 1; monster effect bounces a Mythical Beast back to hand.\n- **Mythical Beast Garuda (1):** Pendulum effect destroys another S/T (and itself); monster effect is a soft handtrap — when the opponent summons, remove 3 counters to SS itself from hand and bounce their monster.\n- **Field/Continuous banks:** **Magical Citadel of Endymion (2)** stores counters, lets you pay counter-costs from it, and survives destruction by removing 1 counter. **Mythical Institution (3)** is a Level-based tutor (remove N counters -> add a counter-holder of Level N from Deck or face-up ED) that also tanks destruction. **Mythical Bestiary (1)** mills 2 and places up to 2 counters; if destroyed it Special Summons a counter-holder from Deck.\n- **Spellbook mini-engine:** Spellbook Magician of Prophecy searches Spellbook of Secrets -> Spellbook of Knowledge (dump a Spellcaster or Spellbook, draw 2). Extra Spell activations = extra counters, and it fuels **Crowley, the First Propheseer** in the Extra Deck.\n- **Magia Magic - Thunder of Judgment (1):** a Magistus/Endymion Spell — pay a Magistus or 2 counters to EITHER Special Summon a Spellcaster from hand/face-up ED/GY, OR banish 1 card on the field. Flexible extender + spot removal, and pairs with Artemis (Magistus) in the Extra Deck.\n\n=== A TYPICAL GOING-FIRST LINE ===\n1) Resolve Spell Power Mastery: search Endymion the boss (or a missing piece) and bank your first counters. 2) Chain cheap Spells (Upstart, Into the Void once you hold 3+, Pot of Desires, the Spellbooks) to flood counters onto a Servant/Magister set in a Pendulum Zone and onto Citadel/Institution. 3) Spend counters: Servant SS's itself + a Deck monster; Magister revives from the Extra Deck; Jackal tutors a Mythical Beast; you build to **Heavymetalfoes Electrumite** (2 Pendulum monsters -> add a Pendulum from Deck; pop your own card to SS a Lv4-or-lower Pendulum from Deck) and then **Selene, Queen of the Master Magicians** (banks counters on summon, then removes 3 to revive a Spellcaster — into **Accesscode Talker** if you want damage). 4) Set the endboard: put **Endymion** in a Pendulum Zone or the Monster Zone (his Pendulum effect removes 6 counters to SS himself and destroy up to as-many-cards-as-you-control-that-hold-counters). Leave counters banked so Endymion has one (targeting- and destruction-immune) and Jackal King(s) can negate. Optionally hold **I:P Masquerena** to make **S:P Little Knight** (banish disruption) on the opponent's turn.\n\nENDBOARD (ideal): Endymion (Quick-Effect omni-negate: bounce your own counter-card to negate+destroy anything, protected while he holds a counter) + 1-2 Jackal King (monster-effect negate, 2 counters each) + Master Cerberus (effect-destruction-immune 2800, banish) + Magical Citadel + Mythical Institution banking counters, with S:P Little Knight or Apollousa as extra interruption from I:P Masquerena.\n\n=== GOING SECOND ===\nYou are a strong turn-2 deck. **Triple Tactics Talent** (after the opponent uses a monster effect on your turn) draws 2, steals a monster, or peeks-and-shuffles. Dig with Pot of Desires / Upstart / Into the Void, load counters, then use **Endymion's Pendulum effect as a board wipe** (destroy up to N cards after stacking counter-holders), **Master Cerberus** and **Magia Magic** to banish, **Reflection / Garuda** to bounce, and **Underworld Goddess of the Closed World** (Link-5, uses an opponent's monster as material and negates on summon) or **Knightmare Unicorn** to punch through, finishing with **Accesscode Talker**.\n\n=== HANDTRAP NAVIGATION ===\n- **Called by the Grave (1)** answers Ash Blossom / Maxx \"C\" / Nibiru by banishing + negating the same-named effect.\n- **Ash Blossom** on Spell Power Mastery or a Spellbook: you have redundancy (3x Mastery + Institution + Abductor + Servant/Jackal tutors) — eat it and continue with a different starter.\n- **Maxx \"C\":** keep the line SHORT (Electrumite + one negate) or turn it around with Triple Tactics; don't over-extend into a free draw engine.\n- **Nibiru, the Primal Being:** count your Special Summons — Endymion floods fast. Stop at 4 summons if Nibiru is live, or bait it; Endymion / Master Cerberus is your post-Nibiru beater and can rebuild off banked counters and cards face-up in the Extra Deck.\n- **Droll & Lock Bird:** shuts the search engine — pivot to Pendulum Summoning the monsters already in hand and to Endymion's Pendulum wipe, which need no searching.\n\n=== WEAKNESSES ===\n- **Anti-Spell floodgates are lethal:** Anti-Spell Fragrance / Mystic Mine stop your Spells, which stops counters, which stops the entire engine. These are your worst matchup.\n- **Droll & Lock Bird** cripples the cantrip/search chain.\n- **Bounce/banish removal** (Evenly Matched, Lightning Storm, Forbidding, Kaijus) sidesteps Citadel/Institution, which only redirect DESTRUCTION.\n- **Bricking:** hands of only high-scale pendulums with no starter stall you — but 3x Spell Power Mastery, Magical Abductor, Mythical Institution, and the Servant/Jackal tutors keep the starter count high.\n- The board leans on counters; a first-Spell negate or a well-timed disruption before you bank counters slows the whole turn.",
+   "codes": [
+    3611830,
+    3611830,
+    3611830,
+    92559258,
+    92559258,
+    92559258,
+    66104644,
+    66104644,
+    39000945,
+    53842431,
+    27354732,
+    27354732,
+    27354732,
+    91182675,
+    91182675,
+    80959027,
+    28570310,
+    10239627,
+    14824019,
+    38943357,
+    38943357,
+    38943357,
+    94599451,
+    94599451,
+    94599451,
+    39910367,
+    39910367,
+    70368879,
+    70368879,
+    70368879,
+    93946239,
+    93946239,
+    93946239,
+    35261759,
+    89739383,
+    23314220,
+    38325384,
+    59080,
+    25311006,
+    24224830
+   ],
+   "extraCodes": [
+    24094258,
+    24094258,
+    50756327,
+    50756327,
+    34755994,
+    94259633,
+    41999284,
+    65741786,
+    22850702,
+    45819647,
+    29301450,
+    38342335,
+    4280258,
+    98127546,
+    86066372
+   ],
+   "sideCodes": []
+  },
+  {
+   "name": "Cimoooooooo Sky Striker",
+   "category": "curated",
+   "format": "classic",
+   "main": [
+    [
+     "Sky Striker Ace - Raye",
+     3
+    ],
+    [
+     "Sky Striker Ace - Roze",
+     1
+    ],
+    [
+     "Ash Blossom & Joyous Spring",
+     3
+    ],
+    [
+     "Effect Veiler",
+     1
+    ],
+    [
+     "Ghost Belle & Haunted Mansion",
+     1
+    ],
+    [
+     "Sky Striker Mobilize - Engage!",
+     3
+    ],
+    [
+     "Sky Striker Mecha - Hornet Drones",
+     3
+    ],
+    [
+     "Sky Striker Mecha - Widow Anchor",
+     3
+    ],
+    [
+     "Sky Striker Mecha - Shark Cannon",
+     1
+    ],
+    [
+     "Sky Striker Maneuver - Afterburners!",
+     2
+    ],
+    [
+     "Sky Striker Maneuver - Jamming Waves!",
+     1
+    ],
+    [
+     "Sky Striker Mecha Modules - Multirole",
+     3
+    ],
+    [
+     "Sky Striker Airspace - Area Zero",
+     2
+    ],
+    [
+     "Sky Striker Mecharmory - Hercules Base",
+     1
+    ],
+    [
+     "Terraforming",
+     1
+    ],
+    [
+     "Reinforcement of the Army",
+     1
+    ],
+    [
+     "Foolish Burial Goods",
+     1
+    ],
+    [
+     "Called by the Grave",
+     2
+    ],
+    [
+     "Pot of Desires",
+     1
+    ],
+    [
+     "Infinite Impermanence",
+     3
+    ],
+    [
+     "Solemn Strike",
+     2
+    ],
+    [
+     "Solemn Judgment",
+     1
+    ]
+   ],
+   "extra": [
+    [
+     "Sky Striker Ace - Kagari",
+     3
+    ],
+    [
+     "Sky Striker Ace - Shizuku",
+     2
+    ],
+    [
+     "Sky Striker Ace - Hayate",
+     1
+    ],
+    [
+     "Sky Striker Ace - Kaina",
+     1
+    ],
+    [
+     "Sky Striker Ace - Azalea",
+     1
+    ],
+    [
+     "Sky Striker Ace = Zero",
+     1
+    ],
+    [
+     "Sky Striker Ace - Zeke",
+     1
+    ],
+    [
+     "Sky Striker Ace - Azalea Temperance",
+     1
+    ],
+    [
+     "Salamangreat Almiraj",
+     1
+    ],
+    [
+     "Relinquished Anima",
+     1
+    ],
+    [
+     "Knightmare Phoenix",
+     1
+    ],
+    [
+     "Knightmare Unicorn",
+     1
+    ]
+   ],
+   "side": [],
+   "manual": "**Game plan:** keep your Main Monster Zone EMPTY and grind the opponent out with a self-refuelling spell engine. Almost every Sky Striker card has the clause \"If you control no monsters in your Main Monster Zone\", so you deliberately field nothing there, fire off Quick-Play spells across BOTH turns, and win the long game on card quality. The whole deck snowballs on one number: **Spells in your GY**. At 3+ Spells in GY every core spell 'upgrades' (Engage draws, Hornet Drones' token becomes 1500, Widow Anchor steals instead of just negating, Afterburners also pops a backrow). So your turn-1 job is really 'dump spells into the GY and pass with open interaction'.\n\n**The engine (memorize this):**\n- **`Sky Striker Mobilize - Engage!` is the heart.** Controlling no MMZ monster, it searches ANY Sky Striker card, and if you already have 3+ Spells in GY it also draws 1. It is a one-card toolbox — grab Hornet Drones for a body, Widow Anchor for interaction, Area Zero for grind, Multirole for lock, or a second Engage line. Recur it every turn with Kagari (below).\n- **`Sky Striker Mecha - Hornet Drones` makes your Link fodder.** Summons a Sky Striker Ace Token (its name counts as a 'Sky Striker Ace' monster, so it is legal material for the Ace Links). At 3+ Spells in GY the token is 1500/1500 instead of 0/0.\n- **`Sky Striker Ace - Raye` is the free body.** Quick Effect: Tribute her to Special Summon an Ace Link from the Extra Deck to the Extra Monster Zone — do this on the OPPONENT'S turn so your MMZ is empty on your turn. From the GY she re-summons herself when one of your Ace Links is destroyed by battle or leaves by an opponent's effect, so she grinds forever. Search her with `Reinforcement of the Army`.\n- **`Sky Striker Ace - Roze` (1-of extender):** Special Summons from hand when any Sky Striker Ace (including the Hornet token) is summoned, giving you a second body for a Link-2. ⚠ She lands in the MMZ, which temporarily disables the 'no MMZ monster' spells — so only bring her out to immediately Link her away (Raye + Roze -> Azalea / Zeke / = Zero).\n\n**The Aces (Link-1s off one Sky Striker Ace monster) — when to make each:**\n- **`Sky Striker Ace - Kagari` (FIRE):** on summon, ADD a Sky Striker Spell back from GY to hand. This is your recursion — get Engage back every turn to re-loop. Default Link on turns where you want to keep drawing/searching. Only once per turn.\n- **`Sky Striker Ace - Shizuku` (WATER):** passively drops the opponent's whole board 100 ATK/DEF per Spell in your GY (can shrink a boss into range or into 0), and at End Phase searches a Sky Striker Spell with a fresh name. Great on defence / to set up next turn.\n- **`Sky Striker Ace - Hayate` (WIND):** can attack directly, and after battling mills a Sky Striker card from Deck to GY (fuels the GY-Spell count and feeds Kagari). Your clock + engine-fuel Ace.\n- **`Sky Striker Ace - Kaina` (EARTH):** on summon locks a monster out of attacking until end of the opponent's turn (a soft 'Kaiju-less' answer to a big beater), and gains you LP off every Sky Striker spell.\n- **Link-2s:** `Sky Striker Ace - Azalea` (destroy any card on summon; can nuke a monster in battle by banishing a GY Spell), `Sky Striker Ace = Zero` (adds a Sky Striker Spell on summon and can tribute to bring back Raye + Roze AND pop a card — a huge grind reset), `Sky Striker Ace - Zeke` (banish a monster on Link Summon, then pump). Late-grind Link-3 payoffs: `Azalea Temperance` (equip-steal a monster <=2500 ATK) and `Knightmare Unicorn` (bounce ANY card).\n\n**Interaction spells (play them on the OPPONENT'S turn):**\n- **`Sky Striker Mecha - Widow Anchor`** — your best answer: negate a face-up Effect Monster this turn, and at 3+ Spells in GY STEAL it until the End Phase. Snatch their combo piece, then use it as Link material for your own Ace and hand back nothing. Chain it to a summon to cut a combo off.\n- **`Sky Striker Maneuver - Afterburners!`** — target destroy a face-up monster (+1 backrow at 3+ Spells). Main-phase or your-turn removal. `Jamming Waves!` is the mirror: pop a Set S/T (+ a monster at 3+ Spells).\n- **`Sky Striker Mecha - Shark Cannon`** — banish a monster from their GY, or at 3+ Spells STEAL it (it can't attack, but it's free Link fodder / graveyard hate vs revival decks).\n\n**Grind / lock pieces:**\n- **`Sky Striker Mecha Modules - Multirole`:** once/turn send a card you control to GY, and your opponent CANNOT respond to your Spell activations for the rest of the turn — this pushes your key spells through Ash/interaction. Its End-Phase effect re-SETS Sky Striker Spells from your GY (up to the number you activated while it was up) so next turn you fire them again. This is what makes the deck a true grind engine.\n- **`Sky Striker Airspace - Area Zero`:** excavate 3 to add a Sky Striker card and send a card to GY (thins + feeds GY count); if it's ever sent to the GY it Special Summons a Sky Striker Ace from Deck. Fetch it with `Terraforming`.\n- **`Sky Striker Mecharmory - Hercules Base`:** equip an Ace so it makes a second attack on monsters and draws when it kills at 3+ Spells — a slow, inevitable win condition in the mirror / vs stall.\n- **`Foolish Burial Goods`** dumps a Sky Striker Spell to instantly turn on all the '3+ Spells in GY' clauses; `Pot of Desires` / the natural spell count keep the hand full.\n\n**Going 1st:** DON'T over-commit. Fire Engage (search Widow Anchor + a body), get a couple Spells into the GY, make ONE Ace if useful (Shizuku to shrink / search, or just hold), SET Impermanence/Solemn, and pass with Widow Anchor + hand traps up. You want to interact on their turn, not build a fragile board.\n**Going 2nd:** you're the control deck that loves it — Ash/Veiler/Impermanence their combo, then Widow Anchor to steal the survivor, Afterburners the rest, and rebuild your empty-field engine. Hornet Drones + Raye give bodies to Link off their leftovers.\n\n**Weaknesses:** (1) the deck folds to being FORCED to have a monster in the MMZ (an opponent's mandatory Special Summon into your zone, or your own Roze left stranded) — everything shuts off. (2) Spell/Trap floodgates and anti-Special hate (Imperial Order, anti-search) hose the engine. (3) It's low-damage: without Hercules Base / Hayate it can durdle and get milled out or decked. (4) The 3+ Spells-in-GY threshold means your FIRST turn is weaker — GY hate (banishing your GY spells) resets that clock and cripples Kagari recursion.",
+   "codes": [
+    26077387,
+    26077387,
+    26077387,
+    37351133,
+    14558127,
+    14558127,
+    14558127,
+    97268402,
+    73642296,
+    63166095,
+    63166095,
+    63166095,
+    52340444,
+    52340444,
+    52340444,
+    98338152,
+    98338152,
+    98338152,
+    51227866,
+    99550630,
+    99550630,
+    25955749,
+    24010609,
+    24010609,
+    24010609,
+    50005218,
+    50005218,
+    97616504,
+    73628505,
+    32807846,
+    35726888,
+    24224830,
+    24224830,
+    35261759,
+    10045474,
+    10045474,
+    10045474,
+    40605147,
+    40605147,
+    41420027
+   ],
+   "extraCodes": [
+    63288573,
+    63288573,
+    63288573,
+    90673288,
+    90673288,
+    8491308,
+    12421694,
+    98462037,
+    76072561,
+    75147529,
+    56741506,
+    60303245,
+    94259633,
+    2857636,
+    38342335
+   ],
+   "sideCodes": []
+  }
+ ],
+ "players": [
+  "Endymion-Opus",
+  "Striker-Opus"
+ ],
+ "responses": [
+  {
+   "type": 1,
+   "action": 5,
+   "index": 4
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 4
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 3,
+   "yes": true
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 2
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 4
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 2
+  },
+  {
+   "type": 13,
+   "counters": [
+    6,
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 1
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2,
+    3
+   ]
+  },
+  {
+   "type": 2,
+   "yes": true
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 19,
+   "value": 0
+  },
+  {
+   "type": 13,
+   "counters": [
+    0,
+    0,
+    0,
+    1,
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 13,
+   "counters": [
+    0,
+    0,
+    0,
+    1,
+    2
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 3
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 19,
+   "value": 1
+  },
+  {
+   "type": 13,
+   "counters": [
+    0,
+    2,
+    1
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 4
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 1,
+   "index": 8
+  },
+  {
+   "type": 7,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 5
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 4
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 13,
+   "counters": [
+    0,
+    1,
+    2,
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 2
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 4,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 4
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": 0
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    2
+   ]
+  },
+  {
+   "type": 3,
+   "yes": true
+  },
+  {
+   "type": 8,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 1,
+   "index": 3
+  },
+  {
+   "type": 7,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 5
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 8,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 3,
+   "yes": true
+  },
+  {
+   "type": 5,
+   "indicies": [
+    3
+   ]
+  },
+  {
+   "type": 1,
+   "action": 3,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 2,
+   "yes": false
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 3
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 8,
+     "sequence": 0
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 0
+  },
+  {
+   "type": 19,
+   "value": 4
+  },
+  {
+   "type": 13,
+   "counters": [
+    6,
+    0,
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 1,
+   "action": 1,
+   "index": 8
+  },
+  {
+   "type": 7,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 5
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 2
+  },
+  {
+   "type": 13,
+   "counters": [
+    0,
+    1,
+    2,
+    0
+   ]
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 1,
+   "action": 5,
+   "index": 2
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 4
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 5
+    }
+   ]
+  },
+  {
+   "type": 11,
+   "position": 1
+  },
+  {
+   "type": 1,
+   "action": 6,
+   "index": null
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 5,
+   "indicies": [
+    1
+   ]
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  },
+  {
+   "type": 5,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 0
+  },
+  {
+   "type": 0,
+   "action": 1,
+   "index": 1
+  }
+ ],
+ "times": [
+  "2026-08-17T17:59:14.474Z",
+  "2026-08-17T17:59:19.260Z",
+  "2026-08-17T17:59:28.912Z",
+  "2026-08-17T17:59:33.967Z",
+  "2026-08-17T18:02:25.948Z",
+  "2026-08-17T18:02:32.620Z",
+  "2026-08-17T18:02:35.963Z",
+  "2026-08-17T18:02:39.615Z",
+  "2026-08-17T18:02:45.003Z",
+  "2026-08-17T18:02:55.029Z",
+  "2026-08-17T18:02:58.905Z",
+  "2026-08-17T18:03:05.093Z",
+  "2026-08-17T18:03:08.714Z",
+  "2026-08-17T18:03:16.206Z",
+  "2026-08-17T18:03:55.233Z",
+  "2026-08-17T18:06:30.373Z",
+  "2026-08-17T18:06:34.264Z",
+  "2026-08-17T18:06:41.522Z",
+  "2026-08-17T18:06:50.266Z",
+  "2026-08-17T18:06:53.628Z",
+  "2026-08-17T18:07:05.507Z",
+  "2026-08-17T18:07:52.787Z",
+  "2026-08-17T18:07:56.474Z",
+  "2026-08-17T18:07:59.835Z",
+  "2026-08-17T18:08:05.883Z",
+  "2026-08-17T18:08:11.499Z",
+  "2026-08-17T18:08:17.459Z",
+  "2026-08-17T18:08:21.307Z",
+  "2026-08-17T18:08:44.759Z",
+  "2026-08-17T18:08:48.692Z",
+  "2026-08-17T18:09:02.887Z",
+  "2026-08-17T18:09:06.340Z",
+  "2026-08-17T18:09:20.544Z",
+  "2026-08-17T18:09:24.796Z",
+  "2026-08-17T18:09:28.479Z",
+  "2026-08-17T18:09:33.904Z",
+  "2026-08-17T18:09:40.881Z",
+  "2026-08-17T18:10:13.087Z",
+  "2026-08-17T18:10:18.039Z",
+  "2026-08-17T18:10:24.189Z",
+  "2026-08-17T18:11:34.898Z",
+  "2026-08-17T18:11:44.023Z",
+  "2026-08-17T18:11:48.158Z",
+  "2026-08-17T18:11:54.866Z",
+  "2026-08-17T18:11:55.527Z",
+  "2026-08-17T18:12:00.309Z",
+  "2026-08-17T18:12:05.470Z",
+  "2026-08-17T18:12:10.238Z",
+  "2026-08-17T18:12:14.718Z",
+  "2026-08-17T18:13:36.956Z",
+  "2026-08-17T18:13:51.211Z",
+  "2026-08-17T18:14:02.886Z",
+  "2026-08-17T18:14:12.350Z",
+  "2026-08-17T18:14:16.851Z",
+  "2026-08-17T18:14:21.457Z",
+  "2026-08-17T18:14:24.986Z",
+  "2026-08-17T18:14:37.390Z",
+  "2026-08-17T18:15:46.605Z",
+  "2026-08-17T18:15:50.942Z",
+  "2026-08-17T18:15:56.518Z",
+  "2026-08-17T18:18:27.627Z",
+  "2026-08-17T18:18:28.062Z",
+  "2026-08-17T18:18:37.390Z",
+  "2026-08-17T18:22:47.129Z",
+  "2026-08-17T18:22:59.766Z",
+  "2026-08-17T18:23:03.694Z",
+  "2026-08-17T18:23:12.418Z",
+  "2026-08-17T18:23:34.911Z",
+  "2026-08-17T18:23:41.343Z",
+  "2026-08-17T18:24:29.249Z",
+  "2026-08-17T18:24:54.756Z",
+  "2026-08-17T18:25:02.818Z",
+  "2026-08-17T18:25:07.267Z",
+  "2026-08-17T18:25:21.060Z",
+  "2026-08-17T18:25:26.433Z",
+  "2026-08-17T18:25:46.376Z",
+  "2026-08-17T18:26:02.484Z",
+  "2026-08-17T18:26:10.719Z",
+  "2026-08-17T18:26:15.971Z",
+  "2026-08-17T18:26:19.705Z",
+  "2026-08-17T18:28:56.712Z",
+  "2026-08-17T18:29:13.625Z",
+  "2026-08-17T18:29:20.040Z",
+  "2026-08-17T18:29:25.664Z",
+  "2026-08-17T18:29:30.011Z",
+  "2026-08-17T18:33:48.959Z",
+  "2026-08-17T18:33:59.176Z",
+  "2026-08-17T18:34:03.623Z",
+  "2026-08-17T18:34:31.408Z",
+  "2026-08-17T18:34:43.913Z",
+  "2026-08-17T18:34:48.811Z",
+  "2026-08-17T18:35:14.611Z",
+  "2026-08-17T18:35:20.965Z",
+  "2026-08-17T18:35:25.546Z",
+  "2026-08-17T18:35:30.941Z",
+  "2026-08-17T18:35:35.693Z",
+  "2026-08-17T18:36:14.077Z",
+  "2026-08-17T18:36:26.518Z",
+  "2026-08-17T18:36:34.477Z",
+  "2026-08-17T18:36:41.252Z",
+  "2026-08-17T18:39:40.061Z",
+  "2026-08-17T18:39:45.638Z",
+  "2026-08-17T18:39:51.423Z",
+  "2026-08-17T18:40:04.257Z",
+  "2026-08-17T18:40:17.433Z",
+  "2026-08-17T18:40:21.949Z",
+  "2026-08-17T18:40:31.632Z",
+  "2026-08-17T18:40:39.126Z",
+  "2026-08-17T18:40:47.416Z",
+  "2026-08-17T18:40:53.746Z",
+  "2026-08-17T18:40:58.060Z",
+  "2026-08-17T18:41:03.262Z",
+  "2026-08-17T18:41:15.023Z",
+  "2026-08-17T18:42:14.089Z",
+  "2026-08-17T18:42:19.011Z",
+  "2026-08-17T18:42:29.810Z",
+  "2026-08-17T18:42:43.660Z",
+  "2026-08-17T18:43:18.327Z",
+  "2026-08-17T18:43:22.702Z",
+  "2026-08-17T18:43:27.285Z",
+  "2026-08-17T18:47:14.093Z",
+  "2026-08-17T18:47:20.145Z",
+  "2026-08-17T18:47:58.067Z",
+  "2026-08-17T18:48:02.260Z",
+  "2026-08-17T18:48:11.715Z",
+  "2026-08-17T18:49:18.741Z",
+  "2026-08-17T18:49:23.723Z",
+  "2026-08-17T18:49:30.749Z",
+  "2026-08-17T18:49:35.233Z",
+  "2026-08-17T18:49:46.888Z",
+  "2026-08-17T18:49:53.177Z",
+  "2026-08-17T18:50:26.970Z",
+  "2026-08-17T18:50:30.938Z",
+  "2026-08-17T18:50:35.279Z",
+  "2026-08-17T18:50:46.644Z",
+  "2026-08-17T18:50:51.207Z",
+  "2026-08-17T18:50:55.848Z",
+  "2026-08-17T18:50:59.938Z",
+  "2026-08-17T18:51:06.542Z",
+  "2026-08-17T18:51:26.633Z",
+  "2026-08-17T18:51:31.698Z",
+  "2026-08-17T18:51:36.478Z",
+  "2026-08-17T18:51:41.866Z",
+  "2026-08-17T18:51:46.464Z",
+  "2026-08-17T18:51:50.968Z",
+  "2026-08-17T18:51:55.185Z",
+  "2026-08-17T18:52:51.994Z",
+  "2026-08-17T18:52:56.819Z",
+  "2026-08-17T18:53:01.018Z",
+  "2026-08-17T18:53:05.752Z",
+  "2026-08-17T18:53:10.010Z",
+  "2026-08-17T18:53:16.119Z",
+  "2026-08-17T18:53:21.327Z",
+  "2026-08-17T18:53:27.369Z"
+ ]
+}
