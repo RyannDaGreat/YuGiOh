@@ -49,6 +49,17 @@ const stmtSearch = db.prepare(
   "SELECT t.id, t.name FROM texts t WHERE t.name LIKE ? ORDER BY length(t.name), t.name LIMIT ?",
 );
 
+// cards.cdb is immutable for the life of the process, so the per-code / per-name
+// lookups below are memoized. deckLibrary() alone resolves several thousand names
+// (37 decks × validate + signature), and the core calls cardReader on every
+// replayed card — without caching, /decks and each replay re-query SQLite for the
+// same rows every time. Successful and null results are cached; an unknown NAME
+// throws in codeOf and is never cached (so a real typo still fails loudly).
+const codeByNameCache = new Map();
+const readerByCodeCache = new Map();
+const infoByCodeCache = new Map();
+const nameByCodeCache = new Map();
+
 /**
  * Pure function. Unpacks cards.cdb's packed setcode integer into archetype codes.
  *
@@ -91,10 +102,11 @@ export function unpackSetcodes(packed) {
  *     >>> cardReader(1)               // null
  */
 export function cardReader(code) {
+  if (readerByCodeCache.has(code)) return readerByCodeCache.get(code);
   const row = stmtById.get(code);
-  if (!row) return null;
+  if (!row) { readerByCodeCache.set(code, null); return null; }
   const isLink = (row.type & TYPE_LINK) !== 0;
-  return {
+  const data = {
     code: row.id,
     alias: row.alias,
     setcodes: unpackSetcodes(row.setcode),
@@ -109,6 +121,8 @@ export function cardReader(code) {
     rscale: (row.level >> RSCALE_SHIFT) & LEVEL_MASK,
     link_marker: isLink ? row.def : 0,
   };
+  readerByCodeCache.set(code, data);
+  return data;
 }
 
 /**
@@ -151,8 +165,11 @@ export function scriptReader(name) {
  *     >>> codeOf("Pot of Greed")           // 55144522
  */
 export function codeOf(name) {
+  const cached = codeByNameCache.get(name);
+  if (cached !== undefined) return cached;
   const row = stmtIdByName.get(name);
   if (!row) throw new Error(`Card not found in cards.cdb: ${JSON.stringify(name)}`);
+  codeByNameCache.set(name, row.id);
   return row.id;
 }
 
@@ -170,10 +187,10 @@ export function codeOf(name) {
  *     >>> cardInfo(89631139).desc.startsWith("This legendary dragon") // true
  */
 export function cardInfo(code) {
+  if (infoByCodeCache.has(code)) return infoByCodeCache.get(code);
   const data = stmtById.get(code);
   const text = stmtTextById.get(code);
-  if (!data || !text) return null;
-  return {
+  const info = (!data || !text) ? null : {
     code: data.id,
     name: text.name,
     desc: text.desc,
@@ -184,6 +201,8 @@ export function cardInfo(code) {
     race: Number(data.race),
     attribute: data.attribute,
   };
+  infoByCodeCache.set(code, info);
+  return info;
 }
 
 /**
@@ -200,7 +219,10 @@ export function cardInfo(code) {
  *     >>> cardName(0)        // "card#0"
  */
 export function cardName(code) {
-  return stmtTextById.get(code)?.name ?? `card#${code}`;
+  if (nameByCodeCache.has(code)) return nameByCodeCache.get(code);
+  const name = stmtTextById.get(code)?.name ?? `card#${code}`;
+  nameByCodeCache.set(code, name);
+  return name;
 }
 
 /**
