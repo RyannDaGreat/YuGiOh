@@ -48,6 +48,11 @@ Choices: `3` = option 3 · `1,4` = several (menus that ask for N cards/zones) ·
 `0` = the pass/cancel/no option when listed · `name:<card>` when asked to
 declare a card name. Illegal choices are rejected without being recorded.
 
+**Never chain two `play` calls in one command** (`play … && play …`): every play can
+change the next menu's numbering, so the second index may hit a different option.
+Read the menu after each play. `play … --auto-pass` (same `--ask-for/--ask-at`
+as wait) clears the optional respond? prompts that follow your own move.
+
 ## Reading the log
 
 ```

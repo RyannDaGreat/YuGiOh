@@ -105,18 +105,38 @@ program
   .description('Answer the pending menu: "3", "1,4", "0", "name:<card>", or "random"')
   .requiredOption("--as <player>", "0 or 1")
   .option("--quiet", "print only the receipt, not the resulting log")
+  .option("--auto-pass", "afterwards, auto-decline optional respond? prompts that follow (same rules as wait --auto-pass)")
+  .option("--ask-for <cards>", "with --auto-pass: still stop when one of these comma-separated cards is activatable")
+  .option("--ask-at <timings>", "with --auto-pass and --ask-for: only stop at timings mentioning these words")
   .action(async (id, choice, opts) => {
     const player = parseViewer(opts.as);
     if (player === 2) throw new Error("--as must be 0 or 1 to play");
     const result = await playChoice(id, player, choice);
     console.log(`P${player} chose: ${result.chosenLabel}`);
+    let newLogLines = result.newLogLines;
+    let next = result.next;
+    if (opts.autoPass) {
+      const askFor = opts.askFor ? opts.askFor.split(",").map((s) => s.trim()).filter(Boolean) : [];
+      const askAt = opts.askAt ? opts.askAt.split(",").map((s) => s.trim()).filter(Boolean) : [];
+      let passed = 0;
+      for (;;) {
+        if (next.ended || next.pendingPlayer !== player) break;
+        const view = await viewDuel(loadDuel(id), player);
+        if (!shouldAutoPass(view.menu, view.pending, { askFor, askAt })) break;
+        const pass = await playChoice(id, player, "0");
+        newLogLines = [...newLogLines, ...pass.newLogLines];
+        next = pass.next;
+        passed += 1;
+      }
+      if (passed) console.log(`(auto-passed ${passed} optional respond? prompt${passed === 1 ? "" : "s"})`);
+    }
     if (!opts.quiet) {
       console.log("--- since your move ---");
-      console.log(result.newLogLines.slice(-DEFAULT_LOG_TAIL).join("\n"));
+      console.log(newLogLines.slice(-DEFAULT_LOG_TAIL).join("\n"));
     }
-    if (result.next.ended) console.log("--- duel over ---");
-    else console.log(`--- waiting on P${result.next.pendingPlayer} ---`);
-    if (!opts.quiet && result.next.pendingPlayer === player) {
+    if (next.ended) console.log("--- duel over ---");
+    else console.log(`--- waiting on P${next.pendingPlayer} ---`);
+    if (!opts.quiet && next.pendingPlayer === player) {
       const view = await viewDuel(loadDuel(id), player);
       console.log(view.menuLines.join("\n"));
     }
