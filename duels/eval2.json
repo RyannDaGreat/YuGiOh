@@ -937,6 +937,46 @@
   {
    "type": 8,
    "index": null
+  },
+  {
+   "type": 1,
+   "action": 3,
+   "index": 0
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 0,
+     "location": 4,
+     "sequence": 2
+    }
+   ]
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 1,
+   "action": 7,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
+  },
+  {
+   "type": 8,
+   "index": null
   }
  ]
 }

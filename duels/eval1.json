@@ -937,6 +937,27 @@
    "type": 0,
    "action": 3,
    "index": null
+  },
+  {
+   "type": 1,
+   "action": 0,
+   "index": 0
+  },
+  {
+   "type": 12,
+   "indicies": [
+    0
+   ]
+  },
+  {
+   "type": 10,
+   "places": [
+    {
+     "player": 1,
+     "location": 4,
+     "sequence": 3
+    }
+   ]
   }
  ]
 }
