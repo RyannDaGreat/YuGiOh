@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import Icon from "@iconify/svelte";
   import Table from "$lib/pretty/Table.svelte";
   import Preview from "$lib/pretty/Preview.svelte";
   import { isOn, mute, unlock } from "$lib/pretty/sound.js";
@@ -16,6 +17,17 @@
   const SOUND_PREF_KEY = "ygo-sound";
   /** Longest chat message the server accepts; must match MAX_CHAT_CHARS in src/chat.js. */
   const CHAT_MAX_CHARS = 500;
+  /** ocgcore message type for a response window (SELECT_CHAIN). */
+  const RESPOND_MSG_TYPE = 16;
+  /** localStorage key + cycle order for how respond? windows are answered. */
+  const RESPOND_MODE_KEY = "ygo-respond-mode";
+  const RESPOND_MODES = ["always", "smart", "never"];
+  /** One-line gloss shown under the mode button. */
+  const RESPOND_MODE_NOTE = {
+    always: "ask on every response window (default)",
+    smart: "auto-decline unless a card actually wants this window",
+    never: "auto-decline every optional response window",
+  };
 
   let { data } = $props();
   // svelte-ignore state_referenced_locally — the server payload seeds local state; polling owns it afterwards.
@@ -35,6 +47,10 @@
   let sound = $state(false);
   /** Spectator debug: peek at hidden face-down cards. */
   let debug = $state(false);
+  /** How respond? windows are answered: "always" | "smart" | "never" (localStorage). */
+  let respondMode = $state("always");
+  /** Guards the auto-decline effect so it fires at most once per decision point. */
+  let autoDeclinedAt = -1;
   const cardCache = new Map();
   /** Sleeve catalogue for the picker (loaded on mount). */
   let sleeves = $state([]);
@@ -65,6 +81,37 @@
   const unreadChat = $derived(Math.max(0, chatMessages.length - chatSeen));
   /** True while this seat owes the engine a decision — never a spectator, never during playback. */
   const myDecision = $derived(playbackAt === null && !view.ended && view.viewer !== 2 && view.pendingPlayer === view.viewer);
+
+  /**
+   * A "respond?" window (ocgcore SELECT_CHAIN): the engine is offering the
+   * chance to interrupt, not asking for a move. Detected off the masked pending
+   * message; the menu title is a fallback for payloads without `pending`.
+   */
+  const isRespond = $derived(Boolean(view.menu) && (view.pending?.type === RESPOND_MSG_TYPE || view.menu.title.includes("respond?")));
+  /** A forced chain has no legal decline (menu.zero is null); never auto-answer it. */
+  const respondForced = $derived(Boolean(view.pending?.forced) || (isRespond && view.menu?.zero == null));
+  /** ocgcore's count of options at a timing a card actually wants (docs §A.1). */
+  const respondSpeCount = $derived(view.pending?.spe_count ?? 0);
+  /** "P1's turn — Battle Phase; possible timing: …", pulled from the menu title. */
+  const respondHeader = $derived.by(() => {
+    const inside = view.menu?.title.match(/respond\? \((.*)\)(?: \[must activate\])?$/)?.[1];
+    if (inside) return inside;
+    const s = view.state;
+    return s.turnPlayer === null ? "" : `P${s.turnPlayer}'s turn — ${s.phaseName}`;
+  });
+  /**
+   * Whether this response window should be auto-declined (submit "0"). Never for
+   * a forced chain, a non-respond decision, or "always" mode. In "smart" we stop
+   * only when the engine flags the window worth it: forced, or spe_count > 0
+   * (which the core already inflates to the full option count when a chain is in
+   * progress or an attack was declared — see docs/response-prompt-ux.md §A.1).
+   */
+  const autoDeclineWanted = $derived.by(() => {
+    if (!isRespond || respondForced || !view.menu?.zero) return false;
+    if (respondMode === "always") return false;
+    if (respondMode === "never") return true;
+    return respondSpeCount === 0; // smart
+  });
 
   async function refresh() {
     const atParam = playbackAt === null ? "" : `&at=${playbackAt}`;
@@ -173,6 +220,12 @@
     localStorage.setItem(SOUND_PREF_KEY, sound ? "on" : "off");
   }
 
+  /** Command. Advances the respond? mode always → smart → never → always, persisting it. */
+  function cycleRespondMode() {
+    respondMode = RESPOND_MODES[(RESPOND_MODES.indexOf(respondMode) + 1) % RESPOND_MODES.length];
+    localStorage.setItem(RESPOND_MODE_KEY, respondMode);
+  }
+
   /** Ensures the bell rings on the transition into myDecision, not on every poll. */
   let bellRung = false;
 
@@ -181,6 +234,19 @@
     // Autoplay is blocked until the page has seen a gesture; a rejected play() is expected and harmless.
     if (myDecision && !bellRung && sound) new Audio(`/sfx/turn-bell.${BELL_EXT}`).play().catch(() => {});
     bellRung = myDecision;
+  });
+
+  // Auto-decline for "smart"/"never" respond modes. Submitting the menu's zero
+  // option ("0") is a REAL, recorded response — byte-identical to the human
+  // clicking "Do not activate anything" (session.js appends the same
+  // {SELECT_CHAIN, index: null}). This lives in the page ON PURPOSE and must
+  // never move into the engine, or stored duels would desync (docs §C).
+  // `autoDeclinedAt` keys it to view.moves so it fires once per decision point.
+  $effect(() => {
+    if (!myDecision || playbackAt !== null || busy || !autoDeclineWanted) return;
+    if (autoDeclinedAt === view.moves) return;
+    autoDeclinedAt = view.moves;
+    submit("0");
   });
 
   $effect(() => {
@@ -192,6 +258,8 @@
 
   onMount(() => {
     loadSleeves();
+    const storedMode = localStorage.getItem(RESPOND_MODE_KEY);
+    if (RESPOND_MODES.includes(storedMode)) respondMode = storedMode;
     const timer = setInterval(() => { if (playbackAt === null) refresh(); }, POLL_MS);
     if (logEl) logEl.scrollTop = logEl.scrollHeight;
 
@@ -220,19 +288,23 @@
 
 <main class="min-h-screen bg-[#120c08] text-amber-50 p-3 flex flex-col gap-3">
   <header class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-    <a href="/" class="text-amber-300 hover:underline">← duels</a>
+    <a href="/" class="text-amber-300 hover:underline inline-flex items-center gap-1"><Icon icon="mdi:arrow-left" />duels</a>
     <span class="font-mono text-amber-200">{view.id}</span>
     <span>You: <b>{viewerLabel}</b></span>
     <span class="text-amber-100/70">seat: <a class="underline" href="?as=0">P0</a> <a class="underline" href="?as=1">P1</a> <a class="underline" href="?as=all">all</a></span>
     <span class="flex items-center gap-2">
       {#each view.presence as p}
         <span class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 flex items-center gap-1" title={p.online ? `${p.kind} heartbeat ${Math.round(p.ageMs / 1000)}s ago` : "no one holds this seat"}>
-          <span class="{p.online ? 'text-emerald-400' : 'text-red-400'}">{p.online ? "●" : "○"}</span>
+          <Icon icon={p.online ? "mdi:circle" : "mdi:circle-outline"} class={p.online ? "text-emerald-400" : "text-red-400"} width="10" height="10" />
           P{p.seat} {view.players[p.seat]} {p.online ? `online (${p.kind})` : "offline"}
         </span>
       {/each}
     </span>
-    <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900" onclick={toggleSound}>{sound ? "🔊 sound on" : "🔇 sound off"}</button>
+    <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 inline-flex items-center gap-1" onclick={toggleSound}><Icon icon={sound ? "mdi:volume-high" : "mdi:volume-off"} />{sound ? "sound on" : "sound off"}</button>
+    {#if view.viewer !== 2}
+      <!-- Respond-mode control, pre-settable here and mirrored in the response panel. -->
+      <button class="px-2 py-0.5 rounded border border-indigo-400/60 bg-indigo-900/50 text-indigo-100 inline-flex items-center gap-1" onclick={cycleRespondMode} title="how respond? windows are answered — click to cycle. {RESPOND_MODE_NOTE[respondMode]}"><Icon icon="mdi:shield-flash-outline" />respond: {respondMode}</button>
+    {/if}
     {#if view.viewer !== 2 && sleeves.length}
       <label class="text-amber-100/70">sleeve
         <select class="ml-1 px-1 rounded bg-black/40 border border-amber-900 text-amber-50" value={sleeveChoice} onchange={(e) => pickSleeve(e.currentTarget.value)}>
@@ -241,7 +313,7 @@
       </label>
     {/if}
     {#if view.viewer === 2}
-      <button class="px-2 py-0.5 rounded border {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={() => (debug = !debug)} title="peek at hidden face-down cards (spectator only)">{debug ? "🐞 debug on" : "🐞 debug off"}</button>
+      <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={() => (debug = !debug)} title="peek at hidden face-down cards (spectator only)"><Icon icon="mdi:bug" />{debug ? "debug on" : "debug off"}</button>
     {/if}
     {#if playbackAt !== null}
       <span class="px-3 py-1 rounded bg-yellow-300 text-yellow-950 font-bold">PLAYBACK — move {view.at} of {view.total}</span>
@@ -251,11 +323,11 @@
       <span class="px-3 py-1 rounded font-bold {view.pendingPlayer === view.viewer ? 'bg-emerald-300 text-emerald-950' : 'bg-black/40 text-amber-100/80'}">waiting on P{view.pendingPlayer}</span>
     {/if}
     <span class="flex items-center gap-1 basis-full">
-      <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(0)} title="start">⏮</button>
-      <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(Math.max(0, view.at - 1))} title="back one move">◀</button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => scrub(0)} title="start"><Icon icon="mdi:skip-backward" /></button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => scrub(Math.max(0, view.at - 1))} title="back one move"><Icon icon="mdi:chevron-left" /></button>
       <input type="range" min="0" max={view.total} bind:value={slider} oninput={() => scrubbing(slider)} onchange={() => scrub(Number(slider))} class="flex-1 accent-amber-400" />
-      <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(view.at + 1)} title="forward one move">▶</button>
-      <button class="px-1.5 rounded bg-black/40" onclick={() => scrub(view.total)} title="live">⏭ live</button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => scrub(view.at + 1)} title="forward one move"><Icon icon="mdi:chevron-right" /></button>
+      <button class="px-1.5 rounded bg-black/40 inline-flex items-center gap-1" onclick={() => scrub(view.total)} title="live"><Icon icon="mdi:skip-forward" />live</button>
       <span class="text-amber-100/70 font-mono">move {slider}/{view.total}</span>
       {#if playbackAt !== null}
         <input class="w-24 px-1 rounded bg-black/40 border border-amber-900" bind:value={forkId} placeholder="new id" />
@@ -285,7 +357,7 @@
           {/each}
         </div>
         {#if playbackAt !== null}
-          <p class="text-amber-100/50 p-2">⏭ live to talk.</p>
+          <p class="text-amber-100/50 p-2 inline-flex items-center gap-1"><Icon icon="mdi:skip-forward" />live to talk.</p>
         {:else if view.viewer === 2}
           <p class="text-amber-100/50 p-2">Spectators read only.</p>
         {:else}
@@ -302,12 +374,31 @@
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
-      <section class="scroll-themed rounded-md bg-black/40 border border-amber-900/60 p-2 max-h-[26rem] overflow-y-auto">
+      <section class="scroll-themed rounded-md p-2 max-h-[26rem] overflow-y-auto border-l-4 {myTurn && isRespond ? 'bg-indigo-950/60 border border-l-4 border-indigo-400/50 border-l-indigo-300' : 'bg-black/40 border border-amber-900/60 border-l-amber-900/60'}">
         {#if playbackAt !== null}
-          <p class="text-amber-100/70 text-xs">Playback: position after move {view.at}. ⏭ live to return, or fork here to play on from this point.</p>
+          <p class="text-amber-100/70 text-xs"><Icon icon="mdi:skip-forward" class="inline align-text-bottom" /> live to return, or fork here to play on from this point. (position after move {view.at})</p>
           {#if view.menu}<p class="text-amber-100/70 text-xs mt-1">Decision at this point: {view.menu.title}</p>{/if}
         {:else if view.ended}
           <p class="text-amber-100/70 text-xs">The duel is over.</p>
+        {:else if myTurn && isRespond}
+          <!-- Response window (SELECT_CHAIN): a distinct indigo panel, not the amber action menu. -->
+          <div class="flex items-center gap-2 mb-1">
+            <Icon icon="mdi:shield-flash-outline" class="text-indigo-300" width="18" height="18" />
+            <h3 class="font-bold text-indigo-200 text-sm tracking-wide uppercase">Respond{respondForced ? " — must activate" : ""}</h3>
+            <button class="ml-auto text-[0.65rem] px-2 py-0.5 rounded bg-indigo-500/30 border border-indigo-400/60 text-indigo-100 inline-flex items-center gap-1 hover:bg-indigo-500/50" onclick={cycleRespondMode} title="cycle how respond windows are answered"><Icon icon="mdi:autorenew" width="12" height="12" />{respondMode}</button>
+          </div>
+          <p class="text-indigo-100/80 text-[0.7rem] mb-1">{respondHeader}</p>
+          <p class="text-indigo-100/45 text-[0.6rem] mb-2">mode: <b class="text-indigo-100/70">{respondMode}</b> — {RESPOND_MODE_NOTE[respondMode]}{respondMode === "smart" ? ` (this window: ${respondSpeCount > 0 ? "worth stopping" : "would auto-decline"})` : ""}</p>
+          <div class="flex flex-col gap-1">
+            {#each view.menu.items as label, i}
+              <button class="text-left text-xs px-2 py-1 rounded border border-indigo-400/40 bg-indigo-900/40 hover:bg-indigo-700/50 text-indigo-50" onclick={() => submit(String(i + 1))} disabled={busy}>
+                <span class="font-mono text-indigo-300 mr-1">{i + 1}</span>{label}
+              </button>
+            {/each}
+            {#if view.menu.zero}
+              <button class="text-left text-xs px-2 py-1 rounded border border-dashed border-indigo-400/50 bg-black/30 hover:bg-indigo-800/40 text-indigo-100" onclick={() => submit("0")} disabled={busy}><span class="font-mono text-indigo-300 mr-1">0</span>{view.menu.zero}</button>
+            {/if}
+          </div>
         {:else if myTurn}
           <h3 class="font-bold text-amber-200 text-sm mb-1">{view.menu.title}</h3>
           <div class="flex flex-col gap-1">

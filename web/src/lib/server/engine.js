@@ -57,6 +57,13 @@ export async function duelPayload(id, viewer, at) {
     winner: view.winner,
     winText: view.ended ? victoryString(view.winReason) : null,
     pendingPlayer: view.pendingPlayer,
+    // The response-prompt panel and its auto-decline modes need three fields off
+    // the raw (already seat-masked) pending message: its type (16 = SELECT_CHAIN
+    // = a respond window), whether declining is illegal (forced), and ocgcore's
+    // spe_count — the core's own count of options at a timing a card actually
+    // wants (docs/response-prompt-ux.md §A.1). Only these three ride along; the
+    // full selects list stays server-side.
+    pending: view.pending ? { type: view.pending.type, forced: Boolean(view.pending.forced), spe_count: view.pending.spe_count ?? 0 } : null,
     state: view.state,
     logLines: view.logLines,
     menu: menuSummary(view.menu),

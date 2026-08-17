@@ -7,6 +7,7 @@
 </script>
 
 <script>
+  import Icon from "@iconify/svelte";
   /**
    * The whole contents of one pile (graveyard, banished, deck, extra) as a grid
    * of cards — what a player may pick up and read at a real table. Entries
@@ -76,7 +77,7 @@
     <div class="sticky top-0 z-10 flex items-baseline gap-3 px-4 py-2 bg-[#150e09] border-b border-amber-900/60">
       <h2 class="font-bold text-amber-200 text-sm">{title}</h2>
       {#if note}<span class="text-[0.65rem] text-amber-100/50">{note}</span>{/if}
-      <button class="ml-auto self-center px-2 py-0.5 rounded bg-black/40 border border-amber-900 text-amber-100 text-xs hover:bg-amber-900/50" onclick={() => onclose()}>close ✕</button>
+      <button class="ml-auto self-center inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/40 border border-amber-900 text-amber-100 text-xs hover:bg-amber-900/50" onclick={() => onclose()}>close <Icon icon="mdi:close" /></button>
     </div>
     {#if cells.length}
       <div class="p-4 flex flex-wrap gap-x-3 gap-y-4 justify-center">
