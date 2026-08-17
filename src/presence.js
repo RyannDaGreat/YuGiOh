@@ -14,8 +14,15 @@ import { join } from "node:path";
 import { DUELS_DIR } from "./store.js";
 
 const PRESENCE_DIR = join(DUELS_DIR, ".presence");
-/** A heartbeat older than this means the seat-holder is gone (pollers beat every 1-2 s). */
-export const ONLINE_MS = 6000;
+/**
+ * A heartbeat older than this means the seat-holder is gone. Pollers beat every
+ * 1–2 s while active, but a player (human or a Claude between turns) naturally
+ * pauses — thinking, or in the gap between finishing one `ygo` command and
+ * starting the next `wait`. A short window flips them to "offline" during those
+ * normal pauses; 30 s keeps "online" meaning "someone is here and recently
+ * acting" without lying when they truly leave.
+ */
+export const ONLINE_MS = 30000;
 
 /**
  * Pure function. Path of a seat's heartbeat file.
