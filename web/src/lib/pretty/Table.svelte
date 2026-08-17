@@ -17,9 +17,11 @@
    */
   import Card from "./Card.svelte";
   import FlyingCard from "./FlyingCard.svelte";
+  import RelationLines from "./RelationLines.svelte";
   import PileModal from "./PileModal.svelte";
   import Icon from "@iconify/svelte";
   import { scale } from "svelte/transition";
+  import { flip } from "svelte/animate";
   import { sfx } from "./sound.js";
 
   let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"] } = $props();
@@ -32,8 +34,33 @@
   let tableEl = $state(null);
   let seenEvent = -1;
   let daggerId = 0;
+  /** Bumped on resize so the (DOM-measured) equip lines recompute for the new layout. */
+  let layoutTick = $state(0);
   /** Card-flight duration; kept under STEP_MS so a flyer lands before the next event. */
   const FLY_MS = 380;
+  /** How long a hand card slides to its new spot when a neighbour enters/leaves. */
+  const HAND_FLIP_MS = 260;
+
+  /**
+   * Pure function. Tags each hand card with a key that FOLLOWS the card (not the
+   * slot), so `animate:flip` slides the neighbours when one enters or leaves
+   * instead of snapping. No engine gives a card a persistent id, so we key by
+   * `code#occurrence` (hidden cards by position) — stable enough that distinct
+   * cards always slide; only same-named duplicates can occasionally pop.
+   *
+   * @param {Array<{code:number}>} cards
+   * @returns {Array<{card:object, key:string}>}
+   *
+   * @example keyed([{code:46},{code:46}]) // [{card,key:"46#0"},{card,key:"46#1"}]
+   */
+  function keyed(cards) {
+    const seen = {};
+    return cards.map((c) => {
+      const base = c.code || "hidden";
+      seen[base] = (seen[base] ?? -1) + 1;
+      return { card: c, key: `${base}#${seen[base]}` };
+    });
+  }
 
   /** Durations mirror the CSS variables in app.css. */
   const FLASH_MS = 700;
@@ -161,6 +188,36 @@
   function anchorRect(c) {
     return rectOf(zoneId(c.p, c.zone, c.seq)) ?? rectOf(`${c.p}-${c.zone}`);
   }
+
+  /**
+   * Equip relationship lines as table-relative point pairs. Recomputes when the
+   * board changes or the window resizes (`layoutTick`); reads slot rects from the
+   * DOM (`centerOf`), so it needs the table mounted. Deduped by unordered pair so
+   * a link reported from both ends draws once. Each equipped card carries the
+   * linked card's `{p,zone,seq}` as `equipTarget` (src/state.js).
+   */
+  const equipLines = $derived.by(() => {
+    layoutTick; // dep: recompute on resize
+    if (!tableEl || !board?.players) return [];
+    const lines = [];
+    const seen = new Set();
+    for (const p of [0, 1]) {
+      for (const zone of ["m", "s"]) {
+        const arr = zone === "m" ? board.players[p].mzone : board.players[p].szone;
+        arr?.forEach((c, seq) => {
+          if (!c?.equipTarget) return;
+          const aId = zoneId(p, zone, seq);
+          const bId = zoneId(c.equipTarget.p, c.equipTarget.zone, c.equipTarget.seq);
+          const key = [aId, bId].sort().join("|");
+          if (seen.has(key)) return;
+          seen.add(key);
+          const a = centerOf(aId), b = centerOf(bId);
+          if (a && b) lines.push({ ax: a.x, ay: a.y, bx: b.x, by: b.y });
+        });
+      }
+    }
+    return lines;
+  });
 
   /** Command. Spawns a card that flies `from`→`to` (auto-removed), flipping if the face changes. */
   function flyCard(from, to, { code = 0, p = 0, faceFrom = true, faceTo = true } = {}) {
@@ -346,6 +403,13 @@
     for (const t of pending) clearTimeout(t);
     pending = burst.map((e, k) => setTimeout(() => play(e, fly), k * step));
   });
+
+  // Equip lines are measured from the DOM, so a window resize must recompute them.
+  $effect(() => {
+    const bump = () => (layoutTick += 1);
+    window.addEventListener("resize", bump);
+    return () => window.removeEventListener("resize", bump);
+  });
 </script>
 
 {#snippet slot(p, zone, seq, label)}
@@ -386,8 +450,8 @@
 
 {#snippet hand(p, cards)}
   <div data-zone-area={`${p}-hand`} class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
-    {#each cards as c, i}
-      <div data-zone={zoneId(p, "hand", i)}>
+    {#each keyed(cards) as { card: c, key }, i (key)}
+      <div data-zone={zoneId(p, "hand", i)} animate:flip={{ duration: HAND_FLIP_MS }}>
         <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} back={backs[p]} {onhover} {onclick} />
       </div>
     {/each}
@@ -477,6 +541,8 @@
   {#each floats as f (f.id)}
     <div class="absolute fx-float font-black text-2xl pointer-events-none {f.cls} [text-shadow:0_0_6px_#000]" style="left:{f.x}px; top:{f.y}px">{f.text}</div>
   {/each}
+  <!-- Persistent relationship lines (equip links): drawn continuously while they exist. -->
+  <RelationLines lines={equipLines} />
   <!-- Unified card-flight overlay: one FlyingCard per zone→zone move (see play()). -->
   {#each flyers as f (f.id)}
     <FlyingCard from={f.from} to={f.to} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={FLY_MS} />
