@@ -21,8 +21,8 @@ import { expandDeck } from "./duel.js";
 export const DUELS_DIR = join(REPO_ROOT, "duels");
 export const DECKS_DIR = join(REPO_ROOT, "src/decks");
 
-/** Duel ids are short, filesystem-safe, human-typeable. */
-const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+/** Duel ids are short, filesystem-safe, human-typeable (also used by chat.js for `<id>.chat.json`). */
+export const DUEL_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 /**
  * Query. Loads a decklist by name (built-in under src/decks) or by path.
@@ -73,7 +73,7 @@ export function listDecks() {
  *     >>> duelPath("game1").endsWith("duels/game1.json") // true
  */
 export function duelPath(id) {
-  if (!ID_PATTERN.test(id)) throw new Error(`invalid duel id: ${JSON.stringify(id)}`);
+  if (!DUEL_ID_PATTERN.test(id)) throw new Error(`invalid duel id: ${JSON.stringify(id)}`);
   return join(DUELS_DIR, `${id}.json`);
 }
 
