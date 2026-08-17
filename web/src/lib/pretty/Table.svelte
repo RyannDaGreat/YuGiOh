@@ -16,6 +16,7 @@
    * @prop {string[]} backs     card-back image URL per seat (sleeves)
    */
   import Card from "./Card.svelte";
+  import PileModal from "./PileModal.svelte";
   import { sfx } from "./sound.js";
 
   let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"] } = $props();
@@ -45,6 +46,42 @@
   const phaseIndex = $derived(PHASES.findIndex((p) => board.phaseName.startsWith(p)));
 
   const zoneId = (p, zone, seq) => `${p}-${zone}-${seq}`;
+
+  /** Which pile the viewer opened: {p, kind} with kind "grave"|"removed"|"deck"|"extra". */
+  let openPile = $state(null);
+
+  /**
+   * Pure function. A list entry for a name-only pile (deck/unseen lists carry
+   * no passcode; PileModal looks the art up by name).
+   *
+   * @param {string} name
+   * @returns {{name: string, code: number}}
+   *
+   * @example byName("Kuriboh") // {name: "Kuriboh", code: 0}
+   */
+  const byName = (name) => ({ name, code: 0 });
+
+  /**
+   * Title, contents and caption for the open pile, or null when none is open.
+   *
+   * Graveyards and banished piles are public knowledge and are listed in pile
+   * order. The deck never reveals its ORDER, so it shows the sorted list the
+   * state payload already gives this viewer (`unseen`): their own deck when
+   * `unseenKind` is "deck", otherwise the opponent's unseen pool of hand +
+   * deck + face-down cards.
+   */
+  const pileModal = $derived.by(() => {
+    if (!openPile) return null;
+    const { p, kind } = openPile;
+    const pl = board.players[p];
+    const whose = p === viewer ? "Your" : viewer === 2 ? `P${p}` : "Opponent's";
+    if (kind === "grave") return { title: `P${p} Graveyard (${pl.grave.length})`, entries: pl.grave, note: "oldest → newest" };
+    if (kind === "removed") return { title: `P${p} Banished (${pl.removed.length})`, entries: pl.removed, note: "oldest → newest" };
+    if (kind === "extra") return { title: `${whose} extra deck (${pl.extra.length})`, entries: pl.extra, note: "unordered" };
+    return pl.unseenKind === "deck"
+      ? { title: `${whose} deck (unordered, ${pl.unseen.length})`, entries: pl.unseen.map(byName), note: "sorted by name — deck order is never revealed" }
+      : { title: `${whose} unseen pool (hand + deck + face-down, ${pl.unseen.length})`, entries: pl.unseen.map(byName), note: "every card of theirs you have not seen yet" };
+  });
 
   function pulse(id, cls, ms) {
     fx = { ...fx, [id]: cls };
@@ -241,13 +278,21 @@
 {#snippet pile(p, kind)}
   {@const pl = board.players[p]}
   {@const topGrave = pl.grave[pl.grave.length - 1] ?? null}
-  <div data-zone={zoneId(p, kind, 0)} class="justify-self-center">
+  <div class="justify-self-center flex flex-col items-center">
+    <div data-zone={zoneId(p, kind, 0)} class="relative transition-transform duration-300 hover:scale-105">
+      {#if kind === "grave"}
+        <Card card={topGrave ? { ...topGrave, faceDown: false, position: "" } : null} label="GY" count={pl.grave.length} {onhover} {onclick} />
+      {:else if kind === "deck"}
+        <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} back={backs[p]} />
+      {:else}
+        <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} back={backs[p]} />
+      {/if}
+      <!-- The pile is its own button: clicking it lists the whole pile. -->
+      <button class="absolute inset-0 z-20 card-box card-zone focus:outline-none" aria-label="list {kind} contents" title="click to list this pile" onclick={() => (openPile = { p, kind })} onmouseenter={() => kind === "grave" && topGrave && onhover(topGrave)}></button>
+    </div>
     {#if kind === "grave"}
-      <Card card={topGrave ? { ...topGrave, faceDown: false, position: "" } : null} label="GY" count={pl.grave.length} {onhover} {onclick} />
-    {:else if kind === "deck"}
-      <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} back={backs[p]} />
-    {:else}
-      <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} back={backs[p]} />
+      <!-- Banished has no printed zone and the 7-column mat has no free cell, so it hangs under the GY as a chip. -->
+      <button class="mt-3 px-1.5 py-0.5 rounded text-[0.55rem] leading-none bg-black/50 border border-amber-900/70 text-amber-100/80 hover:bg-amber-900/50" onclick={() => (openPile = { p, kind: "removed" })}>banished {pl.banishCount}</button>
     {/if}
   </div>
 {/snippet}
@@ -346,3 +391,7 @@
     <div class="absolute fx-float font-black text-2xl pointer-events-none {f.cls} [text-shadow:0_0_6px_#000]" style="left:{f.x}px; top:{f.y}px">{f.text}</div>
   {/each}
 </div>
+
+{#if pileModal}
+  <PileModal {...pileModal} back={backs[openPile.p]} {onhover} {onclick} onclose={() => (openPile = null)} />
+{/if}
