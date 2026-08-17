@@ -232,7 +232,7 @@ export function extractEvents(messages, viewer, startingLP, deckSizes) {
         const fieldShift = cf.p === ct.p && cf.zone === ct.zone && (ct.zone === "m" || ct.zone === "s") && cf.seq !== ct.seq;
         if (cf.p !== ct.p || cf.zone !== ct.zone || fieldShift) {
           events.push({
-            i, kind: "move", from: cf, to: ct, name: label,
+            i, kind: "move", from: cf, to: ct, name: label, code: m.card ?? 0,
             faceFrom: !!(m.from.position & OcgPosition.FACEUP),
             faceTo: !!(m.to.position & OcgPosition.FACEUP),
             reason: moveReason(windows),

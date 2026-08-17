@@ -16,6 +16,7 @@
    * @prop {string[]} backs     card-back image URL per seat (sleeves)
    */
   import Card from "./Card.svelte";
+  import FlyingCard from "./FlyingCard.svelte";
   import PileModal from "./PileModal.svelte";
   import Icon from "@iconify/svelte";
   import { scale } from "svelte/transition";
@@ -27,9 +28,12 @@
   let fx = $state({});
   let daggers = $state([]);
   let floats = $state([]);
+  let flyers = $state([]);
   let tableEl = $state(null);
   let seenEvent = -1;
   let daggerId = 0;
+  /** Card-flight duration; kept under STEP_MS so a flyer lands before the next event. */
+  const FLY_MS = 380;
 
   /** Durations mirror the CSS variables in app.css. */
   const FLASH_MS = 700;
@@ -140,6 +144,34 @@
     setTimeout(() => { daggers = daggers.filter((d) => d.id !== id); }, DAGGER_MS + 50);
   }
 
+  /** Top-left + size of a slot, table-relative — the flyer's endpoint geometry. */
+  function rectOf(id) {
+    if (!tableEl) return null;
+    const el = tableEl.querySelector(`[data-zone="${id}"], [data-zone-alt="${id}"], [data-zone-area="${id}"]`);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    const t = tableEl.getBoundingClientRect();
+    return { x: r.left - t.left, y: r.top - t.top, w: r.width, h: r.height };
+  }
+
+  /**
+   * A coord's rect, falling back to the zone AREA anchor when the exact slot is
+   * gone (a hand card that already left, so its indexed slot no longer renders).
+   */
+  function anchorRect(c) {
+    return rectOf(zoneId(c.p, c.zone, c.seq)) ?? rectOf(`${c.p}-${c.zone}`);
+  }
+
+  /** Command. Spawns a card that flies `from`→`to` (auto-removed), flipping if the face changes. */
+  function flyCard(from, to, { code = 0, p = 0, faceFrom = true, faceTo = true } = {}) {
+    const a = anchorRect(from);
+    const b = anchorRect(to);
+    if (!a || !b) return; // an endpoint we can't see (masked/off-screen) — skip, don't guess
+    const id = daggerId++;
+    flyers = [...flyers, { id, from: a, to: b, code, back: backs[p] ?? backs[0], faceFrom, faceTo }];
+    setTimeout(() => { flyers = flyers.filter((f) => f.id !== id); }, FLY_MS + 80);
+  }
+
   function floatText(id, text, cls) {
     const c = centerOf(id);
     if (!c) return;
@@ -172,10 +204,16 @@
    *
    * @param {object} ev - One event from src/events.js
    */
-  function play(ev) {
+  function play(ev, fly = true) {
     const z = (c) => zoneId(c.p, c.zone, c.seq);
     const lpId = (p) => `${p}-lp-0`;
     switch (ev.kind) {
+      case "move":
+        // The unified card flight for every zone→zone move; `fly` is false on a
+        // multi-move scrub jump (snap, no storm). No sound — the semantic event
+        // (summon/tograve/…) that accompanies the move plays that.
+        if (fly) flyCard(ev.from, ev.to, { code: ev.code, p: ev.to.p, faceFrom: ev.faceFrom, faceTo: ev.faceTo });
+        break;
       case "attack":
         dagger(z(ev.from), ev.to ? z(ev.to) : lpId(1 - ev.from.p));
         if (sound) (ev.to ? sfx.attack : sfx.directattack)();
@@ -260,6 +298,15 @@
         if (sound) sfx.diceroll();
         break;
       case "draw":
+        // Draw is per-count (no per-card coords), so fly `count` cards from the
+        // deck to the drawing player's hand; they reveal (back → face) on arrival.
+        if (fly) {
+          for (let k = 0; k < ev.count; k++) {
+            const deck = { p: ev.player, zone: "deck", seq: 0 };
+            const hand = { p: ev.player, zone: "hand", seq: 0 };
+            setTimeout(() => flyCard(deck, hand, { p: ev.player, faceFrom: false, faceTo: ev.player === viewer }), k * 90);
+          }
+        }
         if (sound) sfx.draw();
         break;
       case "turn":
@@ -291,9 +338,13 @@
     const delta = forward ? list.filter((e) => e.i > seenEvent) : list.slice(-3);
     seenEvent = last;
     const burst = delta.slice(-MAX_BURST);
-    const step = burst.length > 4 ? FAST_STEP_MS : STEP_MS;
+    const fast = burst.length > 4;
+    const step = fast ? FAST_STEP_MS : STEP_MS;
+    // Fly cards only on a live move / single play-pause tick; a multi-move scrub
+    // jump snaps (fast burst) so we don't launch a swarm of catch-up flyers.
+    const fly = !fast;
     for (const t of pending) clearTimeout(t);
-    pending = burst.map((e, k) => setTimeout(() => play(e), k * step));
+    pending = burst.map((e, k) => setTimeout(() => play(e, fly), k * step));
   });
 </script>
 
@@ -334,7 +385,7 @@
 {/snippet}
 
 {#snippet hand(p, cards)}
-  <div class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
+  <div data-zone-area={`${p}-hand`} class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
     {#each cards as c, i}
       <div data-zone={zoneId(p, "hand", i)}>
         <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} back={backs[p]} {onhover} {onclick} />
@@ -425,6 +476,10 @@
   </svg>
   {#each floats as f (f.id)}
     <div class="absolute fx-float font-black text-2xl pointer-events-none {f.cls} [text-shadow:0_0_6px_#000]" style="left:{f.x}px; top:{f.y}px">{f.text}</div>
+  {/each}
+  <!-- Unified card-flight overlay: one FlyingCard per zone→zone move (see play()). -->
+  {#each flyers as f (f.id)}
+    <FlyingCard from={f.from} to={f.to} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={FLY_MS} />
   {/each}
 
   <!-- Coin / dice toss result, centered for ~1s (paired with the coinflip/diceroll SFX). -->
