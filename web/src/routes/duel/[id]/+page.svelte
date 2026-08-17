@@ -363,11 +363,11 @@
       <input type="range" min="0" max={view.total} bind:value={slider} oninput={() => scrubbing(slider)} onchange={() => scrub(Number(slider))} class="flex-1 accent-amber-400" />
       <button class="px-1.5 rounded bg-black/40 inline-flex items-center" onclick={() => { stopPlaying(); scrub(view.at + 1); }} title="forward one move"><Icon icon="mdi:chevron-right" /></button>
       <button class="px-1.5 rounded bg-black/40 inline-flex items-center gap-1" onclick={() => { stopPlaying(); scrub(view.total); }} title="live"><Icon icon="mdi:skip-forward" />live</button>
-      <span class="text-amber-100/70 font-mono">move {slider}/{view.total}</span>
-      {#if playbackAt !== null}
-        <input class="w-24 px-1 rounded bg-black/40 border border-amber-900" bind:value={forkId} placeholder="new id" />
-        <button class="px-2 rounded bg-amber-300 text-amber-950 disabled:opacity-40" onclick={forkHere} disabled={!forkId} title="copy the game up to this move and play on">fork here</button>
-      {/if}
+      <span class="text-amber-100/70 font-mono tabular-nums text-right min-w-[6rem] shrink-0">move {playbackAt === null ? view.total : slider}/{view.total}</span>
+      <!-- Fork controls are ALWAYS present (fixed layout, no jitter); disabled + greyed
+           at live, since you can only fork from a scrubbed-back position. -->
+      <input class="w-24 px-1 rounded bg-black/40 border border-amber-900 disabled:opacity-40 shrink-0" bind:value={forkId} placeholder="new id" disabled={playbackAt === null} title={playbackAt === null ? "scrub back to a move to fork from it" : "id for the forked game"} />
+      <button class="px-2 rounded bg-amber-300 text-amber-950 disabled:opacity-40 shrink-0" onclick={forkHere} disabled={playbackAt === null || !forkId} title="copy the game up to this move and play on">fork here</button>
     </span>
   </header>
 

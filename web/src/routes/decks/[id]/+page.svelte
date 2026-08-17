@@ -122,10 +122,10 @@
       </div>
     </div>
     <a
-      href="/?p0={data.id}#new-duel"
+      href="/?p{data.seat}={data.id}#new-duel"
       class="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-amber-300 text-amber-950 font-bold hover:bg-amber-200 transition-colors"
     >
-      <Icon icon={playCircle} /> Play this deck
+      <Icon icon={playCircle} /> Play this deck as P{data.seat}{data.seat === 0 ? " (goes 1st)" : " (goes 2nd)"}
     </a>
   </header>
 
