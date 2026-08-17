@@ -18,6 +18,7 @@
   import Card from "./Card.svelte";
   import FlyingCard from "./FlyingCard.svelte";
   import RelationLines from "./RelationLines.svelte";
+  import LPCounter from "./LPCounter.svelte";
   import PileModal from "./PileModal.svelte";
   import Icon from "@iconify/svelte";
   import { scale } from "svelte/transition";
@@ -461,7 +462,7 @@
 {#snippet lp(p, side)}
   <div data-zone={zoneId(p, "lp", 0)} class="flex flex-col {side === 'top' ? 'items-start' : 'items-end'} gap-1 {fx[zoneId(p, 'lp', 0)] ?? ''}">
     <div class="text-xs uppercase tracking-widest text-amber-200/70">P{p} · {board.players[p].deckName} <span class="text-amber-100/50">({players[p]})</span></div>
-    <div class="font-mono text-3xl font-black text-amber-100 [text-shadow:0_0_8px_#f59e0b]">{board.players[p].lp}</div>
+    <LPCounter value={board.players[p].lp} {sound} />
     <div class="text-[0.65rem] text-amber-100/70">hand {board.players[p].handCount} · deck {board.players[p].deckCount} · GY {board.players[p].graveCount} · banished {board.players[p].banishCount}</div>
   </div>
 {/snippet}
