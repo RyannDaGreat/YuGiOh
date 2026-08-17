@@ -22,7 +22,6 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
-		"@leaningtech/browserpod": "^3.0.1",
 		"@tailwindcss/vite": "^4.3.3",
 		"tailwindcss": "^4.3.3"
 	}

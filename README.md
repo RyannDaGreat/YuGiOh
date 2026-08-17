@@ -26,10 +26,22 @@ npm test            # cross-checks masking + client model over random duels (~1 
 
 Requires Node ≥ 22.13 (uses the built-in `node:sqlite`).
 
+## Play against Claude (one command)
+
+```sh
+./runserver.sh
+```
+
+Launches an interactive Claude Code session in your terminal with `HOST.md` as its
+first instruction: it starts the web server (`bin/serve.sh`) in the background,
+opens the browser, creates a duel with you as P0 and itself as P1, plays through
+the CLI, and chats with you in that terminal while you play in the browser. The
+seat-presence pills in the page header show who is online (web / cli).
+
 ## Web UI (for humans)
 
 ```sh
-cd web && npm run dev      # then open the printed URL
+bin/serve.sh               # just the server; or cd web && npm run dev
 ```
 
 Pick a duel and a seat (`?as=0`, `?as=1`, or `?as=all`). A duel table with

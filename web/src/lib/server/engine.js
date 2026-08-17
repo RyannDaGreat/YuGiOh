@@ -9,25 +9,7 @@ import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../.
 import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel } from "../../../../src/store.js";
 import { victoryString } from "../../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { heartbeat, presence } from "../../../../src/presence.js";
-import { REPO_ROOT } from "../../../../src/cards.js";
-
-/**
- * Command. Records a heartbeat for a seat held by the in-browser Claude bot
- * (the page beats on its behalf while its pod is running).
- */
-export function botHeartbeat(id, seat) {
-  heartbeat(id, seat, "bot", Date.now());
-}
-
-/**
- * Query. PLAYER.md, for the in-pod CLAUDE.md.
- */
-export function playerInstructions() {
-  return readFileSync(join(REPO_ROOT, "PLAYER.md"), "utf8");
-}
 
 export { listDecks, listDuels, parseViewer };
 

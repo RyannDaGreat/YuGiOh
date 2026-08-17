@@ -3,10 +3,6 @@
   import Table from "$lib/pretty/Table.svelte";
   import Preview from "$lib/pretty/Preview.svelte";
   import { isOn, mute, unlock } from "$lib/pretty/sound.js";
-  import ClaudeTerminal from "$lib/pod/ClaudeTerminal.svelte";
-
-  /** BrowserPod API key for the in-browser Claude tab (web/.env: VITE_BROWSERPOD_API_KEY). */
-  const BROWSERPOD_KEY = import.meta.env.VITE_BROWSERPOD_API_KEY ?? "";
 
   /** How often the page re-fetches the duel; the other seat may be a CLI agent. */
   const POLL_MS = 1500;
@@ -32,11 +28,6 @@
   /** Spectator debug: peek at hidden face-down cards. */
   let debug = $state(false);
   const cardCache = new Map();
-  /** Right column tab: "game" (menu + log) or "claude" (Claude Code terminal). */
-  let sideTab = $state("game");
-  /** Which seat the in-browser Claude plays; default = the seat that is not mine. */
-  let botSeat = $state(data.initial.viewer === 0 ? 1 : 0);
-  let botStatus = $state("");
   /** Sleeve catalogue for the picker (loaded on mount). */
   let sleeves = $state([]);
   let sleeveChoice = $state("");
@@ -149,9 +140,6 @@
         <span class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 flex items-center gap-1" title={p.online ? `${p.kind} heartbeat ${Math.round(p.ageMs / 1000)}s ago` : "no one holds this seat"}>
           <span class="{p.online ? 'text-emerald-400' : 'text-red-400'}">{p.online ? "●" : "○"}</span>
           P{p.seat} {view.players[p.seat]} {p.online ? `online (${p.kind})` : "offline"}
-          {#if !p.online && !view.ended && p.seat !== view.viewer}
-            <button class="ml-1 px-1.5 rounded bg-amber-300 text-amber-950 text-xs font-bold" onclick={() => { botSeat = p.seat; sideTab = "claude"; }} title="run Claude Code in this browser (terminal tab) to play this seat">🖥 Claude here</button>
-          {/if}
         </span>
       {/each}
     </span>
@@ -195,30 +183,7 @@
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
-      <div class="flex gap-1 text-sm">
-        <button class="px-3 py-1 rounded-t border border-b-0 border-amber-900/60 {sideTab === 'game' ? 'bg-amber-300 text-amber-950 font-bold' : 'bg-black/40'}" onclick={() => (sideTab = "game")}>🎴 Game</button>
-        <button class="px-3 py-1 rounded-t border border-b-0 border-amber-900/60 {sideTab === 'claude' ? 'bg-amber-300 text-amber-950 font-bold' : 'bg-black/40'}" onclick={() => (sideTab = "claude")} title="Claude Code running in this browser, playing a seat">🖥 Claude</button>
-      </div>
-      {#if sideTab === "claude"}
-        <section class="rounded-md bg-black/40 border border-amber-900/60 p-2 flex flex-col gap-2">
-          <div class="flex items-center gap-2 text-xs">
-            <span>Claude plays</span>
-            <select class="px-1 rounded bg-black/40 border border-amber-900" bind:value={botSeat}>
-              <option value={0}>P0 ({view.players[0]})</option>
-              <option value={1}>P1 ({view.players[1]})</option>
-            </select>
-            <span class="text-amber-100/60 truncate">{botStatus}</span>
-          </div>
-          {#if !BROWSERPOD_KEY}
-            <p class="text-red-300 text-xs">No BrowserPod API key. Put <code>VITE_BROWSERPOD_API_KEY=…</code> in <code>web/.env</code> (free key at console.browserpod.io) and restart the dev server.</p>
-          {:else}
-            {#key botSeat}
-              <ClaudeTerminal duelId={view.id} seat={botSeat} apiKey={BROWSERPOD_KEY} onstatus={(m) => (botStatus = m)} />
-            {/key}
-          {/if}
-        </section>
-      {/if}
-      <section class="rounded-md bg-black/40 border border-amber-900/60 p-2 max-h-[26rem] overflow-auto {sideTab === 'claude' ? 'hidden' : ''}">
+      <section class="rounded-md bg-black/40 border border-amber-900/60 p-2 max-h-[26rem] overflow-auto">
         {#if playbackAt !== null}
           <p class="text-amber-100/70 text-xs">Playback: position after move {view.at}. ⏭ live to return, or fork here to play on from this point.</p>
           {#if view.menu}<p class="text-amber-100/70 text-xs mt-1">Decision at this point: {view.menu.title}</p>{/if}
@@ -254,7 +219,7 @@
         {#if errorText}<p class="text-red-300 text-xs mt-1">{errorText}</p>{/if}
       </section>
 
-      <section class="rounded-md bg-black/40 border border-amber-900/60 p-2 {sideTab === 'claude' ? 'hidden' : ''}">
+      <section class="rounded-md bg-black/40 border border-amber-900/60 p-2">
         <h3 class="font-bold text-amber-200 text-sm mb-1">Log</h3>
         <pre bind:this={logEl} class="h-[22rem] overflow-auto text-[0.68rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.logLines.slice(-LOG_TAIL).join("\n")}</pre>
       </section>

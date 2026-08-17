@@ -1,6 +1,6 @@
 /** JSON API for one duel: GET the view for a viewer; POST a choice. */
 import { error, json } from "@sveltejs/kit";
-import { botHeartbeat, duelPayload, fork, parseViewer, play } from "$lib/server/engine.js";
+import { duelPayload, fork, parseViewer, play } from "$lib/server/engine.js";
 
 export async function GET({ params, url }) {
   try {
@@ -14,12 +14,6 @@ export async function GET({ params, url }) {
 export async function POST({ params, request }) {
   const body = await request.json();
   try {
-    if (body.beat !== undefined) {
-      const seat = Number(body.beat);
-      if (seat !== 0 && seat !== 1) throw new Error("beat needs seat 0 or 1");
-      botHeartbeat(params.id, seat);
-      return json({ ok: true });
-    }
     if (body.fork) {
       const branch = fork(params.id, String(body.fork), Number(body.at));
       return json({ ok: true, id: branch.id });

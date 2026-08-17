@@ -1,19 +1,15 @@
 #!/usr/bin/env bash
-# Starts the web UI and prints where to open it. Seats can be taken by a
-# browser (open the URL as P0/P1), by Claude Code on the CLI (`ygo wait/play`),
-# or by Claude Code running INSIDE the browser: the duel page's terminal tab
-# boots a BrowserPod (Node.js in WebAssembly) with Claude Code in it; that
-# Claude plays through a file mailbox in the pod. It needs a BrowserPod API key
-# in web/.env:   VITE_BROWSERPOD_API_KEY=...   (console.browserpod.io)
+# The one-command way to play against Claude:
+#   ./runserver.sh
+# launches ONE interactive Claude Code session in THIS terminal with HOST.md as its first
+# instruction. That Claude starts the web server in the background, opens the browser for
+# you, sits at seat P1 of a duel, plays through the ygo CLI, and chats with you here while
+# you play in the browser. No tmux, no daemons: when you quit Claude, `bin/serve.sh` (the
+# server it started) is the only thing left, and Ctrl-C there stops it.
 #
-#   ./runserver.sh            # dev server on 0.0.0.0:5178 (LAN reachable)
-#   PORT=8080 ./runserver.sh
+# Just the server, no Claude:  bin/serve.sh
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
-PORT="${PORT:-5178}"
-mkdir -p .claude_logs
-LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo 127.0.0.1)"
-[ -f web/.env ] && grep -q VITE_BROWSERPOD_API_KEY web/.env || echo "note: web/.env has no VITE_BROWSERPOD_API_KEY — the in-browser Claude tab will not boot"
-echo "YuGi web UI: http://localhost:$PORT  |  LAN: http://$LAN_IP:$PORT"
-echo "logs: .claude_logs/web-dev.log"
-cd web && exec npm run dev -- --host 0.0.0.0 --port "$PORT" 2>&1 | tee ../.claude_logs/web-dev.log
+command -v claude >/dev/null || { echo "claude CLI not found — install Claude Code (https://claude.com/claude-code)"; exit 1; }
+MODEL="${YGO_HOST_MODEL:-opus}"
+exec claude --model "$MODEL" "$(cat HOST.md)"
