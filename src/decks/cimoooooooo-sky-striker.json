@@ -1,0 +1,60 @@
+{
+  // Named after Cimoooooooo (Cimo), the Yu-Gi-Oh! content creator most strongly
+  // associated with Sky Striker — his channel hosts "An Introduction to Sky
+  // Strikers!" and "How to Beat Sky Strikers!", and he Top-cut/won events with
+  // Trickstar Sky Striker (Dragon Duel NAWCQ 2018 1st place). See "sources".
+  //
+  // Pure "spell-grind control" Sky Striker. Every card name verified verbatim
+  // against vendor/BabelCDB/cards.cdb via `node bin/ygo.js card`. NOTE: the
+  // exact card name is "Sky Striker Ace = Zero" (equals sign, not a hyphen).
+  "name": "Cimoooooooo Sky Striker",
+  "category": "curated",
+  "format": "classic",
+  "manual": "**Game plan:** keep your Main Monster Zone EMPTY and grind the opponent out with a self-refuelling spell engine. Almost every Sky Striker card has the clause \"If you control no monsters in your Main Monster Zone\", so you deliberately field nothing there, fire off Quick-Play spells across BOTH turns, and win the long game on card quality. The whole deck snowballs on one number: **Spells in your GY**. At 3+ Spells in GY every core spell 'upgrades' (Engage draws, Hornet Drones' token becomes 1500, Widow Anchor steals instead of just negating, Afterburners also pops a backrow). So your turn-1 job is really 'dump spells into the GY and pass with open interaction'.\n\n**The engine (memorize this):**\n- **`Sky Striker Mobilize - Engage!` is the heart.** Controlling no MMZ monster, it searches ANY Sky Striker card, and if you already have 3+ Spells in GY it also draws 1. It is a one-card toolbox — grab Hornet Drones for a body, Widow Anchor for interaction, Area Zero for grind, Multirole for lock, or a second Engage line. Recur it every turn with Kagari (below).\n- **`Sky Striker Mecha - Hornet Drones` makes your Link fodder.** Summons a Sky Striker Ace Token (its name counts as a 'Sky Striker Ace' monster, so it is legal material for the Ace Links). At 3+ Spells in GY the token is 1500/1500 instead of 0/0.\n- **`Sky Striker Ace - Raye` is the free body.** Quick Effect: Tribute her to Special Summon an Ace Link from the Extra Deck to the Extra Monster Zone — do this on the OPPONENT'S turn so your MMZ is empty on your turn. From the GY she re-summons herself when one of your Ace Links is destroyed by battle or leaves by an opponent's effect, so she grinds forever. Search her with `Reinforcement of the Army`.\n- **`Sky Striker Ace - Roze` (1-of extender):** Special Summons from hand when any Sky Striker Ace (including the Hornet token) is summoned, giving you a second body for a Link-2. ⚠ She lands in the MMZ, which temporarily disables the 'no MMZ monster' spells — so only bring her out to immediately Link her away (Raye + Roze -> Azalea / Zeke / = Zero).\n\n**The Aces (Link-1s off one Sky Striker Ace monster) — when to make each:**\n- **`Sky Striker Ace - Kagari` (FIRE):** on summon, ADD a Sky Striker Spell back from GY to hand. This is your recursion — get Engage back every turn to re-loop. Default Link on turns where you want to keep drawing/searching. Only once per turn.\n- **`Sky Striker Ace - Shizuku` (WATER):** passively drops the opponent's whole board 100 ATK/DEF per Spell in your GY (can shrink a boss into range or into 0), and at End Phase searches a Sky Striker Spell with a fresh name. Great on defence / to set up next turn.\n- **`Sky Striker Ace - Hayate` (WIND):** can attack directly, and after battling mills a Sky Striker card from Deck to GY (fuels the GY-Spell count and feeds Kagari). Your clock + engine-fuel Ace.\n- **`Sky Striker Ace - Kaina` (EARTH):** on summon locks a monster out of attacking until end of the opponent's turn (a soft 'Kaiju-less' answer to a big beater), and gains you LP off every Sky Striker spell.\n- **Link-2s:** `Sky Striker Ace - Azalea` (destroy any card on summon; can nuke a monster in battle by banishing a GY Spell), `Sky Striker Ace = Zero` (adds a Sky Striker Spell on summon and can tribute to bring back Raye + Roze AND pop a card — a huge grind reset), `Sky Striker Ace - Zeke` (banish a monster on Link Summon, then pump). Late-grind Link-3 payoffs: `Azalea Temperance` (equip-steal a monster <=2500 ATK) and `Knightmare Unicorn` (bounce ANY card).\n\n**Interaction spells (play them on the OPPONENT'S turn):**\n- **`Sky Striker Mecha - Widow Anchor`** — your best answer: negate a face-up Effect Monster this turn, and at 3+ Spells in GY STEAL it until the End Phase. Snatch their combo piece, then use it as Link material for your own Ace and hand back nothing. Chain it to a summon to cut a combo off.\n- **`Sky Striker Maneuver - Afterburners!`** — target destroy a face-up monster (+1 backrow at 3+ Spells). Main-phase or your-turn removal. `Jamming Waves!` is the mirror: pop a Set S/T (+ a monster at 3+ Spells).\n- **`Sky Striker Mecha - Shark Cannon`** — banish a monster from their GY, or at 3+ Spells STEAL it (it can't attack, but it's free Link fodder / graveyard hate vs revival decks).\n\n**Grind / lock pieces:**\n- **`Sky Striker Mecha Modules - Multirole`:** once/turn send a card you control to GY, and your opponent CANNOT respond to your Spell activations for the rest of the turn — this pushes your key spells through Ash/interaction. Its End-Phase effect re-SETS Sky Striker Spells from your GY (up to the number you activated while it was up) so next turn you fire them again. This is what makes the deck a true grind engine.\n- **`Sky Striker Airspace - Area Zero`:** excavate 3 to add a Sky Striker card and send a card to GY (thins + feeds GY count); if it's ever sent to the GY it Special Summons a Sky Striker Ace from Deck. Fetch it with `Terraforming`.\n- **`Sky Striker Mecharmory - Hercules Base`:** equip an Ace so it makes a second attack on monsters and draws when it kills at 3+ Spells — a slow, inevitable win condition in the mirror / vs stall.\n- **`Foolish Burial Goods`** dumps a Sky Striker Spell to instantly turn on all the '3+ Spells in GY' clauses; `Pot of Desires` / the natural spell count keep the hand full.\n\n**Going 1st:** DON'T over-commit. Fire Engage (search Widow Anchor + a body), get a couple Spells into the GY, make ONE Ace if useful (Shizuku to shrink / search, or just hold), SET Impermanence/Solemn, and pass with Widow Anchor + hand traps up. You want to interact on their turn, not build a fragile board.\n**Going 2nd:** you're the control deck that loves it — Ash/Veiler/Impermanence their combo, then Widow Anchor to steal the survivor, Afterburners the rest, and rebuild your empty-field engine. Hornet Drones + Raye give bodies to Link off their leftovers.\n\n**Weaknesses:** (1) the deck folds to being FORCED to have a monster in the MMZ (an opponent's mandatory Special Summon into your zone, or your own Roze left stranded) — everything shuts off. (2) Spell/Trap floodgates and anti-Special hate (Imperial Order, anti-search) hose the engine. (3) It's low-damage: without Hercules Base / Hayate it can durdle and get milled out or decked. (4) The 3+ Spells-in-GY threshold means your FIRST turn is weaker — GY hate (banishing your GY spells) resets that clock and cripples Kagari recursion.",
+  "sources": [
+    "https://www.youtube.com/@Cimoooooooo (creator: 'An Introduction to Sky Strikers!' and 'How to Beat Sky Strikers!' videos; ~385K subs)",
+    "Cimoooooooo — Dragon Duel NAWCQ 2018 1st Place Trickstar Sky Striker (via Patreon post title; creator/Sky Striker association)",
+    "https://yugipedia.com/wiki/Sky_Striker",
+    "https://ygoprodeck.com/ (Sky Striker meta decklists — ratios reference)",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation via `node bin/ygo.js card`)"
+  ],
+  "main": [
+    ["Sky Striker Ace - Raye", 3],
+    ["Sky Striker Ace - Roze", 1],
+    ["Ash Blossom & Joyous Spring", 3],
+    ["Effect Veiler", 1],
+    ["Ghost Belle & Haunted Mansion", 1],
+    ["Sky Striker Mobilize - Engage!", 3],
+    ["Sky Striker Mecha - Hornet Drones", 3],
+    ["Sky Striker Mecha - Widow Anchor", 3],
+    ["Sky Striker Mecha - Shark Cannon", 1],
+    ["Sky Striker Maneuver - Afterburners!", 2],
+    ["Sky Striker Maneuver - Jamming Waves!", 1],
+    ["Sky Striker Mecha Modules - Multirole", 3],
+    ["Sky Striker Airspace - Area Zero", 2],
+    ["Sky Striker Mecharmory - Hercules Base", 1],
+    ["Terraforming", 1],
+    ["Reinforcement of the Army", 1],
+    ["Foolish Burial Goods", 1],
+    ["Called by the Grave", 2],
+    ["Pot of Desires", 1],
+    ["Infinite Impermanence", 3],
+    ["Solemn Strike", 2],
+    ["Solemn Judgment", 1]
+  ],
+  "extra": [
+    ["Sky Striker Ace - Kagari", 3],
+    ["Sky Striker Ace - Shizuku", 2],
+    ["Sky Striker Ace - Hayate", 1],
+    ["Sky Striker Ace - Kaina", 1],
+    ["Sky Striker Ace - Azalea", 1],
+    ["Sky Striker Ace = Zero", 1],
+    ["Sky Striker Ace - Zeke", 1],
+    ["Sky Striker Ace - Azalea Temperance", 1],
+    ["Salamangreat Almiraj", 1],
+    ["Relinquished Anima", 1],
+    ["Knightmare Phoenix", 1],
+    ["Knightmare Unicorn", 1]
+  ],
+  "side": []
+}

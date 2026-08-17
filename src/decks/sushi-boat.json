@@ -1,0 +1,44 @@
+{
+  "name": "Sushi Boat",
+  "category": "curated",
+  "format": "classic",
+  "note": "\"Sushi boat\" = the Gunkan Suship archetype (FIRE/Aqua Xyz), so named after gunkan-maki sushi and warships (\"Suship\" = sushi + ship). Xyz-focused Rank 4/5 spam. All names validated against vendor cards.cdb; card effects quoted below are from that DB.",
+  "sources": [
+    "https://duckduckgo.com/html/?q=yugioh+sushi+boat+deck+fish (identified \"sushi boat\" = the Gunkan Suship archetype)",
+    "https://yugipedia.com/wiki/Gunkan (archetype identity, playstyle, generic support: Rescue Rabbit / Unexpected Dai / Terraforming)",
+    "https://yugipedia.com/wiki/Gunkan_Suship_Shari_Red",
+    "vendor/BabelCDB/cards.cdb (exact-name validation + card text)"
+  ],
+  "manual": "**What it is:** \"Sushi boat\" = **Gunkan Suship**, a FIRE/Aqua Xyz archetype whose cards are named after gunkan-maki sushi and warships (\"Suship\" = sushi + ship). Game plan: Special Summon Level-4/5 \"Gunkan\" bodies cheaply, spam \"Gunkan\" Xyz Monsters, draw a card off every Xyz made with a \"Shari\" as material, then lock the opponent out with the Uni-class negate.\n\n**Core hub — \"Shari\" is everything.** `Gunkan Suship Shari` is a vanilla Level-4 2000-ATK Aqua; `Gunkan Suship Shari Red`'s name *becomes* \"Gunkan Suship Shari\" in hand/Deck/GY/field. Almost every Gunkan card asks you to reveal or use a \"Shari,\" and every Gunkan Xyz draws you a card when it is Xyz Summoned using a \"Shari\" as material — so keeping a Shari in circulation IS the engine.\n\n**One-card opener — Shari Red:** reveal another Shari in hand → Special Summon Shari Red, then SS a \"Gunkan\" from Deck (except Shari) with its effects negated, and immediately Xyz Summon a Gunkan Xyz that *mentions that monster's name* using it + Shari Red (a built-in Xyz that ignores the printed Level requirement). SS `Ikura` → `Ikura-class Dreadnought`; SS `Shirauo` → `Shirauo-class Carrier`; SS `Uni` → the Rank-5 `Uni-class Super-Dreadnought`. Because Shari Red counts as \"Shari,\" the Xyz's Shari bullet also fires → **free Xyz + a draw** from just two cards.\n\n**Extenders / search web:**\n- `Gunkan Suship Ikura` — if you control a Shari, SS itself from hand; then excavate the top 3 of your Deck and add or SS a revealed Shari (digs for the hub; is the Ikura body for `Ikura-class`).\n- `Gunkan Suship Shirauo` — if you control a Shari (or an Xyz with Shari as material), SS itself; then SS another Gunkan from hand and stack any number of Shari from Deck/GY on top of your Deck (fuels Ikura's excavate and fixes draws; body for `Shirauo-class`).\n- `Gunkan Suship Uni` (Level 5) — reveal any Gunkan to SS itself; if you revealed a Shari, SS that Shari too. Also once/turn change a Gunkan's Level to 4 or 5 and add a Shari from Deck. Two Uni (or Uni + a level-5'd body) → Rank-5 `Uni-class`.\n- `Gunkan Sushipyard Seaside Supper Spot` (Field) — each time you Summon a Gunkan, stack 1 Gunkan card from Deck onto your Deck (constant fixing). Defensive half: if the opponent sends your Extra-Deck Gunkan to the GY, they pay LP equal to its DEF and you re-Xyz a fresh Gunkan off a Shari from hand.\n- `Gunkan Suship Catch-of-the-Day` (Continuous) — reveal a Shari to search a Gunkan monster named on any Gunkan Xyz (opponent picks which, but all are useful) and bank a counter (burns them if they destroy it).\n- `Gunkan Suship Daily Special` (Trap) — reveal 3 Gunkans, add 1 (YOU pick if you revealed a Shari in hand, else opponent picks); from the GY, banish it + shuffle 3 Gunkans back to draw 1 (recycle engine).\n\n**The boards / payoff:**\n- `Uni-class Super-Dreadnought` (Rank 5, 2900) — once/turn negate face-up cards the opponent controls, up to the number of your Extra-Deck Gunkans; with Uni material it also attacks directly. Win condition + disruption.\n- `Ikura-class Dreadnought` (Rank 4, 2200) — when your ED Gunkan inflicts battle damage, destroy a card; with Ikura material it attacks twice.\n- `Shirauo-class Carrier` (Rank 4, 2200) — while a Field Spell is face-up, your ED Gunkans can't be destroyed by the opponent's card effects and gain ATK equal to their original DEF; with Shirauo material it searches a Gunkan Spell/Trap.\n\n**Generic glue:** `Rescue Rabbit` banishes itself to SS two vanilla `Shari` from Deck → instant Rank 4. `Unexpected Dai` SS's a `Shari` from Deck when you control nothing. `Terraforming` finds the Field Spell. `Ash Blossom`, `Infinite Impermanence`, `Called by the Grave`, and `Solemn Strike` protect the combo; `Pot of Desires` refuels. The Extra Deck rounds out the Rank-4 line with staples.\n\n**Weaknesses:** the deck is only as good as its Shari access — hand traps on `Ikura`/the searchers, or removing the Field Spell (which turns off Shirauo-class's protection and the deck-stacking), stall the engine fast. Shari Red and Uni both need a Shari in hand to reveal, so a Shari-light opener bricks. Individual bodies are tiny (200-900 ATK) outside the Xyz, and the deck folds to `Nibiru`, floodgates, and being out-gripped by faster combo decks.",
+  "main": [
+    ["Gunkan Suship Shari", 3],
+    ["Gunkan Suship Shari Red", 3],
+    ["Gunkan Suship Ikura", 3],
+    ["Gunkan Suship Uni", 2],
+    ["Gunkan Suship Shirauo", 3],
+    ["Rescue Rabbit", 3],
+    ["Ash Blossom & Joyous Spring", 3],
+    ["Gunkan Sushipyard Seaside Supper Spot", 3],
+    ["Terraforming", 1],
+    ["Gunkan Suship Catch-of-the-Day", 2],
+    ["Unexpected Dai", 3],
+    ["Called by the Grave", 2],
+    ["Pot of Desires", 2],
+    ["Gunkan Suship Daily Special", 3],
+    ["Infinite Impermanence", 3],
+    ["Solemn Strike", 1]
+  ],
+  "extra": [
+    ["Gunkan Suship Shirauo-class Carrier", 3],
+    ["Gunkan Suship Ikura-class Dreadnought", 3],
+    ["Gunkan Suship Uni-class Super-Dreadnought", 2],
+    ["Bahamut Shark", 1],
+    ["Number 101: Silent Honor ARK", 1],
+    ["Abyss Dweller", 1],
+    ["Number 41: Bagooska the Terribly Tired Tapir", 1],
+    ["Tornado Dragon", 1],
+    ["Castel, the Skyblaster Musketeer", 1],
+    ["Evilswarm Exciton Knight", 1]
+  ],
+  "side": []
+}
