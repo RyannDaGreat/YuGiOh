@@ -222,6 +222,7 @@ export function deckDetail(id) {
     category: deck.category,
     format: deck.format,
     manual: deck.manual,
+    sources: deck.sources ?? [],
     main: rows(deck.main),
     extra: rows(deck.extra),
     side: rows(deck.side),

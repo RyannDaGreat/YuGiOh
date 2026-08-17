@@ -4,6 +4,7 @@
   import arrowLeft from "@iconify-icons/mdi/arrow-left";
   import bookIcon from "@iconify-icons/mdi/book-open-variant";
   import infoIcon from "@iconify-icons/mdi/information-outline";
+  import linkIcon from "@iconify-icons/mdi/link-variant";
   import CardArt from "$lib/pretty/CardArt.svelte";
 
   let { data } = $props();
@@ -138,6 +139,23 @@
       <p class="text-amber-100/50 text-sm">No manual provided for this deck.</p>
     {/if}
   </section>
+
+  {#if deck.sources?.length}
+    <section class="rounded-md bg-black/30 border border-amber-900/50 p-4">
+      <h2 class="font-bold text-amber-200 mb-2 flex items-center gap-1.5"><Icon icon={linkIcon} /> Sources</h2>
+      <ul class="text-amber-100/70 text-xs leading-relaxed list-disc pl-5 max-w-3xl break-words">
+        {#each deck.sources as src}
+          <li>
+            {#if src.startsWith("http")}
+              <a href={src} target="_blank" rel="noopener noreferrer" class="text-sky-300 hover:underline">{src}</a>
+            {:else}
+              {src}
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 
   <p class="text-amber-100/40 text-xs flex items-center gap-1.5">
     <Icon icon={infoIcon} /> To add your own deck, ask Claude to research and author one.
