@@ -385,8 +385,19 @@ program
   .action(async (opts) => {
     mkdirSync(PICS_DIR, { recursive: true });
     const codes = new Set();
-    for (const name of [...listDecks(), ...(opts.deck ? opts.deck.split(",") : [])]) for (const code of expandDeck(loadDeck(name).main)) codes.add(code);
-    for (const id of listDuels()) for (const deck of loadDuel(id).decks) for (const code of deck.codes) codes.add(code);
+    // A deck is Main + Extra + Side — art for every card in all three (the
+    // Extra Deck is part of the deck, so its Fusions/Synchros/etc. get pictures too).
+    for (const name of [...listDecks(), ...(opts.deck ? opts.deck.split(",") : [])]) {
+      const deck = loadDeck(name);
+      for (const code of expandDeck(deck.main)) codes.add(code);
+      for (const code of expandExtra(deck.extra)) codes.add(code);
+      for (const code of expandSide(deck.side)) codes.add(code);
+    }
+    // Stored duels freeze their decks' passcodes as codes/extraCodes/sideCodes;
+    // older records predate the latter two, so default them to empty.
+    for (const id of listDuels()) for (const deck of loadDuel(id).decks) {
+      for (const code of [...(deck.codes ?? []), ...(deck.extraCodes ?? []), ...(deck.sideCodes ?? [])]) codes.add(code);
+    }
     let fetched = 0;
     for (const code of codes) {
       const path = join(PICS_DIR, `${code}.jpg`);

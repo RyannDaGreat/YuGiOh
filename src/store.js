@@ -29,8 +29,13 @@
  *     "main":     [[cardName, count], ...], // Main Deck; goat: 40..60 cards, classic: any
  *     "extra":    [[cardName, count], ...], // OPTIONAL Extra Deck; ≤ 15 cards
  *     "side":     [[cardName, count], ...], // OPTIONAL Side Deck; ≤ 15 cards
- *     "manual":   str                       // OPTIONAL concise markdown: how to pilot it
+ *     "manual":   str,                      // OPTIONAL concise markdown: how to pilot it
+ *     "sources":  [str, ...]                // OPTIONAL citations (URLs / references) the
+ *                                           //   decklist + manual were researched from
  *   }
+ * Deck files are JSONC — line and block comments are allowed (loadDeck strips
+ * them) so each card row can also cite its source inline; the `sources` array is
+ * the official, machine-readable list of citations for the deck as a whole.
  * Card placement is enforced (loadDeck): every `extra` entry MUST be a
  * Fusion/Synchro/Xyz/Link monster (cards.isExtraDeckCard) and no `main` entry
  * may be — the core keeps those in OcgLocation.EXTRA, not the deck. Both decks
@@ -42,6 +47,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import stripJsonComments from "strip-json-comments";
 import { REPO_ROOT, cardInfo, codeOf, isExtraDeckCard, typeLabel } from "./cards.js";
 import { expandDeck, expandExtra, expandSide } from "./duel.js";
 
@@ -102,8 +108,9 @@ function validateSection(entries, { path, section, extraOnly }) {
  *     nameOrPath (string): "yugi", "kaiba", or a path to a deck JSON.
  *
  * Returns:
- *     {name, category, format, main, extra, side, manual}: `main`/`extra`/`side`
- *     are Array<[string, number]>; `manual` is a (possibly empty) markdown string.
+ *     {name, category, format, main, extra, side, manual, sources}:
+ *     `main`/`extra`/`side` are Array<[string, number]>; `manual` is a (possibly
+ *     empty) markdown string; `sources` is a (possibly empty) string[] of citations.
  *
  * Throws:
  *     Error: if the file is missing or malformed; if any card name is not in
@@ -120,7 +127,10 @@ function validateSection(entries, { path, section, extraOnly }) {
 export function loadDeck(nameOrPath) {
   const path = existsSync(nameOrPath) ? nameOrPath : join(DECKS_DIR, `${nameOrPath.toLowerCase()}.json`);
   if (!existsSync(path)) throw new Error(`no such deck: ${nameOrPath} (looked for ${path})`);
-  const deck = JSON.parse(readFileSync(path, "utf8"));
+  // Deck files are JSONC: `//` and `/* */` comments are allowed so each card
+  // and each deck can cite the source it was researched from, inline in the
+  // file. Stripping is string-aware, so URLs inside "manual"/"note" survive.
+  const deck = JSON.parse(stripJsonComments(readFileSync(path, "utf8")));
   if (!Array.isArray(deck.main) || !deck.name) throw new Error(`malformed deck file: ${path}`);
 
   const category = deck.category ?? "user";
@@ -133,6 +143,10 @@ export function loadDeck(nameOrPath) {
   const side = deck.side ?? [];
   if (!Array.isArray(extra) || !Array.isArray(side)) throw new Error(`"extra"/"side" must be arrays in ${path}`);
   const manual = deck.manual ?? "";
+  const sources = deck.sources ?? [];
+  if (!Array.isArray(sources) || sources.some((s) => typeof s !== "string")) {
+    throw new Error(`"sources" must be an array of citation strings in ${path}`);
+  }
 
   validateSection(main, { path, section: "main", extraOnly: false });
   validateSection(extra, { path, section: "extra", extraOnly: true });
@@ -147,7 +161,7 @@ export function loadDeck(nameOrPath) {
   if (extraCount > MAX_EXTRA) throw new Error(`extra deck must be ≤ ${MAX_EXTRA} cards, got ${extraCount} in ${path}`);
   if (sideCount > MAX_SIDE) throw new Error(`side deck must be ≤ ${MAX_SIDE} cards, got ${sideCount} in ${path}`);
 
-  return { name: deck.name, category, format, main, extra, side, manual };
+  return { name: deck.name, category, format, main, extra, side, manual, sources };
 }
 
 /**

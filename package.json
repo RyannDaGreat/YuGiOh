@@ -12,7 +12,8 @@
   "type": "module",
   "dependencies": {
     "commander": "^15.0.0",
-    "ocgcore-wasm": "^0.1.2"
+    "ocgcore-wasm": "^0.1.2",
+    "strip-json-comments": "^5.0.3"
   },
   "bin": {
     "ygo": "./bin/ygo.js"
