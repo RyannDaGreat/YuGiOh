@@ -15,7 +15,7 @@ import { Command } from "commander";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
-import { expandDeck } from "../src/duel.js";
+import { expandDeck, expandExtra, expandSide } from "../src/duel.js";
 import { playChoice, parseViewer, promptText, shouldAutoPass, viewDuel } from "../src/session.js";
 import { alignTimes, createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime, saveDuel } from "../src/store.js";
 import { victoryString } from "../src/strings.js";
@@ -67,14 +67,18 @@ program
   .option("--p0 <deck>", "deck for P0 (name under src/decks or a path)", "yugi")
   .option("--p1 <deck>", "deck for P1", "kaiba")
   .option("--seed <n>", "32-bit seed; omit for a random one")
+  .option("--format <format>", "classic or goat; both decks must match (default: the decks' own format)")
   .option("--players <a,b>", "labels for P0,P1 e.g. ryan,claude", "P0,P1")
   .action(async (opts) => {
     const seed = opts.seed === undefined ? Math.floor(Math.random() * 2 ** 32) : Number(opts.seed);
     const decks = [loadDeck(opts.p0), loadDeck(opts.p1)];
+    if (opts.format !== undefined) {
+      for (const d of decks) if (d.format !== opts.format) throw new Error(`--format ${opts.format} but deck ${d.name} is ${d.format}`);
+    }
     const players = opts.players.split(",");
     if (players.length !== 2) throw new Error("--players needs two comma-separated labels");
-    createDuel({ id: opts.id, seed, decks, players, created: new Date().toISOString() });
-    console.log(`created duel ${opts.id}: P0=${decks[0].name} (${players[0]}) vs P1=${decks[1].name} (${players[1]}), seed ${seed}`);
+    const duel = createDuel({ id: opts.id, seed, decks, players, created: new Date().toISOString() });
+    console.log(`created duel ${opts.id} [${duel.format}]: P0=${decks[0].name} (${players[0]}) vs P1=${decks[1].name} (${players[1]}), seed ${seed}`);
     const view = await viewDuel(loadDuel(opts.id), 2);
     console.log(`waiting on P${view.pendingPlayer}`);
   });
@@ -311,11 +315,19 @@ program
 
 program
   .command("deck <name>")
-  .description("Show a decklist with card summaries")
+  .description("Show a decklist: category, format, main/extra/side with summaries, and the pilot manual")
   .action((name) => {
     const deck = loadDeck(name);
-    console.log(`${deck.name} (${expandDeck(deck.main).length} cards)`);
-    for (const [cardName, count] of deck.main) console.log(`${count}x ${summarizeCard(codeOf(cardName))}`);
+    const section = (label, entries, expand) => {
+      if (!entries.length) return;
+      console.log(`\n${label} (${expand(entries).length}):`);
+      for (const [cardName, count] of entries) console.log(`  ${count}x ${summarizeCard(codeOf(cardName))}`);
+    };
+    console.log(`${deck.name}  [category: ${deck.category}, format: ${deck.format}]`);
+    section("Main", deck.main, expandDeck);
+    section("Extra", deck.extra, expandExtra);
+    section("Side", deck.side, expandSide);
+    if (deck.manual) console.log(`\nManual:\n${deck.manual}`);
   });
 
 program
@@ -400,9 +412,20 @@ program
 
 program
   .command("decks")
-  .description("List built-in decks")
+  .description("List built-in decks grouped by category")
   .action(() => {
-    for (const name of listDecks()) console.log(name);
+    const byCategory = {};
+    for (const name of listDecks()) {
+      const deck = loadDeck(name);
+      (byCategory[deck.category] ??= []).push({ name, deck });
+    }
+    for (const category of Object.keys(byCategory).sort()) {
+      console.log(`${category}:`);
+      for (const { name, deck } of byCategory[category]) {
+        const extra = deck.extra.length ? ` +${expandExtra(deck.extra).length} extra` : "";
+        console.log(`  ${name}  (${deck.name}, ${deck.format}, ${expandDeck(deck.main).length} main${extra})`);
+      }
+    }
   });
 
 /**

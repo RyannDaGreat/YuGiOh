@@ -52,6 +52,45 @@ export function expandDeck(entries) {
 }
 
 /**
+ * Pure function. Expands an Extra-Deck `[name, count]` list into passcodes.
+ * Identical transform to expandDeck; named separately because the extra deck is
+ * a distinct pile (OcgLocation.EXTRA) with its own size limit and is never
+ * shuffled.
+ *
+ * Args:
+ *     entries (Array<[string, number]>): Fusion/Synchro/Xyz/Link name+count pairs.
+ *
+ * Returns:
+ *     number[]: One passcode per physical copy, in list order.
+ *
+ * Examples:
+ *     >>> expandExtra([["Thousand-Eyes Restrict", 1]]) // [63519819]
+ *     >>> expandExtra([])                              // []
+ */
+export function expandExtra(entries) {
+  return expandDeck(entries);
+}
+
+/**
+ * Pure function. Expands a Side-Deck `[name, count]` list into passcodes. Same
+ * transform as expandDeck; the side deck is swap material, never dealt into a
+ * duel, so these codes are recorded but never handed to the core.
+ *
+ * Args:
+ *     entries (Array<[string, number]>): Card name+count pairs.
+ *
+ * Returns:
+ *     number[]: One passcode per physical copy, in list order.
+ *
+ * Examples:
+ *     >>> expandSide([["Mystical Space Typhoon", 2]]) // [5318639, 5318639]
+ *     >>> expandSide([])                              // []
+ */
+export function expandSide(entries) {
+  return expandDeck(entries);
+}
+
+/**
  * Command. Builds a duel, plays back the recorded responses, and returns the
  * live engine handle plus everything observed along the way.
  *
@@ -61,9 +100,16 @@ export function expandDeck(entries) {
  * Args:
  *     spec (object): The duel description.
  *     spec.seed (number): 32-bit seed driving both deck shuffles.
- *     spec.deckCodes ([number[], number[]]): Passcodes per player, [p0, p1],
- *         one entry per physical card. Frozen in the duel record at creation so
- *         a record replays identically even if name resolution changes later.
+ *     spec.deckCodes ([number[], number[]]): Main-deck passcodes per player,
+ *         [p0, p1], one entry per physical card. Frozen in the duel record at
+ *         creation so a record replays identically even if name resolution
+ *         changes later.
+ *     spec.extraCodes ([number[], number[]]): Extra-deck passcodes per player;
+ *         placed face-down in OcgLocation.EXTRA and NOT shuffled (extra-deck
+ *         order is not secret and does not affect draws). Defaults to empty, so
+ *         a record written before extra decks existed replays byte-identically.
+ *     spec.format ("classic"|"goat"): "goat" builds the duel in OcgDuelMode
+ *         .MODE_GOAT; anything else (the default) uses MODE_MR5 as before.
  *     spec.responses (Array): Recorded OcgResponse objects, applied in order.
  *
  * Returns:
@@ -82,11 +128,11 @@ export function expandDeck(entries) {
  *     >>> // (await replayDuel({seed: 1, deckCodes: [codes, codes], responses: []})).pending.type
  *     >>> // 11   — MSG_SELECT_IDLECMD, the first real decision of the game
  */
-export async function replayDuel({ seed, deckCodes, responses }) {
+export async function replayDuel({ seed, deckCodes, extraCodes = [[], []], responses, format = "classic" }) {
   const core = await createCore({ sync: true });
   const errors = [];
   const handle = core.createDuel({
-    flags: OcgDuelMode.MODE_MR5,
+    flags: format === "goat" ? OcgDuelMode.MODE_GOAT : OcgDuelMode.MODE_MR5,
     seed: [BigInt(subSeed(seed, "core0")), BigInt(subSeed(seed, "core1")), BigInt(subSeed(seed, "core2")), BigInt(subSeed(seed, "core3"))],
     team1: { startingLP: STARTING_LP, startingDrawCount: STARTING_HAND, drawCountPerTurn: DRAW_PER_TURN },
     team2: { startingLP: STARTING_LP, startingDrawCount: STARTING_HAND, drawCountPerTurn: DRAW_PER_TURN },
@@ -103,7 +149,10 @@ export async function replayDuel({ seed, deckCodes, responses }) {
   }
 
   // We shuffle rather than letting the core do it; see src/rng.js for why.
-  for (const player of [0, 1]) {
+  // Extra-deck cards follow, face-down in EXTRA — unshuffled (their order is not
+  // secret and never affects a draw), so for a deck with no extra deck this loop
+  // adds nothing and the replay is byte-identical to before extra decks existed.
+  for (const player of /** @type {(0|1)[]} */ ([0, 1])) {
     const deck = shuffled(deckCodes[player], subSeed(seed, `deck${player}`));
     for (const code of deck) {
       core.duelNewCard(handle, {
@@ -112,6 +161,17 @@ export async function replayDuel({ seed, deckCodes, responses }) {
         code,
         controller: player,
         location: OcgLocation.DECK,
+        sequence: 0,
+        position: OcgPosition.FACEDOWN_DEFENSE,
+      });
+    }
+    for (const code of extraCodes[player]) {
+      core.duelNewCard(handle, {
+        team: player,
+        duelist: 0,
+        code,
+        controller: player,
+        location: OcgLocation.EXTRA,
         sequence: 0,
         position: OcgPosition.FACEDOWN_DEFENSE,
       });

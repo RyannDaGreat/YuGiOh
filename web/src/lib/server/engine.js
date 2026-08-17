@@ -23,7 +23,8 @@ export { listDecks, listDuels, parseViewer };
  *     at (number|undefined): Playback position; undefined = live.
  *
  * Returns:
- *     Promise<object>: {id, viewer, players, ended, winner, winText, pendingPlayer, state, logLines, menu, chat, atTime, playback, moves}
+ *     Promise<object>: {id, viewer, players, format, deckMeta, ended, winner, winText, pendingPlayer, state, logLines, menu, chat, atTime, playback, moves}
+ *     `format` is the duel's ruleset; `deckMeta` is per-seat {name, category, format, manual}.
  *     `chat` rides along so the page's single poll also refreshes table talk.
  *     During playback (`at` before the last move) it is cut off at `atTime`, so
  *     scrubbing shows the conversation as it stood at that move rather than
@@ -48,6 +49,10 @@ export async function duelPayload(id, viewer, at) {
     playback,
     total: view.total,
     players: duel.players,
+    format: view.format,
+    // Per-seat deck metadata {name, category, format, manual} for a future deck
+    // viewer / home selector; additive, so existing consumers are unaffected.
+    deckMeta: view.decks,
     ended: view.ended,
     winner: view.winner,
     winText: view.ended ? victoryString(view.winReason) : null,

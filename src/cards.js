@@ -235,6 +235,12 @@ const TYPE_LABELS = [
   [0x80000, "Field"], [0x100000, "Counter"], [0x200000, "Flip"], [0x400000, "Toon"], [0x800000, "Xyz"],
   [0x1000000, "Pendulum"], [0x4000000, "Link"],
 ];
+/**
+ * Monster type bits that force a card into the Extra Deck rather than the Main
+ * Deck: Fusion (0x40), Synchro (0x2000), Xyz (0x800000), Link (0x4000000). A
+ * card with any of these bits is illegal in `main` and must live in `extra`.
+ */
+export const EXTRA_DECK_TYPES = 0x40 | 0x2000 | 0x800000 | 0x4000000;
 const ATTRIBUTE_LABELS = { 1: "EARTH", 2: "WATER", 4: "FIRE", 8: "WIND", 16: "LIGHT", 32: "DARK", 64: "DIVINE" };
 const RACE_LABELS = {
   1: "Warrior", 2: "Spellcaster", 4: "Fairy", 8: "Fiend", 16: "Zombie", 32: "Machine", 64: "Aqua",
@@ -266,6 +272,30 @@ export function typeLabel(type) {
   else if (type & TYPE_SPELL) words.push("Spell");
   else if (type & TYPE_TRAP) words.push("Trap");
   return words.join(" ");
+}
+
+/**
+ * Query. Does this card belong in the Extra Deck? True for Fusion/Synchro/Xyz/
+ * Link monsters (see EXTRA_DECK_TYPES), which the core keeps in OcgLocation.EXTRA
+ * and which are illegal in a deck's `main`.
+ *
+ * Args:
+ *     code (number): Card passcode.
+ *
+ * Returns:
+ *     boolean
+ *
+ * Throws:
+ *     Error: if the passcode is absent from the database (a deck typo must fail).
+ *
+ * Examples:
+ *     >>> isExtraDeckCard(63519819) // true   (Thousand-Eyes Restrict, a Fusion)
+ *     >>> isExtraDeckCard(89631139) // false  (Blue-Eyes White Dragon, a Normal Monster)
+ */
+export function isExtraDeckCard(code) {
+  const info = cardInfo(code);
+  if (!info) throw new Error(`unknown passcode: ${code}`);
+  return (info.type & EXTRA_DECK_TYPES) !== 0;
 }
 
 /**

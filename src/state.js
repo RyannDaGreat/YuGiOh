@@ -154,17 +154,18 @@ export function fieldCardData(card, known, isMonsterZone) {
  *     opts.viewer (0|1|2)
  *     opts.deckNames ([string, string]): Labels for the two decklists.
  *     opts.deckCodes ([number[], number[]]): The registered decklists as passcodes.
+ *     opts.format ("classic"|"goat"): The duel's ruleset; defaults to "classic".
  *     opts.model (object): The viewer's field model (field.js) — turn/phase,
  *         remembered card identities, winner/winReason once the duel is over.
  *
  * Returns:
- *     {viewer, turn, turnPlayer, phaseName, winner: number|null, players: [PlayerState, PlayerState], chain: [{name, place}]}
+ *     {viewer, format, turn, turnPlayer, phaseName, winner: number|null, players: [PlayerState, PlayerState], chain: [{name, place}]}
  *     PlayerState = {index, deckName, lp, handCount, deckCount, graveCount, banishCount, extraCount,
  *                    mzone: (FieldCard|null)[7], szone: (FieldCard|null)[8],
  *                    hand/grave/removed/extra: Array<{name: string|null, code: number}>  (null/0 = not identifiable),
  *                    unseenKind: "deck"|"pool", unseen: string[]}
  */
-export function collectState(core, handle, { viewer, deckNames, deckCodes, model }) {
+export function collectState(core, handle, { viewer, deckNames, deckCodes, model, format = "classic" }) {
   const field = core.duelQueryField(handle);
   const known = (card, controller, location, sequence) => isVisible(card, controller, location, viewer)
     || (cardAt(model, { controller, location, sequence })?.code ?? 0) !== 0;
@@ -214,6 +215,7 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
 
   return {
     viewer,
+    format,
     turn: model.turn,
     turnPlayer: model.turnPlayer,
     phaseName: PHASE_NAMES[model.phase] ?? "start",
@@ -275,7 +277,8 @@ export function renderState(state) {
   const you = (p) => (state.viewer === p ? " [you]" : "");
   const lines = [];
   const result = state.winner === null ? "" : state.winner === 2 ? " DUEL OVER: draw." : ` DUEL OVER: P${state.winner} wins.`;
-  lines.push(`Turn ${state.turn}${state.turnPlayer === null ? "" : ` (P${state.turnPlayer}'s turn)`}, ${state.phaseName}.${result}`);
+  const formatTag = state.format && state.format !== "classic" ? ` [${state.format.toUpperCase()} format]` : "";
+  lines.push(`Turn ${state.turn}${state.turnPlayer === null ? "" : ` (P${state.turnPlayer}'s turn)`}, ${state.phaseName}.${formatTag}${result}`);
   lines.push(`Decks: P0 = ${state.players[0].deckName}${you(0)}, P1 = ${state.players[1].deckName}${you(1)}  (both decklists are public: \`ygo deck <name>\`)`);
   for (const p of state.players) {
     lines.push("");
