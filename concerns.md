@@ -127,3 +127,228 @@ All five phases landed and verified live (screenshots in .claude_logs/, no conso
 - Puppeteer scrub test initially failed to move the slider: Svelte `bind:value` updates on the `input` event, so dispatching only `change` left the bound state stale (scrubbed to the old value). Fix: set the value via the native setter, then dispatch BOTH `input` and `change`. Lesson for future UI tests.
 - **Deviation from the spec:** user asked for the *anime* LP-ticking sound. Dueling Nexus exposes no such loop (only one-shot life-damage/recover) and anime rips are copyrighted, so the agent shipped CC0 Kenney blips instead — functional but not authentic. Flagged to the user; can swap to a personal-use anime rip (vendor/, like the other Nexus assets) on request.
 - **Known limitation:** the flyer's source anchor for a card LEAVING the hand falls back to the hand-area centre once its indexed slot unmounts (the exact origin slot is gone by the time the effect runs); good enough visually. Cross-zone moves with stable pile/zone anchors (draw, to-grave, revival, field-shift, banish) are exact.
+
+## 2026-08-17 — Pendulum Summon offered the wrong Levels: ocgcore-wasm 0.1.2 loses every card's Right Scale
+
+**Severity: this is a real rules violation, silently, in every duel that uses Pendulum Monsters or
+Link Monsters.** It is NOT in our code and NOT in cards.cdb. It is a byte-offset bug in the npm
+package `ocgcore-wasm@0.1.2` — the JS↔WASM binding that is, per the manifest glossary, "the core".
+
+### What was observed (live duel PendyVsSpell, seat P1, deck "Master of Pendulum (SDMP)")
+
+Board both times: `s0` = Performapal Trump Witch (Level 1, **Scale 4**), `s4` = Dragonpit Magician
+(Level 7, **Scale 8**). By the printed rules that window is **Levels 5, 6 and 7**.
+
+- **Turn 6.** Hand: Mystical Space Typhoon, Performapal Salutiger (Lv4), Magna Drago (Lv2),
+  Metaphys Armed Dragon (Lv7). Taking the Pendulum Summon offered **only Magna Drago (Lv2)** — a
+  Level outside the window — and withheld Metaphys Armed Dragon (Lv7), which is inside it. The
+  summon resolved: "P1 special summons Magna Drago at m0 DEF from hand".
+- **Turn 8.** Hand: Metaphys Armed Dragon (Lv7), Odd-Eyes Pendulum Dragon (Lv7), Lyla Lightsworn
+  Sorceress (Lv4). The idle menu offered **no Pendulum Summon entry at all**, though both Level 7
+  monsters were legal.
+
+### Root cause
+
+`ocgcore-wasm@0.1.2` `src/data.ts` `writeCardData()` serialises the `OcgCardData` a `cardReader`
+returns into the core's `OCG_CardData` struct. Its own struct-layout comment for 32-bit says
+
+```
+// | attack        | defense       |   32, 36
+// | lscale        | rscale        |   40, 44
+// | link_marker   | -             |   48, 52
+```
+
+but the `ptrSize === 4` branch — the only branch this package ever takes, `ptrSize: 4` is hardcoded
+at both `writeCardData` call sites because the build is wasm32 — writes:
+
+```js
+view.setUint32(40, data.lscale ?? 0, true);        // correct
+view.setUint32(48, data.rscale ?? 0, true);        // WRONG: 48 is link_marker's slot
+view.setUint32(52, data.link_marker ?? 0, true);   // WRONG: 52 is trailing padding
+```
+
+Those two offsets were copy-pasted from the 64-bit branch below (where 44/48/52 IS correct),
+without shifting for the 4-byte `setcodes` pointer. Consequences on every card the core ever reads:
+
+- **offset 44 (the real `rscale`) is never written** → the core sees **Right Scale 0 for every card
+  in the game**;
+- **offset 48 (the real `link_marker`) receives `rscale`** → since non-Pendulum cards have
+  `rscale == 0` in cards.cdb, **every Link Monster gets zero Link Markers**;
+- offset 52 is struct tail padding, so our `link_marker` value is simply discarded (no corruption).
+
+`proc_pendulum.lua` `Pendulum.Condition/Operation` compute the window as
+`lscale = leftZoneCard:GetLeftScale()`, `rscale = rightZoneCard:GetRightScale()`, swap if needed,
+then `lv > lscale and lv < rscale`. With every Right Scale forced to 0 this degenerates to
+
+> **window = (0, Left Scale of the card in the LEFT Pendulum Zone)** — the right-hand card's scale
+> is ignored entirely, and the printed Level of neither zone card is involved.
+
+That is exactly the two live observations: (0, 4) admits Levels 1-3, so turn 6 offered Magna Drago
+(Lv2) alone, and turn 8's hand of 7/7/4 contained nothing in {1,2,3} so the option disappeared.
+
+### A near-miss hypothesis that the repro refuted
+
+The coordinator proposed the window was built from **one card's Level and Scale** — Trump Witch
+being Level 1 / Scale 4 → `{2,3}`. That also fits both live observations, and it is wrong. The
+discriminator is a Level 1 monster: the true window is `(0, 4)` = `{1,2,3}`, which includes Level 1.
+The repro put Kuriboh (Lv1) in hand and **the core offered it**, so the lower bound is 0, not 1, and
+nothing anywhere reads a zone card's Level. Two further cases pinned it: putting Scale 1 on the LEFT
+and Scale 8 on the RIGHT (rules: Levels 2-7) produced window (0,1) and **no Pendulum Summon at all**,
+while the same pair swapped produced window (0,8) and offered everything. Lesson: two hypotheses can
+fit every field observation you have; go find the input that separates them instead of picking the
+first fit.
+
+### Why nobody noticed until now
+
+A Pendulum deck's normal board is HIGH scale left, LOW scale right (this deck's manual literally
+says Dragonpulse(1)/Dragonpit(8)). With Dragonpit (8) on the left, the buggy window is (0,8) =
+Levels 1-7 and the correct one is (1,8) = Levels 2-7 — **they differ only by Level 1**. The bug is
+invisible unless the low scale happens to be on the left, which is exactly what happened in
+PendyVsSpell.
+
+### Hypotheses tested and eliminated
+
+- **Our `cardReader` decodes cards.cdb wrongly** — no. `level & 0xff`, `>>16 & 0xff` = rscale,
+  `>>24 & 0xff` = lscale matches EDOPro, and the reader hands out Trump Witch `1 / 4 / 4` and
+  Dragonpit `7 / 8 / 8`, which are the printed values.
+- **Name→id picked an alias/alternate printing with different data** — no. Both names have exactly
+  one row in cards.cdb (`alias=0`, `ot=3`); there is nothing for `stmtIdByName`'s ORDER BY to pick
+  between.
+- **Wrong Master Rule / duel flags** — no. The failure reproduces under `MODE_MR5` with the zones
+  correctly recognised as Pendulum Zones (the Pendulum Summon procedure appears at all, and appears
+  attached to `s0`), and swapping which card sits in which zone changes the result exactly as the
+  offset theory predicts.
+- **A bug in ocgcore itself (the C++/Lua rules engine)** — no. The Lua procedure is correct; it is
+  fed a Right Scale of 0. Patching only the JS offsets makes all four cases rules-correct.
+- **`duelQueryLocation`'s own parser mis-reading `rightScale`** — no. The query agrees with the
+  behaviour, and the behaviour is independent of the query API.
+
+### Evidence (real output, reproducible)
+
+`node .frenzy/pendulum/repro-matrix.mjs` builds a duel with the harness's exact engine
+configuration (MODE_MR5, `src/cards.js` reader, same Lua prelude), really activates two Pendulum
+Monsters into `s0`/`s4` from hand, takes the Pendulum Summon and prints the offer:
+
+```
+core module: ocgcore-wasm
+
+LEFT s0 = Performapal Trump Witch (Lv1 scale 4/4)   RIGHT s4 = Dragonpit Magician (Lv7 scale 8/8)
+  hand          : Kuriboh Lv1, Magna Drago Lv2, Sangan Lv3, Performapal Salutiger Lv4, Stargazer Magician Lv5, Metaphys Armed Dragon Lv7
+  core's scales : s0 left=4 right=0  |  s4 left=8 right=0
+  RULES EXPECT  : Levels 5-7 -> Stargazer Magician, Metaphys Armed Dragon
+  OFFERED       : Kuriboh, Magna Drago, Sangan
+  MISMATCH
+
+LEFT s0 = Stargazer Magician (Lv5 scale 1/1)   RIGHT s4 = Dragonpit Magician (Lv7 scale 8/8)
+  hand          : Kuriboh Lv1, Magna Drago Lv2, Sangan Lv3, Performapal Salutiger Lv4, Metaphys Armed Dragon Lv7
+  core's scales : s0 left=1 right=0  |  s4 left=8 right=0
+  RULES EXPECT  : Levels 2-7 -> Magna Drago, Sangan, Performapal Salutiger, Metaphys Armed Dragon
+  OFFERED       : (no Pendulum Summon offered at all)
+  MISMATCH
+```
+
+The byte-offset diagnosis was proved independently (`node .frenzy/pendulum/probe-offsets.mjs`) by
+feeding the core a Link Monster with a doctored `rscale` and watching its LINK MARKER follow it:
+
+```
+cards.cdb  Decode Talker: level(link rating)=3 lscale=0 rscale=0 link_marker=133
+core, real reader        : link={"rating":3,"marker":0} leftScale=0 rightScale=0
+core, rscale=133 instead : link={"rating":3,"marker":133} leftScale=0 rightScale=0
+
+link marker follows rscale, not link_marker: true
+```
+
+### The fix — verified, deliberately NOT applied
+
+One line in `node_modules/ocgcore-wasm/dist/index.js` (`src/data.ts` upstream), `ptrSize === 4`
+branch only:
+
+```
+-  view.setUint32(48, data.rscale ?? 0, true);
+-  view.setUint32(52, data.link_marker ?? 0, true);
++  view.setUint32(44, data.rscale ?? 0, true);
++  view.setUint32(48, data.link_marker ?? 0, true);
+```
+
+Applied to a scratch COPY of the package (`.frenzy/pendulum/ocgcore-wasm-fixed/`, made by
+`apply-fix-to-copy.mjs`) and re-run via `OCGCORE=./ocgcore-wasm-fixed/dist/index.js node
+.frenzy/pendulum/repro-matrix.mjs`, **all four board configurations become rules-correct**
+(`s0 left=4 right=4 | s4 left=8 right=8`; offered = Stargazer Magician, Metaphys Armed Dragon).
+
+It was NOT applied to the repo, for three reasons, and this is a decision a future session may
+reverse once the reasons expire:
+1. `ocgcore-wasm` IS the vendored core; this session's brief was explicitly "do not patch the
+   vendored core — document it precisely".
+2. **It changes engine behaviour, so it changes replays.** Duel records store responses, not menu
+   labels: PendyVsSpell's turn-6 response is "take menu entry #1", which today means Magna Drago and
+   after the fix means a different card. Every record containing a Pendulum Summon (and any Link
+   Summon) will diverge from that decision onward and will most likely die on `MSG_RETRY` in
+   `replayDuel`. Applying this mid-game would destroy the in-progress duels.
+3. 0.1.2 is the latest published version, so there is nothing to upgrade to; the durable route is an
+   upstream issue/PR against https://github.com/n1xx1/ocgcore-wasm plus a `patch-package` postinstall
+   wired into `setup.sh` (so `vendor/` and `node_modules/` stay reproducible from the dump).
+
+**Recommended order when it is applied:** finish or archive every in-progress duel → add the patch +
+postinstall → flip `test/pendulum-summon-window.test.js` to the rules-correct expectations it already
+prints as diagnostics → re-verify `npm test` (records replayed by `consistency.test.js` are generated
+fresh per run and are unaffected) → expect historical Pendulum/Link duel records to become
+unreplayable, and decide explicitly whether to archive them.
+
+### Regression test added
+
+`test/pendulum-summon-window.test.js` (new). Three tests:
+1. permanent test of OUR data path: `cardReader` yields Trump Witch `1/4/4`, Dragonpit `7/8/8`,
+   Stargazer `5/1/1`;
+2. + 3. **deliberately pin the WRONG behaviour** for the two board configurations above, each with
+   the rules-correct answer printed via `t.diagnostic()` and an assertion message that says what to
+   do. They are a tripwire: the day they FAIL, the marshalling has been fixed and they must be
+   swapped for the rules-correct expectations. (Naming note: `test/pendulum.test.js` was taken by the
+   concurrent scale-visibility work; this file deliberately does not collide with it.)
+
+Scratch probes kept under `.frenzy/pendulum/`: `cdb-dump.mjs` (raw cards.cdb rows),
+`probe-scales.mjs` (reader vs core, per card), `probe-offsets.mjs` (the byte-offset proof),
+`repro-matrix.mjs` (the four-board behavioural repro), `apply-fix-to-copy.mjs`.
+
+### Lessons for future agents
+
+- **A dependency that silently drops a field looks exactly like a rules bug.** Before theorising
+  about Lua or Master Rules, ask the core what it actually holds: `duelQueryLocation` with
+  `LSCALE|RSCALE|LINK` takes two minutes and would have ended this investigation immediately.
+- **`ocgcore-wasm` 0.1.2 has form.** `OcgQueryFlags.TYPE` already mis-parses (see 2026-08-16, session
+  1). Treat every field this binding marshals as unverified until a probe confirms it round-trips.
+  A cheap standing check: for a handful of known cards, compare `cardReader(code)` against
+  `duelQueryLocation` for the same card in play, field by field.
+- **Never conclude from one fitting hypothesis.** Construct the input that separates the candidates.
+- **Fixing an engine bug is a records-migration event, not a one-line diff.** Responses are indices;
+  changing what the menu contains rewrites the meaning of every stored index after that point.
+- Do not run behavioural repros against live duels. Everything here was built from scratch decks in
+  `.frenzy/`; no duel record was created, read or touched.
+
+### Side note for future agents — Performapal Trump Witch's Scale, and scale visibility
+
+- **Performapal Trump Witch's Pendulum Scale is 4, not 1**, in the shipped `vendor/BabelCDB/cards.cdb`
+  (`id=91584698`, level column `0x04040001` → Level 1, lscale 4, rscale 4). Its Level is 1, which is
+  an easy thing to misread as its Scale; they are unrelated numbers. Verified row:
+  `id=91584698 alias=0 ot=3 type=0x1000021 levelCol=0x4040001 -> level=1 lscale=4 rscale=4`.
+- At the time this was investigated, **Pendulum Scales were invisible in `ygo state`, `ygo prompt`
+  and `ygo card` output**, so a player (human or Claude) had no way to see the summon window they
+  were being offered, and no way to notice it was wrong. A concurrent agent is closing that gap
+  (`test/pendulum.test.js`, `scaleText`/`isPendulumMonster` in `src/cards.js`,
+  `pendulumSummonLabel`/`pendulumZoneCards` in `src/menu.js`). Once scales are printed, the wrong
+  window above becomes visible to the player rather than silent — but it is still wrong until the
+  marshalling fix lands.
+
+## 2026-08-17 — UX/bugs batch + modern decks
+
+Fixed & verified:
+- **Spell-counter display stuck at 1** (user: "why didn't Magical Citadel's counters go up beyond 1"): ocgcore-wasm's QUERY_COUNTERS parser stores counters BACKWARDS — `t.counters[count] = type` — so a card with N Spell Counters (type 1) reads `{N:1}`, and my badge summed the values (=1). Fixed with `normalizeCounters` in state.js (swap to `{type:count}`). Verified: Citadel 8, Exemplar 16, Skilled 2. Lesson: don't trust a dependency's field orientation — verify against a known-large case.
+- **Flyer ballooning** (user saw Terraforming "get really big for a split second" before GY): a card leaving the hand falls back to the wide hand-AREA anchor, and the flyer was sized to that anchor's width. Fix: position at the anchor CENTRE, size to a fixed monster-zone card size. VLM slow-mo (FLY_MS bumped to 900 temporarily) confirmed max flyer width == card-slot width (70px), no balloon.
+- **Scrubber jitter**: fork controls (`new id`/`fork here`) only rendered during playback, so they vanished at live and the row reflowed; the move counter had no fixed width. Fix: fork controls always present but disabled+greyed at live; fixed-width tabular counter; show N/N at live.
+- **Deck "Play this deck" always set P0**: threaded `?seat=` from the home P1 preview link through the detail page; button now reads "Play this deck as P0/P1 (goes 1st/2nd)".
+- **Presence flashing offline**: ONLINE_MS 6s→30s (a player pausing between commands no longer flips offline). Verified both seats online.
+
+RULES (not a bug): user asked why Skilled Dark Magician can't be activated with Magical Citadel of Endymion's 8 counters. Engine is CORRECT — Skilled Dark Magician TRIBUTES itself and REQUIRES 3 Spell Counters ON IT (it has 2); Citadel only substitutes for effects that ACTIVATE BY REMOVING counters, which Skilled does not. Verified against cards.cdb text.
+
+New curated decks (research + validated, 40 main / 15 extra each, 0 missing cards — vendored cards.cdb is full modern BabelCDB): shadow-spectre-endymion (masterduelmeta Jan-2026), cimoooooooo-sky-striker (named after Cimoooooooo), sushi-boat (= Gunkan Suship archetype).
+
+STILL OPEN (proposed to user, not built): per-game background player agents (one Claude per game) to fix host "which table" confusion + keep P1 online + enable AI-vs-AI and go-second. Significant host-architecture change that auto-spawns claude processes — awaiting go-ahead on approach.
