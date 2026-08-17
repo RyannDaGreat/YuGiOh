@@ -23,7 +23,7 @@
  */
 
 import { OcgLocation, OcgPhase, OcgPosition, OcgQueryFlags } from "ocgcore-wasm";
-import { cardInfo, cardName, typeLabel } from "./cards.js";
+import { cardInfo, cardName, isPendulumMonster, scaleText, typeLabel } from "./cards.js";
 import { coord } from "./events.js";
 import { cardAt } from "./field.js";
 import { posLabel, zoneLabel } from "./log.js";
@@ -153,20 +153,32 @@ function normalizeCounters(raw) {
  *
  * Returns:
  *     {name: string|null, code: number, position: string, faceDown: boolean, negated: boolean,
- *      atk?, def?, baseAtk?, baseDef?, level?, rank?, link?, typeLabel?,
+ *      atk?, def?, baseAtk?, baseDef?, level?, rank?, link?, typeLabel?, scale?: string,
  *      equippedTo?: string, targets?: string[], materials?: string[], counters?: object}
+ *     `scale` is set only for a Pendulum Monster sitting in a spell/trap zone —
+ *     that is a Pendulum Zone, where the scale is the card's whole point.
  *
  * Examples:
  *     >>> fieldCardData({code: 89631139, position: 1, attack: 3000, defense: 2500, baseAttack: 3000, baseDefense: 2500, level: 8}, true, true).name
  *     "Blue-Eyes White Dragon"
  *     >>> fieldCardData({position: 8}, false, true)
  *     {name: null, code: 0, position: "fd DEF", faceDown: true, negated: false}
+ *     >>> fieldCardData({code: 91584698, position: 5}, true, false).scale  // "4" (Performapal Trump Witch in a Pendulum Zone)
  */
 export function fieldCardData(card, known, isMonsterZone) {
   const base = { name: known ? cardName(card.code) : null, code: known ? card.code : 0, position: posLabel(card.position, isMonsterZone), faceDown: Boolean(card.position & OcgPosition.FACEDOWN), negated: false };
   if (!known) return base;
-  const data = { ...base, negated: Boolean(card.status & STATUS_DISABLED), typeLabel: typeLabel(cardInfo(card.code)?.type ?? 0) };
-  if (isMonsterZone) Object.assign(data, { atk: card.attack, def: card.defense, baseAtk: card.baseAttack, baseDef: card.baseDefense, level: card.level, rank: card.rank, link: card.link?.rating ?? 0 });
+  const info = cardInfo(card.code);
+  const data = { ...base, negated: Boolean(card.status & STATUS_DISABLED), typeLabel: typeLabel(info?.type ?? 0) };
+  if (isMonsterZone) {
+    Object.assign(data, { atk: card.attack, def: card.defense, baseAtk: card.baseAttack, baseDef: card.baseDefense, level: card.level, rank: card.rank, link: card.link?.rating ?? 0 });
+  } else if (isPendulumMonster(card.code)) {
+    // A Pendulum Monster in a spell/trap zone is a scale in a Pendulum Zone.
+    // The scale is the printed one (cards.cdb), not the core's: ocgcore-wasm
+    // does not deliver rscale to the engine, so the queried rightScale is 0 for
+    // every card (see claude_instructions.md "Pendulum scales").
+    data.scale = scaleText(info.lscale, info.rscale);
+  }
   if (card.equipCard) {
     data.equippedTo = zoneLabel(card.equipCard.location, card.equipCard.sequence);
     // {p,zone,seq} of the linked card, so the client can draw a relationship line
@@ -272,6 +284,8 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
  *     >>> describeFieldCard({name: "Trap Hole", position: "fd", typeLabel: "Trap"})     // "Trap Hole (fd, Trap)"
  *     >>> describeFieldCard({name: "Battle Ox", position: "ATK", atk: 1700, def: 1000, baseAtk: 1700, baseDef: 1000, level: 4})
  *     "Battle Ox ATK 1700/1000 Lv4"
+ *     >>> describeFieldCard({name: "Performapal Trump Witch", position: "up", typeLabel: "Effect Pendulum Monster", scale: "4"})
+ *     "Performapal Trump Witch (up, Effect Pendulum Monster, scale 4)"
  */
 export function describeFieldCard(c) {
   if (c.name === null) return `? (${c.position})`;
@@ -284,7 +298,7 @@ export function describeFieldCard(c) {
     if (c.rank) parts.push(`Rank${c.rank}`);
     if (c.link) parts.push(`Link${c.link}`);
   } else {
-    parts.push(`(${c.position}, ${c.typeLabel})`);
+    parts.push(`(${c.position}, ${c.typeLabel}${c.scale === undefined ? "" : `, scale ${c.scale}`})`);
   }
   if (c.negated) parts.push("[effects negated]");
   if (c.equippedTo) parts.push(`[equipped to ${c.equippedTo}]`);

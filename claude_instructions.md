@@ -344,3 +344,51 @@ There is ONE flyer for ALL zone permutations because it is driven by physical MO
 **Masking.** The flyer and lines are driven by the MASKED event/state stream, so they can never reveal more than the viewer may see (an opponent's draw flies as a face-down back; a hidden equip is simply not linked).
 
 **Card identity.** The flyer needs none — the `move` event already carries `from`+`to`. Only the intra-zone reflow keys (`animate:flip`) need a stable per-card key; a deterministic per-move id (or hand order + code) suffices. This is the ONLY identity surface — deliberately small.
+
+## 12. Pendulum scales and the Pendulum Summon (added 2026-08-17)
+
+**Problem.** Two renderings hid the same fact and together cost a real game turn.
+1. ocgcore has no pendulum-summon idle action (`SelectIdleCMDAction` is only SELECT_SUMMON /
+   SELECT_SPECIAL_SUMMON / SELECT_POS_CHANGE / SELECT_MONSTER_SET / SELECT_SPELL_SET /
+   SELECT_ACTIVATE / TO_BP / TO_EP / SHUFFLE). It models the Pendulum Summon as a special-summon
+   PROCEDURE owned by the card sitting in a Pendulum Zone, so the menu read
+   "Special summon Performapal Trump Witch (P1 s0)" — which a player reads as "summon my scale
+   card", the opposite of what the action does.
+2. A Pendulum Monster's Scale was printed nowhere: not by `ygo card`, not in the state/field lines.
+   An agent holding two scales could not see its own summon window without querying cards.cdb.
+
+**Rules.** A Pendulum Summon uses the LEFT zone card's left scale and the RIGHT zone card's right
+scale, and Special Summons any number of monsters whose Level is STRICTLY between them, from the
+hand and from face-up Pendulum Monsters in the Extra Deck. The scale cards themselves stay put.
+
+**Fix (2026-08-17).**
+- `src/cards.js`: `cardInfo` now returns `lscale`/`rscale` (the `level` column packs level in the
+  low byte, rscale >>16, lscale >>24); `isPendulumMonster(code)` and `scaleText(lscale, rscale)`
+  are the shared helpers; `summarizeCard` prints `Scale4` between `Lv7` and `ATK…`, so `ygo card`,
+  `ygo search`, `ygo deck` and the LLM prompt's deck reference all show it.
+- `src/state.js`: `fieldCardData` sets `scale` for a Pendulum Monster in a spell/trap zone (that is
+  a Pendulum Zone), and `describeFieldCard` renders
+  `s0: Performapal Trump Witch (up, Effect Pendulum Monster, scale 4)`.
+- `src/menu.js`: `pendulumSummonLabel` relabels such a special-summon entry as
+  `Pendulum Summon — scales <left card> <lscale> (P0 s0) / <right card> <rscale> (P0 s4); summons
+  monsters from your hand + face-up Pendulum Monsters from your Extra Deck (Levels strictly between
+  the two scales), NOT the scale cards themselves`, falling back to
+  `Pendulum Summon using <card> (P0 s0) — …` when the other zone cannot be read.
+  `pendulumZoneCards(field, controller)` finds the scales: under MR5 the Pendulum Zones ARE the
+  leftmost/rightmost spell/trap zones (the core reports SZONE sequences 0 and 4 and never uses its
+  PZONE location), so a scale is identified by the card being a Pendulum Monster in the S/T zone,
+  lower sequence = left. Tests: `test/pendulum.test.js`.
+- The menu deliberately does NOT compute the summonable Level window: the core enumerates the
+  actual legal targets in the selection that follows the choice, and that list is the authority.
+
+**KNOWN ENGINE BUG — every card's right Pendulum Scale is 0 inside the core.** `ocgcore-wasm`
+0.1.2 serialises `OCG_CardData` for the 32-bit core with `rscale` at byte offset 48 and
+`link_marker` at 52 (`dist/index.js`, the `ptrSize === 4` branch); the core reads `rscale` at 44 and
+`link_marker` at 48. So the engine sees `rscale = 0` for every card and Link monsters get their
+markers from `rscale`. Consequences, measured 2026-08-17:
+- a correct 1-left / 8-right scale pair offers NO Pendulum Summon at all (window becomes 0 < Lv < 1);
+- an 8-left / 1-right pair offers Levels 1-7, including a Level 1 monster it must not;
+- so the effective window is `0 < Lv < (left card's lscale)`, and queried `rightScale` is always 0.
+This is why the scale shown to players comes from cards.cdb, not from the core query. FIXING IT
+CHANGES REPLAYS: a recorded response can become illegal, so patch it only between games, never
+while a duel is in progress, and re-run `npm test` afterwards.

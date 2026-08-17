@@ -180,11 +180,13 @@ export function codeOf(name) {
  *     code (number): Card passcode.
  *
  * Returns:
- *     {code, name, desc, atk, def, level, type, race, attribute}|null
+ *     {code, name, desc, atk, def, level, lscale, rscale, type, race, attribute}|null
+ *     `lscale`/`rscale` are the printed Pendulum Scales, 0 for a non-Pendulum card.
  *
  * Examples:
  *     >>> cardInfo(89631139).name // "Blue-Eyes White Dragon"
  *     >>> cardInfo(89631139).desc.startsWith("This legendary dragon") // true
+ *     >>> cardInfo(16178681).lscale // 4   (Odd-Eyes Pendulum Dragon, Scale 4)
  */
 export function cardInfo(code) {
   if (infoByCodeCache.has(code)) return infoByCodeCache.get(code);
@@ -197,6 +199,8 @@ export function cardInfo(code) {
     atk: data.atk,
     def: data.def,
     level: data.level & LEVEL_MASK,
+    lscale: (data.level >> LSCALE_SHIFT) & LEVEL_MASK,
+    rscale: (data.level >> RSCALE_SHIFT) & LEVEL_MASK,
     type: data.type,
     race: Number(data.race),
     attribute: data.attribute,
@@ -250,12 +254,14 @@ export function cardString(code, index) {
 const TYPE_MONSTER = 0x1;
 const TYPE_SPELL = 0x2;
 const TYPE_TRAP = 0x4;
+/** Pendulum Monster: doubles as a Spell in a Pendulum Zone, where its Scale matters. */
+const TYPE_PENDULUM = 0x1000000;
 const TYPE_LABELS = [
   [0x10, "Normal"], [0x20, "Effect"], [0x40, "Fusion"], [0x80, "Ritual"], [0x100, "Trap Monster"],
   [0x200, "Spirit"], [0x400, "Union"], [0x800, "Gemini"], [0x1000, "Tuner"], [0x2000, "Synchro"],
   [0x4000, "Token"], [0x10000, "Quick-Play"], [0x20000, "Continuous"], [0x40000, "Equip"],
   [0x80000, "Field"], [0x100000, "Counter"], [0x200000, "Flip"], [0x400000, "Toon"], [0x800000, "Xyz"],
-  [0x1000000, "Pendulum"], [0x4000000, "Link"],
+  [TYPE_PENDULUM, "Pendulum"], [TYPE_LINK, "Link"],
 ];
 /**
  * Monster type bits that force a card into the Extra Deck rather than the Main
@@ -321,7 +327,50 @@ export function isExtraDeckCard(code) {
 }
 
 /**
+ * Query. Is this a Pendulum Monster — i.e. a card that can sit in a Pendulum
+ * Zone as a scale? Its Pendulum Scale is then the only stat that matters, so
+ * every renderer that shows such a card must show `scaleText` beside it.
+ *
+ * Args:
+ *     code (number): Passcode (0 or unknown gives false).
+ *
+ * Returns:
+ *     boolean
+ *
+ * Examples:
+ *     >>> isPendulumMonster(16178681) // true   (Odd-Eyes Pendulum Dragon)
+ *     >>> isPendulumMonster(89631139) // false  (Blue-Eyes White Dragon)
+ *     >>> isPendulumMonster(0)        // false
+ */
+export function isPendulumMonster(code) {
+  return ((cardInfo(code)?.type ?? 0) & TYPE_PENDULUM) !== 0;
+}
+
+/**
+ * Pure function. A Pendulum Monster's scale as text. Every card in cards.cdb
+ * prints the same number on both sides, so that is the usual answer; a card
+ * whose sides differ is spelled out rather than silently shown as one number.
+ *
+ * Args:
+ *     lscale (number): Left Pendulum Scale.
+ *     rscale (number): Right Pendulum Scale.
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> scaleText(4, 4) // "4"
+ *     >>> scaleText(0, 0) // "0"
+ *     >>> scaleText(4, 8) // "L4/R8"
+ */
+export function scaleText(lscale, rscale) {
+  return lscale === rscale ? `${lscale}` : `L${lscale}/R${rscale}`;
+}
+
+/**
  * Query. Compact one-line summary of a card: what an agent needs at a glance.
+ * A Pendulum Monster also shows its Scale, which decides which Levels it lets
+ * you Pendulum Summon and is invisible in every other stat.
  *
  * Args:
  *     code (number): Passcode.
@@ -334,6 +383,8 @@ export function isExtraDeckCard(code) {
  *     "Blue-Eyes White Dragon [LIGHT Dragon Normal Monster Lv8 ATK3000 DEF2500]"
  *     >>> summarizeCard(4206964)
  *     "Trap Hole [Trap]"
+ *     >>> summarizeCard(16178681)
+ *     "Odd-Eyes Pendulum Dragon [DARK Dragon Effect Pendulum Monster Lv7 Scale4 ATK2500 DEF2000]"
  */
 export function summarizeCard(code) {
   const info = cardInfo(code);
@@ -341,7 +392,8 @@ export function summarizeCard(code) {
   if (!(info.type & TYPE_MONSTER)) return `${info.name} [${typeLabel(info.type)}]`;
   const attribute = ATTRIBUTE_LABELS[info.attribute] ?? `attr#${info.attribute}`;
   const race = RACE_LABELS[info.race] ?? `race#${info.race}`;
-  return `${info.name} [${attribute} ${race} ${typeLabel(info.type)} Lv${info.level} ATK${info.atk} DEF${info.def}]`;
+  const scale = info.type & TYPE_PENDULUM ? ` Scale${scaleText(info.lscale, info.rscale)}` : "";
+  return `${info.name} [${attribute} ${race} ${typeLabel(info.type)} Lv${info.level}${scale} ATK${info.atk} DEF${info.def}]`;
 }
 
 /**

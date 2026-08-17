@@ -20,7 +20,7 @@
  */
 
 import { OcgHintTiming, OcgHintType, OcgLocation, OcgMessageType, OcgPhase, OcgPosition, OcgResponseType, SelectBattleCMDAction, SelectIdleCMDAction, ocgAttributeString, ocgRaceString } from "ocgcore-wasm";
-import { cardInfo, cardName, codeOf } from "./cards.js";
+import { cardInfo, cardName, codeOf, isPendulumMonster } from "./cards.js";
 import { describe, sysString } from "./strings.js";
 import { cardAt } from "./field.js";
 import { nameOf, place, zoneLabel } from "./log.js";
@@ -195,6 +195,75 @@ export function tributeNote(code) {
   return "";
 }
 
+/** What a Pendulum Summon actually does; the core's action carries no words of its own. */
+const PENDULUM_SUMMON_NOTE = "summons monsters from your hand + face-up Pendulum Monsters from your Extra Deck (Levels strictly between the two scales), NOT the scale cards themselves";
+
+/**
+ * Query. The Pendulum Zone cards of one player, left zone first.
+ *
+ * A Pendulum Monster can only ever occupy a spell/trap zone by being a scale:
+ * under Master Rule 5 the Pendulum Zones ARE the leftmost and rightmost
+ * spell/trap zones (the core reports them as SZONE sequences 0 and 4, never as
+ * its own PZONE location), so the zone alone cannot tell you which cards are
+ * scales — the card's type does. Lower sequence = left zone.
+ *
+ * Args:
+ *     field (object|null): The viewer's field model (field.js), or null.
+ *     controller (0|1): Whose zones to read.
+ *
+ * Returns:
+ *     Array<{code: number, sequence: number}>: 0, 1 or 2 entries, left first.
+ *
+ * Examples:
+ *     >>> pendulumZoneCards(null, 0)  // []
+ *     >>> // field with Performapal Trump Witch in szone[0] and Dragonpit Magician in szone[4]:
+ *     >>> // pendulumZoneCards(field, 0)  ->  [{code: 91584698, sequence: 0}, {code: 51531505, sequence: 4}]
+ */
+export function pendulumZoneCards(field, controller) {
+  if (!field) return [];
+  return field.players[controller].szone
+    .map((slot, sequence) => ({ code: slot?.code ?? 0, sequence }))
+    .filter(({ code }) => isPendulumMonster(code));
+}
+
+/**
+ * Query. The label for a special-summon entry that is really a Pendulum Summon,
+ * or null when the entry is an ordinary special summon.
+ *
+ * ocgcore has no pendulum-summon idle action. It models the Pendulum Summon as
+ * a special-summon PROCEDURE owned by a card sitting in a Pendulum Zone, so the
+ * raw entry renders as "Special summon <that scale card>" — which reads as an
+ * instruction to summon the scale card itself, the exact opposite of what it
+ * does. Hence this label: name both scales, and say what is being summoned.
+ *
+ * The scales are the printed ones (cards.cdb). The set of monsters actually
+ * summonable is NOT computed here: the core enumerates it in the selection that
+ * follows this choice, and that list is the authority.
+ *
+ * Args:
+ *     entry ({code, controller, location, sequence}): A special_summons entry.
+ *     field (object|null): The asking player's field model, for the other scale.
+ *
+ * Returns:
+ *     string|null
+ *
+ * Examples:
+ *     >>> pendulumSummonLabel({code: 89631139, controller: 0, location: 4, sequence: 0}, null)  // null (not in a spell/trap zone)
+ *     >>> pendulumSummonLabel({code: 51531505, controller: 0, location: 8, sequence: 0}, null)
+ *     "Pendulum Summon using Dragonpit Magician (P0 s0) — summons monsters from your hand + face-up Pendulum Monsters from your Extra Deck (Levels strictly between the two scales), NOT the scale cards themselves"
+ */
+export function pendulumSummonLabel(entry, field) {
+  if (!(entry.location & (OcgLocation.SZONE | OcgLocation.PZONE))) return null;
+  const code = entry.code !== 0 ? entry.code : (field ? cardAt(field, entry)?.code ?? 0 : 0);
+  if (!isPendulumMonster(code)) return null;
+  const zoneCards = pendulumZoneCards(field, entry.controller);
+  const at = (sequence) => `P${entry.controller} ${zoneLabel(OcgLocation.SZONE, sequence)}`;
+  if (zoneCards.length !== 2) return `Pendulum Summon using ${entryLabel(entry, field)} — ${PENDULUM_SUMMON_NOTE}`;
+  const [left, right] = zoneCards;
+  const scales = `${nameOf(left.code)} ${cardInfo(left.code).lscale} (${at(left.sequence)}) / ${nameOf(right.code)} ${cardInfo(right.code).rscale} (${at(right.sequence)})`;
+  return `Pendulum Summon — scales ${scales}; ${PENDULUM_SUMMON_NOTE}`;
+}
+
 /**
  * Pure function. Makes duplicate labels distinct by appending an ordinal, so
  * "Activate X" and "Activate X" (two effects of one card whose script has no
@@ -259,7 +328,7 @@ export function buildMenu(msg, ctx) {
     case T.SELECT_IDLECMD: {
       const items = [];
       msg.summons.forEach((c, i) => items.push({ label: `Normal summon ${entryLabel(c, ctx.field)}${tributeNote(c.code)}`, value: { action: SelectIdleCMDAction.SELECT_SUMMON, index: i } }));
-      msg.special_summons.forEach((c, i) => items.push({ label: `Special summon ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_SPECIAL_SUMMON, index: i } }));
+      msg.special_summons.forEach((c, i) => items.push({ label: pendulumSummonLabel(c, ctx.field) ?? `Special summon ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_SPECIAL_SUMMON, index: i } }));
       msg.monster_sets.forEach((c, i) => items.push({ label: `Set monster ${entryLabel(c, ctx.field)}${tributeNote(c.code)}`, value: { action: SelectIdleCMDAction.SELECT_MONSTER_SET, index: i } }));
       msg.spell_sets.forEach((c, i) => items.push({ label: `Set spell/trap ${entryLabel(c, ctx.field)}`, value: { action: SelectIdleCMDAction.SELECT_SPELL_SET, index: i } }));
       msg.activates.forEach((c, i) => {
