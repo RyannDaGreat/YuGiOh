@@ -1,42 +1,63 @@
 /**
- * Duel sound effects. Real audio files from web/static/sfx/<name>.(ogg|mp3|wav)
- * when present (see web/static/ASSET-LICENSES.md); a tiny WebAudio synth stands
- * in for any cue that has no file, so the app never goes silent.
+ * Duel sound effects, from the best source available for each cue:
+ *
+ *   1. the Dueling Nexus duel-client wav for that event, served by the
+ *      /nexus-sfx/ route out of vendor/nexus/sfx/ (see nexus-map.js and
+ *      bin/fetch-nexus-sfx.sh) — authored for these exact events, so preferred;
+ *   2. a CC0 file in web/static/sfx/<name>.(ogg|mp3|wav) (see
+ *      web/static/ASSET-LICENSES.md), under the cue's name or its alias;
+ *   3. a tiny WebAudio synth, so the app never goes silent.
+ *
+ * vendor/ is gitignored, so step 1 is simply absent on a fresh checkout and
+ * every cue falls through to 2/3 — nothing to configure either way.
  *
  * The cue names are EDOPro's (summon, specialsummon, activate, set, flip,
  * reveal, equip, destroyed, banished, attack, directattack, draw, shuffle,
  * damage, gainlp, addcounter, removecounter, coinflip, diceroll, nextturn,
- * phase) plus ours for things EDOPro does not voice separately (hit, tribute,
- * chain, resolve, poschange, lose, turn-bell). One cue per distinct happening
- * in the animation digest (src/events.js) — that is the point of the set: the
- * ear should be able to tell a tribute summon from a special summon without
- * looking. The single source of truth for which cues exist is `synth` below;
- * every cue has a fallback there whether or not a file backs it.
+ * phase, negate) plus ours for things EDOPro does not voice separately (hit,
+ * tribute, chain, resolve, poschange, lose, turn-bell). One cue per distinct
+ * happening in the animation digest (src/events.js) — that is the point of the
+ * set: the ear should be able to tell a tribute summon from a special summon
+ * without looking. The single source of truth for which cues exist is `synth`
+ * below; every cue has a fallback there whether or not a file backs it.
  *
  * Browsers only allow audio after a user gesture; `unlock()` must be called
  * from a click handler once (the mute toggle does it).
  */
+import { nexusUrl } from "./nexus-map.js";
 
 /** File basenames to try when a cue's own name has no file, so older files keep working. */
 const ALIASES = { gainlp: "recover", nextturn: "turn" };
 const EXTENSIONS = ["ogg", "mp3", "wav"];
 /** Loaded HTMLAudioElements by cue name (only cues that have a file). */
 const clips = new Map();
-/** Volume for file clips (synth has its own master gain). */
+/**
+ * Volume for file clips (synth has its own master gain). One value for both
+ * file sources: `ffmpeg -af volumedetect` over attack/summon/draw/activate puts
+ * the Nexus wavs at -14.8..-2.2 dBFS peak / -23.9..-18.6 dB mean against the
+ * CC0 set's -1.5..-0.9 dBFS peak / -27.6..-11.6 dB mean — i.e. Nexus is if
+ * anything quieter, never hotter, so no per-source trim is needed.
+ */
 const CLIP_VOLUME = 0.5;
 
 /**
- * Query. The URLs to try for one cue, in order: its own name, then its alias.
+ * Pure function. The URLs to try for one cue, best source first: its Nexus wav
+ * (when the set has one), then its own name under /sfx/, then its alias there.
+ * Probing stops at the first 200, so a cue with a Nexus sound costs one request
+ * and never touches the /sfx/ names.
  *
  * @param {string} name - Cue name
- * @returns {string[]} Candidate URLs under /sfx/
+ * @returns {string[]} Candidate URLs, in preference order
  *
- * @example candidateUrls("flip")   // ["/sfx/flip.ogg", "/sfx/flip.mp3", "/sfx/flip.wav"]
- * @example candidateUrls("gainlp") // ["/sfx/gainlp.ogg", ..., "/sfx/recover.ogg", ...]
+ * @example candidateUrls("flip")   // ["/nexus-sfx/summon-flip.wav", "/sfx/flip.ogg", "/sfx/flip.mp3", "/sfx/flip.wav"]
+ * @example candidateUrls("gainlp") // ["/nexus-sfx/life-recover.wav", "/sfx/gainlp.ogg", ..., "/sfx/recover.ogg", ...]
+ * @example candidateUrls("hit")    // ["/sfx/hit.ogg", "/sfx/hit.mp3", "/sfx/hit.wav"]
  */
 function candidateUrls(name) {
+  const nexus = nexusUrl(name);
   const basenames = ALIASES[name] ? [name, ALIASES[name]] : [name];
-  return basenames.flatMap((base) => EXTENSIONS.map((ext) => `/sfx/${base}.${ext}`));
+  const own = basenames.flatMap((base) => EXTENSIONS.map((ext) => `/sfx/${base}.${ext}`));
+  return nexus ? [nexus, ...own] : own;
 }
 
 /**
@@ -170,6 +191,10 @@ const synth = {
   // Cards and effects.
   activate: () => { tone("sine", 880, 1320, 0.18, 0.5); tone("sine", 1320, 1760, 0.18, 0.4, 0.1); },
   chain: () => { tone("triangle", 520, 780, 0.12, 0.35); tone("triangle", 780, 1040, 0.12, 0.25, 0.07); },
+  // Registered for the Nexus negate.wav; src/events.js does not yet emit a
+  // negation event (CHAIN_NEGATED only closes the chain window), so nothing
+  // calls it — the cue exists so a caller can be added without touching audio.
+  negate: () => { tone("square", 620, 180, 0.22, 0.4); noise(0.18, 1200, 200, 0.35); },
   resolve: () => { tone("sine", 900, 450, 0.25, 0.35); },
   reveal: () => { tone("sine", 1046, 1568, 0.22, 0.4); },
   equip: () => { tone("square", 700, 1400, 0.12, 0.25); tone("square", 1050, 1400, 0.12, 0.2, 0.08); },

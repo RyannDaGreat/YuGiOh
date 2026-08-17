@@ -44,6 +44,11 @@ node bin/ygo.js dump-cards
 # Card art for the web UI (cached locally; only the decks/duels present).
 node bin/ygo.js fetch-pics
 
+# Duel sound effects for the web UI (personal use, never committed). Optional:
+# without them the UI falls back to the CC0 files in web/static/sfx/ and to its
+# synth, so a failure here must not abort setup.
+bin/fetch-nexus-sfx.sh || echo "warning: Nexus sounds not fetched (offline?); CC0/synth fallbacks will be used"
+
 # Web UI (SvelteKit) — a client of the same engine; optional for CLI-only use.
 (cd web && npm install)
 
