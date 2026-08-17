@@ -159,7 +159,7 @@ program
     const askAt = opts.askAt ? opts.askAt.split(",").map((s) => s.trim()).filter(Boolean) : [];
     let passed = 0;
     for (;;) {
-      heartbeat(id, player, process.env.YGO_BOT ? "bot" : "cli", Date.now());
+      heartbeat(id, player, "cli", Date.now());
       const view = await viewDuel(loadDuel(id), player);
       if (!view.ended && view.pendingPlayer === player && opts.autoPass && shouldAutoPass(view.menu, view.pending, { askFor, askAt })) {
         await playChoice(id, player, "0");

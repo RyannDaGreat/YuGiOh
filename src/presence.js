@@ -1,7 +1,7 @@
 /**
  * Seat presence: who is currently sitting at a seat, and are they alive?
  *
- * Any client holding a seat (a browser tab polling, `ygo wait`, a headless bot)
+ * Any client holding a seat (a browser tab polling, or `ygo wait` on the CLI)
  * writes a heartbeat file; a seat is "online" if its heartbeat is fresh. This
  * is harness plumbing shared by the CLI and the web UI — it says nothing about
  * the game and never touches the duel record.
@@ -33,7 +33,7 @@ export function presencePath(id, seat) {
  * Args:
  *     id (string): Duel id.
  *     seat (0|1): Seat.
- *     kind (string): "web", "cli" or "bot".
+ *     kind (string): "web" or "cli".
  *     now (number): Timestamp (ms).
  */
 export function heartbeat(id, seat, kind, now) {
