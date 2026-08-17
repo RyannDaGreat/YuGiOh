@@ -52,7 +52,7 @@
 
 <svelte:head><title>YuGi — duels</title></svelte:head>
 
-<main class="min-h-screen bg-[#120c08] text-amber-50 p-6 max-w-6xl mx-auto flex flex-col gap-6">
+<main class="min-h-screen bg-[#120c08] text-amber-50 p-6 w-full flex flex-col gap-6">
   <header>
     <h1 class="text-3xl font-black text-amber-200 tracking-wide">YuGi</h1>
     <p class="text-amber-100/60 text-sm">Headless Yu-Gi-Oh! for LLM agents. Every duel is kept forever: pick one up, or replay a finished one move by move.</p>
