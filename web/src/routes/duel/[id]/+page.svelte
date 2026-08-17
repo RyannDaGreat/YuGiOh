@@ -277,7 +277,7 @@
         {#if playbackAt !== null}
           <p class="text-amber-100/70 px-2 pb-1">as of move {view.at}{view.atTime ? ` · ${chatClock(view.atTime)}` : ""} — read-only</p>
         {/if}
-        <div bind:this={chatEl} class="scroll-themed max-h-48 overflow-y-scroll px-2 flex flex-col gap-1 leading-snug">
+        <div bind:this={chatEl} class="scroll-themed max-h-48 overflow-y-auto px-2 flex flex-col gap-1 leading-snug">
           {#each chatMessages as m}
             <div><span class="font-mono text-amber-100/50">{chatClock(m.at)}</span> <b class="text-amber-200">{m.name}</b><span class="text-amber-100/50"> ({m.seat === 2 ? "spec" : `P${m.seat}`}):</span> {m.text}</div>
           {:else}
@@ -302,7 +302,7 @@
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
-      <section class="scroll-themed rounded-md bg-black/40 border border-amber-900/60 p-2 max-h-[26rem] overflow-y-scroll">
+      <section class="scroll-themed rounded-md bg-black/40 border border-amber-900/60 p-2 max-h-[26rem] overflow-y-auto">
         {#if playbackAt !== null}
           <p class="text-amber-100/70 text-xs">Playback: position after move {view.at}. ⏭ live to return, or fork here to play on from this point.</p>
           {#if view.menu}<p class="text-amber-100/70 text-xs mt-1">Decision at this point: {view.menu.title}</p>{/if}
@@ -340,7 +340,7 @@
 
       <section class="rounded-md bg-black/40 border border-amber-900/60 p-2">
         <h3 class="font-bold text-amber-200 text-sm mb-1">Log</h3>
-        <pre bind:this={logEl} class="scroll-themed h-[22rem] overflow-y-scroll text-[0.68rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.logLines.slice(-LOG_TAIL).join("\n")}</pre>
+        <pre bind:this={logEl} class="scroll-themed h-[22rem] overflow-y-auto text-[0.68rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.logLines.slice(-LOG_TAIL).join("\n")}</pre>
       </section>
 
       <details class="rounded-md bg-black/40 border border-amber-900/60 p-2 text-xs">
@@ -349,7 +349,7 @@
           <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900" onclick={() => navigator.clipboard.writeText(view.prompt)}>copy</button>
           <span class="text-amber-100/60 self-center">CLI: <code>ygo prompt {view.id} --as {view.viewer === 2 ? "all" : view.viewer}</code></span>
         </div>
-        <pre class="scroll-themed max-h-[30rem] overflow-y-scroll text-[0.65rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.prompt}</pre>
+        <pre class="scroll-themed max-h-[30rem] overflow-y-auto text-[0.65rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.prompt}</pre>
       </details>
 
       <details class="rounded-md bg-black/40 border border-amber-900/60 p-2 text-xs">

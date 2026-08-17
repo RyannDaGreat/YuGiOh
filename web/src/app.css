@@ -24,12 +24,13 @@
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes floatup { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)); } }
 @keyframes dagger { 0% { offset-distance: 0%; opacity: 0.2; } 15% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
-/* Always-visible themed scrollbar (macOS overlay scrollbars otherwise hide it, which
-   hid the menu's Confirm button below the fold). Applied to every scrollable panel. */
-.scroll-themed { scrollbar-width: thin; scrollbar-color: #b45309 #1c1410; }
-.scroll-themed::-webkit-scrollbar { width: 10px; height: 10px; }
-.scroll-themed::-webkit-scrollbar-track { background: #1c1410; }
-.scroll-themed::-webkit-scrollbar-thumb { background: #b45309; border-radius: 5px; border: 2px solid #1c1410; }
+/* Themed scrollbars app-wide. Defining ::-webkit-scrollbar makes any overflowing container
+   show a classic (non-overlay) bar instead of macOS's hide-until-scroll overlay, so a scrollbar
+   is always visible exactly when there is something to scroll — and never an empty track. */
+* { scrollbar-width: thin; scrollbar-color: #b45309 #1c1410; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: #1c1410; }
+*::-webkit-scrollbar-thumb { background: #b45309; border-radius: 5px; border: 2px solid #1c1410; }
 .fx-flash { animation: flash var(--flash-ms) ease-out; }
 .fx-shake { animation: shake var(--shake-ms) ease-in-out; }
 .fx-float { animation: floatup var(--float-ms) ease-out forwards; }
