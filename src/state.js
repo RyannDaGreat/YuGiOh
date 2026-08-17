@@ -117,6 +117,33 @@ export function unseenNames(deckCodes, seenCodes) {
 }
 
 /**
+/**
+ * Pure function. Normalises a queried card's counters to `{type: count}`.
+ *
+ * ocgcore-wasm's QUERY_COUNTERS parser stores each counter BACKWARDS — keyed by
+ * the count with the type as the value (`t.counters[count] = type`) — so a card
+ * with 7 Spell Counters (type 1) comes back as `{7: 1}` instead of `{1: 7}`,
+ * which makes a counter badge read "1" no matter how high it climbs. We swap it
+ * back here. (Two counter types with the SAME count would already have collided
+ * inside the wasm before we see them; that rare case is unrecoverable and lost.)
+ *
+ * Args:
+ *     raw (object): The wasm's `card.counters`, keyed by count → type.
+ *
+ * Returns:
+ *     object: `{type: count}`.
+ *
+ * Examples:
+ *     >>> normalizeCounters({7: 1})   // {1: 7}  (7 Spell Counters)
+ *     >>> normalizeCounters({14: 1})  // {1: 14}
+ */
+function normalizeCounters(raw) {
+  const out = {};
+  for (const [count, type] of Object.entries(raw)) out[type] = Number(count);
+  return out;
+}
+
+/**
  * Pure function. A field card as data, identity withheld when not known.
  *
  * Args:
@@ -148,7 +175,7 @@ export function fieldCardData(card, known, isMonsterZone) {
   }
   if (card.targetCards?.length) data.targets = card.targetCards.map((t) => `P${t.controller} ${zoneLabel(t.location, t.sequence)}`);
   if (card.overlayCards?.length) data.materials = card.overlayCards.map(cardName);
-  if (card.counters && Object.keys(card.counters).length) data.counters = card.counters;
+  if (card.counters && Object.keys(card.counters).length) data.counters = normalizeCounters(card.counters);
   return data;
 }
 
