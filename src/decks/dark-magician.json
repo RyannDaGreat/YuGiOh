@@ -1,0 +1,147 @@
+{
+  "name": "Dark Magician",
+  "category": "structure",
+  "format": "classic",
+  "note": "Dark Magician Spellcaster control-beatdown — docs/goat-decks.md §3.2. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §3.2",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "**Game plan:** Spellcaster control-beatdown that tutors and cheats out Dark Magician for 2-for-1s.\n\n**Key cards / engine:** Apprentice Magician + Skilled Magicians; Magical Dimension.\n\n**How to pilot / combo lines:**\n- **`Apprentice Magician`** searches another Level-2 Spellcaster on death (chain Apprentices, or grab `Old Vindictive Magician`/`Magician of Faith`) and builds counters on `Skilled Dark/White Magician`, which Special Summon `Dark Magician` at three counters.\n- **`Magical Dimension` is the payoff:** \"Tribute [a Spellcaster you control]; Special Summon 1 Spellcaster from your hand, then you can destroy 1 monster on the field\" [CDB] — tribute a token/Apprentice, drop `Dark Magician`, and blow up an opponent's monster in one card.\n- `Thousand Knives` (with Dark Magician out) and `Dark Magic Attack` clear threats/backrow; `Dark Magician of Chaos` is a Level-8 finisher that rebuys a Spell on summon.\n\n**Weaknesses:** the vanilla Dark Magicians are slow if you don't draw the Apprentice/Skilled engine; `Nobleman of Crossout` and mass removal punish the set-up bodies.\n\n*Note:* do **not** use `Magician's Circle` — it is Cybernetic Revolution, illegal in GOAT/era play.",
+  "main": [
+    [
+      "Dark Magician",
+      2
+    ],
+    [
+      "Dark Magician Girl",
+      1
+    ],
+    [
+      "Dark Magician of Chaos",
+      1
+    ],
+    [
+      "Skilled Dark Magician",
+      2
+    ],
+    [
+      "Skilled White Magician",
+      2
+    ],
+    [
+      "Apprentice Magician",
+      3
+    ],
+    [
+      "Old Vindictive Magician",
+      1
+    ],
+    [
+      "Magician of Faith",
+      1
+    ],
+    [
+      "Breaker the Magical Warrior",
+      1
+    ],
+    [
+      "Tsukuyomi",
+      1
+    ],
+    [
+      "Spirit Reaper",
+      1
+    ],
+    [
+      "Sangan",
+      1
+    ],
+    [
+      "Sinister Serpent",
+      1
+    ],
+    [
+      "Magical Dimension",
+      1
+    ],
+    [
+      "Dark Magic Attack",
+      1
+    ],
+    [
+      "Thousand Knives",
+      1
+    ],
+    [
+      "Magical Hats",
+      1
+    ],
+    [
+      "Pot of Greed",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Delinquent Duo",
+      1
+    ],
+    [
+      "Heavy Storm",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Premature Burial",
+      1
+    ],
+    [
+      "Snatch Steal",
+      1
+    ],
+    [
+      "Book of Moon",
+      2
+    ],
+    [
+      "Mirror Force",
+      1
+    ],
+    [
+      "Torrential Tribute",
+      1
+    ],
+    [
+      "Ring of Destruction",
+      1
+    ],
+    [
+      "Call of the Haunted",
+      1
+    ],
+    [
+      "Sakuretsu Armor",
+      2
+    ],
+    [
+      "Bottomless Trap Hole",
+      1
+    ],
+    [
+      "Solemn Judgment",
+      1
+    ],
+    [
+      "Dust Tornado",
+      1
+    ]
+  ],
+  "extra": [],
+  "side": []
+}

@@ -1,0 +1,149 @@
+{
+  "name": "Zombie Zoo",
+  "category": "structure",
+  "format": "goat",
+  "note": "Zombie (\"Zoo\") tribal — docs/goat-decks.md §2.4. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §2.4",
+    "https://www.goatformat.com/whatisgoat.html",
+    "https://formatlibrary.com/formats/goat",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "*Interpretation:* the \"Zoo\" slot most plausibly means a Zombie tribal deck. `Rescue Cat` is legal but has weak Beast targets in this pool, so a Beast \"Zoo\" is fringe; the Zombie build is the real era deck.\n\n**Game plan:** resilient midrange that keeps refueling bodies until it grinds the opponent out.\n\n**Key cards / engine:** Pyramid Turtle → Vampire Lord/Ryu Kokki; Book of Life; Call of the Mummy.\n\n**How to pilot / combo lines:**\n- **`Pyramid Turtle` is the engine:** when destroyed by battle it Special Summons any Zombie with ≤2000 DEF from the deck [CDB] — grab `Vampire Lord` (recurs itself and mills the opponent) or `Ryu Kokki` (2400, eats Warrior/Spellcaster attackers). So trading Turtle away is pure profit.\n- **`Mystic Tomato` overlaps** — it fetches DARK Zombies (Pyramid Turtle 1200, Double Coston, Spirit Reaper), so both recruiters chain into a wall.\n- **`Book of Life`** revives a Zombie *and* banishes one from the opponent's grave [CDB] — double duty as anti-Chaos tech. **`Call of the Mummy`** free-summons a Zombie from hand each turn while you control no monsters [CDB], so lead with it on an empty board.\n- **`Double Coston`** is a one-body tribute for `Vampire Lord`. Play to the grind: attack into recruiters happily, the deck out-values fair decks.\n\n**Weaknesses:** `Nobleman of Crossout` blows out `Pyramid Turtle`/set recruiters (banishes them, no float); mass removal on a wide board; graveyard banishing turns off `Book of Life`/`Vampire Lord` recursion.",
+  "main": [
+    [
+      "Pyramid Turtle",
+      3
+    ],
+    [
+      "Vampire Lord",
+      2
+    ],
+    [
+      "Ryu Kokki",
+      2
+    ],
+    [
+      "Double Coston",
+      2
+    ],
+    [
+      "Spirit Reaper",
+      1
+    ],
+    [
+      "Regenerating Mummy",
+      1
+    ],
+    [
+      "Mystic Tomato",
+      2
+    ],
+    [
+      "Sangan",
+      1
+    ],
+    [
+      "Sinister Serpent",
+      1
+    ],
+    [
+      "Magician of Faith",
+      1
+    ],
+    [
+      "Breaker the Magical Warrior",
+      1
+    ],
+    [
+      "Exiled Force",
+      1
+    ],
+    [
+      "Night Assailant",
+      1
+    ],
+    [
+      "Don Zaloog",
+      1
+    ],
+    [
+      "Book of Life",
+      1
+    ],
+    [
+      "Call of the Mummy",
+      1
+    ],
+    [
+      "Pot of Greed",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Delinquent Duo",
+      1
+    ],
+    [
+      "Heavy Storm",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Premature Burial",
+      1
+    ],
+    [
+      "Snatch Steal",
+      1
+    ],
+    [
+      "Nobleman of Crossout",
+      1
+    ],
+    [
+      "Book of Moon",
+      1
+    ],
+    [
+      "Mirror Force",
+      1
+    ],
+    [
+      "Torrential Tribute",
+      1
+    ],
+    [
+      "Ring of Destruction",
+      1
+    ],
+    [
+      "Call of the Haunted",
+      1
+    ],
+    [
+      "Sakuretsu Armor",
+      2
+    ],
+    [
+      "Bottomless Trap Hole",
+      1
+    ],
+    [
+      "Solemn Judgment",
+      1
+    ],
+    [
+      "Dust Tornado",
+      1
+    ]
+  ],
+  "extra": [],
+  "side": []
+}

@@ -1,0 +1,211 @@
+{
+  "name": "Pegasus (GOAT-legal)",
+  "category": "structure",
+  "format": "goat",
+  "note": "Closest GOAT-legal build of Starter Deck: Pegasus — the SDP product minus Monster Reborn and Witch of the Black Forest (48 cards). docs/goat-decks.md §3B. Names validated against cards.cdb.",
+  "sources": [
+    "docs/goat-decks.md §3B",
+    "https://ygoprodeck.com/pack/Starter+Deck:+Pegasus",
+    "https://yugipedia.com/wiki/Structure_Deck:_Pegasus",
+    "https://formatlibrary.com/formats/goat",
+    "https://www.goatformat.com/whatisgoat.html",
+    "vendor/BabelCDB/cards.cdb (card text + exact-name validation)"
+  ],
+  "manual": "**Closest GOAT-legal build of Starter Deck: Pegasus.** As printed, SDP is a 2003 deck that includes cards **Forbidden** on the April-2005 list — this build is the exact SDP product with **`Monster Reborn`** and **`Witch of the Black Forest`** (edge; forbidden on the strict list) removed (48 cards). Everything else is legal at these counts (the Limited-1 cards `Dark Hole`, `Change of Heart`, `Graceful Charity`, `Mystical Space Typhoon` are each present exactly once). Still no Extra Deck — the ace `Relinquished` is a Ritual.\n\n**Game plan:** open `Toon World`, then either beat down with direct-attacking Toons or grind with Relinquished's absorb.\n\n**Key cards / engine:** Toon World enabler; Toon monsters; Relinquished (Black Illusion Ritual).\n\n**How to pilot / combo lines (all [CDB]):**\n- **Open Toon World, mind the tax.** `Toon World`: \"Activate this card by paying 1000 LP\" [CDB]. Once it's up, your Toons Special Summon from hand and \"Can attack your opponent directly, unless they control a Toon monster\" [CDB], but each attack costs \"pay 500 LP\" and **\"If 'Toon World' on the field is destroyed, destroy this card\"** [CDB].\n- **Toon curve:** `Toon Mermaid` needs no tribute; `Toon Summoned Skull` tributes 1; `Manga Ryu-Ran`/`Blue-Eyes Toon Dragon` tribute 2 [CDB]. Summon the cheapest that closes and swing directly; watch LP (1000 + 500/attack).\n- **Relinquished control line:** Ritual-summon `Relinquished` with `Black Illusion Ritual` (tribute a Level-1+ monster [CDB]), equip an opponent monster (\"ATK/DEF become equal … battle damage you take … inflicts equal effect damage to your opponent\" [CDB]) — steal their attacker and turn its swings into burn.\n\n**Weaknesses:** `Toon World` is a single point of failure (`MST`/`Heavy Storm`/`De-Spell` wipes every Toon at once [CDB]); the LP tax bleeds you into `Ring`/burn range; `Relinquished` bricks without both halves.\n\n*For a competitive Toon/Relinquished deck,* use the tuned `relinquished-ter` engine and splash pool-legal Toons plus `Metamorphosis`→`Thousand-Eyes Restrict` for the lock. (⚠ Verify pool legality of any Toon support like `Toon Table of Contents` before adding — a `(GOAT)` errata entry is not a legality guarantee.)",
+  "main": [
+    [
+      "Relinquished",
+      1
+    ],
+    [
+      "Red Archery Girl",
+      1
+    ],
+    [
+      "Ryu-Ran",
+      1
+    ],
+    [
+      "Illusionist Faceless Mage",
+      1
+    ],
+    [
+      "Rogue Doll",
+      1
+    ],
+    [
+      "Uraby",
+      1
+    ],
+    [
+      "Giant Soldier of Stone",
+      1
+    ],
+    [
+      "Aqua Madoor",
+      1
+    ],
+    [
+      "Toon Alligator",
+      1
+    ],
+    [
+      "Hane-Hane",
+      1
+    ],
+    [
+      "Sonic Bird",
+      1
+    ],
+    [
+      "Jigen Bakudan",
+      1
+    ],
+    [
+      "Mask of Darkness",
+      1
+    ],
+    [
+      "Man-Eater Bug",
+      1
+    ],
+    [
+      "Muka Muka",
+      1
+    ],
+    [
+      "Dream Clown",
+      1
+    ],
+    [
+      "Armed Ninja",
+      1
+    ],
+    [
+      "Hiro's Shadow Scout",
+      1
+    ],
+    [
+      "Blue-Eyes Toon Dragon",
+      1
+    ],
+    [
+      "Toon Summoned Skull",
+      1
+    ],
+    [
+      "Manga Ryu-Ran",
+      1
+    ],
+    [
+      "Toon Mermaid",
+      1
+    ],
+    [
+      "Toon World",
+      1
+    ],
+    [
+      "Black Pendant",
+      1
+    ],
+    [
+      "Dark Hole",
+      1
+    ],
+    [
+      "Dian Keto the Cure Master",
+      1
+    ],
+    [
+      "Fissure",
+      1
+    ],
+    [
+      "De-Spell",
+      1
+    ],
+    [
+      "Change of Heart",
+      1
+    ],
+    [
+      "Stop Defense",
+      1
+    ],
+    [
+      "Mystical Space Typhoon",
+      1
+    ],
+    [
+      "Rush Recklessly",
+      1
+    ],
+    [
+      "Remove Trap",
+      1
+    ],
+    [
+      "Soul Release",
+      1
+    ],
+    [
+      "Yami",
+      1
+    ],
+    [
+      "Black Illusion Ritual",
+      1
+    ],
+    [
+      "Ring of Magnetism",
+      1
+    ],
+    [
+      "Graceful Charity",
+      1
+    ],
+    [
+      "Gryphon Wing",
+      1
+    ],
+    [
+      "Trap Hole",
+      1
+    ],
+    [
+      "Reinforcements",
+      1
+    ],
+    [
+      "Castle Walls",
+      1
+    ],
+    [
+      "Waboku",
+      1
+    ],
+    [
+      "Seven Tools of the Bandit",
+      1
+    ],
+    [
+      "Ultimate Offering",
+      1
+    ],
+    [
+      "Robbin' Goblin",
+      1
+    ],
+    [
+      "Magic Jammer",
+      1
+    ],
+    [
+      "Enchanted Javelin",
+      1
+    ]
+  ],
+  "extra": [],
+  "side": []
+}
