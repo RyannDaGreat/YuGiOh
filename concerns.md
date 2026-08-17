@@ -80,3 +80,21 @@ delete. The manifest says WHAT the project is; this says HOW it got here, includ
 - Duel records + chat are committed to git, so nothing played is lost. Gap identified by the user:
   responses weren't timestamped, so chat couldn't be aligned to moves on a timeline. Being fixed by
   adding a parallel `times` array (replay untouched) + chat-on-timeline + a history home page.
+- 2026-08-16, done (worktree branch, merged main in): `times` shipped. Decisions and the reasoning
+  behind them:
+  - `times` is a PARALLEL array, not a field on each response, so `responses` keeps its exact shape
+    and a replay stays byte-identical. It is never handed to the core.
+  - Old records lack `times` entirely. Naively appending to them would have written `times[0]` for
+    response #11 — a silent off-by-N that would have mis-dated every future move on every existing
+    duel. `store.alignTimes(times, count)` pads/truncates to one entry per response, and every
+    writer (playChoice, forkDuel, `ygo undo`) goes through it. Verified live on `t1` (10 untimed
+    moves): the record became `[null ×10, "…T01:31:06Z"]`.
+  - Playback cutoff is `at <= atTime` (inclusive), and a null cutoff means []: at move 0, or on a
+    record with no clock, nothing is *known* to have been said, so nothing is shown rather than
+    leaking the whole log. Confirmed end to end on a throwaway duel: a line sent between move 2 and
+    move 3 appears from `?at=3` onward and not before.
+  - Filtering lives in `engine.duelPayload`, not in `session.viewDuel`: the session layer takes a
+    record, not an id, and must not do chat I/O. viewDuel only exposes `atTime`.
+  - Manifest-first was violated here: this agent started before the manifest existed on its base
+    commit and only received it by merging main mid-task, so the manifest was updated after the
+    code. Sections 2/3/5/7/9 now describe what shipped.
