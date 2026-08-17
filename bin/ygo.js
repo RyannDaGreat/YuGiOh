@@ -22,6 +22,14 @@ import { victoryString } from "../src/strings.js";
 import { heartbeat } from "../src/presence.js";
 import { appendChat, chatSince, formatChat, loadChat } from "../src/chat.js";
 
+/**
+ * Command. Heartbeat this seat if it is a real player (0/1), so presence shows
+ * online during a turn — every seat command, not only `wait`.
+ */
+function touchPresence(id, viewer) {
+  if (viewer === 0 || viewer === 1) heartbeat(id, viewer, "cli", Date.now());
+}
+
 /** Default log tail shown after a play, so the agent sees the consequences without asking. */
 const DEFAULT_LOG_TAIL = 60;
 /** Card art source (Konami art, hosted by YGOPRODeck; their terms ask to cache, not hotlink). */
@@ -78,6 +86,7 @@ program
   .option("--at <move>", "show the position after this many moves (playback)")
   .action(async (id, opts) => {
     const viewer = parseViewer(opts.as);
+    touchPresence(id, viewer);
     const view = await viewDuel(loadDuel(id), viewer, opts.at === undefined ? undefined : Number(opts.at));
     if (opts.at !== undefined) console.log(`[playback: move ${view.at} of ${view.total}]`);
     console.log(view.stateLines.join("\n"));
@@ -107,7 +116,9 @@ program
   .requiredOption("--as <viewer>", "0, 1 or all")
   .option("--at <move>", "at this position (playback)")
   .action(async (id, opts) => {
-    console.log(await promptText(loadDuel(id), parseViewer(opts.as), opts.at === undefined ? undefined : Number(opts.at)));
+    const viewer = parseViewer(opts.as);
+    touchPresence(id, viewer);
+    console.log(await promptText(loadDuel(id), viewer, opts.at === undefined ? undefined : Number(opts.at)));
   });
 
 program
@@ -116,7 +127,9 @@ program
   .requiredOption("--as <viewer>", "0, 1 or all")
   .option("--at <move>", "the decision pending after this many moves (playback)")
   .action(async (id, opts) => {
-    const view = await viewDuel(loadDuel(id), parseViewer(opts.as), opts.at === undefined ? undefined : Number(opts.at));
+    const viewer = parseViewer(opts.as);
+    touchPresence(id, viewer);
+    const view = await viewDuel(loadDuel(id), viewer, opts.at === undefined ? undefined : Number(opts.at));
     printStatus(view);
   });
 
@@ -132,6 +145,7 @@ program
   .action(async (id, choice, opts) => {
     const player = parseViewer(opts.as);
     if (player === 2) throw new Error("--as must be 0 or 1 to play");
+    touchPresence(id, player);
     const result = await playChoice(id, player, choice);
     console.log(`P${player} chose: ${result.chosenLabel}`);
     let newLogLines = result.newLogLines;
@@ -224,6 +238,7 @@ program
   .option("--last <n>", "when reading: only the last N messages")
   .action((id, text, opts) => {
     const seat = parseViewer(opts.as);
+    touchPresence(id, seat);
     if (text === undefined) {
       const messages = loadChat(id);
       const shown = opts.last ? messages.slice(-Number(opts.last)) : messages;
