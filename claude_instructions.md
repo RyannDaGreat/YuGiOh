@@ -102,7 +102,17 @@ browser, or subagent vs subagent — with:
   `src/cards.js` (`EXTRA_DECK_TYPES`/`isExtraDeckCard`), `src/session.js` (viewDuel exposes
   `format` + per-seat deck metadata; promptText lists the extra deck), `bin/ygo.js` (`new --format`,
   `deck`, `decks`, and `fetch-pics` which pulls art for Main+Extra+Side of every deck and duel),
-  `README.md` "Decks", and the deck files `src/decks/*.json`.
+  `README.md` "Decks", the box-art path (`bin/ygo.js` `fetch-boxart`, the `/boxart/[code]` route,
+  `web/src/lib/pretty/DeckThumb.svelte`), and the deck files `src/decks/*.json`.
+  A deck's `category` is one of THREE: `"structure"` = an official Konami product (Structure/Starter
+  Deck) — a fixed printed list with an official name, a `setCode` (e.g. "SD1", "SDY"), and REAL box
+  cover art; `"curated"` = a meta/theme deck we built from research (GOAT netdecks, anime themes),
+  shown by its signature card; `"user"` = user-authored. The /decks browser and home picker group by
+  these three. REQUIREMENT: every `structure` deck MUST carry a `setCode` AND a `boxArt` URL of its
+  real product box (from Yugipedia — resolve the article infobox `image` field via the MediaWiki
+  `imageinfo` API to the `ms.yugipedia.com` direct URL); `fetch-boxart` downloads each into
+  `vendor/boxart/<setCode>.<ext>` (gitignored, like `vendor/pics`), and `DeckThumb` shows the box on
+  the tile/detail header, falling back to the signature card only until the box is cached.
   Deck files are JSONC (loadDeck strips `//` and block comments, so a card row can cite its source
   inline) and carry an optional `sources: [str]` array — the machine-readable citation list for the
   decklist + manual. Every non-vanilla deck's list and combo manual comes from real research (see
