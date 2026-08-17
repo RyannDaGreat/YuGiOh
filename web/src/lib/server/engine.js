@@ -68,6 +68,8 @@ export async function duelPayload(id, viewer, at) {
     state: view.state,
     logLines: view.logLines,
     menu: menuSummary(view.menu),
+    // Monsters that may still declare an attack, so the table can mark them.
+    attackers: view.attackers,
     // Replay only: which option the seat actually took at this position, so the
     // scrubber can show the decision being made rather than just its title. null
     // when live, or when the answer was a multi-pick (see menu.chosenOption).

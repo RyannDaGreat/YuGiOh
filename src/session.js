@@ -97,6 +97,14 @@ export async function viewDuel(duel, viewer, at) {
       pending = askedView[askedView.length - 1];
       menu = buildMenu(pending, { ...hintsBefore(askedView), field: askedField });
     }
+    // Which monsters may still declare an attack, straight from the core's own
+    // battle-command list. Asking the core is the only correct source: "can attack"
+    // is a rules question (already attacked, position, summoning sickness, effect
+    // locks), so deriving it from the log would mean re-implementing the rules.
+    // Empty outside a battle-phase decision, which is exactly when nothing may attack.
+    const attackers = pending?.type === OcgMessageType.SELECT_BATTLECMD
+      ? pending.attacks.map((c) => ({ controller: c.controller, sequence: c.sequence, canDirect: Boolean(c.can_direct) }))
+      : [];
     return {
       ended: result.ended,
       winner: field.winner,
@@ -110,6 +118,7 @@ export async function viewDuel(duel, viewer, at) {
       state,
       stateLines,
       menu,
+      attackers,
       menuLines: menu ? renderMenu(menu) : [],
       pending,
       messageCount: masked.length,

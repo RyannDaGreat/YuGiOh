@@ -25,7 +25,15 @@
   import { flip } from "svelte/animate";
   import { sfx } from "./sound.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"] } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"], attackers = [] } = $props();
+
+  /**
+   * Zone ids of monsters that may still declare an attack ("1-m-3"), from the core's
+   * battle-command list. A faded sword sits on each until it attacks, at which point
+   * the core drops it from the list and the marker clears on the next poll — the
+   * travelling dagger (see `dagger()`) is the same blade moving to its target.
+   */
+  const attackable = $derived(new Set((attackers ?? []).map((a) => `${a.controller}-m-${a.sequence}`)));
 
   /** Effects state — transient classes/labels keyed by zone id ("1-m-3"). */
   let fx = $state({});
@@ -427,17 +435,25 @@
   });
 </script>
 
+{#snippet attackMark(id)}
+  {#if attackable.has(id)}
+    <span class="attack-mark" title="can still attack this battle phase"><Icon icon="mdi:sword" width="22" height="22" /></span>
+  {/if}
+{/snippet}
+
 {#snippet slot(p, zone, seq, label)}
-  <div data-zone={zoneId(p, zone, seq)} class="justify-self-center {fx[zoneId(p, zone, seq)] ?? ''}">
+  <div data-zone={zoneId(p, zone, seq)} class="relative justify-self-center {fx[zoneId(p, zone, seq)] ?? ''}">
     <Card card={(zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]} {label} own={p === viewer} {debug} back={backs[p]} {onhover} {onclick} />
+    {@render attackMark(zoneId(p, zone, seq))}
   </div>
 {/snippet}
 
 {#snippet emz(mine, theirs)}
   {@const card = bottom.mzone[mine] ?? top.mzone[theirs]}
   {@const owner = bottom.mzone[mine] ? me : 1 - me}
-  <div data-zone={zoneId(me, "m", mine)} data-zone-alt={zoneId(1 - me, "m", theirs)} class="justify-self-center {fx[zoneId(me, 'm', mine)] ?? fx[zoneId(1 - me, 'm', theirs)] ?? ''}">
+  <div data-zone={zoneId(me, "m", mine)} data-zone-alt={zoneId(1 - me, "m", theirs)} class="relative justify-self-center {fx[zoneId(me, 'm', mine)] ?? fx[zoneId(1 - me, 'm', theirs)] ?? ''}">
     <Card {card} label="EMZ" own={owner === viewer} {debug} back={backs[owner]} {onhover} {onclick} />
+    {@render attackMark(bottom.mzone[mine] ? zoneId(me, "m", mine) : zoneId(1 - me, "m", theirs))}
   </div>
 {/snippet}
 

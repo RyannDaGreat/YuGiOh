@@ -455,7 +455,7 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} />
+      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
