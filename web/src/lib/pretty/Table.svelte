@@ -220,13 +220,27 @@
     return lines;
   });
 
-  /** Command. Spawns a card that flies `from`→`to` (auto-removed), flipping if the face changes. */
+  /** A standard on-mat card size for a flyer — read off a real monster-zone slot
+   *  (always rendered), so a flyer is never sized to a wide fallback anchor. */
+  function cardFlySize() {
+    const r = rectOf(zoneId(me, "m", 0)) ?? rectOf(zoneId(1 - me, "m", 0));
+    return r ? { w: r.w, h: r.h } : { w: 60, h: 88 };
+  }
+
+  /**
+   * Command. Spawns a card that flies `from`→`to` (auto-removed), flipping if the
+   * face changes. Endpoints are the anchors' CENTRES and the flyer is a fixed card
+   * size — so a hand card whose exact slot has unmounted (falling back to the wide
+   * hand-area anchor) still flies as a normal card instead of ballooning.
+   */
   function flyCard(from, to, { code = 0, p = 0, faceFrom = true, faceTo = true } = {}) {
     const a = anchorRect(from);
     const b = anchorRect(to);
     if (!a || !b) return; // an endpoint we can't see (masked/off-screen) — skip, don't guess
+    const center = (r) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
+    const { w, h } = cardFlySize();
     const id = daggerId++;
-    flyers = [...flyers, { id, from: a, to: b, code, back: backs[p] ?? backs[0], faceFrom, faceTo }];
+    flyers = [...flyers, { id, from: center(a), to: center(b), w, h, code, back: backs[p] ?? backs[0], faceFrom, faceTo }];
     setTimeout(() => { flyers = flyers.filter((f) => f.id !== id); }, FLY_MS + 80);
   }
 
@@ -546,7 +560,7 @@
   <RelationLines lines={equipLines} />
   <!-- Unified card-flight overlay: one FlyingCard per zone→zone move (see play()). -->
   {#each flyers as f (f.id)}
-    <FlyingCard from={f.from} to={f.to} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={FLY_MS} />
+    <FlyingCard from={f.from} to={f.to} w={f.w} h={f.h} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={FLY_MS} />
   {/each}
 
   <!-- Coin / dice toss result, centered for ~1s (paired with the coinflip/diceroll SFX). -->
