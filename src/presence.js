@@ -28,7 +28,7 @@ export function presencePath(id, seat) {
 }
 
 /**
- * Command. Records that `kind` (web|cli|bot) is holding `seat` of duel `id` now.
+ * Command. Records that `kind` (web|cli) is holding `seat` of duel `id` now.
  *
  * Args:
  *     id (string): Duel id.
