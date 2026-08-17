@@ -8,6 +8,8 @@
   const POLL_MS = 1500;
   /** Log lines kept in the pane; older lines are still available via the CLI. */
   const LOG_TAIL = 400;
+  /** Log length at the last render; auto-scroll happens only when it changes. */
+  let lastLogLength = 0;
   /** Extension of the "your move" bell under web/static/sfx/ (WAV source — see ASSET-LICENSES.md). */
   const BELL_EXT = "wav";
 
@@ -52,7 +54,11 @@
     if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) selected = [];
     view = next;
     slider = next.at;
-    queueMicrotask(() => { if (logEl) logEl.scrollTop = logEl.scrollHeight; });
+    // Follow the log only when it grew, so the reader can scroll up between events.
+    if (next.logLines.length !== lastLogLength) {
+      lastLogLength = next.logLines.length;
+      queueMicrotask(() => { if (logEl) logEl.scrollTop = logEl.scrollHeight; });
+    }
   }
 
   async function submit(choice) {
@@ -235,7 +241,7 @@
 
       <section class="rounded-md bg-black/40 border border-amber-900/60 p-2">
         <h3 class="font-bold text-amber-200 text-sm mb-1">Log</h3>
-        <pre bind:this={logEl} class="h-[22rem] overflow-auto text-[0.68rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.logLines.slice(-LOG_TAIL).join("\n")}</pre>
+        <pre bind:this={logEl} class="log-pane h-[22rem] overflow-y-scroll text-[0.68rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.logLines.slice(-LOG_TAIL).join("\n")}</pre>
       </section>
 
       <details class="rounded-md bg-black/40 border border-amber-900/60 p-2 text-xs">

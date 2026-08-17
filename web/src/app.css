@@ -24,6 +24,11 @@
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes floatup { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)); } }
 @keyframes dagger { 0% { offset-distance: 0%; opacity: 0.2; } 15% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+/* Always-visible scrollbar for the log (macOS overlay scrollbars otherwise hide it). */
+.log-pane { scrollbar-width: thin; scrollbar-color: #b45309 #1c1410; }
+.log-pane::-webkit-scrollbar { width: 10px; }
+.log-pane::-webkit-scrollbar-track { background: #1c1410; }
+.log-pane::-webkit-scrollbar-thumb { background: #b45309; border-radius: 5px; }
 .fx-flash { animation: flash var(--flash-ms) ease-out; }
 .fx-shake { animation: shake var(--shake-ms) ease-in-out; }
 .fx-float { animation: floatup var(--float-ms) ease-out forwards; }
