@@ -203,6 +203,26 @@ export function codeOf(name) {
 }
 
 /**
+ * Pure function. Card text as a player wants to read it: the database's
+ * boilerplate footers ("* The above text is unofficial and describes the card's
+ * functionality in the OCG.") are noise in the preview, the deck viewer and the
+ * LLM prompt alike, so they are dropped here, once, for every consumer.
+ *
+ * Args:
+ *     desc (string): Effect text from cards.cdb.
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> cleanDesc("Draw 2 cards.\n* The above text is unofficial and describes the card's functionality in the OCG.")   // "Draw 2 cards."
+ *     >>> cleanDesc("Draw 2 cards.")   // "Draw 2 cards."
+ */
+export function cleanDesc(desc) {
+  return String(desc ?? "").split("\n").filter((line) => !/^\*\s*The above text is unofficial/i.test(line.trim())).join("\n").trim();
+}
+
+/**
  * Query. Full human/agent-facing detail for one card, including effect text.
  *
  * Args:
@@ -224,7 +244,7 @@ export function cardInfo(code) {
   const info = (!data || !text) ? null : {
     code: data.id,
     name: text.name,
-    desc: text.desc,
+    desc: cleanDesc(text.desc),
     atk: data.atk,
     def: data.def,
     level: data.level & LEVEL_MASK,
@@ -452,5 +472,5 @@ export function searchCards(term, limit) {
  *     >>> allCards().length > 14000 // true
  */
 export function allCards() {
-  return all();
+  return all().map((c) => ({ ...c, desc: cleanDesc(c.desc) }));
 }

@@ -69,6 +69,12 @@
   let keysOpen = $state(false);
   /** Log panel open/closed, remembered across reloads. */
   let logOpen = $state(panelOpen("log", true));
+  /**
+   * Safety: show even a single option in the context menu before it fires. On by
+   * default — a click on a card is easy to make by accident, and its one option
+   * may be an irreversible effect. Off = the direct version. Remembered.
+   */
+  let confirmClicks = $state(panelOpen("confirm-clicks", true));
   /** How respond? windows are answered: "always" | "smart" | "never" (localStorage). */
   let respondMode = $state("always");
   /** Guards the auto-decline effect so it fires at most once per decision point. */
@@ -143,7 +149,12 @@
    */
   function tableClick(opts, at) {
     if (busy || !opts.length) return;
-    if (opts.length === 1) { pickFromTable(opts[0].index); return; }
+    // One option acts directly only when the safety toggle is off, or for a bare
+    // zone pick ("P0 m3") — there is no effect to be surprised by in placing a
+    // card. Otherwise even a single option is shown first, so a sloppy click
+    // never fires an effect you did not read.
+    const bareZone = opts.length === 1 && /^P[01] [ms]\d$/.test(opts[0].label);
+    if (opts.length === 1 && (!confirmClicks || bareZone)) { pickFromTable(opts[0].index); return; }
     contextMenu = { at, options: opts };
   }
 
@@ -477,6 +488,7 @@
     {#if view.viewer !== 2}
       {@render respondModeButton()}
     {/if}
+    <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {confirmClicks ? 'bg-emerald-900/50 border-emerald-400/60 text-emerald-100' : 'bg-black/40 border-amber-900 text-amber-100/70'}" onclick={() => { confirmClicks = !confirmClicks; setPanelOpen("confirm-clicks", confirmClicks); }} title="on: clicking a card always shows its option(s) first, even a single one. off: a single option acts at once"><Icon icon={confirmClicks ? "mdi:shield-check" : "mdi:flash"} />confirm clicks: {confirmClicks ? "on" : "off"}</button>
     {#if view.viewer !== 2 && sleeves.length}
       <label class="text-amber-100/70">sleeve
         <select class="ml-1 px-1 rounded bg-black/40 border border-amber-900 text-amber-50" value={sleeveChoice} onchange={(e) => pickSleeve(e.currentTarget.value)}>
