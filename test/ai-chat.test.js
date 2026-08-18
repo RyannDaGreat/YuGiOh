@@ -42,7 +42,7 @@ import { memoryVolume, setVolume } from "../src/volume.js";
 import { createDuel, loadDeck, loadDuel } from "../src/store.js";
 import { viewDuel } from "../src/session.js";
 import { appendChat, loadChat } from "../src/chat.js";
-import { MAX_REPLY_CHARS, NO_REPLY, TALK_LEVELS, chatPrompt, replyText, replyToChat } from "../src/ai/chat.js";
+import { CHAT_MAX_OUTPUT_TOKENS, MAX_REPLY_CHARS, NO_REPLY, TALK_LEVELS, chatPrompt, replyText, replyToChat } from "../src/ai/chat.js";
 import { playSeat } from "../src/ai/player.js";
 
 /** The real decks, read while the Node volume is still installed. */
@@ -114,7 +114,7 @@ const naptime = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  *     boolean
  *
  * Examples:
- *     >>> isChatRequest({choices: null, maxOutputTokens: 512})        // true
+ *     >>> isChatRequest({choices: null, maxOutputTokens: 4096})       // true
  *     >>> isChatRequest({choices: ["1"], cacheKey: "duel1:0"})        // false
  *     >>> isChatRequest({choices: null, cacheKey: "duel1:0"})         // false  (a multi-pick move)
  */
@@ -139,7 +139,7 @@ const isChatRequest = (request) => request.cacheKey === undefined;
  *
  * Examples:
  *     >>> const p = talker({seat: 0})
- *     >>> (await p.chooseMove({choices: null, maxOutputTokens: 512})).text
+ *     >>> (await p.chooseMove({choices: null, maxOutputTokens: 4096})).text
  *     '{"choice":"P0 line 1","reason":"always talking"}'
  */
 function talker({ seat = 0, moveLatencyMs = MOVE_LATENCY_MS, chatAnswer = null } = {}) {
@@ -500,10 +500,80 @@ test("replyText reads the reply out of JSON, fenced JSON or a bare line", () => 
   assert.equal(replyText("```\n{\"choice\":\"  spaced  \"}\n```"), "spaced", "the reply itself is trimmed");
   assert.equal(replyText("gg"), "gg", "a bare line is the reply");
   assert.equal(replyText("  gg wp  "), "gg wp");
-  assert.equal(replyText('{"reason":"thinking"}'), '{"reason":"thinking"}', "JSON without a `choice` is not a reply — taken as-is");
-  assert.equal(replyText('{"choice":42}'), '{"choice":42}', "nor is a non-string choice");
+  assert.equal(replyText('{"choice":"he said \\"gg\\" first","reason":"-"}'), 'he said "gg" first', "escapes are unescaped");
   assert.equal(replyText(null), "");
   assert.equal(replyText(undefined), "");
+});
+
+test("replyText never lets JSON reach the table: unreadable answers become nothing", () => {
+  assert.equal(replyText('{"reason":"thinking"}'), "", "JSON without a `choice` is not a reply");
+  assert.equal(replyText('{"choice":42}'), "", "nor is a non-string choice");
+  assert.equal(replyText('{"cho'), "", "nor is a fragment that never reached the reply");
+  assert.equal(replyText('{"choice":"'), "", "nor one that stopped at the opening quote");
+  assert.equal(replyText("   "), "");
+  assert.equal(replyText("[1, 2, 3]"), "", "any machinery-shaped answer is dropped, not posted");
+});
+
+// The live bug, verbatim from the owner's transcript: gpt-5.6-terra spent its
+// 512-token budget reasoning, so the JSON answer stopped mid-word — and the
+// fragment, `{"choice":"Because Snatch Steal…` and all, was posted to the table.
+const TRUNCATED_ANSWER = '{"choice":"Because Snatch Steal gives me control of Skilled Dark Magician, its 3-counter effect would Tribute it and Special Summon a Dark Magician from your hand, Deck, or G';
+
+test("replyText recovers a truncated reply and ends it cleanly, never mid-word", () => {
+  const recovered = replyText(TRUNCATED_ANSWER);
+  assert.ok(!recovered.startsWith("{"), "no JSON reaches the table");
+  assert.ok(!recovered.includes('"choice"'), "no field names either");
+  assert.match(recovered, /^Because Snatch Steal gives me control of Skilled Dark Magician,/);
+  assert.ok(recovered.endsWith("…"), `a cut-off reply says so: ${JSON.stringify(recovered)}`);
+  assert.ok(!recovered.includes("or G…"), "the half-written word is dropped, not shipped");
+  assert.equal(replyText("```json\n" + TRUNCATED_ANSWER), recovered, "an unclosed fence is stripped the same way");
+  // With a sentence already finished, the clean end is that sentence.
+  assert.equal(replyText('{"choice":"Snatch Steal takes it. Then I would atta'), "Snatch Steal takes it.");
+});
+
+test("a truncated answer is dropped or cleaned up — never posted raw — and the trace says which", async () => {
+  const id = "chat-truncated";
+  freshDuel(id);
+  const ask = async (chatAnswer, at) => {
+    const provider = talker({ seat: 0, chatAnswer: () => chatAnswer });
+    appendChat(id, 2, "how does that work?", at);
+    const result = await replyToChat({
+      duelId: id, seat: 0, provider, model: "talker-1", apiKey: "not-a-real-key", options: {},
+      system: "FROZEN", since: new Date(Date.parse(at) - 1000).toISOString(), replyTo: [2], talk: "sporting",
+      now: new Date(Date.parse(at) + 1000).toISOString(),
+    });
+    return { ...result, request: provider.requests[0] };
+  };
+
+  const recovered = await ask(TRUNCATED_ANSWER, "2026-08-17T18:00:01.000Z");
+  assert.ok(recovered.posted, "the reply was recoverable, so it was said");
+  assert.ok(!recovered.posted.startsWith("{"), `raw JSON reached the table: ${recovered.posted}`);
+  assert.ok(recovered.posted.endsWith("…"));
+  assert.equal(loadChat(id).at(-1).text, recovered.posted);
+  assert.match(recovered.request.messages[0].content, /how does that work\?/);
+
+  const dropped = await ask('{"cho', "2026-08-17T18:00:10.000Z");
+  assert.equal(dropped.posted, null, "nothing sayable, so nothing said");
+  assert.equal(loadChat(id).at(-1).seat, 2, "the last line at the table is still the spectator's");
+  assert.equal(dropped.record.chosenLabel, "chat: (dropped)");
+  assert.match(dropped.record.error, /dropped/, "a dropped reply is visible in the LLM log, not silent");
+  assert.match(dropped.record.error, /\{\\"cho/, "and the trace quotes what came back");
+  assert.equal(dropped.record.response, '{"cho', "the raw answer is kept whole for diagnosis");
+});
+
+test("a chat request asks for enough output tokens to survive a reasoning model", async () => {
+  const id = "chat-budget";
+  freshDuel(id);
+  const provider = talker({ seat: 0 });
+  appendChat(id, 2, "nice play", "2026-08-17T18:00:01.000Z");
+  const { record } = await replyToChat({
+    duelId: id, seat: 0, provider, model: "talker-1", apiKey: "not-a-real-key", options: {},
+    system: "FROZEN", since: "2026-08-17T18:00:00.000Z", replyTo: [2], talk: "sporting", now: "2026-08-17T18:00:02.000Z",
+  });
+  assert.equal(provider.requests[0].maxOutputTokens, CHAT_MAX_OUTPUT_TOKENS);
+  // The number itself is the bug: 512 was spent entirely on hidden reasoning.
+  assert.ok(CHAT_MAX_OUTPUT_TOKENS >= 2048, "thinking is billed against this budget too");
+  assert.equal(record.error, null, "a clean reply records no error");
 });
 
 test("NO_REPLY posts nothing but still advances the cursor, so a line is asked about once", async () => {

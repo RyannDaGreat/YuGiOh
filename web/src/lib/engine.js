@@ -17,6 +17,7 @@ import { victoryString } from "../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
 import { heartbeat, presence } from "../../../src/presence.js";
 import { appendChat, chatUpTo, loadChat } from "../../../src/chat.js";
+import { loadSeats, saveSeats } from "../../../src/ai/seats.js";
 
 export { listDecks, listDuels, parseViewer };
 
@@ -112,7 +113,55 @@ export async function play(id, player, choice) {
 export function newDuel({ id, p0, p1, seed, players }) {
   const decks = [loadDeck(p0), loadDeck(p1)];
   const seedValue = seed === "" || seed === undefined ? Math.floor(Math.random() * 2 ** 32) : Number(seed);
-  return createDuel({ id, seed: seedValue, decks, players, created: new Date().toISOString() });
+  const chosenId = id && String(id).trim() ? String(id).trim() : autoId(p0, p1);
+  return createDuel({ id: chosenId, seed: seedValue, decks, players, created: new Date().toISOString() });
+}
+
+/**
+ * Query. A free duel id when the user did not name one: "<p0>-vs-<p1>", with a
+ * counter once that is taken. Nobody knows what a game will be before it is
+ * played, so a name is not worth asking for; the decks make it findable later.
+ *
+ * Args:
+ *     p0 (string): P0's deck id.
+ *     p1 (string): P1's deck id.
+ *
+ * Returns:
+ *     string: e.g. "yugi-vs-kaiba", then "yugi-vs-kaiba-2", "-3", ...
+ *
+ * Examples:
+ *     >>> autoId("yugi", "kaiba")   // "yugi-vs-kaiba"   (or "yugi-vs-kaiba-2" if that exists)
+ */
+export function autoId(p0, p1) {
+  const taken = new Set(listDuels());
+  const stem = `${p0}-vs-${p1}`;
+  if (!taken.has(stem)) return stem;
+  for (let n = 2; ; n++) if (!taken.has(`${stem}-${n}`)) return `${stem}-${n}`;
+}
+
+/**
+ * Command. Plays it again: a fresh duel with the same two decks, the same seat
+ * labels and the same seat assignments (human / AI, src/ai/seats.js), a new
+ * shuffle, and an automatic id. Returns the new record.
+ *
+ * Args:
+ *     id (string): The finished (or any) duel to rematch.
+ *
+ * Returns:
+ *     object: The new duel record (createDuel).
+ *
+ * Examples:
+ *     >>> rematch("yugi-vs-kaiba").id   // "yugi-vs-kaiba-2"
+ */
+export function rematch(id) {
+  const source = loadDuel(id);
+  // The record freezes decks by NAME; resolve them back to library ids.
+  const library = deckLibrary();
+  const ids = source.decks.map((d) => library.find((x) => x.name === d.name)?.id);
+  if (ids.some((x) => !x)) throw new Error(`cannot rematch ${id}: a deck it used is no longer in the library (${source.decks.map((d) => d.name).join(" vs ")})`);
+  const duel = newDuel({ id: "", p0: ids[0], p1: ids[1], seed: "", players: source.players });
+  saveSeats(duel.id, loadSeats(id));
+  return duel;
 }
 
 /**

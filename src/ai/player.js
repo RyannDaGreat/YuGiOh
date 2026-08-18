@@ -33,6 +33,7 @@
  */
 
 import { chatSince, loadChat } from "../chat.js";
+import { heartbeat } from "../presence.js";
 import { chooseFromMenu } from "../menu.js";
 import { loadDuel } from "../store.js";
 import { menuSummary, playChoice, viewDuel } from "../session.js";
@@ -275,6 +276,11 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
   };
   for (;;) {
     if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };
+    // This seat IS held while the loop runs — say so, the way a browser tab or a
+    // CLI `wait` does, so the presence pill reads "online (ai)" instead of the
+    // "offline" an unattended seat shows. Stopping the loop stops the beat, which
+    // is the truthful state.
+    heartbeat(duelId, seat, "ai", Date.now());
     const view = await viewDuel(loadDuel(duelId), seat);
     if (view.ended) return { reason: "ended", moves: traces.length, traces, winner: view.winner };
     await answerChat(view);

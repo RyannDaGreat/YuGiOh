@@ -31,8 +31,8 @@ import { memoryVolume, readFileSync, setVolume } from "../src/volume.js";
 import { createDuel, loadDeck, loadDuel } from "../src/store.js";
 import { playChoice, viewDuel } from "../src/session.js";
 import {
-  PROVIDER_CATALOG, answerInstruction, decisionSchema, defaultModel, defaultOptions,
-  getProvider, legalChoices, parseDecision, providers, registerProvider, usageOf,
+  MAX_OUTPUT_TOKENS_CEILING, PROVIDER_CATALOG, answerInstruction, decisionSchema, defaultModel, defaultOptions,
+  getProvider, legalChoices, nextOutputBudget, parseDecision, providers, registerProvider, usageOf,
 } from "../src/ai/provider.js";
 import { FullHistoryStrategy, StateOnlyStrategy, frozenSystem, makeStrategy, turnBlock } from "../src/ai/context.js";
 import { appendTrace, loadTrace, summarizeTrace, tracePath, traceRecord } from "../src/ai/trace.js";
@@ -189,6 +189,126 @@ test("defaults come from the provider, not a catalog lookup", () => {
   assert.equal(defaultModel(getProvider("anthropic")), "claude-sonnet-5");
   assert.deepEqual(defaultOptions(getProvider("gemini")), { thinkingLevel: "low", includeThoughts: true });
   assert.deepEqual(defaultOptions(scripted([])), {}, "a provider with no options needs no catalog entry");
+});
+
+// ---------------------------------------------------------- the output budget
+
+/**
+ * Command. Runs `body` with `globalThis.fetch` answering from a script of
+ * response payloads (the last repeats), and returns what was sent. Restores the
+ * real fetch afterwards, whatever happens.
+ *
+ * Args:
+ *     payloads (object[]): One parsed response body per call.
+ *     body (function): The code under test; its result comes back as `result`.
+ *
+ * Returns:
+ *     Promise<{sent: Array<{url: string, body: object}>, result: any}>
+ */
+async function withStubbedFetch(payloads, body) {
+  const real = globalThis.fetch;
+  const sent = [];
+  globalThis.fetch = async (url, init) => {
+    sent.push({ url, body: JSON.parse(init.body) });
+    const payload = payloads[Math.min(sent.length - 1, payloads.length - 1)];
+    return { ok: true, status: 200, text: async () => JSON.stringify(payload) };
+  };
+  try {
+    return { sent, result: await body() };
+  } finally {
+    globalThis.fetch = real;
+  }
+}
+
+/**
+ * Pure function. An OpenAI /v1/responses payload.
+ *
+ * Args:
+ *     text (string|null): The assistant message's text; null for a run that
+ *         produced no message at all (all budget spent reasoning).
+ *     opts.incomplete (boolean): Cut off at `max_output_tokens`.
+ *
+ * Returns:
+ *     object
+ *
+ * Examples:
+ *     >>> openaiReply('{"choice":"gg"}').status              // "completed"
+ *     >>> openaiReply(null, {incomplete: true}).incomplete_details   // {reason: "max_output_tokens"}
+ */
+function openaiReply(text, { incomplete = false } = {}) {
+  return {
+    status: incomplete ? "incomplete" : "completed",
+    ...(incomplete ? { incomplete_details: { reason: "max_output_tokens" } } : {}),
+    output: [
+      { type: "reasoning", summary: [] },
+      ...(text === null ? [] : [{ type: "message", content: [{ type: "output_text", text }] }]),
+    ],
+    usage: { input_tokens: 100, output_tokens: 500, output_tokens_details: { reasoning_tokens: 480 } },
+  };
+}
+
+/** The request `openaiCall` makes; only the budget varies between tests. */
+const openaiCall = (maxOutputTokens) => openai.chooseMove({
+  apiKey: "not-a-real-key", model: "gpt-5.6-terra", system: "You are P0",
+  messages: [{ role: "user", content: "hi" }], choices: null, options: { effort: "low" }, maxOutputTokens,
+});
+
+test("nextOutputBudget grows the budget geometrically and stops at the ceiling", () => {
+  assert.equal(nextOutputBudget(512), 2048);
+  assert.equal(nextOutputBudget(8192), MAX_OUTPUT_TOKENS_CEILING);
+  assert.equal(nextOutputBudget(16384), MAX_OUTPUT_TOKENS_CEILING, "clamped, never overshot");
+  assert.equal(nextOutputBudget(MAX_OUTPUT_TOKENS_CEILING), null, "there is a stop");
+});
+
+test("a PARTIAL answer is retried with a bigger budget, not handed back as an answer", async () => {
+  // The live bug: gpt-5.6-terra spent 512 tokens reasoning and returned JSON cut
+  // mid-string. Because text came back at all, the old retry did not fire and the
+  // fragment was posted to the table chat verbatim.
+  const cut = '{"choice":"Because Snatch Steal gives me control of Skilled Dark Mag';
+  const whole = '{"choice":"It would summon MY Dark Magician.","reason":"control"}';
+  const { sent, result } = await withStubbedFetch(
+    [openaiReply(cut, { incomplete: true }), openaiReply(whole)],
+    () => openaiCall(512),
+  );
+  assert.equal(sent.length, 2, "the cut-off answer was thrown away and asked again");
+  assert.deepEqual(sent.map((r) => r.body.max_output_tokens), [512, 2048]);
+  assert.equal(result.text, whole);
+  assert.equal(result.truncated, false);
+});
+
+test("an answer that never fits stops at the ceiling and says it was cut off", async () => {
+  const { sent, result } = await withStubbedFetch(
+    [openaiReply('{"choice":"still going', { incomplete: true })],
+    () => openaiCall(512),
+  );
+  // 512 → 2048 → 8192 → 32768, then no more: retrying forever is not a fallback.
+  assert.deepEqual(sent.map((r) => r.body.max_output_tokens), [512, 2048, 8192, MAX_OUTPUT_TOKENS_CEILING]);
+  assert.equal(result.truncated, true, "the caller can tell this is a fragment, not an answer");
+});
+
+test("a run that produced no message at all is retried too, then fails loudly", async () => {
+  const { sent, result } = await withStubbedFetch(
+    [openaiReply(null, { incomplete: true }), openaiReply('{"choice":"1","reason":"ok"}')],
+    () => openaiCall(8192),
+  );
+  assert.deepEqual(sent.map((r) => r.body.max_output_tokens), [8192, MAX_OUTPUT_TOKENS_CEILING]);
+  assert.equal(result.truncated, false);
+  await assert.rejects(
+    withStubbedFetch([openaiReply(null, { incomplete: true })], () => openaiCall(MAX_OUTPUT_TOKENS_CEILING)),
+    /no assistant message/,
+    "at the ceiling with nothing to show, the caller is told — never given an empty answer",
+  );
+});
+
+test("a complete answer is never retried, and carries truncated: false", async () => {
+  const { sent, result } = await withStubbedFetch(
+    [openaiReply('{"choice":"1","reason":"only move"}')],
+    () => openaiCall(512),
+  );
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].url, PROVIDER_CATALOG.openai.endpoint);
+  assert.equal(result.truncated, false);
+  assert.deepEqual(result.usage, { in: 100, out: 500, reasoning: 480 });
 });
 
 // ---------------------------------------------------------------- the context

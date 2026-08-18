@@ -91,6 +91,19 @@ export function addressee(text, me, other) {
 export const DEFAULT_TALK = "sporting";
 /** Reply length cap, in characters — table talk, not an essay. */
 export const MAX_REPLY_CHARS = 280;
+/**
+ * Output budget for one chat reply.
+ *
+ * A reply is one sentence, so this looks generous — but on a reasoning model the
+ * hidden THINKING is billed against the same budget, so a small number does not
+ * buy a short answer, it buys a TRUNCATED one. This was 512, which gpt-5.6-terra
+ * at effort "low" spent entirely on reasoning: its JSON answer was cut mid-string
+ * and the fragment reached the table chat verbatim. The adapters raise it further
+ * on their own if even this is not enough (provider.js `nextOutputBudget`).
+ */
+export const CHAT_MAX_OUTPUT_TOKENS = 4096;
+/** How much of an unusable answer the trace quotes, so a drop is diagnosable. */
+const DROPPED_SAMPLE_CHARS = 200;
 /** How many earlier chat lines ride along as context for a reply. */
 export const EARLIER_LINES = 8;
 /** How many recent log lines ride along as grounding for a reply. */
@@ -201,30 +214,124 @@ export function conversationTarget(log, line, { me, other }, aiSeats) {
 }
 
 /**
- * Pure function. The reply out of a provider answer: adapters always return the
- * `{choice, reason}` JSON they use for moves, so the reply rides in `choice`;
- * a bare string (or unparseable text) is taken as-is.
+ * The `choice` string of the `{choice, reason}` JSON the adapters force, read by
+ * pattern rather than by JSON.parse so that a CUT-OFF object still gives up its
+ * reply. Group 1 is the raw (still escaped) string body — `\\.` keeps an escaped
+ * quote from ending it — and group 2 is the closing quote, absent exactly when
+ * the answer stops mid-string.
+ */
+const CHOICE_FIELD = /"choice"\s*:\s*"((?:[^"\\]|\\.)*)(")?/;
+
+/** The single-character JSON string escapes. `\uXXXX` is handled separately. */
+const JSON_ESCAPES = { '"': '"', "\\": "\\", "/": "/", b: "\b", f: "\f", n: "\n", r: "\r", t: "\t" };
+
+/**
+ * Pure function. Unescapes a JSON string body. Deliberately not `JSON.parse`:
+ * this is fed FRAGMENTS, where a trailing `\` or half-written `\u00` would throw,
+ * and a reply is not worth an exception. Unknown escapes keep their character.
  *
  * Args:
- *     raw (string): The provider's text.
+ *     body (string): The text between a JSON string's quotes, escapes intact.
  *
  * Returns:
  *     string
  *
  * Examples:
+ *     >>> unescapeJson('he said \\"gg\\"')     // 'he said "gg"'
+ *     >>> unescapeJson("line\\nline")          // "line\nline"
+ *     >>> unescapeJson("cut off here\\")       // "cut off here"   (dangling escape dropped)
+ */
+function unescapeJson(body) {
+  return body.replace(/\\u([0-9a-fA-F]{4})|\\(.)|\\$/g, (_, hex, ch) => {
+    if (hex !== undefined) return String.fromCharCode(parseInt(hex, 16));
+    if (ch === undefined) return "";
+    return JSON_ESCAPES[ch] ?? ch;
+  });
+}
+
+/**
+ * Pure function. Ends a cut-off sentence cleanly: back to the last full stop if
+ * there is one, otherwise back to the last word boundary with an ellipsis. Never
+ * mid-word, because "…Special Summon a Dark Magician from your hand, Deck, or G"
+ * reads as a bug, and it was one.
+ *
+ * Args:
+ *     text (string): A reply that stopped mid-sentence.
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> tidyTruncated("Snatch Steal takes it. Then I would attack wi")
+ *     "Snatch Steal takes it."
+ *     >>> tidyTruncated("Because Snatch Steal gives me control, its effect would Tribute it and G")
+ *     "Because Snatch Steal gives me control, its effect would Tribute it and…"
+ *     >>> tidyTruncated("Skil")     // "Skil…"
+ */
+function tidyTruncated(text) {
+  const trimmed = text.trim();
+  const stop = Math.max(trimmed.lastIndexOf("."), trimmed.lastIndexOf("!"), trimmed.lastIndexOf("?"));
+  if (stop >= 0) return trimmed.slice(0, stop + 1);
+  const boundary = trimmed.lastIndexOf(" ");
+  return `${(boundary > 0 ? trimmed.slice(0, boundary) : trimmed).replace(/[,;:]$/, "")}…`;
+}
+
+/**
+ * Pure function. The text if it is fit to say at the table, else "". The last
+ * gate before a reply is posted: anything still shaped like JSON is machinery
+ * leaking through, and machinery is never posted.
+ *
+ * Args:
+ *     text (string): A candidate reply.
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> sayable("gg, nice Fissure")     // "gg, nice Fissure"
+ *     >>> sayable('{"cho')                // ""
+ *     >>> sayable("   ")                  // ""
+ */
+function sayable(text) {
+  const trimmed = text.trim();
+  return /^[{[]/.test(trimmed) ? "" : trimmed;
+}
+
+/**
+ * Pure function. The reply out of a provider answer: adapters always return the
+ * `{choice, reason}` JSON they use for moves, so the reply rides in `choice`;
+ * a bare string is taken as-is; anything unreadable becomes "", which the caller
+ * treats as "no reply" (and records as a drop).
+ *
+ * TRUNCATION IS THE POINT. A reasoning model can spend its whole output budget
+ * thinking and stop mid-answer, and that half-written JSON was once posted to the
+ * table verbatim. So the `choice` field is read by pattern, not by JSON.parse: a
+ * cut-off reply is recovered and ended cleanly, and if nothing sayable comes out,
+ * NOTHING is posted. `{` never reaches the chat.
+ *
+ * Args:
+ *     raw (string): The provider's text.
+ *
+ * Returns:
+ *     string: The reply, or "" when there is none to be had.
+ *
+ * Examples:
  *     >>> replyText('{"choice":"gg, nice Fissure","reason":"banter"}')   // "gg, nice Fissure"
  *     >>> replyText("gg")                                                // "gg"
- *     >>> replyText('```json\n{"choice":"NO_REPLY","reason":"-"}\n```') // "NO_REPLY"
+ *     >>> replyText('```json\n{"choice":"NO_REPLY","reason":"-"}\n```')  // "NO_REPLY"
+ *     >>> replyText('{"choice":"Snatch Steal takes it. Then I atta')
+ *     "Snatch Steal takes it."
+ *     >>> replyText('{"cho')                                             // ""
+ *     >>> replyText('{"reason":"thinking"}')                             // ""
  */
 export function replyText(raw) {
-  const text = String(raw ?? "").trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  try {
-    const parsed = JSON.parse(text);
-    if (parsed && typeof parsed.choice === "string") return parsed.choice.trim();
-  } catch {
-    // not JSON — a bare reply
-  }
-  return text;
+  const text = String(raw ?? "").trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const field = CHOICE_FIELD.exec(text);
+  if (!field) return sayable(text);
+  const [, body, closed] = field;
+  const choice = unescapeJson(body).trim();
+  // No closing quote means the answer stopped inside the reply itself.
+  return sayable(closed || !choice ? choice : tidyTruncated(choice));
 }
 
 /**
@@ -261,7 +368,9 @@ export function replyText(raw) {
  * Returns:
  *     Promise<{posted: string|null, seenUpTo: string, record?: object}>: the reply
  *     if any, the timestamp of the newest message considered (pass back as
- *     `since`), and the trace record when the model was consulted.
+ *     `since`), and the trace record when the model was consulted. `posted` is
+ *     null both when the model chose silence and when its answer was unusable —
+ *     the record's `error` distinguishes the two.
  *
  * Examples:
  *     >>> // await replyToChat({duelId: "g1", seat: 1, provider, model, apiKey, system, since})
@@ -287,14 +396,26 @@ export async function replyToChat({ duelId, seat, provider, model, apiKey, optio
   const log = loadChat(duelId);
   const earlier = log.filter((m) => Date.parse(m.at) <= Date.parse(since)).slice(-EARLIER_LINES);
   const messages = [{ role: "user", content: chatPrompt(seat, fresh, talk, other, { earlier, ...context }) }];
-  const response = await provider.chooseMove({ apiKey, model, system, messages, choices: null, options, signal, maxOutputTokens: 512 });
-  const text = replyText(response.text);
-  const posted = !text || text.startsWith(NO_REPLY) ? null : text.slice(0, MAX_REPLY_CHARS);
+  const response = await provider.chooseMove({ apiKey, model, system, messages, choices: null, options, signal, maxOutputTokens: CHAT_MAX_OUTPUT_TOKENS });
+  const answer = replyText(response.text);
+  const posted = !answer || answer.startsWith(NO_REPLY) ? null : answer.slice(0, MAX_REPLY_CHARS);
   if (posted) appendChat(duelId, seat, posted, now);
+  // A non-empty answer that yields nothing sayable is DROPPED, not posted — but
+  // never silently: the trace names it and quotes what came back, so a model that
+  // has started answering in some other shape is visible in the LLM log rather
+  // than mysteriously mute. (Silence looks identical to NO_REPLY from outside.)
+  const raw = String(response.text ?? "").trim();
+  const dropped = !answer && raw !== "";
+  const error = [
+    dropped ? `chat reply dropped: nothing sayable in the model's answer ${JSON.stringify(raw.slice(0, DROPPED_SAMPLE_CHARS))}` : null,
+    response.truncated ? "the model hit its output budget even at the ceiling, so its answer was cut off" : null,
+  ].filter(Boolean).join("; ") || null;
   const record = traceRecord({
+    // The RAW answer, as everywhere else in the trace: what was posted is in
+    // `chosenLabel`, and a fragment is only diagnosable if it is kept whole.
     move: null, at: now, seat, provider: provider.id, model, options, system, messages,
-    response: text, reasoning: response.reasoning ?? null, usage: response.usage, latencyMs: response.latencyMs,
-    choice: "", chosenLabel: posted ? `chat: ${posted}` : "chat: (no reply)", retries: 0, error: null,
+    response: response.text ?? null, reasoning: response.reasoning ?? null, usage: response.usage, latencyMs: response.latencyMs,
+    choice: "", chosenLabel: posted ? `chat: ${posted}` : dropped ? "chat: (dropped)" : "chat: (no reply)", retries: 0, error,
   });
   appendTrace(duelId, seat, record, traceDir);
   return { posted, seenUpTo, record };

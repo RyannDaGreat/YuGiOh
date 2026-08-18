@@ -26,6 +26,18 @@ const engine = async () => {
   return import("./engine.js");
 };
 
+/**
+ * Command. On the static host, waits until the browser volume has written
+ * everything to disk. Every mutating call below awaits this before returning,
+ * because the caller may navigate next (create -> open the duel) and a page
+ * unload cannot wait for a debounced OPFS write.
+ */
+const durable = async () => {
+  if (!STATIC) return;
+  const { flushBrowserVolume } = await import("../../../src/volume-browser.js");
+  await flushBrowserVolume();
+};
+
 /** Command. GETs JSON from an /api route, throwing on a non-2xx status. */
 async function getJson(fetchFn, path) {
   const res = await fetchFn(`${base}/api${path}`);
@@ -77,6 +89,7 @@ export async function play(id, as, choice) {
       const player = e.parseViewer(as);
       if (player === 2) throw new Error("spectators cannot play");
       const r = await e.play(id, player, String(choice));
+      await durable();
       return { ok: true, chosenLabel: r.chosenLabel, newLogLines: r.newLogLines, next: r.next };
     } catch (err) {
       return { ok: false, error: err.message };
@@ -90,7 +103,9 @@ export async function fork(id, newId, at) {
   if (STATIC) {
     const e = await engine();
     try {
-      return { ok: true, id: e.fork(id, String(newId), Number(at)).id };
+      const branch = e.fork(id, String(newId), Number(at));
+      await durable();
+      return { ok: true, id: branch.id };
     } catch (err) {
       return { ok: false, error: err.message };
     }
@@ -103,7 +118,9 @@ export async function sendChat(id, as, text) {
   if (STATIC) {
     const e = await engine();
     try {
-      return { ok: true, message: e.sendChat(id, e.parseViewer(as), String(text)) };
+      const message = e.sendChat(id, e.parseViewer(as), String(text));
+      await durable();
+      return { ok: true, message };
     } catch (err) {
       return { ok: false, error: err.message };
     }
@@ -133,6 +150,7 @@ export async function setSleeve(player, sleeve) {
     await boot();
     const s = await import("./sleeves.js");
     s.chooseSleeve(player, sleeve);
+    await durable();
     return { ok: true };
   }
   return postJson(fetch, "/sleeves", { player, sleeve });
@@ -155,7 +173,9 @@ export async function newDuel(spec) {
   if (STATIC) {
     const e = await engine();
     try {
-      return { ok: true, id: e.newDuel(spec).id };
+      const duel = e.newDuel(spec);
+      await durable();
+      return { ok: true, id: duel.id };
     } catch (err) {
       return { ok: false, error: err.message };
     }
@@ -195,7 +215,7 @@ export async function importArchive(archive, replace) {
     await boot();
     const a = await import("../../../src/archive.js");
     const { written, skipped } = a.importArchive(archive, Boolean(replace));
-    // Persisted through the volume; a page reload will show it.
+    await durable();
     return { ok: true, written: written.length, skipped: skipped.length, skippedNames: skipped.slice(0, 10) };
   }
   return postJson(fetch, "/archive", { archive, replace });
@@ -216,10 +236,26 @@ export async function setSeats(id, seats) {
     await boot();
     try {
       (await import("../../../src/ai/seats.js")).saveSeats(id, seats);
+      await durable();
       return { ok: true };
     } catch (err) {
       return { ok: false, error: err.message };
     }
   }
   return postJson(fetch, `/duel/${id}/seats`, { seats });
+}
+
+/** Command. Plays a duel again with the same decks, labels and seat assignments. Returns `{ok, id?, error?}`. */
+export async function rematch(id) {
+  if (STATIC) {
+    const e = await engine();
+    try {
+      const duel = e.rematch(id);
+      await durable();
+      return { ok: true, id: duel.id };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  }
+  return postJson(fetch, `/duel/${id}`, { rematch: true });
 }

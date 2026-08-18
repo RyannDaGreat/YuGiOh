@@ -15,7 +15,7 @@
  * reveal, equip, destroyed, banished, attack, directattack, draw, shuffle,
  * damage, gainlp, addcounter, removecounter, coinflip, diceroll, nextturn,
  * phase, negate) plus ours for things EDOPro does not voice separately (hit,
- * tribute, chain, resolve, poschange, lose, turn-bell, lptick, lpsettle). One cue per distinct
+ * tribute, chain, resolve, spent, poschange, lose, turn-bell, lptick, lpsettle). One cue per distinct
  * happening in the animation digest (src/events.js) — that is the point of the
  * set: the ear should be able to tell a tribute summon from a special summon
  * without looking. The single source of truth for which cues exist is `synth`
@@ -197,6 +197,9 @@ const synth = {
   // calls it — the cue exists so a caller can be added without touching audio.
   negate: () => { tone("square", 620, 180, 0.22, 0.4); noise(0.18, 1200, 200, 0.35); },
   resolve: () => { tone("sine", 900, 450, 0.25, 0.35); },
+  // The last beat of an activation: a used spell/trap slid into the graveyard.
+  // Deliberately NOT `destroyed` — the card did its job, nothing blew it up.
+  spent: () => { noise(0.16, 1600, 400, 0.35); tone("sine", 520, 280, 0.16, 0.25); },
   reveal: () => { tone("sine", 1046, 1568, 0.22, 0.4); },
   equip: () => { tone("square", 700, 1400, 0.12, 0.25); tone("square", 1050, 1400, 0.12, 0.2, 0.08); },
   addcounter: () => { tone("square", 900, 1400, 0.08, 0.25); },

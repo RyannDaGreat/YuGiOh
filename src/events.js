@@ -51,7 +51,8 @@ export function coord(loc) {
  * BATTLE announcement (until the damage step ends) the battle is killing
  * things. Tribute releases are indistinguishable from anything else at the
  * moment they happen — they look like "other" here and are relabelled
- * "tribute" by `extractEvents` when the SUMMONING that ate them arrives.
+ * "tribute" by `extractEvents` when the SUMMONING that ate them arrives. A used
+ * spell/trap being put away is the other such case, relabelled "spent" there.
  *
  * Args:
  *     windows ({chain: boolean, battle: boolean}): Open windows at the MOVE.
@@ -69,6 +70,24 @@ export function moveReason(windows) {
   if (windows.chain) return "effect";
   if (windows.battle) return "battle";
   return "other";
+}
+
+/**
+ * Pure function. The key naming one field slot, so a card that activated can be
+ * matched against the card that later leaves that same slot.
+ *
+ * Args:
+ *     c ({p, zone, seq}): A `coord`.
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> slotKey({p: 0, zone: "s", seq: 1})  // "0-s-1"
+ *     >>> slotKey({p: 1, zone: "m", seq: 4})  // "1-m-4"
+ */
+function slotKey(c) {
+  return `${c.p}-${c.zone}-${c.seq}`;
 }
 
 /**
@@ -111,15 +130,15 @@ function claimTributes(released, controller) {
  *       summon   {at, name, special, tribute, tributes}   tributes = monsters released
  *       set      {at, monster, tribute, tributes}          monster=false is a set spell/trap
  *       flip     {at, name, battle}                       battle=true: flipped by an attack
- *       activate {at, name, chainLink}
+ *       activate {at, name, code, chainLink}              code: for drawing the card mid-activation
  *       resolve  {chainLink}                              that link now resolving
  *       attack   {from, to|null, name, direct}
  *       battle   {attacker, target, attackerDestroyed, targetDestroyed}
  *       damage   {player, amount, cost}                   cost=true: paid, not dealt
  *       recover  {player, amount}
- *       tograve  {from, name, reason}                     reason: see moveReason + "tribute"
+ *       tograve  {from, name, reason}                     reason: see moveReason + "tribute"/"spent"
  *       banish   {from, name, reason}
- *       move     {from, to, name, faceFrom, faceTo, reason}  any zone→zone trip; drives the visual flyer
+ *       move     {from, to, name, code, faceFrom, faceTo, reason}  any zone→zone trip; drives the visual flyer
  *       pos      {at, name, position, prev}               position change that is not a flip
  *       shuffle  {player, what}                           what: deck|hand|extra|set
  *       equip    {at, target, name, targetName}
@@ -138,6 +157,11 @@ function claimTributes(released, controller) {
  *     >>> const summon = {type: 60, code: 26378150, controller: 0, location: 4, sequence: 1, position: 1};
  *     >>> extractEvents([release, summon], 2, 8000, [40, 40]).map((e) => [e.kind, e.reason ?? e.tributes])
  *     [["tograve", "tribute"], ["summon", 1]]
+ *     >>> // A Normal Spell: onto the field, activation, resolution, graveyard —
+ *     >>> // four beats a client can animate one after the other.
+ *     >>> extractEvents(spellActivation, 2, 8000, [40, 40]).map((e) => e.kind)
+ *     ["move", "activate", "resolve", "recover", "move", "tograve"]
+ *     >>> // and the used spell's departure is "spent", not a destruction.
  */
 export function extractEvents(messages, viewer, startingLP, deckSizes) {
   const field = createField(startingLP, deckSizes);
@@ -150,6 +174,12 @@ export function extractEvents(messages, viewer, startingLP, deckSizes) {
   // tograve events for monsters that left a monster zone since the last
   // summon / activation / phase, so a SUMMONING can claim them as its tributes.
   let released = [];
+  // Slots of the cards that have activated in the CURRENT chain. A used Normal
+  // Spell/Trap is sent to the graveyard by the core BETWEEN CHAIN_SOLVED and
+  // CHAIN_END — with no window open — so without this it looks exactly like a
+  // card destroyed for no stated reason and gets the destruction cue. Cleared at
+  // CHAIN_END, which always follows the chain (a slot can be reused next turn).
+  const activated = new Set();
 
   messages.forEach((m, i) => {
     switch (m.type) {
@@ -193,13 +223,18 @@ export function extractEvents(messages, viewer, startingLP, deckSizes) {
       }
       case T.CHAINING:
         released = [];
-        events.push({ i, kind: "activate", at: coord(m), name: cardName(m.code), chainLink: m.chain_size });
+        activated.add(slotKey(coord(m)));
+        events.push({ i, kind: "activate", at: coord(m), name: cardName(m.code), code: m.code, chainLink: m.chain_size });
         break;
       case T.CHAIN_SOLVING:
         windows.chain = true;
         events.push({ i, kind: "resolve", chainLink: m.chain_size });
         break;
-      case T.CHAIN_SOLVED: case T.CHAIN_NEGATED: case T.CHAIN_END:
+      case T.CHAIN_END:
+        activated.clear();
+        windows.chain = false;
+        break;
+      case T.CHAIN_SOLVED: case T.CHAIN_NEGATED:
         windows.chain = false;
         break;
       case T.ATTACK:
@@ -230,18 +265,23 @@ export function extractEvents(messages, viewer, startingLP, deckSizes) {
         // faceFrom/faceTo let the flyer flip mid-air when a card reveals or hides.
         const cf = coord(m.from), ct = coord(m.to);
         const fieldShift = cf.p === ct.p && cf.zone === ct.zone && (ct.zone === "m" || ct.zone === "s") && cf.seq !== ct.seq;
+        // A card leaving the slot it activated from, once its chain link has
+        // resolved, is SPENT — put away rather than destroyed. `delete` both
+        // tests and consumes the slot, so it can only be claimed once.
+        const spent = m.to.location === OcgLocation.GRAVE && !windows.chain && activated.delete(slotKey(cf));
+        const reason = spent ? "spent" : moveReason(windows);
         if (cf.p !== ct.p || cf.zone !== ct.zone || fieldShift) {
           events.push({
             i, kind: "move", from: cf, to: ct, name: label, code: m.card ?? 0,
             faceFrom: !!(m.from.position & OcgPosition.FACEUP),
             faceTo: !!(m.to.position & OcgPosition.FACEUP),
-            reason: moveReason(windows),
+            reason,
           });
         }
         if (m.to.location === OcgLocation.REMOVED) {
-          events.push({ i, kind: "banish", from: coord(m.from), name: label, reason: moveReason(windows) });
+          events.push({ i, kind: "banish", from: coord(m.from), name: label, reason });
         } else if (m.to.location === OcgLocation.GRAVE && (m.from.location & FIELD)) {
-          const event = { i, kind: "tograve", from: coord(m.from), name: label, reason: moveReason(windows) };
+          const event = { i, kind: "tograve", from: coord(m.from), name: label, reason };
           events.push(event);
           // A monster that dies while an effect resolves was killed by it, not
           // released for a summon: a normal summon or set is never part of a chain.

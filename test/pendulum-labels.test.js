@@ -15,6 +15,7 @@
  */
 
 // Installs cards.cdb as the card source (src/cardsource.js).
+import "../src/volume-node.js";
 import "../src/cardsource-node.js";
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -99,4 +100,20 @@ test("the idle menu never offers to 'special summon' a scale card", () => {
   const menu = buildMenu(msg, { selectHint: 0n, eventHint: 0n, field: fieldWithScales(DRAGONPIT, DRAGONPULSE) });
   assert.match(menu.items[0].label, /^Pendulum Summon — scales /);
   assert.doesNotMatch(menu.items[0].label, /Special summon/);
+});
+
+// A Pendulum Monster leaving the field goes FACE-UP to the Extra Deck, where it
+// is public and Pendulum-summonable — unlike the face-down Extra Deck proper.
+// The state must say which is which, to the opponent too.
+import { loadDuel } from "../src/store.js";
+import { viewDuel } from "../src/session.js";
+test("extra deck entries say whether a card lies face-up, and the opponent sees those by name", async () => {
+  // SkyVsSpectre move 120: P0 (Endymion) has three Pendulums face-up in its Extra Deck.
+  const view = await viewDuel(loadDuel("SkyVsSpectre"), 1, 120);
+  const extra = view.state.players[0].extra;
+  const up = extra.filter((c) => c.faceUp);
+  assert.equal(up.length, 3);
+  assert.deepEqual(up.map((c) => c.name).sort(), ["Mythical Beast Bashilisk", "Mythical Beast Jackal", "Mythical Beast Jackal King"], "face-up cards are public to the opponent");
+  assert.ok(extra.some((c) => !c.faceUp && c.name === null), "the face-down Extra Deck proper stays hidden from the opponent");
+  assert.ok(view.stateLines.some((l) => /extra \(face-up, Pendulum-summonable\): .*Bashilisk/.test(l)), "the LLM's state text lists them on their own line");
 });

@@ -19,7 +19,7 @@
  *   live round trips in `.frenzy/02` and here were made with.
  */
 
-import { DEFAULT_MAX_OUTPUT_TOKENS, PROVIDER_CATALOG, decisionSchema, postJson, registerProvider, usageOf } from "./provider.js";
+import { DEFAULT_MAX_OUTPUT_TOKENS, PROVIDER_CATALOG, decisionSchema, nextOutputBudget, postJson, registerProvider, usageOf } from "./provider.js";
 
 const CATALOG = PROVIDER_CATALOG.openai;
 
@@ -46,12 +46,9 @@ const CATALOG = PROVIDER_CATALOG.openai;
  *     >>> await chooseMove({apiKey, model: "gpt-5-nano", system: "You are P0…",
  *     ...   messages: [{role: "user", content: "## Your options\n1. End turn"}],
  *     ...   choices: ["1"], options: {effort: "minimal", summary: "off"}})
- *     {text: '{"choice":"1","reason":"Nothing else is legal."}', reasoning: null,
- *      usage: {in: 77, out: 13, reasoning: 0}, raw: {…}, latencyMs: 1672}
+ *     {text: '{"choice":"1","reason":"Nothing else is legal."}', truncated: false,
+ *      reasoning: null, usage: {in: 77, out: 13, reasoning: 0}, raw: {…}, latencyMs: 1672}
  */
-/** Largest output budget the retry will ask for; above this the model is simply not converging. */
-const MAX_OUTPUT_TOKENS_CEILING = 32768;
-
 async function chooseMove({ apiKey, model, system, messages, choices, options = {}, cacheKey, signal, maxOutputTokens = DEFAULT_MAX_OUTPUT_TOKENS }) {
   const effort = options.effort ?? "low";
   const summary = options.summary ?? "auto";
@@ -76,15 +73,25 @@ async function chooseMove({ apiKey, model, system, messages, choices, options = 
   });
 
   const text = messageText(json);
-  if (text === null && json.status === "incomplete" && json.incomplete_details?.reason === "max_output_tokens" && maxOutputTokens < MAX_OUTPUT_TOKENS_CEILING) {
-    // A reasoning model can spend the whole output budget thinking and emit no
-    // answer at all (seen: gpt-5-nano at 8k). That is not a context problem — the
-    // input is small — it is the OUTPUT budget. Ask once more with far more room.
-    return chooseMove({ apiKey, model, system, messages, choices, options, cacheKey, signal, maxOutputTokens: Math.min(maxOutputTokens * 4, MAX_OUTPUT_TOKENS_CEILING) });
-  }
+  // A reasoning model can spend the whole output budget thinking, leaving the
+  // answer half-written or absent (seen: gpt-5-nano at 8k with nothing at all;
+  // gpt-5.6-terra at 512 with JSON cut mid-string). Not a context problem — the
+  // input is small — it is the OUTPUT budget, so ask again with far more room.
+  //
+  // PARTIAL TEXT IS STILL A RETRY. It used to be retried only when NOTHING came
+  // back, and the fragment that did come back was handed to the caller as if it
+  // were an answer: a truncated `{"choice":"Because Snatch Steal…` was posted
+  // verbatim to the table chat. Half a JSON object is not worth less than none;
+  // it is worth exactly the same, which is nothing.
+  const truncated = json.status === "incomplete" && json.incomplete_details?.reason === "max_output_tokens";
+  const retryBudget = truncated ? nextOutputBudget(maxOutputTokens) : null;
+  if (retryBudget) return chooseMove({ apiKey, model, system, messages, choices, options, cacheKey, signal, maxOutputTokens: retryBudget });
   if (text === null) throw new Error(`OpenAI returned no assistant message (status ${json.status}${json.incomplete_details ? `, incomplete: ${json.incomplete_details.reason}` : ""})`);
   return {
     text,
+    // Only reachable at the ceiling: the caller is told the text is a fragment
+    // rather than being left to guess (chat.js refuses to post one).
+    truncated,
     reasoning: reasoningSummary(json),
     usage: usageOf({ in: json.usage?.input_tokens, out: json.usage?.output_tokens, reasoning: json.usage?.output_tokens_details?.reasoning_tokens }),
     raw: json,

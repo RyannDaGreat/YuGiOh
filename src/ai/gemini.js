@@ -18,7 +18,7 @@
  *   `additionalProperties`, so `geminiSchema` strips it; sending it is a 400.
  */
 
-import { DEFAULT_MAX_OUTPUT_TOKENS, PROVIDER_CATALOG, decisionSchema, postJson, registerProvider, usageOf } from "./provider.js";
+import { DEFAULT_MAX_OUTPUT_TOKENS, PROVIDER_CATALOG, decisionSchema, nextOutputBudget, postJson, registerProvider, usageOf } from "./provider.js";
 
 const CATALOG = PROVIDER_CATALOG.gemini;
 
@@ -43,7 +43,7 @@ const CATALOG = PROVIDER_CATALOG.gemini;
  *     >>> await chooseMove({apiKey, model: "gemini-2.5-flash", system: "You are P0…",
  *     ...   messages: [{role: "user", content: "## Your options\n1. Set a monster"}],
  *     ...   choices: ["1"], options: {thinkingLevel: "low", includeThoughts: true}})
- *     {text: '{"choice":"1","reason":"Their board is bigger; set and pass."}',
+ *     {text: '{"choice":"1","reason":"Their board is bigger; set and pass."}', truncated: false,
  *      reasoning: "Setting keeps the 1400 body safe…", usage: {in: 5310, out: 96, reasoning: 180},
  *      raw: {…}, latencyMs: 2400}
  */
@@ -72,12 +72,20 @@ async function chooseMove({ apiKey, model, system, messages, choices, options = 
   });
 
   const candidate = json.candidates?.[0];
+  // Same wall as every other provider (see nextOutputBudget): thoughts can eat
+  // the budget and leave the JSON answer cut mid-string, which is worth no more
+  // than no answer at all. Retry with more room before reading the parts.
+  const truncated = candidate?.finishReason === "MAX_TOKENS";
+  const retryBudget = truncated ? nextOutputBudget(maxOutputTokens) : null;
+  if (retryBudget) return chooseMove({ apiKey, model, system, messages, choices, options, signal, maxOutputTokens: retryBudget });
+
   if (!candidate?.content) throw new Error(`Gemini returned no content (finishReason ${candidate?.finishReason ?? "none"}, promptFeedback ${JSON.stringify(json.promptFeedback ?? null)})`);
   const text = partsText(candidate, false);
   if (!text) throw new Error(`Gemini returned no answer text (finishReason ${candidate.finishReason})`);
   const thoughts = partsText(candidate, true);
   return {
     text,
+    truncated,
     reasoning: thoughts || null,
     usage: usageOf({ in: json.usageMetadata?.promptTokenCount, out: json.usageMetadata?.candidatesTokenCount, reasoning: json.usageMetadata?.thoughtsTokenCount }),
     raw: json,

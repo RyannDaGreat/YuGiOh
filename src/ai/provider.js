@@ -39,6 +39,13 @@
  * a menu index, so the visible answer itself is a few dozen tokens. */
 export const DEFAULT_MAX_OUTPUT_TOKENS = 8192;
 
+/** Largest output budget a truncation retry will ask for; above this the model
+ * is not converging and more room will not help. */
+export const MAX_OUTPUT_TOKENS_CEILING = 32768;
+
+/** How much bigger each truncation retry's budget is. */
+const OUTPUT_BUDGET_GROWTH = 4;
+
 /** Longest `reason` we ask a model to write: enough to explain a play in the
  * trace panel, short enough that it never becomes the bulk of the response. */
 export const MAX_REASON_CHARS = 300;
@@ -63,6 +70,13 @@ export const MAX_REASON_CHARS = 300;
 /**
  * @typedef {Object} MoveResponse
  * @property {string} text       - The model's answer, verbatim (usually JSON).
+ * @property {boolean} truncated - True when the model ran out of OUTPUT budget
+ *                                 mid-answer, so `text` is a fragment (a JSON
+ *                                 answer cut mid-string). Adapters retry once
+ *                                 with a bigger budget first; this stays true
+ *                                 only when even the ceiling was not enough, and
+ *                                 exists so a caller never mistakes a fragment
+ *                                 for an answer.
  * @property {string|null} reasoning - Thinking/reasoning SUMMARY if the provider
  *                                 returned one. No provider returns raw chain of
  *                                 thought; null when none was requested or given.
@@ -518,4 +532,32 @@ export async function postJson({ url, headers, body, label, signal }) {
 export function usageOf(counts) {
   const num = (v) => (typeof v === "number" ? v : null);
   return { in: num(counts.in), out: num(counts.out), reasoning: num(counts.reasoning) };
+}
+
+/**
+ * Pure function. The budget to retry a truncated answer with, or null once the
+ * ceiling has been reached.
+ *
+ * Every provider hits the same wall — a reasoning model can spend the whole
+ * OUTPUT budget thinking and then emit its answer into whatever is left, so the
+ * answer arrives cut off (or not at all). The cure is identical everywhere: ask
+ * again with far more room. Only the field that reports it differs (OpenAI
+ * `status: "incomplete"`, Anthropic `stop_reason: "max_tokens"`, Gemini
+ * `finishReason: "MAX_TOKENS"`), so only the DETECTION lives in the adapters.
+ *
+ * Args:
+ *     current (number): The budget that was not enough.
+ *
+ * Returns:
+ *     number|null
+ *
+ * Examples:
+ *     >>> nextOutputBudget(512)     // 2048
+ *     >>> nextOutputBudget(8192)    // 32768
+ *     >>> nextOutputBudget(16384)   // 32768   (clamped to the ceiling)
+ *     >>> nextOutputBudget(32768)   // null    (already there — stop retrying)
+ */
+export function nextOutputBudget(current) {
+  if (current >= MAX_OUTPUT_TOKENS_CEILING) return null;
+  return Math.min(current * OUTPUT_BUDGET_GROWTH, MAX_OUTPUT_TOKENS_CEILING);
 }

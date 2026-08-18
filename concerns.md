@@ -760,3 +760,89 @@ closes over what each bundled script references (`id+N` tokens and any real pass
 number), transitively: 607 cards. Verified by activating Hornet Drones on the live site. Bundle
 fetches use `cache: "no-cache"` so a tab cannot keep yesterday's `cards.json` across a deploy (the
 owner saw the fixed bug persist in a tab that predated the deploy).
+
+### 2026-08-18 — raw truncated JSON was posted to the table chat
+Live, in a spectated duel: P1 (gpt-5.6-terra) answered a rules question with
+`{"choice":"Because Snatch Steal gives me control of Skilled Dark Magician, its 3-counter effect would
+Tribute it and Special Summon a Dark Magician from your hand, Deck, or G` — raw JSON, cut mid-word,
+posted verbatim as a chat line.
+
+**Two root causes, both a class of bug rather than one instance.**
+
+1. **The chat call's output budget was 512 tokens.** A reasoning model bills its hidden thinking
+   against the same budget, so 512 does not buy a short answer, it buys a truncated one: OpenAI came
+   back `status: "incomplete", incomplete_details: {reason: "max_output_tokens"}` with the JSON cut
+   mid-string. The adapter's existing retry only fired when *no* message text came back at all
+   (`text === null`), so a PARTIAL answer sailed straight through to the caller. Half a JSON object is
+   worth exactly what none of it is worth. Fixes: the retry now fires on any max-output-tokens
+   truncation, partial text included; the growth/ceiling policy moved to `provider.js`
+   (`nextOutputBudget`, 4x per try up to 32768) and all three adapters now detect their own provider's
+   "hit the cap" signal (OpenAI `status: "incomplete"`, Anthropic `stop_reason: "max_tokens"`, Gemini
+   `finishReason: "MAX_TOKENS"`) and retry identically; `MoveResponse.truncated` tells the caller when
+   even the ceiling was not enough. The chat budget is now `CHAT_MAX_OUTPUT_TOKENS = 4096`.
+2. **`replyText` posted whatever it could not parse.** It tried `JSON.parse` and, on failure, returned
+   the raw text — which is precisely the machinery-leaks-to-the-user path. It now reads the `choice`
+   field BY PATTERN (`/"choice"\s*:\s*"((?:[^"\\]|\\.)*)(")?/`), so a cut-off object still gives up its
+   reply; an unterminated string is ended cleanly (back to the last full stop, else to the last word
+   boundary plus an ellipsis — never mid-word); and anything still shaped like JSON, or empty, becomes
+   `""`, which means "say nothing". `{` cannot reach the chat.
+
+**No silent drop.** A non-empty answer that yields nothing sayable is recorded in the trace with
+`error: "chat reply dropped: nothing sayable in the model's answer …"` and `chosenLabel: "chat:
+(dropped)"`, quoting the first 200 chars of what came back; a truncation that survived the ceiling
+adds its own clause. The trace's `response` is now the RAW provider text (as everywhere else in the
+trace) rather than the parsed reply, because a fragment is only diagnosable whole.
+
+**Lesson.** A token budget is a correctness parameter on a reasoning model, not a cost knob — and any
+value that "was fine" was fine for a model that thought less. Corollary: never hand a caller a
+fragment as though it were an answer. If the provider says it was cut off, the answer does not exist.
+Second lesson, older but re-learned: the last hop before a user sees text must have its own taste
+test. `replyText` is that hop, and it now refuses to speak rather than speak in JSON.
+
+## 2026-08-18 — Spell/trap activations "skipped to the end" (owner report)
+
+**Report.** "When spell or trap cards are played, visually I don't even see them put the card onto
+the field… first the card goes onto the field, then it activates (a little glowing effect), then the
+effect happens, and then the card goes to the graveyard. Right now it just skips to the end."
+
+**What the engine emits (verified on real duels, throwaway spell deck, `ygo` CLI).** A Normal Spell
+from hand: `move` hand→s0 · `activate` · `resolve` · `recover` · `move` s0→GY · `tograve` — SIX
+events, correctly ordered, in ONE payload. A set trap: `activate` · `resolve` · `move`+`tograve`
+(victim) · `move`+`tograve` (the trap) — also six. So the digest was never the problem.
+
+**Root causes (three, all in the client).**
+1. `Table.svelte` treated any batch of more than FOUR events as a scrub jump: `fly = !fast` meant
+   **flyers were switched off entirely** for every activation, and the beat dropped to 160 ms. The
+   owner therefore saw no card reach the field and no card leave it — the whole complaint.
+2. The board drawn alongside the events is the SETTLED position: the spell is already in the
+   graveyard, so `fx-flash` on its zone glowed an EMPTY square. Nothing ever showed the card on the
+   field, even with flyers on. Fixed with `ghosts`/`standIn()` — the activating card is parked on its
+   slot for the rest of the sequence (`activate` gained `code` in src/events.js to draw it).
+3. A new batch CANCELLED the one still playing (`for (const t of pending) clearTimeout(t)`). One
+   activation is ~2.5 s of beats and the page polls every 1.5 s, so a live duel routinely cut its own
+   activation off halfway. Batches now queue behind each other and are only dropped on a backwards
+   scrub or beyond `MAX_LAG_MS`.
+
+**Bug found while verifying (pre-existing, unrelated to the report).** `anchorRect` looked up a
+graveyard coord as `${p}-grave-${seq}`, but the GY is drawn as ONE stack with `data-zone="p-grave-0"`.
+Every card after the FIRST one to reach a graveyard silently teleported instead of flying. Caught
+because the trap's own trip to the GY (`seq` 1) drew no flyer while the spell's (`seq` 0) did. Piles
+now anchor to the stack whatever the depth.
+
+**Cue change.** A spent spell/trap was playing `destroyed` — an explosion for a card that had just
+done its job. `src/events.js` now labels that departure `reason: "spent"` (tracked from CHAINING's
+slot, claimed when the card leaves it after CHAIN_SOLVED, forgotten at CHAIN_END), and the table plays
+a new synth-only `spent` cue with no shake. The activation cue itself already existed and was already
+wired — `activate.ogg` (Kenney, CC0) / the Nexus `activate.wav`; it was simply inaudible as one of six
+events crammed into 800 ms.
+
+**Verified (Puppeteer, dev server 5178).** Own spell: flyer at +160 ms, glow+stand-in+name at +560 ms
+(`activate.wav`), `+1000` float at +1400 ms (`life-recover.wav`), flight to the GY at +1840 ms, `spent`
+at +2260 ms — 420 ms beats throughout. Set trap: stand-in+glow at +120 ms, victim to the GY at +960 ms,
+trap to the GY at +1800 ms. Opponent's spell arriving by poll: same four beats. Playback/scrub peak was
+2 simultaneous flying cards (no swarm), no page exceptions.
+
+**Known mismatch left alone.** `LPCounter` tweens from the BOARD payload, so the life-point number
+starts spinning as soon as the payload lands — before the effect's beat. The `+1000` float is on beat;
+the counter is not. Fixing it means driving LPCounter from the digest rather than the board (out of
+scope here, and LPCounter was not this agent's file).

@@ -476,13 +476,75 @@ There is ONE flyer for ALL zone permutations because it is driven by physical MO
 
 **Files.** `web/src/lib/pretty/FlyingCard.svelte` (a card face that animates from→to, rotateY flip at the midpoint when `faceFrom≠faceTo`), `web/src/lib/pretty/RelationLines.svelte` (dashed SVG lines over the mat, one per equip link, endpoints from `centerOf`), `web/src/lib/pretty/LPCounter.svelte` (tweens the displayed LP; loops an anime tick sound while moving, plays a settle sound on land), plus `sound.js` cues `lptick`/`lpsettle` and the sourced anime sounds under `web/static/sfx` (licences noted, personal-use like the other Nexus assets). `Table.svelte` wires them: overlay lists for flyers, `<RelationLines>` mount, `animate:flip` + stable keys on the hand/zone `{#each}`, and `<LPCounter>` replacing the static `{lp}`.
 
-**Scrubber/playback integration.** Animate only on a SINGLE-step advance (a live move, or one 1.1s play/pause tick). On a multi-move scrub jump, snap (no flyers). One guard; reuses the same flyer.
+**Beats: how a batch of events is paced (rewritten 2026-08-18).** The events for one decision arrive
+in ONE payload, so the table plays them one BEAT apart (`STEP_MS` 420 ms) rather than all at once, and
+each flight is shortened to fit inside its own beat (`BEAT_GAP_MS`) so beats never overlap. A batch of
+more than `SLOW_BATCH_MAX` (8) events is not one decision but a JUMP — a scrub, or a whole opponent
+turn landing in one poll — and catches up at `FAST_STEP_MS`, tail-first (`MAX_BURST`). Flyers play in
+BOTH cases: the swarm the old "snap on a jump" guard protected against cannot happen once flights are
+beat-sized. A new batch QUEUES BEHIND whatever is still playing (it only replaces it on a backwards
+scrub, or when more than `MAX_LAG_MS` behind), because the page polls every 1.5 s while one activation
+takes ~2.5 s of beats — cancelling on arrival is what made activations skip to their end.
 
 **Masking.** The flyer and lines are driven by the MASKED event/state stream, so they can never reveal more than the viewer may see (an opponent's draw flies as a face-down back; a hidden equip is simply not linked).
+
+**Activating a spell/trap is a SEQUENCE, not a result (added 2026-08-18, user requirement).** The owner:
+"first the card goes onto the field, then it activates (a little glowing effect), then the effect
+happens, and then the card goes to the graveyard. Right now it just skips to the end." Four beats,
+in that order, each visible and audible:
+1. `move` hand→S/T zone — the card flies there and lands face-up (a SET trap has no move: it is
+   already there, and beat 2 is where it turns face-up).
+2. `activate` — `fx-activate` glow (app.css, `--activate-ms`) + the `activate` cue + the card's name.
+3. the effect's own events — `recover`/`damage`/`tograve`/… , each its own beat.
+4. `move` S/T zone→graveyard, then `tograve` with `reason: "spent"` — the `spent` cue, and NO shake:
+   a used card is put away, not destroyed.
+Two things make beats 1–3 visible at all, and both are non-obvious:
+- **The board is the SETTLED position.** By the time the beats play, a Normal Spell is already in the
+  graveyard and its zone is drawn empty, so the glow would land on nothing. `Table.svelte` `ghosts` /
+  `standIn()` park the activating card on its slot (a `FlyingCard` with equal endpoints) until the
+  card flies off it, or `GHOST_MS`. Skipped when the board DOES show a card there (a chain waiting on
+  a response), so it never doubles a real card.
+- **`activate` carries `code`** (src/events.js) purely so that stand-in can be drawn.
+Pile coords (`grave`/`removed`/`deck`/`extra`) carry a DEPTH in `seq`, not a slot, so `anchorRect`
+resolves them to the pile itself — before that, only the first card ever to reach a graveyard could
+fly there and every card after it teleported (found while checking beat 4 of a trap).
 
 **Control change in flight (added 2026-08-17).** When a monster changes hands (Snatch Steal, Change of Heart) ocgcore asks the NEW controller for a destination zone BEFORE it moves the card, so between those two steps the board honestly shows the card on its old side with the equip already attached — which reads as "the spell did nothing", and did (the owner reported it as a bug; see concerns). The card now wears a `→ P0` badge until the zone is chosen. It is derived from the PENDING MENU (`P0: Select the zone to place "X"`) rather than from any new engine field: the menu is already in the payload, it is the only thing that actually knows a placement is outstanding, and deriving it costs the record nothing. Verified on `duel1` move 270.
 
 **Card identity.** The flyer needs none — the `move` event already carries `from`+`to`. Only the intra-zone reflow keys (`animate:flip`) need a stable per-card key; a deterministic per-move id (or hand order + code) suffices. This is the ONLY identity surface — deliberately small.
+
+**Clickable table (added 2026-08-18, user requirement).** The aside menu stays the full list, but every
+option that names a place on the table is ALSO playable from the table itself:
+- `web/src/lib/pretty/optionPlaces.js` (pure): `placeOf(label)` reads the trailing `(P0 m2)` / `(P1 hand)` /
+  `(P0 extra|GY|deck|banished|field)` — allowing further parentheticals ("(can attack directly)") and an
+  effect suffix (": Gain 1000 LP") — or a bare zone item `P0 m3`; `nameIn(label)` the card name; `optionsAt`
+  the options for one slot / pile / hand card (hand cards are told apart by name); `phaseOptions` maps the
+  phase strip's BP / M2 / EP to "Enter Battle Phase" / "Enter Main Phase 2" / "End turn".
+- Every element with ≥1 option wears ONE rim style — `.option-rim` (a 1px `--option-rim-color` line
+  following the card's own radius via `.card-box`, rotated with a defence-position card) or
+  `.option-rim-pill` on a phase button — so a restyle is one place (`app.css` `--option-rim-*`). Empty zones
+  in a zone-select menu, piles with activatable/summonable cards, and phase pills all get it.
+- One shared `hoverOption` (duel page) lights the option in the aside, in the context menu and on the table
+  at once (`.lit` / `.option-lit`): hover a row → its card glows; hover a card → its row glows.
+- Click: ONE option acts at once (attack with this monster, place here, pick this target); SEVERAL open
+  `ContextMenu.svelte` at the pointer with just that card's options (Escape / outside click close it).
+  `pickFromTable` submits an exact-count selection (min = max, e.g. a zone or "exactly 1" target) as soon
+  as it is complete — the click IS the confirmation; ranges still wait for the aside's Confirm.
+- Only while it is the viewer's decision (`myTurn`); respond windows included, so a set trap that can be
+  activated wears the rim too.
+- Verified by Puppeteer: rims, hover both ways, context menu open/close/pick, zone-select placement, EP
+  pill ending the turn, and a whole attack (monster rim → attack → target rim, hover-lit → click resolves).
+
+**Modified stats (2026-08-18).** A monster whose ATK (or DEF, when in defence) differs from its printed
+value draws its stat line in `--stat-modified-color` (brighter, yellower) with a `printed N` tooltip
+(`Card.svelte` `.stat-modified`); `fieldCardData` already carried `baseAtk`/`baseDef`.
+
+**Ids and rematch (2026-08-18).** The New-duel `id` is optional: blank → `engine.autoId(p0, p1)` =
+`<p0>-vs-<p1>`, `-2`, `-3`… (nobody knows what a game will be before it is played, so a name is not worth
+asking for). `engine.rematch(id)` makes a fresh duel with the same two decks (resolved back to library ids
+by name — the record freezes decks by name), the same seat labels and the same seat assignments
+(`seats.js`), a new shuffle and an automatic id; surfaced as a Rematch button in the duel header once a
+game is over (opens the same seat) and a `rematch` button on each finished row of the home list.
 
 ## 12. Pendulum scales and the Pendulum Summon (added 2026-08-17)
 
@@ -1060,6 +1122,13 @@ model judgement, because judgement failed in practice (see concerns, 2026-08-17)
   re-answered lines. `since` is the floor, always.
 Replies are capped at `MAX_REPLY_CHARS` and ride in the `choice` field of the same JSON shape moves
 use; `NO_REPLY` posts nothing but still advances the cursor, so every line is considered exactly once.
+**Never post JSON (2026-08-18).** A reasoning model can hit the output cap mid-answer (thinking is billed
+against the same budget) and return a *fragment* of the JSON. Two rules, both structural: every adapter
+retries a truncated answer with `nextOutputBudget` (×4 up to `MAX_OUTPUT_TOKENS_CEILING`, `provider.js`)
+and reports `truncated` if even that was not enough; and `chat.replyText` reads `choice` by pattern (no
+`JSON.parse` on fragments), tidies a cut-off reply to its last sentence/word, and returns `""` for anything
+that still looks like JSON — which `replyToChat` records as `chat: (dropped)` with the raw text in the
+trace. Chat requests ask for `CHAT_MAX_OUTPUT_TOKENS` (4096), not the 512 that produced the leak.
 
 **Traces (§2).** `duels/.traces/<id>.<seat>.json`, oldest first, one record per call including chat
 replies (`move: null`). `replyToChat` hands its record back to `playSeat`, which passes it to

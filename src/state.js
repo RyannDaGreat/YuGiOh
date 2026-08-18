@@ -208,6 +208,7 @@ export function fieldCardData(card, known, isMonsterZone) {
  *     PlayerState = {index, deckName, lp, handCount, deckCount, graveCount, banishCount, extraCount,
  *                    mzone: (FieldCard|null)[7], szone: (FieldCard|null)[8],
  *                    hand/grave/removed/extra: Array<{name: string|null, code: number}>  (null/0 = not identifiable),
+ *                    extra entries also carry faceUp: boolean (a Pendulum returned face-up is public),
  *                    unseenKind: "deck"|"pool", unseen: string[]}
  */
 export function collectState(core, handle, { viewer, deckNames, deckCodes, model, format = "classic" }) {
@@ -216,6 +217,11 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
     || (cardAt(model, { controller, location, sequence })?.code ?? 0) !== 0;
   // {name, code} for list locations; identity withheld (null/0) when not known.
   const entry = (controller, location) => (card, seq) => (known(card, controller, location, seq) ? { name: cardName(card.code), code: card.code } : { name: null, code: 0 });
+  // Extra Deck entries also say whether the card lies face-up there: a Pendulum
+  // Monster that left the field (or was used as material) returns face-up and is
+  // public, re-summonable knowledge — quite different from the face-down Extra
+  // Deck proper, which the opponent never sees. Both live in the same pile.
+  const extraEntry = (controller) => (card, seq) => ({ ...entry(controller, OcgLocation.EXTRA)(card, seq), faceUp: Boolean(card.position & OcgPosition.FACEUP) });
 
   const players = [0, 1].map((p) => {
     const fp = field.players[p];
@@ -252,7 +258,7 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
       hand: dense(OcgLocation.HAND).map(entry(p, OcgLocation.HAND)),
       grave: dense(OcgLocation.GRAVE).map((c) => ({ name: cardName(c.code), code: c.code })),
       removed: dense(OcgLocation.REMOVED).map(entry(p, OcgLocation.REMOVED)),
-      extra: dense(OcgLocation.EXTRA).map(entry(p, OcgLocation.EXTRA)),
+      extra: dense(OcgLocation.EXTRA).map(extraEntry(p)),
       unseenKind,
       unseen,
     };
@@ -337,7 +343,13 @@ export function renderState(state) {
     if (p.hand.length) lines.push(`  hand: ${p.hand.map((c) => c.name ?? "?").join(", ")}`);
     if (p.grave.length) lines.push(`  GY: ${p.grave.map((c) => c.name).join(", ")}`);
     if (p.removed.length) lines.push(`  banished: ${p.removed.map((c) => c.name ?? "? (face-down)").join(", ")}`);
-    if (p.extra.length) lines.push(`  extra: ${p.extra.map((c) => c.name ?? "?").join(", ")}`);
+    if (p.extra.length) {
+      const up = p.extra.filter((c) => c.faceUp);
+      const down = p.extra.filter((c) => !c.faceUp);
+      if (down.length) lines.push(`  extra: ${down.map((c) => c.name ?? "?").join(", ")}`);
+      // Face-up Extra Deck cards are Pendulums that can be Pendulum Summoned back — worth their own line.
+      if (up.length) lines.push(`  extra (face-up, Pendulum-summonable): ${up.map((c) => c.name ?? "?").join(", ")}`);
+    }
     lines.push(p.unseenKind === "deck"
       ? `  deck contents (unordered): ${p.unseen.join(", ")}`
       : `  unseen (hand + deck + face-down, ${p.unseen.length}): ${p.unseen.join(", ")}`);

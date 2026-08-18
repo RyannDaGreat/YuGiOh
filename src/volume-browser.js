@@ -116,6 +116,25 @@ async function writeDB(files) {
  * Examples:
  *     >>> // await openBrowserVolume()   // {backend: "opfs", files: 64, flush: [Function]}
  */
+/** The flush of the currently open browser volume, or a no-op before one is open. */
+let currentFlush = async () => {};
+
+/**
+ * Command. Waits until everything written to the browser volume so far is on
+ * disk. Callers that are about to navigate (create a duel, then open it) must
+ * await this: writes are debounced, and a page unload cannot wait for an async
+ * OPFS write, so without it a fast navigation can lose the last write.
+ *
+ * Returns:
+ *     Promise<void>
+ *
+ * Examples:
+ *     >>> // saveDuel(duel); await flushBrowserVolume(); location.href = "/duel/x"   // safe
+ */
+export function flushBrowserVolume() {
+  return currentFlush();
+}
+
 export async function openBrowserVolume(onError = (e) => console.error("volume flush failed:", e)) {
   const opfs = hasOPFS();
   const root = opfs ? await navigator.storage.getDirectory() : null;
@@ -156,6 +175,7 @@ export async function openBrowserVolume(onError = (e) => console.error("volume f
     await inFlight;
   };
 
+  currentFlush = flush;
   if (typeof addEventListener === "function") addEventListener("beforeunload", () => { void flush(); });
 
   return { backend: opfs ? "opfs" : "indexeddb", files: Object.keys(persisted).length, flush, volume };

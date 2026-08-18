@@ -61,7 +61,14 @@ export function presence(id, now) {
   return [0, 1].map((seat) => {
     const path = presencePath(id, seat);
     if (!existsSync(path)) return { seat, online: false, kind: null, ageMs: null };
-    const beat = JSON.parse(readFileSync(path, "utf8"));
+    // A heartbeat is written every second or two; a reader can catch it half-written
+    // (a page navigating away mid-flush leaves a freshly created, still-empty file
+    // in the browser's storage). That is an EXPECTED race for runtime chatter, and it
+    // means exactly "nobody is confirmed here right now" — never a reason to fail
+    // the whole view. Anything else (a broken volume) still throws.
+    const text = readFileSync(path, "utf8");
+    if (!text.trim()) return { seat, online: false, kind: null, ageMs: null };
+    const beat = JSON.parse(text);
     const ageMs = now - beat.at;
     return { seat, online: ageMs < ONLINE_MS, kind: beat.kind, ageMs };
   });

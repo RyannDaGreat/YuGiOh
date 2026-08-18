@@ -70,8 +70,9 @@ not a licensing claim** — nothing here was downloaded for the synth-only cues.
 | `turn-bell` | `turn-bell.wav` | not an engine cue — see above |
 
 Synth fallback, no file yet: `specialsummon`, `tribute`, `poschange`, `chain`,
-`resolve`, `reveal`, `equip`, `addcounter`, `removecounter`, `directattack`,
-`destroyed`, `banished`, `shuffle`, `coinflip`, `diceroll`, `phase`, `lose`.
+`resolve`, `spent`, `reveal`, `equip`, `addcounter`, `removecounter`,
+`directattack`, `destroyed`, `banished`, `shuffle`, `coinflip`, `diceroll`,
+`phase`, `lose`.
 
 Dropping a correctly-named CC0 file into `web/static/sfx/` is all it takes to
 promote one of those — add its row to the table above and its provenance to the

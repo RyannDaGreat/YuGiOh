@@ -15,10 +15,25 @@
   --card-w-mini: 3.2rem;
   --dagger-ms: 650ms;
   --flash-ms: 700ms;
+  /* Activation: a beat of its own in the sequence a spell/trap plays out (onto the
+     field -> activates -> effect resolves -> graveyard), so it glows longer and
+     harder than fx-flash and holds while the card stands in its zone. */
+  --activate-ms: 900ms;
+  --activate-core: rgba(254, 240, 138, 0.95);
+  --activate-halo: rgba(250, 204, 21, 0.5);
   --float-ms: 1200ms;
   --shake-ms: 400ms;
   /* Replay: how long the "this is the option they took" press-flash lasts. */
   --pick-ms: 400ms;
+  /* The clickable rim: any table element that has menu options right now (a card, an
+     empty zone, a pile, a phase button). One style everywhere, so it can change here. */
+  --option-rim-color: #facc15;
+  --option-rim-width: 1px;
+  --option-rim-lit-glow: 0 0 8px 2px rgba(250, 204, 21, 0.75);
+  --option-rim-lit-bg: rgba(250, 204, 21, 0.18);
+  /* A monster's ATK/DEF when it differs from the printed value: a touch brighter and yellower. */
+  --stat-modified-color: #fde047;
+  --stat-modified-glow: 0 0 4px rgba(253, 224, 71, 0.6);
   /* The "can still attack" sword: half-transparent, so it marks the card without hiding its art. */
   --attack-mark-opacity: 0.5;
   --attack-mark-inset: 0.15rem;
@@ -38,6 +53,14 @@
 /* The table's card-back gradient, factored out so the deck viewer's art fallback matches it. */
 .card-back-bg { background: radial-gradient(circle at 50% 40%, #7a4a2a 0, #3b2314 70%); }
 @keyframes flash { 0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } 40% { box-shadow: 0 0 22px 8px rgba(250, 204, 21, 0.9); } }
+/* The card lights up as it activates: a hard flare, then a held halo that fades.
+   The card itself sits on top (the flyer overlay), so this reads as its glow. */
+@keyframes activate {
+  0% { box-shadow: 0 0 0 0 var(--activate-halo); }
+  20% { box-shadow: 0 0 18px 7px var(--activate-core), 0 0 44px 18px var(--activate-halo); }
+  65% { box-shadow: 0 0 14px 5px var(--activate-core), 0 0 34px 14px var(--activate-halo); }
+  100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+}
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes floatup { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)); } }
 @keyframes dagger { 0% { offset-distance: 0%; opacity: 0.2; } 15% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
@@ -53,10 +76,23 @@
 *::-webkit-scrollbar-track { background: #1c1410; }
 *::-webkit-scrollbar-thumb { background: #b45309; border-radius: 5px; border: 2px solid #1c1410; }
 .fx-flash { animation: flash var(--flash-ms) ease-out; }
+.fx-activate { animation: activate var(--activate-ms) ease-out; }
 .fx-shake { animation: shake var(--shake-ms) ease-in-out; }
 .fx-float { animation: floatup var(--float-ms) ease-out forwards; }
 .fx-dagger { animation: dagger var(--dagger-ms) ease-in forwards; offset-rotate: auto; }
 .fx-pick { animation: pick var(--pick-ms) ease-out; }
+/* The clickable rim over a card/zone/pile that owns menu options: a 1px line following the
+   card's own corner radius (via .card-box), and a glow while its option is hovered — in the
+   menu or here — so the two are visibly the same thing. Sits above the card's own button. */
+.option-rim { position: absolute; inset: 0; z-index: 30; cursor: pointer; border: var(--option-rim-width) solid var(--option-rim-color); box-sizing: border-box; }
+.option-rim.lit { box-shadow: var(--option-rim-lit-glow); background: var(--option-rim-lit-bg); }
+/* The same idea on a phase-strip pill, which is a button rather than an overlay. */
+.option-rim-pill { border: var(--option-rim-width) solid var(--option-rim-color); cursor: pointer; }
+.option-rim-pill.lit { box-shadow: var(--option-rim-lit-glow); }
+/* A menu row (aside or context menu) whose card is hovered on the table. */
+.option-lit { box-shadow: inset 0 0 0 1px var(--option-rim-color), var(--option-rim-lit-glow); background: var(--option-rim-lit-bg) !important; }
+/* A stat line whose value differs from the card's printed one. */
+.stat-modified { color: var(--stat-modified-color); text-shadow: 0 0 3px #000, var(--stat-modified-glow); }
 /* Sits on a monster that has not attacked yet this battle phase; the travelling
    dagger is the same blade leaving for its target, so this marker clears as it goes. */
 /* A monster the engine is moving to the other player, shown until they pick its zone. */

@@ -21,7 +21,7 @@
  * adaptive thinking, which is the only thinking mode this adapter sends.
  */
 
-import { DEFAULT_MAX_OUTPUT_TOKENS, PROVIDER_CATALOG, decisionSchema, postJson, registerProvider, usageOf } from "./provider.js";
+import { DEFAULT_MAX_OUTPUT_TOKENS, PROVIDER_CATALOG, decisionSchema, nextOutputBudget, postJson, registerProvider, usageOf } from "./provider.js";
 
 const CATALOG = PROVIDER_CATALOG.anthropic;
 /** The API version header Anthropic requires on every request. */
@@ -56,7 +56,7 @@ const TOOL_NAME = "choose_move";
  *     >>> await chooseMove({apiKey, model: "claude-sonnet-5", system: "You are P1…",
  *     ...   messages: [{role: "user", content: "## Your options\n1. Attack\n2. End turn"}],
  *     ...   choices: ["1", "2"], options: {thinking: "adaptive", effort: "low"}})
- *     {text: '{"choice":"1","reason":"Vorse Raider out-bodies their set monster."}',
+ *     {text: '{"choice":"1","reason":"Vorse Raider out-bodies their set monster."}', truncated: false,
  *      reasoning: "Their only monster is 1400 DEF…", usage: {in: 5310, out: 412, reasoning: 260},
  *      raw: {…}, latencyMs: 4120}
  */
@@ -92,10 +92,19 @@ async function chooseMove({ apiKey, model, system, messages, choices, options = 
     signal,
   });
 
+  // Same wall as every other provider (see nextOutputBudget): thinking can eat
+  // the budget and leave the forced tool call missing or half-filled, and a
+  // half-filled `{choice}` is not an answer. Retry with more room before reading
+  // anything out of the reply.
+  const truncated = json.stop_reason === "max_tokens";
+  const retryBudget = truncated ? nextOutputBudget(maxOutputTokens) : null;
+  if (retryBudget) return chooseMove({ apiKey, model, system, messages, choices, options, signal, maxOutputTokens: retryBudget });
+
   const call = (json.content ?? []).find((block) => block.type === "tool_use" && block.name === TOOL_NAME);
   if (!call) throw new Error(`Anthropic returned no ${TOOL_NAME} tool call (stop_reason ${json.stop_reason}); content types: ${(json.content ?? []).map((b) => b.type).join(", ") || "none"}`);
   return {
     text: JSON.stringify(call.input),
+    truncated,
     reasoning: thinkingText(json),
     usage: usageOf({ in: json.usage?.input_tokens, out: json.usage?.output_tokens, reasoning: json.usage?.output_tokens_details?.thinking_tokens }),
     raw: json,

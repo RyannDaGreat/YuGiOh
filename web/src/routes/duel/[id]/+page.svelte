@@ -1,8 +1,10 @@
 <script>
   import { base } from "$app/paths";
-  import { fork as forkApi, getCard, getDuel, getSleeves, play as playApi, sendChat as sendChatApi, setSleeve } from "$lib/api.js";
+  import { fork as forkApi, getCard, getDuel, getSleeves, play as playApi, rematch as rematchApi, sendChat as sendChatApi, setSleeve } from "$lib/api.js";
   import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
   import AiRunner from "$lib/pretty/AiRunner.svelte";
+  import ContextMenu from "$lib/pretty/ContextMenu.svelte";
+  import { nameIn, optionPlaces, phaseOptions } from "$lib/pretty/optionPlaces.js";
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import Table from "$lib/pretty/Table.svelte";
@@ -111,6 +113,52 @@
    * equip already attached — which reads as "the spell did nothing" unless
    * labelled. Derived from the pending menu: "P0: Select the zone to place "X"".
    */
+  /**
+   * The menu, projected onto the table (optionPlaces.js): which card/zone/pile
+   * each option belongs to, and which phase-strip buttons stand for an option.
+   * Only while it is this viewer's decision — otherwise nothing is clickable.
+   */
+  const tableOptions = $derived(myTurn ? optionPlaces(view.menu.items) : []);
+  const phaseOptionIndex = $derived(myTurn && !isRespond ? phaseOptions(view.menu.items) : {});
+  /** The one hovered option, shared by the aside, the context menu and the table. */
+  let hoverOption = $state(null);
+  /**
+   * The card the hovered option names, if any (optionPlaces.nameIn). An option
+   * is sometimes the ONLY place a card is visible — Magician's Circle offers
+   * deck cards by name and nothing else — so hovering one must preview it just
+   * like hovering the card on the table. Derived rather than read inside the
+   * effect, so the 1.5s poll reassigning `view` does not re-trigger the lookup.
+   */
+  const hoverOptionName = $derived(hoverOption === null ? null : nameIn(view.menu?.items?.[hoverOption] ?? ""));
+  /** The open context menu: pointer position + the options of the card that was clicked. */
+  let contextMenu = $state(null);
+
+  /**
+   * Command. A table element with options was clicked: one option acts at once
+   * (attack with this monster, place here, pick this target); several open a
+   * context menu of just those.
+   */
+  function tableClick(opts, at) {
+    if (busy || !opts.length) return;
+    if (opts.length === 1) { pickFromTable(opts[0].index); return; }
+    contextMenu = { at, options: opts };
+  }
+
+  /**
+   * Command. A pick made on the table (or its context menu). Same as the aside's
+   * pick, except that when the menu wants an exact number of choices — a zone to
+   * place in, exactly one target — reaching that number submits at once: clicking
+   * the slot IS the confirmation. Ranges ("choose 1-2") still wait for Confirm.
+   */
+  function pickFromTable(index) {
+    const number = String(index + 1);
+    if (view.menu.mode === "one") return submit(number);
+    if (view.menu.mode !== "many" && view.menu.mode !== "order") return;
+    const next = selected.includes(number) ? selected.filter((n) => n !== number) : [...selected, number];
+    selected = next;
+    if (view.menu.min === view.menu.max && next.length === view.menu.max) submit(next.join(","));
+  }
+
   const controlChange = $derived.by(() => {
     const m = view.menu?.title?.match(/^P([01]): Select the zone to place "(.+)"/);
     if (!m) return null;
@@ -177,7 +225,7 @@
   async function refresh() {
     let next;
     try { next = await getDuel(view.id, view.viewer === 2 ? "all" : view.viewer, playbackAt === null ? undefined : playbackAt); } catch { return; }
-    if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) selected = [];
+    if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) { selected = []; contextMenu = null; hoverOption = null; }
     view = next;
     slider = next.at;
     // Follow the log only when it grew, so the reader can scroll up between events.
@@ -209,12 +257,19 @@
     }
   }
 
+  /**
+   * Query. Full card text by exact name, fetched once per name and cached.
+   * A miss is a real answer, not an error: option labels are read for names
+   * heuristically ("End turn" is not a card), so an unknown name caches as null.
+   */
+  async function cardByName(name) {
+    if (!cardCache.has(name)) cardCache.set(name, await getCard(name).catch(() => null));
+    return cardCache.get(name);
+  }
+
   async function showCard(c) {
     if (!c || !c.name) return;
-    if (!cardCache.has(c.name)) {
-      cardCache.set(c.name, await getCard(c.name).catch(() => null));
-    }
-    card = cardCache.get(c.name);
+    card = await cardByName(c.name);
   }
 
   async function scrub(value) {
@@ -308,6 +363,20 @@
     respondMode = RESPOND_MODES[(RESPOND_MODES.indexOf(respondMode) + 1) % RESPOND_MODES.length];
     localStorage.setItem(RESPOND_MODE_KEY, respondMode);
   }
+
+  // Hovering an option previews the card it names — ONE place for every option
+  // surface (aside menu, respond panel, context menu, table rims, the read-only
+  // playback list), because they all funnel through `hoverOption`.
+  // The panel is replaced only when the name resolves to a real card, so
+  // hovering "End turn" or a bare zone leaves whatever was there — a label is
+  // read for a name heuristically, and a miss must not blank the preview.
+  $effect(() => {
+    const name = hoverOptionName;
+    if (!name) return;
+    // The name may still be in flight when the pointer moves on; a late answer
+    // for an option no longer hovered must not win over the current one.
+    cardByName(name).then((found) => { if (found && hoverOptionName === name) card = found; });
+  });
 
   /** Ensures the bell rings on the transition into myDecision, not on every poll. */
   let bellRung = false;
@@ -418,6 +487,8 @@
       <span class="px-3 py-1 rounded bg-yellow-300 text-yellow-950 font-bold">PLAYBACK — move {view.at} of {view.total}</span>
     {:else if view.ended}
       <span class="px-3 py-1 rounded bg-amber-200 text-amber-950 font-bold">DUEL OVER — {view.winner === 2 ? "draw" : `P${view.winner} wins`} ({view.winText})</span>
+      <!-- Play again: same decks, labels and AI/human seats, fresh shuffle, automatic id; opens the same seat you sat in. -->
+      <button class="px-3 py-1 rounded bg-emerald-300 text-emerald-950 font-bold inline-flex items-center gap-1 hover:bg-emerald-200" onclick={async () => { const r = await rematchApi(view.id); if (!r.ok) { errorText = r.error; return; } window.location.href = `${base}/duel/${r.id}?as=${view.viewer === 2 ? "all" : view.viewer}`; }} title="same decks and seats, new shuffle"><Icon icon="mdi:replay" />Rematch</button>
     {:else}
       <span class="px-3 py-1 rounded font-bold {view.pendingPlayer === view.viewer ? 'bg-emerald-300 text-emerald-950' : 'bg-black/40 text-amber-100/80'}">waiting on P{view.pendingPlayer}</span>
     {/if}
@@ -468,7 +539,7 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} />
+      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} options={tableOptions} {phaseOptionIndex} {hoverOption} onhoveroption={(i) => (hoverOption = i)} onoptions={tableClick} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
@@ -488,7 +559,8 @@
               <div class="flex flex-col gap-1">
                 {#each view.menu.items as label, i}
                   {@const taken = view.chosen?.index === i}
-                  <div class="text-left text-xs px-2 py-1 rounded border {taken ? 'fx-pick border-yellow-300 bg-yellow-300 text-yellow-950 font-bold' : 'border-amber-900/60 bg-black/30 text-amber-100/55'}">
+                  <!-- Read-only, but still hoverable: reviewing a replay is exactly when you want to see the card an option named. -->
+                  <div class="text-left text-xs px-2 py-1 rounded border {taken ? 'fx-pick border-yellow-300 bg-yellow-300 text-yellow-950 font-bold' : 'border-amber-900/60 bg-black/30 text-amber-100/55'}" onmouseenter={() => (hoverOption = i)} onmouseleave={() => (hoverOption = null)} role="presentation">
                     <span class="font-mono mr-1 {taken ? 'text-yellow-900' : 'text-amber-300/50'}">{i + 1}</span>{label}
                     {#if taken}<Icon icon="mdi:cursor-default-click" class="inline align-text-bottom ml-1" width="13" height="13" />{/if}
                   </div>
@@ -519,7 +591,7 @@
           <p class="text-indigo-100/45 text-[0.6rem] mb-2">mode: <b class="text-indigo-100/70">{respondMode}</b> — {RESPOND_MODE_NOTE[respondMode]}{respondMode === "smart" ? ` (this window: ${respondSpeCount > 0 ? "worth stopping" : "would auto-decline"})` : ""}</p>
           <div class="flex flex-col gap-1">
             {#each view.menu.items as label, i}
-              <button class="text-left text-xs px-2 py-1 rounded border border-indigo-400/40 bg-indigo-900/40 hover:bg-indigo-700/50 text-indigo-50" onclick={() => submit(String(i + 1))} disabled={busy}>
+              <button class="text-left text-xs px-2 py-1 rounded border border-indigo-400/40 bg-indigo-900/40 hover:bg-indigo-700/50 text-indigo-50 {hoverOption === i ? 'option-lit' : ''}" onclick={() => submit(String(i + 1))} onmouseenter={() => (hoverOption = i)} onmouseleave={() => (hoverOption = null)} disabled={busy}>
                 <span class="font-mono text-indigo-300 mr-1">{i + 1}</span>{label}
               </button>
             {/each}
@@ -531,7 +603,7 @@
           <h3 class="font-bold text-amber-200 text-sm mb-1">{view.menu.title}</h3>
           <div class="flex flex-col gap-1">
             {#each view.menu.items as label, i}
-              <button class="text-left text-xs px-2 py-1 rounded border border-amber-900/60 hover:bg-amber-900/40 {selected.includes(String(i + 1)) ? 'bg-yellow-300 text-yellow-950' : 'bg-black/30'}" onclick={() => pick(i)} disabled={busy}>
+              <button class="text-left text-xs px-2 py-1 rounded border border-amber-900/60 hover:bg-amber-900/40 {selected.includes(String(i + 1)) ? 'bg-yellow-300 text-yellow-950' : 'bg-black/30'} {hoverOption === i ? 'option-lit' : ''}" onclick={() => pick(i)} onmouseenter={() => (hoverOption = i)} onmouseleave={() => (hoverOption = null)} disabled={busy}>
                 <span class="font-mono text-amber-300 mr-1">{i + 1}</span>{label}
                 {#if view.menu.mode === "order" && selected.includes(String(i + 1))}<span class="float-right">#{selected.indexOf(String(i + 1)) + 1}</span>{/if}
               </button>
@@ -581,4 +653,5 @@
     </aside>
   </div>
   <AiKeysModal open={keysOpen} onclose={() => (keysOpen = false)} />
+  <ContextMenu at={contextMenu?.at ?? null} options={contextMenu?.options ?? []} {hoverOption} onhover={(i) => (hoverOption = i)} onpick={(i) => pickFromTable(i)} onclose={() => (contextMenu = null)} />
 </main>

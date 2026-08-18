@@ -68,7 +68,9 @@
       {/if}
     </button>
     {#if card.atk !== undefined && mode !== "back"}
-      <span class="absolute -bottom-2.5 inset-x-0 text-center text-[0.6rem] leading-none font-bold text-amber-100 [text-shadow:0_0_3px_#000] pointer-events-none">
+      <!-- A stat that differs from the card's printed value (equips, field spells, counters…) is drawn brighter and yellower, so a modified number reads at a glance. -->
+      {@const modified = isDefense ? card.def !== card.baseDef : card.atk !== card.baseAtk}
+      <span class="absolute -bottom-2.5 inset-x-0 text-center text-[0.6rem] leading-none font-bold [text-shadow:0_0_3px_#000] pointer-events-none {modified ? 'stat-modified' : 'text-amber-100'}" title={modified ? `printed ${isDefense ? card.baseDef : card.baseAtk}` : undefined}>
         {isDefense ? `${card.def} DEF` : `${card.atk} ATK`}
       </span>
     {/if}

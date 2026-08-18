@@ -257,3 +257,55 @@ test("move: internal re-ordering within one zone does NOT emit a flyer", () => {
   const moves = rawDigest([handToHand(0, 0, 3)]).filter((e) => e.kind === "move");
   assert.equal(moves.length, 0, "same-zone re-index is left to animate:flip reflow");
 });
+
+/** Pure function. A face-up spell/trap slot coordinate. */
+const szone = (p, seq, position = OcgPosition.FACEUP) => ({ controller: p, location: OcgLocation.SZONE, sequence: seq, position });
+/** Pure function. The masked stream of one Normal Spell activated from the hand. */
+const spellFromHand = (code, p, seq) => [
+  move(code, { controller: p, location: OcgLocation.HAND, sequence: 4, position: OcgPosition.FACEDOWN }, szone(p, seq)),
+  { type: T.CHAINING, code, ...szone(p, seq), chain_size: 1 },
+  { type: T.CHAIN_SOLVING, chain_size: 1 },
+  { type: T.RECOVER, player: p, amount: 1000 },
+  { type: T.CHAIN_SOLVED, chain_size: 1 },
+  move(code, szone(p, seq), { controller: p, location: OcgLocation.GRAVE, sequence: 0, position: OcgPosition.FACEUP }),
+  { type: T.CHAIN_END },
+];
+
+test("a spell activated from the hand reads as four beats: onto the field, activation, effect, graveyard", () => {
+  // The whole point of the digest for a client: an activation must not collapse
+  // into "the card is in the graveyard now". Each beat is a separate event, in
+  // this order, so the table can animate them one after the other.
+  const events = rawDigest(spellFromHand(BLUE_EYES, 0, 0));
+  assert.deepEqual(kinds(events), ["move", "activate", "resolve", "recover", "move", "tograve"]);
+  assert.deepEqual(events[0].to, { p: 0, zone: "s", seq: 0 }, "the card lands in its spell/trap zone");
+  assert.equal(events[0].faceTo, true, "face-up on arrival");
+  assert.equal(events[1].code, BLUE_EYES, "the activating card's code, so a client can draw it mid-activation");
+  assert.deepEqual(events[1].at, { p: 0, zone: "s", seq: 0 });
+  assert.deepEqual(events[4].from, { p: 0, zone: "s", seq: 0 }, "and leaves from the same slot");
+});
+
+test("reason spent: a used spell/trap is put away, not destroyed", () => {
+  const events = rawDigest(spellFromHand(BLUE_EYES, 0, 0));
+  assert.equal(only(events, "tograve")[0].reason, "spent");
+  assert.equal(events[4].reason, "spent", "the move carries the same reason as its tograve");
+  assert.equal(events[0].reason, "other", "the trip onto the field is not a departure at all");
+});
+
+test("reason spent: only the activating card, and only once its chain link is done", () => {
+  // A monster killed by the resolving effect leaves mid-chain and stays "effect";
+  // the trap that killed it is put away after CHAIN_SOLVED and is "spent". A
+  // card in that same slot NEXT chain is not spent — CHAIN_END forgets the slot.
+  const trap = { type: T.CHAINING, code: BLUE_EYES, ...szone(0, 1), chain_size: 1 };
+  const trapToGrave = move(BLUE_EYES, szone(0, 1), { controller: 0, location: OcgLocation.GRAVE, sequence: 1, position: OcgPosition.FACEUP });
+  const events = rawDigest([
+    trap,
+    { type: T.CHAIN_SOLVING, chain_size: 1 },
+    toGrave(SUMMONED_SKULL, 1, 0),
+    { type: T.CHAIN_SOLVED, chain_size: 1 },
+    trapToGrave,
+    { type: T.CHAIN_END },
+    trapToGrave,
+  ]);
+  const graves = only(events, "tograve");
+  assert.deepEqual(graves.map((e) => e.reason), ["effect", "spent", "other"]);
+});

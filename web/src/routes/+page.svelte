@@ -5,7 +5,7 @@
   import DeckThumb from "$lib/pretty/DeckThumb.svelte";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
-  import { getArchive, importArchive as importArchiveApi, newDuel, setSeats } from "$lib/api.js";
+  import { getArchive, importArchive as importArchiveApi, newDuel, rematch as rematchApi, setSeats } from "$lib/api.js";
   import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
   import SeatPicker from "$lib/pretty/SeatPicker.svelte";
   import { getKey } from "$lib/keys.js";
@@ -22,6 +22,13 @@
   const hasKey = (id) => (keysVersion, getKey(id) !== "");
   /** Command. Closes the keys modal and refreshes key-presence indicators. */
   function closeKeys() { keysOpen = false; keysVersion += 1; }
+
+  /** Command. Plays a finished duel again — same decks, labels and seat assignments, new shuffle, new id. */
+  async function rematch(id) {
+    const r = await rematchApi(id);
+    if (!r.ok) { createError = r.error; return; }
+    await goto(`${base}/duel/${r.id}?as=0`);
+  }
 
   /** Command. Creates the duel described by the form and opens seat 0 of it. */
   async function createDuel(event) {
@@ -187,6 +194,7 @@
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=all" title="watch the whole game back, chat and all">replay</a>
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=0">P0</a>
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=1">P1</a>
+            <button class="ml-1 px-1.5 rounded border border-amber-900/70 text-amber-200 hover:bg-amber-900/40 text-xs" onclick={() => rematch(d.id)} title="play again: same decks, same players, new shuffle">rematch</button>
           </td>
         </tr>
       {/each}
@@ -253,7 +261,7 @@
   <section id="new-duel" class="rounded-md bg-black/40 border border-amber-900/60 p-3">
     <h2 class="font-bold text-amber-200 mb-2">New duel</h2>
     <form onsubmit={createDuel} class="grid grid-cols-3 gap-3 items-end text-sm">
-      <label class="flex flex-col gap-1">id <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="id" required pattern="[A-Za-z0-9_\-]+" placeholder="game1" /></label>
+      <label class="flex flex-col gap-1">id <span class="text-amber-100/40 text-[0.65rem]">(optional)</span><input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="id" pattern="[A-Za-z0-9_\-]+" placeholder="auto: {p0}-vs-{p1}" title="leave blank for an automatic name" /></label>
       <label class="flex flex-col gap-1">P0 deck (goes first)
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p0" bind:value={p0}>{@render deckOptions()}</select>

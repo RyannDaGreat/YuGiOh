@@ -25,8 +25,22 @@
   import { scale } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { sfx } from "./sound.js";
+  import { optionsAt } from "./optionPlaces.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null, options = [], phaseOptionIndex = {}, hoverOption = null, onhoveroption = () => {}, onoptions = () => {} } = $props();
+
+  /**
+   * Which menu options a table element owns (see optionPlaces.js). Every element
+   * with at least one option wears the same clickable rim; hovering it lights up
+   * its option(s) in the menu and vice-versa (`hoverOption`); clicking hands the
+   * option list and the pointer position to the page (`onoptions`), which acts on
+   * one option directly or opens a context menu for several.
+   */
+  const at = (p, kind, seq, name) => optionsAt(options, { p, kind, seq, name });
+  const lit = (opts) => opts.some((o) => o.index === hoverOption);
+  const enter = (opts) => { if (opts.length) onhoveroption(opts[0].index); };
+  const leave = () => onhoveroption(null);
+  const clickOptions = (opts, event) => { if (opts.length) { event.stopPropagation(); onoptions(opts, { x: event.clientX, y: event.clientY }); } };
 
   /**
    * Zone ids of monsters that may still declare an attack ("1-m-3"), from the core's
@@ -41,6 +55,17 @@
   let daggers = $state([]);
   let floats = $state([]);
   let flyers = $state([]);
+  /**
+   * Cards drawn at a field slot the settled board shows as EMPTY — the spell or
+   * trap that is activating right now.
+   *
+   * The board we draw is the position AFTER everything resolved, while the events
+   * replay how it got there. A Normal Spell is therefore already in the graveyard
+   * by the time its activation beat plays, so without a stand-in the glow lands on
+   * an empty square and the card is never seen on the field at all. A stand-in is
+   * dropped when the card flies off that slot, or after GHOST_MS.
+   */
+  let ghosts = $state([]);
   let tableEl = $state(null);
   let seenEvent = -1;
   let daggerId = 0;
@@ -48,6 +73,8 @@
   let layoutTick = $state(0);
   /** Card-flight duration; kept under STEP_MS so a flyer lands before the next event. */
   const FLY_MS = 380;
+  /** A flyer is removed this long after landing, so it never blinks out mid-arrival. */
+  const FLY_LINGER_MS = 80;
   /** How long a hand card slides to its new spot when a neighbour enters/leaves. */
   const HAND_FLIP_MS = 260;
 
@@ -74,6 +101,7 @@
 
   /** Durations mirror the CSS variables in app.css. */
   const FLASH_MS = 700;
+  const ACTIVATE_MS = 900;
   const DAGGER_MS = 650;
   const FLOAT_MS = 1200;
   /** Stagger between queued events so a whole opponent turn reads as a sequence. */
@@ -82,6 +110,23 @@
   const MAX_BURST = 10;
   /** Stagger used when many events land at once (scrubbing), so a burst still finishes quickly. */
   const FAST_STEP_MS = 160;
+  /**
+   * A batch this size or smaller is one decision's worth of events and plays at
+   * the full beat. Activating a spell is SIX events — onto the field, activate,
+   * resolve, its effect, off the field, graveyard — so a lower bound than this
+   * is what used to turn every activation into an unreadable 160 ms blur.
+   */
+  const SLOW_BATCH_MAX = 8;
+  /** A flight always ends this long before the next beat, so beats never overlap. */
+  const BEAT_GAP_MS = 40;
+  /** How far behind the board the animation may fall before it jumps to the tail. */
+  const MAX_LAG_MS = 2500;
+  /** Events replayed when the viewer scrubs BACKWARDS, leading into the new position. */
+  const REWIND_BEATS = 3;
+  /** How long an activating card stands in for one the board no longer shows (`ghosts`). */
+  const GHOST_MS = 4000;
+  /** Gap between the cards of a multi-card draw, so five cards read as five. */
+  const DRAW_STAGGER_MS = 90;
   /** How long a coin/dice toss stays on screen (about one second, matching the SFX). */
   const TOSS_MS = 1100;
 
@@ -191,12 +236,19 @@
     return { x: r.left - t.left, y: r.top - t.top, w: r.width, h: r.height };
   }
 
+  /** Zones drawn as ONE stack, where a coord's `seq` is a depth in the pile, not a slot. */
+  const PILES = new Set(["grave", "removed", "deck", "extra"]);
+
   /**
-   * A coord's rect, falling back to the zone AREA anchor when the exact slot is
-   * gone (a hand card that already left, so its indexed slot no longer renders).
+   * A coord's rect. A pile anchors to the stack itself whatever the depth —
+   * without this, only the FIRST card ever to reach a graveyard could fly there,
+   * and every card after it silently teleported. A field/hand slot falls back to
+   * its zone AREA anchor when the exact slot is gone (a hand card that already
+   * left, so its indexed slot no longer renders).
    */
   function anchorRect(c) {
-    return rectOf(zoneId(c.p, c.zone, c.seq)) ?? rectOf(`${c.p}-${c.zone}`);
+    const seq = PILES.has(c.zone) ? 0 : c.seq;
+    return rectOf(zoneId(c.p, c.zone, seq)) ?? rectOf(`${c.p}-${c.zone}`);
   }
 
   /**
@@ -236,21 +288,53 @@
     return r ? { w: r.w, h: r.h } : { w: 60, h: 88 };
   }
 
+  /** Pure function. The centre of a table-relative rect. */
+  const centre = (r) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
+
   /**
    * Command. Spawns a card that flies `from`→`to` (auto-removed), flipping if the
    * face changes. Endpoints are the anchors' CENTRES and the flyer is a fixed card
    * size — so a hand card whose exact slot has unmounted (falling back to the wide
    * hand-area anchor) still flies as a normal card instead of ballooning.
+   *
+   * `ms` is the flight time, which shrinks with the beat when a long batch plays
+   * fast, so a flight always finishes inside its own beat.
    */
-  function flyCard(from, to, { code = 0, p = 0, faceFrom = true, faceTo = true } = {}) {
+  function flyCard(from, to, { code = 0, p = 0, faceFrom = true, faceTo = true, ms = FLY_MS } = {}) {
     const a = anchorRect(from);
     const b = anchorRect(to);
     if (!a || !b) return; // an endpoint we can't see (masked/off-screen) — skip, don't guess
-    const center = (r) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
     const { w, h } = cardFlySize();
     const id = daggerId++;
-    flyers = [...flyers, { id, from: center(a), to: center(b), w, h, code, back: backs[p] ?? backs[0], faceFrom, faceTo }];
-    setTimeout(() => { flyers = flyers.filter((f) => f.id !== id); }, FLY_MS + 80);
+    flyers = [...flyers, { id, from: centre(a), to: centre(b), w, h, code, back: backs[p] ?? backs[0], faceFrom, faceTo, ms }];
+    setTimeout(() => { flyers = flyers.filter((f) => f.id !== id); }, ms + FLY_LINGER_MS);
+  }
+
+  /**
+   * Command. Stands a card up at a field slot for the activation beat (see
+   * `ghosts`). No-op when the board already shows a card there — a chain still
+   * waiting for a response has the real card on the table, which needs no
+   * stand-in — or when the slot is not on screen.
+   *
+   * @param {{p:number, zone:string, seq:number}} at - The activating card's slot
+   * @param {number} code - Passcode, for the art (0 shows the card back)
+   */
+  function standIn(at, code) {
+    const row = at.zone === "m" ? board.players[at.p]?.mzone : at.zone === "s" ? board.players[at.p]?.szone : null;
+    if (!row || row[at.seq]) return;
+    const zone = zoneId(at.p, at.zone, at.seq);
+    if (ghosts.some((g) => g.zone === zone)) return; // already standing there (a second link off the same card)
+    const r = rectOf(zone);
+    if (!r) return;
+    const id = daggerId++;
+    const { w, h } = cardFlySize();
+    ghosts = [...ghosts, { id, zone, at: centre(r), w, h, code, back: backs[at.p] ?? backs[0] }];
+    setTimeout(() => { ghosts = ghosts.filter((g) => g.id !== id); }, GHOST_MS);
+  }
+
+  /** Command. Drops the stand-in at a slot: its card is leaving on a flyer of its own. */
+  function clearStandIn(zone) {
+    ghosts = ghosts.filter((g) => g.zone !== zone);
   }
 
   function floatText(id, text, cls) {
@@ -284,16 +368,19 @@
    * because the `battle` event already played the impact and the death.
    *
    * @param {object} ev - One event from src/events.js
+   * @param {number} step - Beat length this batch plays at; the flight fits inside it
    */
-  function play(ev, fly = true) {
+  function play(ev, step = STEP_MS) {
     const z = (c) => zoneId(c.p, c.zone, c.seq);
     const lpId = (p) => `${p}-lp-0`;
+    const flyMs = Math.min(FLY_MS, step - BEAT_GAP_MS);
     switch (ev.kind) {
       case "move":
-        // The unified card flight for every zone→zone move; `fly` is false on a
-        // multi-move scrub jump (snap, no storm). No sound — the semantic event
-        // (summon/tograve/…) that accompanies the move plays that.
-        if (fly) flyCard(ev.from, ev.to, { code: ev.code, p: ev.to.p, faceFrom: ev.faceFrom, faceTo: ev.faceTo });
+        // The unified card flight for every zone→zone move. No sound — the
+        // semantic event (summon/tograve/…) that accompanies the move plays that.
+        // Anything standing in at the source is leaving with this flight.
+        clearStandIn(z(ev.from));
+        flyCard(ev.from, ev.to, { code: ev.code, p: ev.to.p, faceFrom: ev.faceFrom, faceTo: ev.faceTo, ms: flyMs });
         break;
       case "attack":
         dagger(z(ev.from), ev.to ? z(ev.to) : lpId(1 - ev.from.p));
@@ -332,7 +419,11 @@
         if (sound) sfx.poschange();
         break;
       case "activate":
-        pulse(z(ev.at), "fx-flash", FLASH_MS);
+        // Beat two of an activation: the card is face-up in its zone and glows
+        // before anything resolves. The stand-in keeps it on the field for the
+        // rest of the sequence, since the settled board has already binned it.
+        standIn(ev.at, ev.code);
+        pulse(z(ev.at), "fx-activate", ACTIVATE_MS);
         floatText(z(ev.at), ev.name, "text-yellow-200 text-xs");
         if (sound) {
           sfx.activate();
@@ -352,9 +443,13 @@
         if (sound) sfx.equip();
         break;
       case "tograve":
-        pulse(z(ev.from), "fx-shake", FLASH_MS);
+        // A spent spell/trap is PUT AWAY, not destroyed: the last beat of its own
+        // activation, so it neither shakes nor explodes.
+        if (ev.reason !== "spent") pulse(z(ev.from), "fx-shake", FLASH_MS);
+        if (!sound) break;
         // "battle" was already voiced by the battle event; "tribute" by the summon.
-        if (sound && ev.reason !== "battle" && ev.reason !== "tribute") sfx.destroyed();
+        if (ev.reason === "spent") sfx.spent();
+        else if (ev.reason !== "battle" && ev.reason !== "tribute") sfx.destroyed();
         break;
       case "banish":
         pulse(z(ev.from), "fx-shake", FLASH_MS);
@@ -381,12 +476,10 @@
       case "draw":
         // Draw is per-count (no per-card coords), so fly `count` cards from the
         // deck to the drawing player's hand; they reveal (back → face) on arrival.
-        if (fly) {
-          for (let k = 0; k < ev.count; k++) {
-            const deck = { p: ev.player, zone: "deck", seq: 0 };
-            const hand = { p: ev.player, zone: "hand", seq: 0 };
-            setTimeout(() => flyCard(deck, hand, { p: ev.player, faceFrom: false, faceTo: ev.player === viewer }), k * 90);
-          }
+        for (let k = 0; k < ev.count; k++) {
+          const deck = { p: ev.player, zone: "deck", seq: 0 };
+          const hand = { p: ev.player, zone: "hand", seq: 0 };
+          setTimeout(() => flyCard(deck, hand, { p: ev.player, faceFrom: false, faceTo: ev.player === viewer, ms: flyMs }), k * DRAW_STAGGER_MS);
         }
         if (sound) sfx.draw();
         break;
@@ -405,27 +498,44 @@
     }
   }
 
+  /** Beats scheduled but not yet played, and when the last of them fires. */
+  let beats = [];
+  let beatsEndAt = 0;
+
+  /** Command. Cancels every scheduled beat — the sequence is being replaced. */
+  function flushBeats() {
+    for (const t of beats) clearTimeout(t);
+    beats = [];
+    beatsEndAt = 0;
+  }
+
   // Play whatever changed since the last position we showed — forwards (new
   // events) or backwards (scrubbing: replay the tail leading into the new
   // position, so stepping back through an attack still shows the attack).
   // First render plays nothing; long jumps play only their last MAX_BURST events.
-  let pending = [];
+  //
+  // A new batch QUEUES BEHIND whatever is still playing instead of replacing it.
+  // One activation is six beats (~2.5 s) while the page polls every 1.5 s, so
+  // replacing on arrival cut activations off halfway — the card reached the
+  // graveyard without ever being seen on the field. Only a backwards jump, or
+  // falling more than MAX_LAG_MS behind the board, throws the queue away.
   $effect(() => {
     const list = events;
     const last = list.length ? list[list.length - 1].i : -1;
     if (seenEvent < 0) { seenEvent = last; return; }
     if (last === seenEvent) return;
     const forward = last > seenEvent;
-    const delta = forward ? list.filter((e) => e.i > seenEvent) : list.slice(-3);
+    const delta = forward ? list.filter((e) => e.i > seenEvent) : list.slice(-REWIND_BEATS);
     seenEvent = last;
+    if (!forward || beatsEndAt - Date.now() > MAX_LAG_MS) flushBeats();
+    const queued = Math.max(0, beatsEndAt - Date.now());
+    if (queued === 0) beats = []; // the previous batch has fully played out
     const burst = delta.slice(-MAX_BURST);
-    const fast = burst.length > 4;
-    const step = fast ? FAST_STEP_MS : STEP_MS;
-    // Fly cards only on a live move / single play-pause tick; a multi-move scrub
-    // jump snaps (fast burst) so we don't launch a swarm of catch-up flyers.
-    const fly = !fast;
-    for (const t of pending) clearTimeout(t);
-    pending = burst.map((e, k) => setTimeout(() => play(e, fly), k * step));
+    // One decision's worth of events gets the full beat; a longer batch is a jump
+    // (a scrub, or a whole opponent turn landing in one poll) and catches up fast.
+    const step = burst.length > SLOW_BATCH_MAX ? FAST_STEP_MS : STEP_MS;
+    beats = [...beats, ...burst.map((e, k) => setTimeout(() => play(e, step), queued + k * step))];
+    beatsEndAt = Date.now() + queued + burst.length * step;
   });
 
   // Equip lines are measured from the DOM, so a window resize must recompute them.
@@ -446,10 +556,27 @@
   {/if}
 {/snippet}
 
+<!--
+  The clickable rim: one style for every element that has options — a card, an
+  empty zone, a pile, a phase button — so it can be restyled in one place
+  (app.css .option-rim / .option-rim.lit). Sits over the element, hit-testable,
+  and inherits the card geometry from `size`.
+-->
+{#snippet optionRim(opts, size, defense = false)}
+  {#if opts.length}
+    <!-- A defence-position card is drawn rotated (Card.svelte); the rim takes the same transform so it hugs the card, not the slot. -->
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <span class="option-rim card-box card-{size} {lit(opts) ? 'lit' : ''} {defense ? 'rotate-90 scale-[0.86]' : ''}" title={opts.length === 1 ? opts[0].label : `${opts.length} options`} onmouseenter={() => enter(opts)} onmouseleave={leave} onclick={(e) => clickOptions(opts, e)}></span>
+  {/if}
+{/snippet}
+
 {#snippet slot(p, zone, seq, label)}
+  {@const opts = at(p, zone, seq)}
+  {@const here = (zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]}
   <div data-zone={zoneId(p, zone, seq)} class="relative justify-self-center {fx[zoneId(p, zone, seq)] ?? ''}">
-    <Card card={(zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]} {label} own={p === viewer} {debug} back={backs[p]} {onhover} {onclick} />
+    <Card card={here} {label} own={p === viewer} {debug} back={backs[p]} {onhover} {onclick} />
     {@render attackMark(zoneId(p, zone, seq))}
+    {@render optionRim(opts, "zone", /DEF/.test(here?.position ?? ""))}
   </div>
 {/snippet}
 
@@ -459,6 +586,7 @@
   <div data-zone={zoneId(me, "m", mine)} data-zone-alt={zoneId(1 - me, "m", theirs)} class="relative justify-self-center {fx[zoneId(me, 'm', mine)] ?? fx[zoneId(1 - me, 'm', theirs)] ?? ''}">
     <Card {card} label="EMZ" own={owner === viewer} {debug} back={backs[owner]} {onhover} {onclick} />
     {@render attackMark(bottom.mzone[mine] ? zoneId(me, "m", mine) : zoneId(1 - me, "m", theirs))}
+    {@render optionRim([...at(me, "m", mine), ...at(1 - me, "m", theirs)], "zone", /DEF/.test(card?.position ?? ""))}
   </div>
 {/snippet}
 
@@ -472,10 +600,15 @@
       {:else if kind === "deck"}
         <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} back={backs[p]} />
       {:else}
+        {@const faceUp = pl.extra.filter((c) => c.faceUp).length}
         <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} back={backs[p]} />
+        <!-- Pendulums lying face-up in the Extra Deck are public and re-summonable: badge how many. -->
+        {#if faceUp}<span class="absolute left-0.5 top-0.5 z-10 text-[0.55rem] font-bold bg-yellow-300 text-yellow-950 px-1 rounded pointer-events-none" title="{faceUp} face-up (Pendulum) — click the pile to see which">▲{faceUp}</span>{/if}
       {/if}
       <!-- The pile is its own button: clicking it lists the whole pile. -->
       <button class="absolute inset-0 z-20 card-box card-zone focus:outline-none" aria-label="list {kind} contents" title="click to list this pile" onclick={() => (openPile = { p, kind })} onmouseenter={() => kind === "grave" && topGrave && onhover(topGrave)}></button>
+      <!-- Options that live in this pile (special summon from extra, activate from GY…) take precedence over listing it. -->
+      {@render optionRim(at(p, kind, null), "zone")}
     </div>
     {#if kind === "grave"}
       <!-- Banished has no printed zone and the 7-column mat has no free cell, so it hangs under the GY as a chip. -->
@@ -487,8 +620,9 @@
 {#snippet hand(p, cards)}
   <div data-zone-area={`${p}-hand`} class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
     {#each keyed(cards) as { card: c, key }, i (key)}
-      <div data-zone={zoneId(p, "hand", i)} animate:flip={{ duration: HAND_FLIP_MS }}>
+      <div data-zone={zoneId(p, "hand", i)} class="relative" animate:flip={{ duration: HAND_FLIP_MS }}>
         <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} back={backs[p]} {onhover} {onclick} />
+        {@render optionRim(c.code ? at(p, "hand", null, c.name) : [], "hand")}
       </div>
     {/each}
   </div>
@@ -534,7 +668,14 @@
     <div class="flex flex-col items-center gap-1 justify-self-center">
       <div class="flex gap-1">
         {#each PHASES as ph, i}
-          <span class="px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/50'}">{["DP", "SP", "M1", "BP", "M2", "EP"][i]}</span>
+          {@const key = ["DP", "SP", "M1", "BP", "M2", "EP"][i]}
+          {@const idx = phaseOptionIndex[key]}
+          {#if idx !== undefined}
+            <!-- This phase is a menu option right now: same rim, hover sync and click as a card. -->
+            <button class="option-rim-pill px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {hoverOption === idx ? 'lit' : ''} {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/70'}" title={options.find((o) => o.index === idx)?.label ?? key} onmouseenter={() => onhoveroption(idx)} onmouseleave={leave} onclick={(e) => { e.stopPropagation(); onoptions([{ index: idx, label: key }], { x: e.clientX, y: e.clientY }); }}>{key}</button>
+          {:else}
+            <span class="px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/50'}">{key}</span>
+          {/if}
         {/each}
       </div>
       <span class="text-[0.65rem] text-amber-100/70">Turn {board.turn}{board.turnPlayer === null ? "" : ` · P${board.turnPlayer}`}</span>
@@ -579,9 +720,15 @@
   {/each}
   <!-- Persistent relationship lines (equip links): drawn continuously while they exist. -->
   <RelationLines lines={equipLines} />
+  <!-- The card that is activating right now, parked on its zone while the settled
+       board already shows that zone empty (see `ghosts`). Same overlay card as a
+       flight, with the two endpoints equal, so it simply stands there. -->
+  {#each ghosts as g (g.id)}
+    <FlyingCard from={g.at} to={g.at} w={g.w} h={g.h} code={g.code} back={g.back} />
+  {/each}
   <!-- Unified card-flight overlay: one FlyingCard per zone→zone move (see play()). -->
   {#each flyers as f (f.id)}
-    <FlyingCard from={f.from} to={f.to} w={f.w} h={f.h} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={FLY_MS} />
+    <FlyingCard from={f.from} to={f.to} w={f.w} h={f.h} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={f.ms} />
   {/each}
 
   <!-- Coin / dice toss result, centered for ~1s (paired with the coinflip/diceroll SFX). -->
