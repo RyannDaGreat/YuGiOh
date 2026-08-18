@@ -200,3 +200,26 @@ export async function importArchive(archive, replace) {
   }
   return postJson(fetch, "/archive", { archive, replace });
 }
+
+/** Query. Who sits at each seat (src/ai/seats.js): `{0: Seat, 1: Seat}`. */
+export async function getSeats(id, fetchFn = fetch) {
+  if (STATIC) {
+    await boot();
+    return (await import("../../../src/ai/seats.js")).loadSeats(id);
+  }
+  return getJson(fetchFn, `/duel/${id}/seats`);
+}
+
+/** Command. Records both seats' assignments. Returns `{ok, error?}`. */
+export async function setSeats(id, seats) {
+  if (STATIC) {
+    await boot();
+    try {
+      (await import("../../../src/ai/seats.js")).saveSeats(id, seats);
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  }
+  return postJson(fetch, `/duel/${id}/seats`, { seats });
+}

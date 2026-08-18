@@ -153,5 +153,25 @@ function listModels() {
 }
 
 /** The OpenAI provider. Registered on import, so `getProvider("openai")` works. */
-export const openai = registerProvider({ id: CATALOG.id, label: CATALOG.label, listModels, chooseMove, options: CATALOG.options });
+/**
+ * Command. Checks a key against the API with the cheapest authenticated call
+ * (GET /v1/models). Never logs the key.
+ *
+ * Args:
+ *     apiKey (string): The key to test.
+ *
+ * Returns:
+ *     Promise<{ok: boolean, detail: string}>
+ *
+ * Examples:
+ *     >>> // await verifyKey("sk-…")   // {ok: true, detail: "126 models visible"}
+ */
+async function verifyKey(apiKey) {
+  const res = await fetch("https://api.openai.com/v1/models", { headers: { authorization: `Bearer ${apiKey}` } });
+  if (!res.ok) return { ok: false, detail: `HTTP ${res.status}: ${(await res.text()).slice(0, 120)}` };
+  const body = await res.json();
+  return { ok: true, detail: `${body.data?.length ?? "?"} models visible` };
+}
+
+export const openai = registerProvider({ id: CATALOG.id, label: CATALOG.label, listModels, chooseMove, verifyKey, options: CATALOG.options });
 export default openai;

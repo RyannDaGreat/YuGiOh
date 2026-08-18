@@ -5,11 +5,23 @@
   import DeckThumb from "$lib/pretty/DeckThumb.svelte";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
-  import { getArchive, importArchive as importArchiveApi, newDuel } from "$lib/api.js";
+  import { getArchive, importArchive as importArchiveApi, newDuel, setSeats } from "$lib/api.js";
+  import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
+  import SeatPicker from "$lib/pretty/SeatPicker.svelte";
+  import { getKey } from "$lib/keys.js";
 
   let { data } = $props();
   /** Error from the last create attempt, shown under the form. */
   let createError = $state("");
+  /** Who plays each seat: human, or an AI (provider/model/options). Recorded beside the duel on create. */
+  let seat0 = $state({ kind: "human" });
+  let seat1 = $state({ kind: "human" });
+  let keysOpen = $state(false);
+  /** Bumped when the keys modal closes so hasKey() re-evaluates. */
+  let keysVersion = $state(0);
+  const hasKey = (id) => (keysVersion, getKey(id) !== "");
+  /** Command. Closes the keys modal and refreshes key-presence indicators. */
+  function closeKeys() { keysOpen = false; keysVersion += 1; }
 
   /** Command. Creates the duel described by the form and opens seat 0 of it. */
   async function createDuel(event) {
@@ -21,10 +33,28 @@
       p0: String(f.get("p0")),
       p1: String(f.get("p1")),
       seed: String(f.get("seed") ?? "").trim(),
-      players: [String(f.get("player0") || "P0"), String(f.get("player1") || "P1")],
+      players: [String(f.get("player0") || defaultLabel(seat0, 0)), String(f.get("player1") || defaultLabel(seat1, 1))],
     });
     if (!r.ok) { createError = r.error; return; }
-    await goto(`${base}/duel/${r.id}?as=0`);
+    const saved = await setSeats(r.id, { 0: seat0, 1: seat1 });
+    if (!saved.ok) { createError = saved.error; return; }
+    // Open the human's seat if there is one; a pure AI-vs-AI game opens as spectator.
+    const as = seat0.kind === "human" ? "0" : seat1.kind === "human" ? "1" : "all";
+    await goto(`${base}/duel/${r.id}?as=${as}`);
+  }
+
+  /**
+   * Pure function. A seat's default label when the form leaves it blank: the
+   * model name for an AI, "P0"/"P1" for a human.
+   *
+   * @param {object} seat - {kind, model?}
+   * @param {number} n - seat number
+   * @returns {string}
+   * @example defaultLabel({kind:"ai", provider:"openai", model:"gpt-5-nano"}, 1) // "gpt-5-nano"
+   * @example defaultLabel({kind:"human"}, 0) // "P0"
+   */
+  function defaultLabel(seat, n) {
+    return seat.kind === "ai" ? seat.model : `P${n}`;
   }
 
   /** Every duel ever played is kept; the two sections are just "still going" and "over". */
@@ -188,6 +218,9 @@
           <Icon icon="mdi:upload" /> Import
         </button>
         <input bind:this={fileInput} type="file" accept="application/json,.json" class="hidden" onchange={importArchive} />
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-black/40 border border-amber-900 text-amber-100 hover:bg-amber-900/40 transition-colors" onclick={() => (keysOpen = true)} title="API keys for the AI players (kept in this browser)">
+          <Icon icon="mdi:key-variant" /> API keys
+        </button>
         <a class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-amber-900/40 border border-amber-700/60 text-amber-100 hover:bg-amber-800/50 transition-colors" href="{base}/decks">
           <Icon icon={cardsIcon} /> Deck Library
         </a>
@@ -233,8 +266,16 @@
           <a href="{base}/decks/{p1}?seat=1" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p1]} signatureCode={sigOf[p1]} name={nameOf[p1]} category={catOf[p1]} size="mini" /></a>
         </div>
       </label>
-      <label class="flex flex-col gap-1">P0 player <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player0" placeholder="ryan" /></label>
-      <label class="flex flex-col gap-1">P1 player <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player1" placeholder="claude" /></label>
+      <div class="flex flex-col gap-1">
+        <span>P0 player</span>
+        <SeatPicker seat={0} bind:value={seat0} onkeys={() => (keysOpen = true)} {hasKey} />
+        <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player0" placeholder={seat0.kind === "ai" ? seat0.model : "name (optional)"} title="label shown at the table" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <span>P1 player</span>
+        <SeatPicker seat={1} bind:value={seat1} onkeys={() => (keysOpen = true)} {hasKey} />
+        <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player1" placeholder={seat1.kind === "ai" ? seat1.model : "name (optional)"} title="label shown at the table" />
+      </div>
       <label class="flex flex-col gap-1">seed <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="seed" placeholder="random" /></label>
       <button type="submit" class="col-span-3 justify-self-start inline-flex items-center gap-1.5 px-4 py-1 rounded bg-amber-300 text-amber-950 font-bold hover:bg-amber-200 transition-colors">
         <Icon icon={playIcon} /> Create
@@ -242,4 +283,6 @@
       {#if createError}<p class="col-span-3 text-red-300">{createError}</p>{/if}
     </form>
   </section>
+
+  <AiKeysModal open={keysOpen} onclose={closeKeys} />
 </main>

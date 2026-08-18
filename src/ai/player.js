@@ -35,6 +35,7 @@
 import { chooseFromMenu } from "../menu.js";
 import { loadDuel } from "../store.js";
 import { menuSummary, playChoice, viewDuel } from "../session.js";
+import { replyToChat } from "./chat.js";
 import { makeStrategy } from "./context.js";
 import { answerInstruction, defaultModel, defaultOptions, getProvider, legalChoices, parseDecision } from "./provider.js";
 import { appendTrace, traceRecord } from "./trace.js";
@@ -68,6 +69,7 @@ const POLL_MS = 1000;
  *         (its log cursor, and its transcript if it keeps one).
  *     opts.signal (AbortSignal|undefined)
  *     opts.now (string): ISO timestamp for the move and the trace.
+ *     opts.chat (boolean): Answer table talk between decisions (default true).
  *     opts.traceDir (string|undefined): Traces directory; tests pass a temp one.
  *
  * Returns:
@@ -191,7 +193,7 @@ export async function playMove({ duelId, seat, view, provider, model, apiKey, op
  *     ...   playerGuide, maxMoves: 3})
  *     {reason: "max-moves", moves: 3, traces: [{move: 1, …}, …], winner: null}
  */
-export async function playSeat({ duelId, seat, provider, model, apiKey, options, playerGuide, brief = "", strategy, onTrace, signal, maxMoves, pollMs = POLL_MS, traceDir }) {
+export async function playSeat({ duelId, seat, provider, model, apiKey, options, playerGuide, brief = "", strategy, onTrace, signal, maxMoves, pollMs = POLL_MS, traceDir, chat = true }) {
   const chosen = typeof provider === "string" ? getProvider(provider) : provider;
   const usedModel = model ?? defaultModel(chosen);
   const usedOptions = { ...defaultOptions(chosen), ...options };
@@ -203,10 +205,21 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
   const system = plan.system({ duelId, seat, players: duel.players, decks: duel.decks, format: duel.format ?? "classic", playerGuide, brief });
 
   const traces = [];
+  // Table talk is answered between decisions, never inside one: a separate request
+  // (chat.js) that the move prompt never sees. `seenChat` advances past whatever was
+  // considered, so each message is answered at most once.
+  let seenChat = new Date().toISOString();
+  const answerChat = async () => {
+    if (!chat) return;
+    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, signal, traceDir });
+    seenChat = r.seenUpTo;
+    if (r.posted !== null) onTrace?.({ move: null, at: seenChat, seat, chosenLabel: `chat: ${r.posted}` });
+  };
   for (;;) {
     if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };
     const view = await viewDuel(loadDuel(duelId), seat);
     if (view.ended) return { reason: "ended", moves: traces.length, traces, winner: view.winner };
+    await answerChat();
     if (view.pendingPlayer !== seat) {
       await sleep(pollMs, signal);
       continue;

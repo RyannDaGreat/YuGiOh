@@ -81,6 +81,8 @@ export const DECKS_DIR = join(REPO_ROOT, "src/decks");
 export const DUEL_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 /** Suffix of the chat log that chat.js keeps beside each duel record; never a duel itself. */
 export const CHAT_SUFFIX = ".chat.json";
+/** Seat assignments (src/ai/seats.js): `<id>.seats.json`, another sidecar listDuels must skip. */
+export const SEATS_SUFFIX = ".seats.json";
 
 /**
  * Query. Validates one `[name, count]` section: every name resolves (loud on a
@@ -186,9 +188,12 @@ export function loadDeck(nameOrPath) {
 }
 
 /**
- * Pure function. The single format shared by a pair of decks, or a loud error
- * if they disagree — a duel is one ruleset, so mixed formats are rejected at
- * creation rather than silently coerced.
+ * Pure function. The ruleset a pair of decks plays under. A duel is one ruleset,
+ * so a mixed pair has to resolve to one: GOAT only when BOTH decks are GOAT
+ * decks, otherwise classic (MR5). A GOAT-era deck plays perfectly well under
+ * modern rules — it is just older cards — whereas a modern deck under the
+ * 2005 GOAT ruleset (no Extra Deck mechanics past Fusion) would be crippled,
+ * so the mismatch is resolved toward the ruleset that can host both.
  *
  * Args:
  *     decks ([deck, deck]): Loaded decks (loadDeck), each with a `format`.
@@ -197,13 +202,13 @@ export function loadDeck(nameOrPath) {
  *     "classic" | "goat"
  *
  * Examples:
- *     >>> sharedFormat([{format: "goat"}, {format: "goat"}]) // "goat"
- *     >>> // sharedFormat([{format: "classic"}, {format: "goat"}]) throws
+ *     >>> sharedFormat([{format: "goat"}, {format: "goat"}])      // "goat"
+ *     >>> sharedFormat([{format: "classic"}, {format: "goat"}])   // "classic"
+ *     >>> sharedFormat([{}, {}])                                   // "classic"
  */
 export function sharedFormat(decks) {
-  const [a, b] = decks.map((d) => d.format ?? "classic");
-  if (a !== b) throw new Error(`both decks must share a format (P0 is "${a}", P1 is "${b}")`);
-  return a;
+  const formats = decks.map((d) => d.format ?? "classic");
+  return formats.every((f) => f === "goat") ? "goat" : "classic";
 }
 
 /**
@@ -242,7 +247,7 @@ export function duelPath(id) {
  */
 export function listDuels(dir = DUELS_DIR) {
   if (!existsSync(dir)) return [];
-  return readdirSync(dir).filter((f) => f.endsWith(".json") && !f.endsWith(CHAT_SUFFIX)).map((f) => f.slice(0, -5)).sort();
+  return readdirSync(dir).filter((f) => f.endsWith(".json") && !f.endsWith(CHAT_SUFFIX) && !f.endsWith(SEATS_SUFFIX)).map((f) => f.slice(0, -5)).sort();
 }
 
 /**

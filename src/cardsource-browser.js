@@ -36,6 +36,8 @@ import { memoryCardSource, setCardSource } from "./cardsource.js";
  * full without that.
  */
 const FETCH_CONCURRENCY = 24;
+/** Pause before the single retry of a failed bundle fetch. */
+const FETCH_RETRY_MS = 400;
 
 /**
  * Command. Fetches one bundle file as text, throwing on anything but a 2xx —
@@ -51,9 +53,18 @@ const FETCH_CONCURRENCY = 24;
  *     >>> // await fetchText("/YuGiOh/carddata/strings.conf")   // "!system 20 Draw Phase\n..."
  */
 async function fetchText(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`carddata fetch failed: ${response.status} ${url}`);
-  return await response.text();
+  // One retry: a freshly deployed CDN edge or a dropped connection can fail a single
+  // file out of several hundred, and that must not take the whole boot down.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return await response.text();
+      if (response.status < 500 || attempt) throw new Error(`carddata fetch failed: ${response.status} ${url}`);
+    } catch (err) {
+      if (attempt) throw err;
+    }
+    await new Promise((r) => setTimeout(r, FETCH_RETRY_MS));
+  }
 }
 
 /**

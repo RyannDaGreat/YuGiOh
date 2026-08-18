@@ -91,10 +91,12 @@ test("loadDeck: a typo'd card name fails loudly", () => {
   });
 });
 
-test("sharedFormat: both decks must agree on a format", () => {
+test("sharedFormat: goat only when both decks are goat, else classic", () => {
   assert.equal(sharedFormat([loadDeck("goat-sample"), loadDeck("goat-sample")]), "goat");
   assert.equal(sharedFormat([loadDeck("yugi"), loadDeck("kaiba")]), "classic");
-  assert.throws(() => sharedFormat([{ format: "classic" }, { format: "goat" }]), /share a format/);
+  // A mixed pair resolves to classic: the ruleset that can host both decks.
+  assert.equal(sharedFormat([{ format: "classic" }, { format: "goat" }]), "classic");
+  assert.equal(sharedFormat([{ format: "goat" }, { format: "classic" }]), "classic");
 });
 
 test("replay: format goat builds MODE_GOAT and puts the extra cards in EXTRA", async () => {

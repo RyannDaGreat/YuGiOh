@@ -1,6 +1,8 @@
 <script>
   import { base } from "$app/paths";
   import { fork as forkApi, getCard, getDuel, getSleeves, play as playApi, sendChat as sendChatApi, setSleeve } from "$lib/api.js";
+  import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
+  import AiRunner from "$lib/pretty/AiRunner.svelte";
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import Table from "$lib/pretty/Table.svelte";
@@ -60,6 +62,8 @@
    * payload simply does not contain them — peeking has to read the spectator view.
    */
   let debugView = $state(null);
+  /** The API keys modal (AI seats read their keys from this browser). */
+  let keysOpen = $state(false);
   /** How respond? windows are answered: "always" | "smart" | "never" (localStorage). */
   let respondMode = $state("always");
   /** Guards the auto-decline effect so it fires at most once per decision point. */
@@ -392,6 +396,7 @@
         </select>
       </label>
     {/if}
+    <button class="px-2 py-0.5 rounded bg-black/40 border border-amber-900 inline-flex items-center gap-1" onclick={() => (keysOpen = true)} title="API keys for the AI players (kept in this browser)"><Icon icon="mdi:key-variant" />API keys</button>
     <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {debug ? 'bg-fuchsia-300 text-fuchsia-950 border-fuchsia-200' : 'bg-black/40 border-amber-900'}" onclick={toggleDebug} title="peek at every hidden card — face-downs and both hands — to judge whether a move was reasonable"><Icon icon="mdi:bug" />{debug ? "debug on" : "debug off"}</button>
     {#if playbackAt !== null}
       <span class="px-3 py-1 rounded bg-yellow-300 text-yellow-950 font-bold">PLAYBACK — move {view.at} of {view.total}</span>
@@ -451,6 +456,7 @@
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
+      <AiRunner duelId={view.id} seats={data.seats} players={view.players} ended={view.ended} onkeys={() => (keysOpen = true)} />
       <section class="scroll-themed rounded-md p-2 max-h-[26rem] overflow-y-auto border-l-4 {myTurn && isRespond ? 'bg-indigo-950/60 border border-l-4 border-indigo-400/50 border-l-indigo-300' : 'bg-black/40 border border-amber-900/60 border-l-amber-900/60'}">
         {#if playbackAt !== null}
           <p class="text-amber-100/70 text-xs"><Icon icon="mdi:skip-forward" class="inline align-text-bottom" /> live to return, or fork here to play on from this point. (position after move {view.at})</p>
@@ -558,4 +564,5 @@
       </details>
     </aside>
   </div>
+  <AiKeysModal open={keysOpen} onclose={() => (keysOpen = false)} />
 </main>

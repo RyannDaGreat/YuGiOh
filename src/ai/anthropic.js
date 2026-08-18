@@ -141,5 +141,27 @@ function listModels() {
 }
 
 /** The Anthropic provider. Registered on import, so `getProvider("anthropic")` works. */
-export const anthropic = registerProvider({ id: CATALOG.id, label: CATALOG.label, listModels, chooseMove, options: CATALOG.options });
+/**
+ * Command. Checks a key with GET /v1/models — the browser header is required
+ * here exactly as it is for messages, or the response is unreadable cross-origin.
+ *
+ * Args:
+ *     apiKey (string): The key to test.
+ *
+ * Returns:
+ *     Promise<{ok: boolean, detail: string}>
+ *
+ * Examples:
+ *     >>> // await verifyKey("sk-ant-…")   // {ok: true, detail: "9 models visible"}
+ */
+async function verifyKey(apiKey) {
+  const res = await fetch("https://api.anthropic.com/v1/models", {
+    headers: { "x-api-key": apiKey, "anthropic-version": API_VERSION, "anthropic-dangerous-direct-browser-access": "true" },
+  });
+  if (!res.ok) return { ok: false, detail: `HTTP ${res.status}: ${(await res.text()).slice(0, 120)}` };
+  const body = await res.json();
+  return { ok: true, detail: `${body.data?.length ?? "?"} models visible` };
+}
+
+export const anthropic = registerProvider({ id: CATALOG.id, label: CATALOG.label, listModels, chooseMove, verifyKey, options: CATALOG.options });
 export default anthropic;
