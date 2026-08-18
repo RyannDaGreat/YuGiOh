@@ -1,9 +1,15 @@
 # YuGi assets
 
-Full-resolution card art (`pics/<passcode>.jpg`) and Structure/Starter Deck box
-art (`boxart/<setCode>.<ext>`) for https://github.com/RyannDaGreat/YuGiOh.
-Kept on this orphan branch so the main branch stays small; the static site loads
-them by URL and a local checkout serves its own `vendor/` copy.
+Large assets for https://github.com/RyannDaGreat/YuGiOh, kept on this orphan
+branch so the main branch stays small; the static site loads them by URL and a
+local checkout serves its own `vendor/` copy:
+
+- `pics/<passcode>.jpg` — full-resolution card art
+- `boxart/<setCode>.<ext>` — Structure/Starter Deck box art
+- `carddata/cards-all.json` — every card's data (the whole database)
+- `scripts/<name>.lua` — every card script and shared library, flat by basename
+
+Card scripts are Project Ignis CardScripts, AGPL-3.0, redistributed unmodified.
 
 Yu-Gi-Oh! and all card art are the property of Konami; this is a non-commercial
 fan project. Card images come from YGOPRODeck and are self-hosted here rather than
