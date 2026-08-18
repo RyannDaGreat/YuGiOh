@@ -19,6 +19,10 @@
   --shake-ms: 400ms;
   /* Replay: how long the "this is the option they took" press-flash lasts. */
   --pick-ms: 400ms;
+  /* The "can still attack" sword: half-transparent, so it marks the card without hiding its art. */
+  --attack-mark-opacity: 0.5;
+  --attack-mark-inset: 0.15rem;
+  --attack-mark-color: #fde68a;
   /* Equip / relationship line: faint emerald dashes that march slowly. */
   --equip-line-color: rgba(52, 211, 153, 0.5);
   --equip-line-width: 2px;
@@ -53,6 +57,9 @@
 .fx-float { animation: floatup var(--float-ms) ease-out forwards; }
 .fx-dagger { animation: dagger var(--dagger-ms) ease-in forwards; offset-rotate: auto; }
 .fx-pick { animation: pick var(--pick-ms) ease-out; }
+/* Sits on a monster that has not attacked yet this battle phase; the travelling
+   dagger is the same blade leaving for its target, so this marker clears as it goes. */
+.attack-mark { position: absolute; top: var(--attack-mark-inset); right: var(--attack-mark-inset); opacity: var(--attack-mark-opacity); color: var(--attack-mark-color); pointer-events: none; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)); }
 /* A card in flight between two slots (unified move animation, see FlyingCard.svelte). */
 .fly-card { position: absolute; z-index: 40; pointer-events: none; }
 .fly-flip { animation: fly-flip var(--fly-ms) ease-in-out; }

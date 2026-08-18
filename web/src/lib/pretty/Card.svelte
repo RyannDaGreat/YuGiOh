@@ -8,7 +8,7 @@
    * @prop {"zone"|"hand"} size
    * @prop {string} fx          effect classes (fx-flash, fx-shake)
    * @prop {boolean} own        the viewer controls this card (a known face-down card is drawn as its art blended over the back)
-   * @prop {boolean} debug      spectator debug: hidden face-downs are treated as known (peek)
+   * @prop {boolean} debug      debug peek: hidden face-downs are treated as known (any seat)
    * @prop {number} count       for piles: number badge
    * @prop {string} back        card-back image URL (the owner's sleeve)
    * @prop {(card) => void} onhover
@@ -22,7 +22,7 @@
   /**
    * What to draw: "art" (face-up), "back" (face-down and not ours to know), or
    * "peek" — a face-down card whose identity the viewer knows (their own set
-   * cards, or spectator debug): the art at half opacity over the back plus a
+   * cards, or debug peek): the art at half opacity over the back plus a
    * "set" tag, so it reads as both "face-down" and "this is what it is".
    */
   const mode = $derived(!card ? "empty" : !known ? "back" : !faceDown ? "art" : own || debug ? "peek" : "back");
