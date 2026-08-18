@@ -902,3 +902,16 @@ Rule nit while writing PLAYER.md: a Set Trap is live from the NEXT turn (the opp
 setting player's next turn" as the brief said; PLAYER.md states the real rule.
 Change: `state.js` `fieldCardData.setThisTurn` / `summonedThisTurn`, `describeFieldCard` appends
 "(set this turn)"; `test/set-this-turn.test.js`; PLAYER.md bullet; manifest §21.
+
+## 2026-08-18 — A rimmed pile hijacked the click; pile copies were "(effect #N)"
+
+Owner: "when I click on the extra deck, even though it should be glowing, it shouldn't bring up a
+context menu… It should bring up the regular dialogue that shows me what's inside… the individual cards
+inside can have dialogues… right now it blocks my ability to open the extra deck." And the screenshot
+showed two Heavymetalfoes Electrumite as "(effect #1)/(effect #2)". Fix: the pile's rim keeps the glow
+and the hover-sync but its click opens the pile viewer (`optionRim(..., open)`); every list location the
+viewer sees in order (hand, extra, GY, banished) is now indexed in labels ("(P0 extra 5)"), `optionsAt`
+answers "the whole pile" for seq null and "this card" for a seq, and `PileModal` draws a rim on each
+card with options and opens its own context menu. Verified with Puppeteer on the Node host (Cyber-Stein
+→ Extra Deck selection: pile rim title "click to list this pile — 5 options inside", click opens "Your
+extra deck (5)", 5 cards rimmed, clicking one gives only "Master of Oz (P0 extra 0)").

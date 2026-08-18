@@ -522,13 +522,21 @@ option that names a place on the table is ALSO playable from the table itself:
   effect suffix (": Gain 1000 LP") — or a bare zone item `P0 m3`; `nameIn(label)` the card name; `optionsAt`
   the options for one slot / pile / hand card; `phaseOptions` maps the phase strip's BP / M2 / EP to
   "Enter Battle Phase" / "Enter Main Phase 2" / "End turn".
-- **Hand labels carry the hand index** (`menu.js entryLabel`: "Dark Hole (P0 hand 2)"; the index is the
-  engine's hand sequence, which is also the order of the state's hand list and the table's hand row).
-  2026-08-18 bug: hand options were matched by NAME, so with two Mythical Institutions in hand both cards
-  lit up with all four options and `disambiguate` mislabelled the pair "(effect #1)/(effect #2)". Now each
-  copy is its own option; `optionsAt` matches a hand card by index (by name only for an index-less label
-  from an older record). `disambiguate` says "(effect #N)" for one card's several effects on the field and
-  "(copy #N)" for same-name entries in a pile (GY/deck/banished/extra).
+- **List labels carry the card's index** (`menu.js entryLabel`: "Dark Hole (P0 hand 2)", "Kagari (P0
+  extra 5)", "Call of the Haunted (P1 GY 3)", "(P1 banished 0)"; the index is the engine's sequence, which
+  is also the order of the state's list and of the table's hand row / pile viewer; the deck is NOT indexed —
+  its order is never shown). 2026-08-18 bug: list options were matched by NAME, so with two Mythical
+  Institutions in hand both cards lit up with all four options, and `disambiguate` mislabelled the pair
+  "(effect #1)/(effect #2)" (same for two Electrumites in the Extra Deck). Now each copy is its own option;
+  `optionsAt` matches a list card by index (by name only for an index-less hand label from an older
+  record). `disambiguate` says "(effect #N)" for one card's several effects on the field and "(copy #N)"
+  for same-name entries in the deck.
+- **A pile's rim is a sign, not a button (owner, 2026-08-18).** "The cards inside have the effect, not
+  the extra deck itself." A rimmed pile (Extra Deck / GY / banished with summonable or activatable cards)
+  still opens the pile viewer on click — the rim earlier hijacked the click into a context menu of the
+  whole pile, and the pile could not be listed at all. In the viewer (`PileModal`, `optionsOf(i)`) each card
+  with options wears the same rim, hover-syncs with the aside, and click opens ITS context menu (the viewer
+  closes, the menu appears where you clicked; single option acts directly when confirm-clicks is off).
 - Every element with ≥1 option wears ONE rim style — `.option-rim` (a 1px `--option-rim-color` line
   following the card's own radius via `.card-box`, rotated with a defence-position card) or
   `.option-rim-pill` on a phase button — so a restyle is one place (`app.css` `--option-rim-*`). Empty zones

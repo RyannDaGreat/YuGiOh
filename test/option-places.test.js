@@ -125,6 +125,21 @@ test("two copies of one card in hand are two different clickable cards", () => {
   assert.deepEqual(optionsAt(opts, { p: 1, kind: "hand", seq: 4, name: "Mythical Institution" }), []);
 });
 
+test("a pile lights as a whole, and each card in its viewer owns its options by index", () => {
+  // The bug: clicking a rimmed Extra Deck opened a context menu of the whole pile and the pile could
+  // not be listed; and two Electrumites read "(effect #1)/(effect #2)". Piles now carry indices.
+  const labels = ["Special summon Heavymetalfoes Electrumite (P0 extra 0)", "Special summon Heavymetalfoes Electrumite (P0 extra 1)", "Special summon Selene (P0 extra 4)", "Dark Magician (P0 deck)"];
+  assert.deepEqual(placeOf(labels[1]), { p: 0, kind: "extra", seq: 1 });
+  assert.deepEqual(placeOf(labels[3]), { p: 0, kind: "deck", seq: null });
+  assert.deepEqual(placeOf("Activate Call of the Haunted (P1 GY 3)"), { p: 1, kind: "grave", seq: 3 });
+  assert.deepEqual(placeOf("Kuriboh (P1 banished 0)"), { p: 1, kind: "banished", seq: 0 });
+  const opts = optionPlaces(labels);
+  assert.deepEqual(optionsAt(opts, { p: 0, kind: "extra", seq: null }).map((o) => o.index), [0, 1, 2]);
+  assert.deepEqual(optionsAt(opts, { p: 0, kind: "extra", seq: 1 }).map((o) => o.index), [1]);
+  assert.deepEqual(optionsAt(opts, { p: 0, kind: "extra", seq: 4 }).map((o) => o.index), [2]);
+  assert.deepEqual(optionsAt(opts, { p: 0, kind: "deck", seq: null }).map((o) => o.index), [3]);
+});
+
 test("phaseOptions finds the phase-strip buttons", () => {
   assert.deepEqual(phaseOptions(["Attack with Sangan (P0 m0)", "Enter Main Phase 2", "End turn (skip Main Phase 2)"]), { M2: 1, EP: 2 });
   assert.deepEqual(phaseOptions(["Enter Battle Phase", "End turn"]), { BP: 0, EP: 1 });

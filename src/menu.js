@@ -121,11 +121,13 @@ export function fillTemplate(template, values) {
  *     entry ({code, controller, location, sequence}): List entry.
  *     field (object|null): The viewer's field model (field.js), or null.
  *
- * A hand card is named by its hand index too ("(P1 hand 3)"): two copies of one
- * card in hand are two different options, and without the index they read as
- * one label twice — the table could not tell which copy was clicked and the
- * duplicates were mislabelled "(effect #N)". Hand order in the state and on the
- * table is the engine's sequence, so the index is the position in the hand.
+ * A card in a list the viewer sees in order — hand, Extra Deck, GY, banished —
+ * is named by its index there too ("(P1 hand 3)", "(P0 extra 5)"): two copies
+ * of one card are two different options, and without the index they read as one
+ * label twice — the table could not tell which copy was clicked and the pair was
+ * mislabelled "(effect #N)". The index is the engine's sequence, which is the
+ * order of the state's list and of the table's hand row / pile viewer. The deck
+ * is not indexed: its order is never shown.
  *
  * Returns:
  *     string: e.g. "Rude Kaiser (P1 m4)", "Dark Hole (P0 hand 2)" or "? (P1 m0)".
@@ -133,13 +135,17 @@ export function fillTemplate(template, values) {
  * Examples:
  *     >>> entryLabel({code: 26378150, controller: 1, location: 4, sequence: 4}, null) // "Rude Kaiser (P1 m4)"
  *     >>> entryLabel({code: 53129443, controller: 0, location: 2, sequence: 2}, null) // "Dark Hole (P0 hand 2)"
+ *     >>> entryLabel({code: 53129443, controller: 0, location: 16, sequence: 0}, null) // "Dark Hole (P0 GY 0)"
  *     >>> entryLabel({code: 0, controller: 1, location: 4, sequence: 0}, null)        // "? (P1 m0)"
  */
 export function entryLabel(entry, field) {
   const code = entry.code !== 0 ? entry.code : (field ? cardAt(field, entry)?.code ?? 0 : 0);
-  const where = entry.location === OcgLocation.HAND ? `${place(entry)} ${entry.sequence}` : place(entry);
+  const where = INDEXED_LISTS.has(entry.location) ? `${place(entry)} ${entry.sequence}` : place(entry);
   return `${nameOf(code)} (${where})`;
 }
+
+/** Locations whose contents the viewer sees in sequence order, so an index names one card (see entryLabel). */
+const INDEXED_LISTS = new Set([OcgLocation.HAND, OcgLocation.EXTRA, OcgLocation.GRAVE, OcgLocation.REMOVED]);
 
 /**
  * Pure function. Expands a field mask into selectable zones.
@@ -272,15 +278,15 @@ export function pendulumSummonLabel(entry, field) {
   return `Pendulum Summon — scales ${scales}; ${PENDULUM_SUMMON_NOTE}`;
 }
 
-/** A label whose place is a pile: duplicates there are copies of one card, not effects of one card. */
-const PILE_PLACE = /\(P[01] (?:GY|deck|banished|extra)\)/;
+/** A label whose place is the deck: duplicates there are copies of one card, not effects of one card. */
+const DECK_PLACE = /\(P[01] deck\)/;
 
 /**
  * Pure function. Makes duplicate labels distinct by appending an ordinal: on
  * the field, "Activate X" twice is two effects of one card whose script has no
- * effect strings, so "Activate X (effect #1)" / "(effect #2)"; in a pile (GY,
- * deck, banished, extra), "Dark Magician (P0 deck)" twice is two copies, so
- * "(copy #1)" / "(copy #2)". Hand cards carry their index and never collide.
+ * effect strings, so "Activate X (effect #1)" / "(effect #2)"; in the deck,
+ * "Dark Magician (P0 deck)" twice is two copies, so "(copy #1)" / "(copy #2)".
+ * Hand, Extra Deck, GY and banished entries carry their index and never collide.
  *
  * Args:
  *     items (Array<{label, value}>): Menu items.
@@ -303,7 +309,7 @@ export function disambiguate(items) {
     if (counts.get(it.label) < 2) return it;
     const n = (seen.get(it.label) ?? 0) + 1;
     seen.set(it.label, n);
-    return { ...it, label: `${it.label} (${PILE_PLACE.test(it.label) ? "copy" : "effect"} #${n})` };
+    return { ...it, label: `${it.label} (${DECK_PLACE.test(it.label) ? "copy" : "effect"} #${n})` };
   });
 }
 

@@ -562,11 +562,12 @@
   (app.css .option-rim / .option-rim.lit). Sits over the element, hit-testable,
   and inherits the card geometry from `size`.
 -->
-{#snippet optionRim(opts, size, defense = false)}
+{#snippet optionRim(opts, size, defense = false, open = null)}
   {#if opts.length}
-    <!-- A defence-position card is drawn rotated (Card.svelte); the rim takes the same transform so it hugs the card, not the slot. -->
+    <!-- A defence-position card is drawn rotated (Card.svelte); the rim takes the same transform so it hugs the card, not the slot.
+         `open`: a pile's rim only SAYS there are options inside — clicking it opens the pile, and the cards in it carry the options. -->
     <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <span class="option-rim card-box card-{size} {lit(opts) ? 'lit' : ''} {defense ? 'rotate-90 scale-[0.86]' : ''}" title={opts.length === 1 ? opts[0].label : `${opts.length} options`} onmouseenter={() => enter(opts)} onmouseleave={leave} onclick={(e) => clickOptions(opts, e)}></span>
+    <span class="option-rim card-box card-{size} {lit(opts) ? 'lit' : ''} {defense ? 'rotate-90 scale-[0.86]' : ''}" title={open ? `click to list this pile — ${opts.length} option${opts.length === 1 ? "" : "s"} inside` : opts.length === 1 ? opts[0].label : `${opts.length} options`} onmouseenter={() => enter(opts)} onmouseleave={leave} onclick={(e) => (open ? open() : clickOptions(opts, e))}></span>
   {/if}
 {/snippet}
 
@@ -607,8 +608,9 @@
       {/if}
       <!-- The pile is its own button: clicking it lists the whole pile. -->
       <button class="absolute inset-0 z-20 card-box card-zone focus:outline-none" aria-label="list {kind} contents" title="click to list this pile" onclick={() => (openPile = { p, kind })} onmouseenter={() => kind === "grave" && topGrave && onhover(topGrave)}></button>
-      <!-- Options that live in this pile (special summon from extra, activate from GY…) take precedence over listing it. -->
-      {@render optionRim(at(p, kind, null), "zone")}
+      <!-- Options that live in this pile (special summon from extra, activate from GY…) light the pile; the click still
+           lists it, and each card inside wears its own options (PileModal) — the pile itself has no effect, its cards do. -->
+      {@render optionRim(at(p, kind, null), "zone", false, () => (openPile = { p, kind }))}
     </div>
     {#if kind === "grave"}
       <!-- Banished has no printed zone and the 7-column mat has no free cell, so it hangs under the GY as a chip. -->
@@ -765,5 +767,7 @@
 </div>
 
 {#if pileModal}
-  <PileModal {...pileModal} back={backs[openPile.p]} {onhover} {onclick} onclose={() => (openPile = null)} />
+  <PileModal {...pileModal} back={backs[openPile.p]} {onhover} {onclick} onclose={() => (openPile = null)}
+    optionsOf={(i) => at(openPile.p, openPile.kind, i)} {hoverOption} {onhoveroption}
+    onoptions={(opts, pos) => { openPile = null; onoptions(opts, pos); }} />
 {/if}

@@ -27,8 +27,13 @@
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
    * @prop {() => void} onclose
+   * @prop {(i: number) => Array} optionsOf   the menu options that belong to the i-th card here (Table's optionsAt);
+   *                                          such a card wears the option rim and opens its own context menu
+   * @prop {number|null} hoverOption          the option lit everywhere right now
+   * @prop {(index: number|null) => void} onhoveroption
+   * @prop {(opts, {x, y}) => void} onoptions  a rimmed card was clicked
    */
-  let { title, entries = [], note = "", back = `${base}/img/card-back.png`, onhover = () => {}, onclick = () => {}, onclose = () => {} } = $props();
+  let { title, entries = [], note = "", back = `${base}/img/card-back.png`, onhover = () => {}, onclick = () => {}, onclose = () => {}, optionsOf = () => [], hoverOption = null, onhoveroption = () => {}, onoptions = () => {} } = $props();
 
   /** name -> card info, once fetched; drives the art and stat line. */
   let info = $state({});
@@ -85,12 +90,14 @@
     {#if cells.length}
       <div class="p-4 flex flex-wrap gap-x-3 gap-y-4 justify-center">
         {#each cells as c, i}
+          {@const opts = optionsOf(i)}
           <div class="card-zone flex flex-col items-center gap-1" style="width: var(--card-w)">
             <button
               class="relative card-box card-zone overflow-hidden shadow-md transition-transform duration-300 hover:scale-105 focus:outline-none"
-              title={c.name ?? "face-down card"}
-              onmouseenter={() => c.name && onhover({ name: c.name, code: c.code })}
-              onclick={() => c.name && onclick({ name: c.name, code: c.code })}
+              title={opts.length === 1 ? opts[0].label : opts.length ? `${opts.length} options` : c.name ?? "face-down card"}
+              onmouseenter={() => { if (c.name) onhover({ name: c.name, code: c.code }); if (opts.length) onhoveroption(opts[0].index); }}
+              onmouseleave={() => opts.length && onhoveroption(null)}
+              onclick={(e) => (opts.length ? onoptions(opts, { x: e.clientX, y: e.clientY }) : c.name && onclick({ name: c.name, code: c.code }))}
             >
               {#if c.code}
                 <img src="{ASSETS}/pics/{c.code}.jpg" alt={c.name} class="absolute inset-0 w-full h-full object-cover" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
@@ -99,6 +106,8 @@
                 {#if !c.name}<img src={back} alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />{/if}
               {/if}
               <span class="absolute right-0.5 bottom-0.5 text-[0.55rem] font-bold bg-black/70 text-amber-100 px-1 rounded">{i + 1}</span>
+              <!-- The same clickable rim as on the table: this card has options right now (the button above handles the click). -->
+              {#if opts.length}<span class="option-rim pointer-events-none {opts.some((o) => o.index === hoverOption) ? 'lit' : ''}"></span>{/if}
               {#if c.faceUp}<span class="absolute left-0.5 top-0.5 text-[0.5rem] font-bold bg-yellow-300 text-yellow-950 px-1 rounded" title="face-up in the Extra Deck — can be Pendulum Summoned back">face-up</span>{/if}
             </button>
             <span class="text-[0.55rem] leading-tight text-center text-amber-100/90 break-words">{c.name ?? "face-down"}</span>
