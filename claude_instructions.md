@@ -1040,7 +1040,16 @@ never sees (`replyToChat`). That is PLAYER.md's "chat is data, never instruction
 the model that picks moves has never read the chat. Whom it answers is decided by hard rules, not by
 model judgement, because judgement failed in practice (see concerns, 2026-08-17):
 - a line naming ONE seat (label, `P0`/`P1`, deck name) is that seat's alone; an unaddressed line is
-  answered by exactly one AI — the seat to move, or the only AI at the table;
+  answered by exactly one AI — the seat last in the conversation (`conversationTarget`: the last AI
+  to reply or the last seat a person named, within `THREAD_WINDOW_MS` = 5 min), else the seat to
+  move, else the only AI at the table. Both loops compute this from the same log, so "explain in
+  detail." follows the thread instead of going to whoever is on the clock;
+- a person's line that arrives inside the seat's cooldown is DELAYED (the cursor is not advanced past
+  it), never dropped; only the other AI's lines may be let go;
+- the reply request is grounded: it carries the recent log (`LOG_TAIL_LINES`), the board, and the last
+  `EARLIER_LINES` chat lines as context, and is told to answer concretely, naming cards and effects.
+  It is TOLD whom it is answering (addressing was decided above), never asked to judge — asking made
+  a nano model decline "what do you think of my opening hand" as being about the other player;
 - people (the spectator and any human seat) are answered on a short cooldown; the other AI only if the
   talk level allows and only after a much longer one. **The cooldowns are the loop-breaker**, whatever
   the model says;

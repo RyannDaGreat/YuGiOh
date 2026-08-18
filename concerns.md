@@ -735,3 +735,28 @@ Two Puppeteer suites against the built static site served exactly as GitHub Page
 OpenAI key (manifest §7). Both live in the session scratchpad, not the repo — they need a build, a
 port and a paid key. Final state of the day: human 12/12, AI 8/8, 103 unit tests with 102 passing and
 1 skipped for want of a key, and the site live at <https://ryanndagreat.github.io/YuGiOh/>.
+
+### 2026-08-18 — chat had no memory and no grounding
+A spectated live game: "explain in detail." (a follow-up to P0) was answered by P1, "how does your
+action accomplish that" got no answer for three minutes, and every answer was game-plan fluff. Root
+causes: an unaddressed line was routed to the seat on the clock (no notion of an open thread), and the
+chat request saw only the new lines (no log, no board, no earlier chat). Fixes: `conversationTarget`
+(thread = last AI to reply or last seat a person named, 5-minute window, computed by both loops from
+the same log so exactly one answers); the reply request now carries the recent log, the board and the
+last eight chat lines and is told to name cards and effects; a person's line inside a cooldown is
+delayed rather than dropped. Then a second slip: the prompt still asked the model to `NO_REPLY` for
+remarks "about the other player", and gpt-5-nano declined "what do you think of MY opening hand" on
+that basis — the prompt now states the lines were addressed to it (addressing is decided in code) and
+that it cannot see the other hand, so it says so and answers what it can. Lesson: when a rule is
+enforced in code, do not also ask the model to enforce it — the model will find a way to be wrong.
+Also: the test helper that classified requests by grepping quoted lines over-counted once context
+lines rode along; it now reads only the "since you last looked" section.
+
+### 2026-08-18 — Hornet Drones died in the browser (bake closure)
+"card script errors during play … c52340445.initial_effect: attempt to call an error function". Hornet
+Drones creates a Sky Striker Ace Token (52340445) — a card in no decklist — so the decklist-only bake
+shipped neither its data nor its script and the core had nothing to summon. `bake-carddata.js` now
+closes over what each bundled script references (`id+N` tokens and any real passcode named by
+number), transitively: 607 cards. Verified by activating Hornet Drones on the live site. Bundle
+fetches use `cache: "no-cache"` so a tab cannot keep yesterday's `cards.json` across a deploy (the
+owner saw the fixed bug persist in a tab that predated the deploy).
