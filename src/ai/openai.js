@@ -49,6 +49,9 @@ const CATALOG = PROVIDER_CATALOG.openai;
  *     {text: '{"choice":"1","reason":"Nothing else is legal."}', reasoning: null,
  *      usage: {in: 77, out: 13, reasoning: 0}, raw: {…}, latencyMs: 1672}
  */
+/** Largest output budget the retry will ask for; above this the model is simply not converging. */
+const MAX_OUTPUT_TOKENS_CEILING = 32768;
+
 async function chooseMove({ apiKey, model, system, messages, choices, options = {}, cacheKey, signal, maxOutputTokens = DEFAULT_MAX_OUTPUT_TOKENS }) {
   const effort = options.effort ?? "low";
   const summary = options.summary ?? "auto";
@@ -73,6 +76,12 @@ async function chooseMove({ apiKey, model, system, messages, choices, options = 
   });
 
   const text = messageText(json);
+  if (text === null && json.status === "incomplete" && json.incomplete_details?.reason === "max_output_tokens" && maxOutputTokens < MAX_OUTPUT_TOKENS_CEILING) {
+    // A reasoning model can spend the whole output budget thinking and emit no
+    // answer at all (seen: gpt-5-nano at 8k). That is not a context problem — the
+    // input is small — it is the OUTPUT budget. Ask once more with far more room.
+    return chooseMove({ apiKey, model, system, messages, choices, options, cacheKey, signal, maxOutputTokens: Math.min(maxOutputTokens * 4, MAX_OUTPUT_TOKENS_CEILING) });
+  }
   if (text === null) throw new Error(`OpenAI returned no assistant message (status ${json.status}${json.incomplete_details ? `, incomplete: ${json.incomplete_details.reason}` : ""})`);
   return {
     text,

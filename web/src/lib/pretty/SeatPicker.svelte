@@ -47,7 +47,7 @@
       {#each cat.models as m}<option value={m.id}>{m.label}</option>{/each}
     </select>
     <div class="flex flex-wrap gap-1">
-      <label class="text-[0.65rem] text-amber-100/70 inline-flex items-center gap-1" title="how much this AI talks at the table: quiet answers only people; sporting also comments on big moments and may trade a line with another AI now and then; chatty comments freely">
+      <label class="text-[0.65rem] text-amber-100/70 inline-flex items-center gap-1" title="how much this AI talks at the table: quiet answers only lines that name it; sporting also answers unaddressed lines when it is its turn, and never talks to another AI; chatty may also trade the odd line with another AI. Anyone can say 'stop talking' to hush them.">
         Talk
         <select class="px-1 py-0.5 rounded bg-black/40 border border-amber-900 text-[0.65rem]" bind:value={value.talk}>
           {#each Object.keys(TALK_LEVELS) as t}<option value={t}>{t}</option>{/each}

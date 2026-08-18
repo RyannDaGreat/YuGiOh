@@ -20,20 +20,74 @@ export const NO_REPLY = "NO_REPLY";
  * How talkative an AI seat is. Each level says whom it answers and how often;
  * `people` means the spectator and any human seat, `ais` the other AI seat.
  *
- *   quiet     answers people only; never volunteers a comment
- *   sporting  answers people; may trade one line with another AI on a long
- *             cooldown; comments on big moments (its own summons, an attack that
- *             lands, the end of the game) — the default
- *   chatty    answers people and AIs on a short cooldown; comments freely
+ *   quiet     answers only lines addressed to it, by people
+ *   sporting  answers people — lines addressed to it, and unaddressed lines
+ *             when it is the one whose turn it is; never talks to another AI
+ *             — the default
+ *   chatty    as sporting, plus it may trade a line with another AI, at most
+ *             once per `aiCooldownMs`
  *
  * The cooldowns are what keeps two AIs from looping: even at `chatty` an AI
- * answers the other AI at most once per `aiCooldownMs`.
+ * answers the other AI at most once per `aiCooldownMs`. Whatever the level, a
+ * hush from a person ("stop talking", "quiet") mutes the seat for the rest of
+ * the duel except for lines addressed to it directly.
  */
 export const TALK_LEVELS = {
-  quiet: { label: "quiet", replyToAis: false, peopleCooldownMs: 15000, aiCooldownMs: Infinity, comment: false },
-  sporting: { label: "sporting", replyToAis: true, peopleCooldownMs: 15000, aiCooldownMs: 180000, comment: "big" },
-  chatty: { label: "chatty", replyToAis: true, peopleCooldownMs: 10000, aiCooldownMs: 45000, comment: "free" },
+  quiet: { label: "quiet", replyToAis: false, addressedOnly: true, peopleCooldownMs: 15000, aiCooldownMs: Infinity },
+  sporting: { label: "sporting", replyToAis: false, addressedOnly: false, peopleCooldownMs: 15000, aiCooldownMs: Infinity },
+  chatty: { label: "chatty", replyToAis: true, addressedOnly: false, peopleCooldownMs: 10000, aiCooldownMs: 120000 },
 };
+
+/**
+ * Pure function. Whether a person is asking the table to be quiet. A hard rule,
+ * deliberately not left to the model: "STOP TALKING" got replies once.
+ *
+ * Args:
+ *     text (string): A chat line.
+ *
+ * Returns:
+ *     boolean
+ *
+ * Examples:
+ *     >>> isHush("ok stop talking now")      // true
+ *     >>> isHush("SHUT UP OMG")               // true
+ *     >>> isHush("stop attacking my face")    // false
+ *     >>> isHush("nice summon")               // false
+ */
+export function isHush(text) {
+  return /\b(shut up|be quiet|quiet down|quiet please|silence|hush|shush|stfu|stop (talking|chatting|messaging|replying|spamming|the chat)|no more (chat|talking|messages|chatter)|less (talking|chat|chatter)|enough (talking|chat|chatter))\b/i.test(String(text));
+}
+
+/**
+ * Pure function. Whom a chat line is aimed at, from what it names: this seat's
+ * label / number / deck, the other seat's, or neither ("all"). Deterministic on
+ * purpose — the model is not asked to guess whether a spectator meant it.
+ *
+ * Args:
+ *     text (string): The chat line.
+ *     me ({seat, names: string[]}): This seat's number and the names it answers to.
+ *     other ({seat, names: string[]}): The other seat's.
+ *
+ * Returns:
+ *     "me" | "other" | "all"
+ *
+ * Examples:
+ *     >>> const me = {seat: 0, names: ["Yugi", "gpt-5-nano"]}, other = {seat: 1, names: ["Kaiba", "gpt-5.6-luna"]}
+ *     >>> addressee("nice one kaiba", me, other)          // "other"
+ *     >>> addressee("P0 how did you summon that?", me, other)  // "me"
+ *     >>> addressee("hey whats up", me, other)             // "all"
+ *     >>> addressee("yugi vs kaiba, who wins?", me, other) // "all"   (both named)
+ */
+export function addressee(text, me, other) {
+  const t = String(text).toLowerCase();
+  const names = (who) => [`p${who.seat}`, `player ${who.seat}`, ...who.names.map((n) => String(n).toLowerCase())].filter(Boolean);
+  const hit = (who) => names(who).some((n) => n.length >= 2 && new RegExp(`(^|[^a-z0-9])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(t));
+  const meHit = hit(me);
+  const otherHit = hit(other);
+  if (meHit && !otherHit) return "me";
+  if (otherHit && !meHit) return "other";
+  return "all";
+}
 export const DEFAULT_TALK = "sporting";
 /** Reply length cap, in characters — table talk, not an essay. */
 export const MAX_REPLY_CHARS = 280;
@@ -51,8 +105,9 @@ export const MAX_REPLY_CHARS = 280;
  * Examples:
  *     >>> chatPrompt(1, [{seat: 2, name: "spectator", text: "nice summon"}]).includes("spectator: nice summon")   // true
  */
-export function chatPrompt(seat, lines, talk = DEFAULT_TALK) {
+export function chatPrompt(seat, lines, talk = DEFAULT_TALK, other = null) {
   const who = (m) => (m.seat === 2 ? "spectator" : `P${m.seat}`);
+  const otherLine = other ? `The other player is P${other.seat} (${other.names.filter(Boolean).join(", ")}). A remark about THEIR play or addressed to THEM is not yours to answer: reply ${NO_REPLY}.` : "";
   const mood = talk === "chatty"
     ? "You enjoy table talk: a short quip is welcome whenever there is anything to react to."
     : talk === "quiet"
@@ -63,6 +118,8 @@ export function chatPrompt(seat, lines, talk = DEFAULT_TALK) {
     ...lines.map((m) => `${m.name} (${who(m)}): ${m.text}`),
     "",
     mood,
+    ...(otherLine ? [otherLine] : []),
+    "If someone asks for quiet, the only right answer is silence: reply " + NO_REPLY + ".",
     `You are P${seat}. If someone asked you something or said something worth answering, reply as yourself at the table`,
     "in ONE short sentence, in character and sporting. Otherwise say nothing: table talk is occasional, not a running",
     "commentary, and you never reply just to keep a conversation going.",
@@ -117,7 +174,11 @@ export function replyText(raw) {
  *     opts.replyTo (number[]): Seats whose messages deserve a reply — the
  *         spectator (2) and human seats, plus the other AI seat when the talk
  *         level allows (player.js decides that per cooldown). Default: spectator only.
+ *     opts.select (function): Extra per-message filter on top of `replyTo`
+ *         (player.js uses it for addressing and hush). Default: keep all.
  *     opts.talk (string): A TALK_LEVELS key; shapes the instruction only.
+ *     opts.other ({seat, names}|null): The other player, named in the prompt so
+ *         the model knows whose remarks are not its to answer.
  *     opts.provider (MoveProvider): The adapter.
  *     opts.model, opts.apiKey, opts.options: As for chooseMove.
  *     opts.system (string): The frozen system prefix, shared with move requests.
@@ -134,15 +195,23 @@ export function replyText(raw) {
  *     >>> // await replyToChat({duelId: "g1", seat: 1, provider, model, apiKey, system, since})
  *     >>> // {posted: "Nice Fissure — two blockers up, your move.", seenUpTo: "2026-…"}
  */
-export async function replyToChat({ duelId, seat, provider, model, apiKey, options, system, since, replyTo = [2], talk = DEFAULT_TALK, signal, now = new Date().toISOString(), traceDir }) {
+export async function replyToChat({ duelId, seat, provider, model, apiKey, options, system, since, replyTo = [2], select = () => true, talk = DEFAULT_TALK, other = null, signal, now = new Date().toISOString(), traceDir }) {
   const all = chatSince(loadChat(duelId), since).filter((m) => m.seat !== seat);
   if (!all.length) return { posted: null, seenUpTo: since };
   // Everything new is marked seen (so nothing is answered twice), but only lines
   // from people are put to the model.
-  const seenUpTo = all[all.length - 1].at;
-  const fresh = all.filter((m) => replyTo.includes(m.seat));
+  //
+  // The cursor must never move BACKWARDS, which is why this is a max and not
+  // `all[all.length - 1].at`. The log is in APPEND order while `at` is stamped
+  // when a reply's request STARTED, so a slow model's line lands after — and
+  // stamped before — everything said while it was thinking. Taking the last
+  // entry's stamp rolled the cursor back behind those messages and they were
+  // answered a SECOND time, which is exactly the "answered at most once"
+  // guarantee the cooldowns below are built on. `since` is the floor.
+  const seenUpTo = all.reduce((newest, m) => (Date.parse(m.at) > Date.parse(newest) ? m.at : newest), since);
+  const fresh = all.filter((m) => replyTo.includes(m.seat) && select(m));
   if (!fresh.length) return { posted: null, seenUpTo };
-  const messages = [{ role: "user", content: chatPrompt(seat, fresh, talk) }];
+  const messages = [{ role: "user", content: chatPrompt(seat, fresh, talk, other) }];
   const response = await provider.chooseMove({ apiKey, model, system, messages, choices: null, options, signal, maxOutputTokens: 512 });
   const text = replyText(response.text);
   const posted = !text || text.startsWith(NO_REPLY) ? null : text.slice(0, MAX_REPLY_CHARS);

@@ -26,7 +26,10 @@
   const aiSeats = $derived([0, 1].filter((s) => seats[s]?.kind === "ai"));
 
   /** Pure function. A seat's blank run record. */
-  const blankRun = () => ({ status: "idle", moves: 0, last: "", error: "", controller: null, traces: [], showLog: false });
+  const blankRun = () => ({ status: "idle", moves: 0, last: "", error: "", controller: null, traces: [], showLog: false, retries: 0, resumeTimer: null });
+  /** After a provider error, how long to wait before resuming the seat, and how many times. */
+  const RESUME_DELAY_MS = 15000;
+  const MAX_AUTO_RESUMES = 20;
   /**
    * Per-seat run state, created eagerly for both seats: Svelte forbids creating
    * state during render, so a lazy "make it on first touch" from the template
@@ -53,6 +56,7 @@
     const cfg = seats[seat];
     const r = run(seat);
     stop(seat);
+    r.status = "starting";
     const apiKey = getKey(cfg.provider);
     if (!apiKey) { r.status = "no key"; r.error = `add a ${PROVIDER_CATALOG[cfg.provider].label} key first`; return; }
     ai ??= await import("../../../../src/ai/index.js");
@@ -70,7 +74,7 @@
       people, aiSeats: aiSeats.filter((s) => s !== seat), talk: cfg.talk,
       signal: controller.signal,
       onTrace: (rec) => {
-        if (rec.move !== null) { r.moves += 1; r.traces = [...r.traces, rec]; }
+        if (rec.move !== null) { r.moves += 1; r.traces = [...r.traces, rec]; r.retries = 0; }
         else r.traces = [...r.traces, rec];
         r.last = rec.chosenLabel ?? "";
         if (rec.error) r.error = rec.error;
@@ -84,15 +88,24 @@
       r.status = "error";
       r.error = String(err.message ?? err);
       r.controller = null;
+      // A provider hiccup (rate limit, an incomplete answer, a dropped connection)
+      // must not end the game: resume after a pause, keeping the error visible.
+      // Only a Stop from the user, or a fresh Start, cancels the retry.
+      r.retries = (r.retries ?? 0) + 1;
+      if (r.retries <= MAX_AUTO_RESUMES) {
+        r.status = `error — retrying in ${RESUME_DELAY_MS / 1000}s (${r.retries}/${MAX_AUTO_RESUMES})`;
+        r.resumeTimer = setTimeout(() => { r.resumeTimer = null; if (r.controller === null) start(seat); }, RESUME_DELAY_MS);
+      }
     });
   }
 
-  /** Command. Aborts a seat's loop, if any. */
+  /** Command. Aborts a seat's loop and any pending auto-resume. */
   function stop(seat) {
     const r = run(seat);
     r.controller?.abort();
     r.controller = null;
-    if (r.status === "running") r.status = "stopped";
+    if (r.resumeTimer) { clearTimeout(r.resumeTimer); r.resumeTimer = null; }
+    if (r.status === "running" || String(r.status).startsWith("error — retrying")) r.status = "stopped";
   }
 
   /** Command. Toggles the LLM log for a seat, loading stored traces on first open. */
@@ -130,13 +143,13 @@
         <div class="flex items-center gap-2 flex-wrap">
           <b class="text-indigo-100">P{seat} · {players[seat]}</b>
           <span class="text-indigo-100/60">{PROVIDER_CATALOG[cfg.provider]?.label ?? cfg.provider} / {cfg.model}</span>
-          <span class="ml-auto font-mono px-1.5 rounded {r.status === 'running' ? 'bg-emerald-300 text-emerald-950' : r.status === 'error' || r.status === 'no key' ? 'bg-red-300 text-red-950' : 'bg-black/40 text-indigo-100/70'}">{r.status}</span>
+          <span class="ml-auto font-mono px-1.5 rounded {r.status === 'running' ? 'bg-emerald-300 text-emerald-950' : String(r.status).startsWith('error') || r.status === 'no key' ? 'bg-red-300 text-red-950' : 'bg-black/40 text-indigo-100/70'}">{r.status}</span>
         </div>
         <div class="text-indigo-100/70">{r.moves} move{r.moves === 1 ? "" : "s"}{r.last ? ` · last: ${r.last}` : ""}</div>
         {#if r.error}<div class="text-red-300 whitespace-pre-wrap">{r.error}</div>{/if}
         {#if STATIC && !ended}
           <div class="flex items-center gap-1">
-            {#if r.status === "running"}
+            {#if r.status === "running" || String(r.status).startsWith("error — retrying") || r.status === "starting"}
               <button class="px-2 py-0.5 rounded bg-red-300 text-red-950 font-bold" onclick={() => stop(seat)}>Stop</button>
             {:else}
               <button class="px-2 py-0.5 rounded bg-emerald-300 text-emerald-950 font-bold" onclick={() => start(seat)}>Start</button>

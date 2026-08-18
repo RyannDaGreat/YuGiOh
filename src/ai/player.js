@@ -36,7 +36,7 @@ import { chatSince, loadChat } from "../chat.js";
 import { chooseFromMenu } from "../menu.js";
 import { loadDuel } from "../store.js";
 import { menuSummary, playChoice, viewDuel } from "../session.js";
-import { DEFAULT_TALK, TALK_LEVELS, replyToChat } from "./chat.js";
+import { DEFAULT_TALK, TALK_LEVELS, addressee, isHush, replyToChat } from "./chat.js";
 import { makeStrategy } from "./context.js";
 import { answerInstruction, defaultModel, defaultOptions, getProvider, legalChoices, parseDecision } from "./provider.js";
 import { appendTrace, traceRecord } from "./trace.js";
@@ -216,19 +216,42 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
   const level = TALK_LEVELS[talk] ?? TALK_LEVELS[DEFAULT_TALK];
   let lastPeopleReplyAt = 0;
   let lastAiReplyAt = 0;
-  const answerChat = async () => {
+  // A person asked for quiet: for the rest of the duel only lines addressed to
+  // this seat by name get an answer. Never undone by the model, only by a person.
+  let hushed = false;
+  const otherSeat = 1 - seat;
+  const me = { seat, names: [duel.players[seat], duel.decks[seat]?.name] };
+  const other = { seat: otherSeat, names: [duel.players[otherSeat], duel.decks[otherSeat]?.name] };
+  const answerChat = async (view) => {
     if (!chat) return;
     const now = Date.now();
+    const fresh = chatSince(loadChat(duelId), seenChat).filter((m) => m.seat !== seat);
+    if (!fresh.length) return;
+    if (fresh.some((m) => people.includes(m.seat) && isHush(m.text))) hushed = true;
     // Whom to answer right now, by cooldown: people on a short one, the other AI
     // only if this level allows and its (much longer) cooldown has passed. The
     // cooldowns are the loop-breaker — two AIs cannot ping-pong faster than that.
     const replyTo = [
       ...(now - lastPeopleReplyAt >= level.peopleCooldownMs ? people : []),
-      ...(level.replyToAis && now - lastAiReplyAt >= level.aiCooldownMs ? aiSeats : []),
+      ...(!hushed && level.replyToAis && now - lastAiReplyAt >= level.aiCooldownMs ? aiSeats : []),
     ].filter((s) => s !== seat);
-    if (!replyTo.length) return;
-    const before = chatSince(loadChat(duelId), seenChat).filter((m) => replyTo.includes(m.seat));
-    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, replyTo, talk, signal, traceDir });
+    // Which lines, among those seats': a hush is never answered; a line naming the
+    // other player is theirs; an unaddressed line goes to ONE AI — the seat whose
+    // turn it is (or the only AI at the table) — so a spectator's "hey" is not
+    // answered in stereo. Quiet, or hushed, answers only lines naming this seat.
+    const soleAi = aiSeats.length === 0;
+    const select = (m) => {
+      if (people.includes(m.seat) && isHush(m.text)) return false;
+      if (!people.includes(m.seat)) return true;
+      const to = addressee(m.text, me, other);
+      if (to === "me") return true;
+      if (to === "other") return false;
+      if (hushed || level.addressedOnly) return false;
+      return soleAi || view.pendingPlayer === seat;
+    };
+    if (!replyTo.length) { seenChat = fresh[fresh.length - 1].at > seenChat ? fresh[fresh.length - 1].at : seenChat; return; }
+    const before = fresh.filter((m) => replyTo.includes(m.seat) && select(m));
+    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, replyTo, select, talk, other, signal, traceDir });
     seenChat = r.seenUpTo;
     if (r.posted === null) return;
     // Which cooldown a reply spends depends on whom it answered.
@@ -240,7 +263,7 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
     if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };
     const view = await viewDuel(loadDuel(duelId), seat);
     if (view.ended) return { reason: "ended", moves: traces.length, traces, winner: view.winner };
-    await answerChat();
+    await answerChat(view);
     if (view.pendingPlayer !== seat) {
       await sleep(pollMs, signal);
       continue;
