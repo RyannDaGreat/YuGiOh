@@ -1,0 +1,7 @@
+{
+ "bakedFrom": "vendor/CardScripts + vendor/BabelCDB (see setup.sh for the pinned commits)",
+ "cards": 584,
+ "sharedScripts": 25,
+ "cardScripts": 505,
+ "vanillaCards": 79
+}
