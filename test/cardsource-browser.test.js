@@ -117,9 +117,9 @@ test("browser card source: bundle first, then the complete database, then a sync
     assert.ok(nodeProbeScript, "the probe really has a script");
     const vanilla = `c${PROBE_VANILLA}.lua`;
     assert.equal(src.script(vanilla), null, "a vanilla has no script anywhere: null, same as Node");
-    const n = syncFetches.filter((u) => u.endsWith(vanilla)).length;
-    src.script(vanilla);
-    assert.equal(syncFetches.filter((u) => u.endsWith(vanilla)).length, n, "a miss is remembered; not fetched twice");
+    assert.equal(syncFetches.filter((u) => u.endsWith(vanilla)).length, 0, "and the corpus index answered that with NO fetch at all");
+    assert.equal(src.script("c0.lua"), null, "a library the core merely probes for: null, no fetch");
+    assert.equal(syncFetches.filter((u) => u.endsWith("c0.lua")).length, 0);
     assert.ok(!BUNDLE_SCRIPTS.has(`c${PROBE}.lua`), "the probe script was genuinely outside the bundle");
   } finally {
     setCardSource(nodeSource);

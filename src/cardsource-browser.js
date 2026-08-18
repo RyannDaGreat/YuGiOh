@@ -164,11 +164,13 @@ export async function openBrowserCardSource(baseUrl, { fallbackUrl = null } = {}
   const root = baseUrl.replace(/\/$/, "");
   const fallback = fallbackUrl ? fallbackUrl.replace(/\/$/, "") : null;
 
-  const [manifestText, cardsText, systemStrings] = await Promise.all([
+  const [manifestText, cardsText, systemStrings, corpusText] = await Promise.all([
     fetchText(`${root}/manifest.json`),
     fetchText(`${root}/cards.json`),
     fetchText(`${root}/strings.conf`),
+    fetchText(`${root}/corpus-scripts.json`),
   ]);
+  const corpus = new Set(JSON.parse(corpusText));
   const manifest = JSON.parse(manifestText);
   const baked = JSON.parse(cardsText);
   const codes = Object.keys(baked);
@@ -194,7 +196,7 @@ export async function openBrowserCardSource(baseUrl, { fallbackUrl = null } = {}
 
   const cards = {};
   for (const code of codes) cards[code] = bakedRow(baked[code]);
-  setCardSource(fallback ? completeSource(cards, scripts, systemStrings, fallback) : memoryCardSource(cards, scripts, systemStrings));
+  setCardSource(fallback ? completeSource(cards, scripts, systemStrings, fallback, corpus) : memoryCardSource(cards, scripts, systemStrings));
 
   return { cards: codes.length, scripts: names.length, complete: Boolean(fallback) };
 }
@@ -242,6 +244,8 @@ function fetchSync(url) {
  *     scripts (object): Script text by basename (mutated as misses are fetched).
  *     systemStrings (string): strings.conf.
  *     fallback (string): Base URL of the assets branch.
+ *     corpus (Set<string>): Every script basename that exists at all, so a
+ *         nonexistent one is answered null with no network round trip.
  *
  * Returns:
  *     object: A card source implementing the interface in cardsource.js.
@@ -250,7 +254,7 @@ function fetchSync(url) {
  *     >>> // completeSource(cards, scripts, conf, "https://raw.githubusercontent.com/RyannDaGreat/YuGiOh/assets").rowById(73915053)
  *     >>> // {id: 73915053, name: "Sheep Token", …}   (fetched, even though no deck lists it)
  */
-function completeSource(cards, scripts, systemStrings, fallback) {
+function completeSource(cards, scripts, systemStrings, fallback, corpus) {
   const rows = new Map(Object.entries(cards).map(([code, row]) => [Number(code), row]));
   let full = null; // the whole database, once it has landed
   const allUrl = `${fallback}/carddata/cards-all.json`;
@@ -277,8 +281,10 @@ function completeSource(cards, scripts, systemStrings, fallback) {
   const script = (name) => {
     const base = name.split("/").pop();
     if (base in scripts) return scripts[base];
-    // A miss: fetch that one script now, and remember the answer either way.
-    scripts[base] = fetchSync(`${fallback}/scripts/${base}`);
+    // Known not to exist anywhere (a vanilla, or a library the core merely probes
+    // for): answer null without a round trip. Otherwise fetch that one script
+    // now, and remember the answer either way.
+    scripts[base] = corpus.has(base) ? fetchSync(`${fallback}/scripts/${base}`) : null;
     return scripts[base];
   };
 

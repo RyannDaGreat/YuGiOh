@@ -199,6 +199,13 @@ for (const code of codes) {
   scripts++;
 }
 
+// 2b. The corpus index: every script that exists at all, by basename. With it the
+//     browser answers "no such script" for a vanilla or a library ocgcore probes
+//     (c0.lua, proc_unofficial.lua) without a network round trip; without it, each
+//     such probe would be a fetch that 404s. ~13k names, ~60 KB gzipped.
+const corpus = [...readdirSync(SCRIPTS_SRC), ...readdirSync(join(SCRIPTS_SRC, "official"))].filter((n) => n.endsWith(".lua")).sort();
+writeFileSync(join(OUT, "corpus-scripts.json"), JSON.stringify(corpus));
+
 // 3. System strings (phase names, prompts, victory reasons).
 writeFileSync(join(OUT, "strings.conf"), readFileSync(STRINGS_SRC));
 
@@ -216,6 +223,7 @@ const manifest = {
   // script -- guessing "c<code>.lua" for every card would 404 on all 79 of them.
   scripts: readdirSync(join(OUT, "scripts")).filter((n) => n.endsWith(".lua")).sort(),
   cards: Object.keys(cards).length,
+  corpusScripts: corpus.length,
   seededDecks: Object.keys(decksOnly.files).length,
   sharedScripts: shared,
   cardScripts: scripts,
