@@ -12,13 +12,13 @@
  */
 
 /**
- * "(P0 m2)" / "(P1 hand)" / "(P0 extra)" — at the end of a label, or followed by
+ * "(P0 m2)" / "(P1 hand 3)" / "(P0 extra)" — at the end of a label, or followed by
  * further parentheticals ("Attack with X (P1 m0) (can attack directly)",
  * "Activate X (P0 s1): Gain 1000 LP (effect #2)"), a bracketed amount from a
  * SELECT_SUM tribute list ("Sangan (P0 m2) [1000]"), or an effect description —
  * or a bare zone item "P0 m2" from a zone-select menu.
  */
-const PLACE = /\(?\bP([01]) (hand|m([0-6])|s([0-7])|field|extra|GY|deck|banished)\)?(?:\s*(?:\([^()]*\)|\[[^[\]]*\]))*(?:\s*:.*)?\s*$/;
+const PLACE = /\(?\bP([01]) (hand(?: (\d+))?|m([0-6])|s([0-7])|field|extra|GY|deck|banished)\)?(?:\s*(?:\([^()]*\)|\[[^[\]]*\]))*(?:\s*:.*)?\s*$/;
 
 /**
  * The action verb the engine puts in front of a card name (src/menu.js
@@ -46,7 +46,8 @@ const UNKNOWN_NAME = "?";
  *     `field` maps to the spell/trap row's field slot (`s`, seq 5) as the table lays it out.
  *
  * Examples:
- *     >>> placeOf("Normal summon Beaver Warrior (P0 hand)")   // {p: 0, kind: "hand", seq: null}
+ *     >>> placeOf("Normal summon Beaver Warrior (P0 hand 3)") // {p: 0, kind: "hand", seq: 3}
+ *     >>> placeOf("Normal summon Beaver Warrior (P0 hand)")   // {p: 0, kind: "hand", seq: null}   (older records)
  *     >>> placeOf("Attack with Blue-Eyes White Dragon (P1 m0)") // {p: 1, kind: "m", seq: 0}
  *     >>> placeOf("Attack with Kuriboh (P1 m1) (can attack directly)")   // {p: 1, kind: "m", seq: 1}
  *     >>> placeOf("Activate Book of Moon (P0 s1)")             // {p: 0, kind: "s", seq: 1}
@@ -64,21 +65,21 @@ export function placeOf(label) {
   if (!m) return null;
   const p = Number(m[1]);
   const zone = m[2];
-  if (zone === "hand") return { p, kind: "hand", seq: null };
+  if (zone.startsWith("hand")) return { p, kind: "hand", seq: m[3] === undefined ? null : Number(m[3]) };
   if (zone === "field") return { p, kind: "s", seq: 5 };
   if (zone === "extra") return { p, kind: "extra", seq: null };
   if (zone === "GY") return { p, kind: "grave", seq: null };
   if (zone === "deck") return { p, kind: "deck", seq: null };
   if (zone === "banished") return { p, kind: "banished", seq: null };
-  if (m[3] !== undefined) return { p, kind: "m", seq: Number(m[3]) };
-  return { p, kind: "s", seq: Number(m[4]) };
+  if (m[4] !== undefined) return { p, kind: "m", seq: Number(m[4]) };
+  return { p, kind: "s", seq: Number(m[5]) };
 }
 
 /**
  * Pure function. The card name an option is about, if the label carries one:
- * everything between the action verb phrase and the trailing place. Two uses —
- * telling hand cards apart (two different cards both live "(P0 hand)"), and
- * previewing the card an option names when the option is hovered.
+ * everything between the action verb phrase and the trailing place — used to
+ * preview the card an option names when the option is hovered, and to tell
+ * hand cards apart in records from before hand labels carried an index.
  *
  * A label that is nothing but a name ("Dark Magician", as a plain SELECT_CARD
  * item) is returned as-is: a colon is NOT treated as an effect separator there,
@@ -94,7 +95,7 @@ export function placeOf(label) {
  *     ("P0 m3") or a card whose code was withheld ("? (P1 m0)").
  *
  * Examples:
- *     >>> nameIn("Normal summon Beaver Warrior (P0 hand)")     // "Beaver Warrior"
+ *     >>> nameIn("Normal summon Beaver Warrior (P0 hand 3)")   // "Beaver Warrior"
  *     >>> nameIn("Set spell/trap Dark Hole (P0 hand)")         // "Dark Hole"
  *     >>> nameIn("Sangan (P0 m2)")                             // "Sangan"
  *     >>> nameIn("Activate Book of Moon (P0 s1): Target 1 monster")  // "Book of Moon"
@@ -147,8 +148,8 @@ export function phaseOptions(items) {
  *     Array<{index: number, label: string, place: object, name: string|null}>
  *
  * Examples:
- *     >>> optionPlaces(["Normal summon Sangan (P0 hand)", "End turn"])
- *     [{index: 0, label: "Normal summon Sangan (P0 hand)", place: {p: 0, kind: "hand", seq: null}, name: "Sangan"}]
+ *     >>> optionPlaces(["Normal summon Sangan (P0 hand 1)", "End turn"])
+ *     [{index: 0, label: "Normal summon Sangan (P0 hand 1)", place: {p: 0, kind: "hand", seq: 1}, name: "Sangan"}]
  */
 export function optionPlaces(items) {
   return (items ?? [])
@@ -162,20 +163,23 @@ export function optionPlaces(items) {
  * Args:
  *     options (Array): From optionPlaces.
  *     at ({p, kind, seq, name?}): The slot/pile/hand card being asked about.
- *         For a hand card, `name` disambiguates: only options naming it match.
+ *         A hand card matches by its index (two copies of one card are two
+ *         different cards); an option whose label predates hand indices
+ *         matches by name instead.
  *
  * Returns:
  *     Array: The matching options, in menu order.
  *
  * Examples:
- *     >>> const opts = optionPlaces(["Normal summon Sangan (P0 hand)", "Set monster Sangan (P0 hand)", "Set monster Kuriboh (P0 hand)"])
- *     >>> optionsAt(opts, {p: 0, kind: "hand", name: "Sangan"}).map((o) => o.index)   // [0, 1]
- *     >>> optionsAt(opts, {p: 0, kind: "hand", name: "Kuriboh"}).map((o) => o.index)  // [2]
+ *     >>> const opts = optionPlaces(["Set spell/trap Dark Hole (P0 hand 2)", "Set spell/trap Dark Hole (P0 hand 3)", "Activate Dark Hole (P0 hand 3)"])
+ *     >>> optionsAt(opts, {p: 0, kind: "hand", seq: 2, name: "Dark Hole"}).map((o) => o.index)   // [0]
+ *     >>> optionsAt(opts, {p: 0, kind: "hand", seq: 3, name: "Dark Hole"}).map((o) => o.index)   // [1, 2]
+ *     >>> optionsAt(optionPlaces(["Set monster Kuriboh (P0 hand)"]), {p: 0, kind: "hand", seq: 0, name: "Kuriboh"}).length  // 1
  */
 export function optionsAt(options, at) {
   return options.filter((o) => {
     if (o.place.p !== at.p || o.place.kind !== at.kind) return false;
-    if (at.kind === "hand") return at.name && o.name && (o.name === at.name || o.label.includes(at.name));
+    if (at.kind === "hand") return o.place.seq === null ? Boolean(at.name && o.name && (o.name === at.name || o.label.includes(at.name))) : o.place.seq === at.seq;
     if (at.kind === "m" || at.kind === "s") return o.place.seq === at.seq;
     return true; // piles: every option pointing at that pile
   });

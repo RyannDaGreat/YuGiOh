@@ -869,3 +869,36 @@ code a bit." My first fix (copy the seats sidecar on fork) treated one symptom. 
 Verified: static AI suite extended — pill online while running, after a reload, and 36 s into an idle
 wait (all PASS on the built site). Node-host note: in-page AI still does not run there (AI seats are
 CLI-driven on Node, as documented); the owner plays on the static site.
+
+## 2026-08-18 — Two copies of one card in hand were one clickable thing
+
+Owner: "I selected one card and it selects both of them. Is it because they have the same name?" Yes.
+Hand option labels were "(P1 hand)" with no index, so `optionsAt` could only match hand cards by name:
+both Mythical Institutions wore "4 options" and one click opened both copies' Set + Activate, and
+`disambiguate` renamed the identical labels "(effect #1)/(effect #2)" — as if one card had two effects.
+Fix: `entryLabel` names hand cards by hand index ("(P1 hand 3)" — engine sequence = state order = table
+order), `placeOf` reads it, `optionsAt` matches hand cards by index, `disambiguate` says "(copy #N)" for
+pile duplicates. Verified with Puppeteer on the Node host (Upstart Goblin ×2 in hand: each card "2
+options", clicking one lists only its own two) + unit tests.
+
+## 2026-08-18 — "(set this turn)": the core does expose STATUS_SET_TURN, so the state now shows it
+
+An LLM seat spent Reverse Trap to "play around" the opponent's freshly Set backrow. The state text gave
+it no way to know those cards were Set this turn (a Trap / Quick-Play Set this turn cannot be activated
+this turn; a monster Set this turn cannot be Flip Summoned this turn) — a human at the table remembers.
+Probe (`scratchpad setturn_probe.js`, replayDuel + queryLocation with `OcgQueryFlags.STATUS`, ocgcore-wasm
+0.1.2) observed, same turn / next turn: Spell/Trap Set from hand → `status` 0x10 / 0x0; monster Set from
+hand → 0x100 / 0x0; Normal Summon → 0xc00 (SUMMON_TURN|EFFECT_ENABLED). Constants confirmed in
+ygopro-core `ocgapi_constants.h` (STATUS_SET_TURN 0x10, STATUS_FORM_CHANGED 0x100, STATUS_SUMMON_TURN
+0x800, FLIP_SUMMON_TURN 0x20000000, SPSUMMON_TURN 0x40000000) — the guesses in the task brief
+(0x8000/0x2000/0x10000/0x4000) were wrong. `card::get_infos` writes the raw status word
+(`CHECK_AND_INSERT(QUERY_STATUS, status)`), and the wasm query is omniscient, so the bit is there for the
+OPPONENT's face-down card too — masking is ours (`isVisible`), and this bit is public information.
+Note the wrapped core stamps a monster Set with FORM_CHANGED only (upstream master now also stamps
+SUMMON_TURN in `MonsterSet` step 10); we read FORM_CHANGED for face-down monsters, which works on both.
+Effect-driven flips to face-down (Book of Moon) set neither bit — mirroring the ruling that such a
+monster may still be Flip Summoned that turn — so they are (correctly) unmarked.
+Rule nit while writing PLAYER.md: a Set Trap is live from the NEXT turn (the opponent's), not "the
+setting player's next turn" as the brief said; PLAYER.md states the real rule.
+Change: `state.js` `fieldCardData.setThisTurn` / `summonedThisTurn`, `describeFieldCard` appends
+"(set this turn)"; `test/set-this-turn.test.js`; PLAYER.md bullet; manifest §21.

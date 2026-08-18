@@ -143,5 +143,11 @@ left in their deck?
   nothing right now (e.g. Last Will with no monster having gone to your GY yet
   — it sets up an effect for the rest of the turn). "Legal" is not "useful":
   read the card text before activating.
+- A Spell/Trap Set THIS turn cannot be activated this turn (it goes live from
+  the next turn, i.e. during the opponent's turn); a monster Set this turn cannot
+  be Flip Summoned this turn. The state marks such cards "(set this turn)" for
+  both players. Don't spend a card "playing around" a backrow that cannot fire
+  yet — and more generally never activate a card that will resolve doing nothing
+  just because it is legal: a card is a resource.
 
 A strategy brief, if you were given one, overrides these defaults.

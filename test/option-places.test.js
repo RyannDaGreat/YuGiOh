@@ -105,12 +105,24 @@ test("optionPlaces keeps only the options that point at the table, with their na
   ]);
 });
 
-test("optionsAt groups by slot, and by name within a hand", () => {
+test("optionsAt groups by slot, and by hand index within a hand (name only for index-less legacy labels)", () => {
   const opts = optionPlaces(["Normal summon Sangan (P0 hand)", "Set monster Sangan (P0 hand)", "Set monster Kuriboh (P0 hand)", "Attack with Beaver Warrior (P0 m1)"]);
-  assert.deepEqual(optionsAt(opts, { p: 0, kind: "hand", name: "Sangan" }).map((o) => o.index), [0, 1]);
-  assert.deepEqual(optionsAt(opts, { p: 0, kind: "hand", name: "Kuriboh" }).map((o) => o.index), [2]);
+  assert.deepEqual(optionsAt(opts, { p: 0, kind: "hand", seq: 0, name: "Sangan" }).map((o) => o.index), [0, 1]);
+  assert.deepEqual(optionsAt(opts, { p: 0, kind: "hand", seq: 1, name: "Kuriboh" }).map((o) => o.index), [2]);
   assert.deepEqual(optionsAt(opts, { p: 0, kind: "m", seq: 1 }).map((o) => o.index), [3]);
   assert.deepEqual(optionsAt(opts, { p: 0, kind: "m", seq: 0 }), []);
+});
+
+test("two copies of one card in hand are two different clickable cards", () => {
+  // The bug: both Mythical Institutions lit up with all four options (set + activate, twice)
+  // because hand options were matched by name. Now each copy owns its own two.
+  const labels = ["Set spell/trap Mythical Institution (P1 hand 2)", "Set spell/trap Mythical Institution (P1 hand 3)", "Activate Mythical Institution (P1 hand 2)", "Activate Mythical Institution (P1 hand 3)"];
+  assert.deepEqual(placeOf(labels[1]), { p: 1, kind: "hand", seq: 3 });
+  assert.equal(nameIn(labels[3]), "Mythical Institution");
+  const opts = optionPlaces(labels);
+  assert.deepEqual(optionsAt(opts, { p: 1, kind: "hand", seq: 2, name: "Mythical Institution" }).map((o) => o.index), [0, 2]);
+  assert.deepEqual(optionsAt(opts, { p: 1, kind: "hand", seq: 3, name: "Mythical Institution" }).map((o) => o.index), [1, 3]);
+  assert.deepEqual(optionsAt(opts, { p: 1, kind: "hand", seq: 4, name: "Mythical Institution" }), []);
 });
 
 test("phaseOptions finds the phase-strip buttons", () => {

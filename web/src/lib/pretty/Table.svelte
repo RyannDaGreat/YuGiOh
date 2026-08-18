@@ -622,7 +622,7 @@
     {#each keyed(cards) as { card: c, key }, i (key)}
       <div data-zone={zoneId(p, "hand", i)} class="relative" animate:flip={{ duration: HAND_FLIP_MS }}>
         <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} back={backs[p]} {onhover} {onclick} />
-        {@render optionRim(c.code ? at(p, "hand", null, c.name) : [], "hand")}
+        {@render optionRim(c.code ? at(p, "hand", i, c.name) : [], "hand")}
       </div>
     {/each}
   </div>

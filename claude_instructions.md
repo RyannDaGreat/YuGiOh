@@ -517,11 +517,18 @@ fly there and every card after it teleported (found while checking beat 4 of a t
 
 **Clickable table (added 2026-08-18, user requirement).** The aside menu stays the full list, but every
 option that names a place on the table is ALSO playable from the table itself:
-- `web/src/lib/pretty/optionPlaces.js` (pure): `placeOf(label)` reads the trailing `(P0 m2)` / `(P1 hand)` /
+- `web/src/lib/pretty/optionPlaces.js` (pure): `placeOf(label)` reads the trailing `(P0 m2)` / `(P1 hand 3)` /
   `(P0 extra|GY|deck|banished|field)` — allowing further parentheticals ("(can attack directly)") and an
   effect suffix (": Gain 1000 LP") — or a bare zone item `P0 m3`; `nameIn(label)` the card name; `optionsAt`
-  the options for one slot / pile / hand card (hand cards are told apart by name); `phaseOptions` maps the
-  phase strip's BP / M2 / EP to "Enter Battle Phase" / "Enter Main Phase 2" / "End turn".
+  the options for one slot / pile / hand card; `phaseOptions` maps the phase strip's BP / M2 / EP to
+  "Enter Battle Phase" / "Enter Main Phase 2" / "End turn".
+- **Hand labels carry the hand index** (`menu.js entryLabel`: "Dark Hole (P0 hand 2)"; the index is the
+  engine's hand sequence, which is also the order of the state's hand list and the table's hand row).
+  2026-08-18 bug: hand options were matched by NAME, so with two Mythical Institutions in hand both cards
+  lit up with all four options and `disambiguate` mislabelled the pair "(effect #1)/(effect #2)". Now each
+  copy is its own option; `optionsAt` matches a hand card by index (by name only for an index-less label
+  from an older record). `disambiguate` says "(effect #N)" for one card's several effects on the field and
+  "(copy #N)" for same-name entries in a pile (GY/deck/banished/extra).
 - Every element with ≥1 option wears ONE rim style — `.option-rim` (a 1px `--option-rim-color` line
   following the card's own radius via `.card-box`, rotated with a defence-position card) or
   `.option-rim-pill` on a phase button — so a restyle is one place (`app.css` `--option-rim-*`). Empty zones
@@ -982,6 +989,13 @@ until the flip revealed it):
 graveyards (public), and — because both decklists are public — the sorted multiset of cards you have
 NOT seen: your own deck with its order withheld, and for the opponent "hand + deck + face-downs" as
 one pool (the unseen pool). That last part is exactly what a competent human tracks by hand.
+A face-down Spell/Trap or monster that was Set THIS turn is marked "(set this turn)" for BOTH
+players (everyone at the table saw it go down): a Trap or Quick-Play Spell Set this turn cannot be
+activated this turn, a monster Set this turn cannot be Flip Summoned this turn. The mark comes from
+the core's own card status bits (`STATUS_SET_TURN` 0x10 for S/T, `STATUS_FORM_CHANGED` 0x100 for a
+Set monster, from ygopro-core `ocgapi_constants.h`; the core clears both when the turn changes),
+read through the same `OcgQueryFlags.STATUS` query `state.js` already uses for "[effects negated]" —
+`fieldCardData.setThisTurn` (and `summonedThisTurn` = SUMMON/SPSUMMON/FLIP_SUMMON_TURN, data only).
 
 **Web surface.** The index IS the duel history: in-progress and finished sections, each duel with
 its decks, result, move count, chat count, created and last-move times, and replay / P0 / P1 links,

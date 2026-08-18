@@ -12,7 +12,7 @@ import "../src/cardsource-node.js";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { OcgHintTiming, OcgLocation, OcgMessageType, OcgResponseType } from "ocgcore-wasm";
-import { buildMenu, chooseFromMenu, chosenOption, disambiguate, fillTemplate, hintsBefore, selectableZones, timingWords } from "../src/menu.js";
+import { buildMenu, chooseFromMenu, chosenOption, disambiguate, entryLabel, fillTemplate, hintsBefore, selectableZones, timingWords } from "../src/menu.js";
 import { shouldAutoPass } from "../src/session.js";
 import { moveHidesCode } from "../src/view.js";
 
@@ -67,8 +67,14 @@ test("timing words and template filling", () => {
   assert.equal(fillTemplate("Your choice: [{}]", ["Yes"]), "Your choice: [Yes]");
 });
 
-test("duplicate labels get effect ordinals", () => {
+test("duplicate labels get effect ordinals on the field, copy ordinals in a pile", () => {
   assert.deepEqual(disambiguate([{ label: "a" }, { label: "a" }, { label: "b" }]).map((i) => i.label), ["a (effect #1)", "a (effect #2)", "b"]);
+  assert.deepEqual(disambiguate([{ label: "Dark Magician (P0 deck)" }, { label: "Dark Magician (P0 deck)" }]).map((i) => i.label), ["Dark Magician (P0 deck) (copy #1)", "Dark Magician (P0 deck) (copy #2)"]);
+});
+
+test("hand entries are labelled with their hand index, so two copies are two options", () => {
+  assert.equal(entryLabel({ code: 53129443, controller: 0, location: OcgLocation.HAND, sequence: 2 }, null), "Dark Hole (P0 hand 2)");
+  assert.equal(entryLabel({ code: 53129443, controller: 0, location: OcgLocation.MZONE, sequence: 2 }, null), "Dark Hole (P0 m2)");
 });
 
 test("hintsBefore: select hint consumed by intervening question, event hint goes stale", () => {

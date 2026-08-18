@@ -38,8 +38,21 @@ const QUERY_ALL = OcgQueryFlags.CODE | OcgQueryFlags.POSITION | OcgQueryFlags.AL
   | OcgQueryFlags.OWNER | OcgQueryFlags.STATUS | OcgQueryFlags.IS_PUBLIC | OcgQueryFlags.LSCALE
   | OcgQueryFlags.RSCALE | OcgQueryFlags.LINK | OcgQueryFlags.IS_HIDDEN;
 
-/** Card status bit from the core: effects negated (STATUS_DISABLED). */
+// Card status bits from the core (ygopro-core `ocgapi_constants.h`; the wasm's
+// QUERY_STATUS returns the raw `card::status` word). Verified empirically against
+// ocgcore-wasm 0.1.2 — see concerns.md 2026-08-18.
+/** Effects negated. */
 const STATUS_DISABLED = 0x1;
+/** Spell/Trap Set this turn — a Trap or Quick-Play Spell so marked cannot be activated this turn. Cleared at the turn change. */
+const STATUS_SET_TURN = 0x10;
+/** Battle position changed this turn; the core stamps it on a monster Set from hand, which is what forbids Flip Summoning it this turn. Cleared at the turn change. */
+const STATUS_FORM_CHANGED = 0x100;
+/** Normal Summoned this turn. */
+const STATUS_SUMMON_TURN = 0x800;
+/** Flip Summoned this turn. */
+const STATUS_FLIP_SUMMON_TURN = 0x20000000;
+/** Special Summoned this turn. */
+const STATUS_SPSUMMON_TURN = 0x40000000;
 
 const PHASE_NAMES = {
   [OcgPhase.DRAW]: "Draw Phase", [OcgPhase.STANDBY]: "Standby Phase", [OcgPhase.MAIN1]: "Main Phase 1",
@@ -153,20 +166,34 @@ function normalizeCounters(raw) {
  *
  * Returns:
  *     {name: string|null, code: number, position: string, faceDown: boolean, negated: boolean,
+ *      setThisTurn: boolean, summonedThisTurn: boolean,
  *      atk?, def?, baseAtk?, baseDef?, level?, rank?, link?, typeLabel?, scale?: string,
  *      equippedTo?: string, targets?: string[], materials?: string[], counters?: object}
  *     `scale` is set only for a Pendulum Monster sitting in a spell/trap zone —
  *     that is a Pendulum Zone, where the scale is the card's whole point.
+ *     `setThisTurn` / `summonedThisTurn` are public information (everyone saw the
+ *     card go down), so they are filled in even when the identity is withheld.
  *
  * Examples:
  *     >>> fieldCardData({code: 89631139, position: 1, attack: 3000, defense: 2500, baseAttack: 3000, baseDefense: 2500, level: 8}, true, true).name
  *     "Blue-Eyes White Dragon"
- *     >>> fieldCardData({position: 8}, false, true)
- *     {name: null, code: 0, position: "fd DEF", faceDown: true, negated: false}
+ *     >>> fieldCardData({position: 8, status: 0}, false, true)
+ *     {name: null, code: 0, position: "fd DEF", faceDown: true, negated: false, setThisTurn: false, summonedThisTurn: false}
+ *     >>> fieldCardData({position: 10, status: 0x10}, false, false).setThisTurn   // true  (opponent's trap, Set this turn)
+ *     >>> fieldCardData({position: 8, status: 0x100}, false, true).setThisTurn    // true  (opponent's monster, Set this turn)
  *     >>> fieldCardData({code: 91584698, position: 5}, true, false).scale  // "4" (Performapal Trump Witch in a Pendulum Zone)
  */
 export function fieldCardData(card, known, isMonsterZone) {
-  const base = { name: known ? cardName(card.code) : null, code: known ? card.code : 0, position: posLabel(card.position, isMonsterZone), faceDown: Boolean(card.position & OcgPosition.FACEDOWN), negated: false };
+  const faceDown = Boolean(card.position & OcgPosition.FACEDOWN);
+  const base = {
+    name: known ? cardName(card.code) : null,
+    code: known ? card.code : 0,
+    position: posLabel(card.position, isMonsterZone),
+    faceDown,
+    negated: false,
+    setThisTurn: faceDown && Boolean(card.status & (isMonsterZone ? STATUS_FORM_CHANGED : STATUS_SET_TURN)),
+    summonedThisTurn: Boolean(card.status & (STATUS_SUMMON_TURN | STATUS_FLIP_SUMMON_TURN | STATUS_SPSUMMON_TURN)),
+  };
   if (!known) return base;
   const info = cardInfo(card.code);
   const data = { ...base, negated: Boolean(card.status & STATUS_DISABLED), typeLabel: typeLabel(info?.type ?? 0) };
@@ -287,14 +314,18 @@ export function collectState(core, handle, { viewer, deckNames, deckCodes, model
  *
  * Examples:
  *     >>> describeFieldCard({name: null, position: "fd DEF"})                          // "? (fd DEF)"
+ *     >>> describeFieldCard({name: null, position: "fd", setThisTurn: true})           // "? (fd) (set this turn)"
  *     >>> describeFieldCard({name: "Trap Hole", position: "fd", typeLabel: "Trap"})     // "Trap Hole (fd, Trap)"
+ *     >>> describeFieldCard({name: "Trap Hole", position: "fd", typeLabel: "Trap", setThisTurn: true})
+ *     "Trap Hole (fd, Trap) (set this turn)"
  *     >>> describeFieldCard({name: "Battle Ox", position: "ATK", atk: 1700, def: 1000, baseAtk: 1700, baseDef: 1000, level: 4})
  *     "Battle Ox ATK 1700/1000 Lv4"
  *     >>> describeFieldCard({name: "Performapal Trump Witch", position: "up", typeLabel: "Effect Pendulum Monster", scale: "4"})
  *     "Performapal Trump Witch (up, Effect Pendulum Monster, scale 4)"
  */
 export function describeFieldCard(c) {
-  if (c.name === null) return `? (${c.position})`;
+  const setNote = c.setThisTurn ? " (set this turn)" : "";
+  if (c.name === null) return `? (${c.position})${setNote}`;
   const parts = [c.name];
   if (c.atk !== undefined) {
     const atk = c.atk === c.baseAtk ? `${c.atk}` : `${c.atk}(base ${c.baseAtk})`;
@@ -311,7 +342,7 @@ export function describeFieldCard(c) {
   if (c.targets) parts.push(`[targets ${c.targets.join(", ")}]`);
   if (c.materials) parts.push(`[materials: ${c.materials.join(", ")}]`);
   if (c.counters) parts.push(`[counters: ${Object.entries(c.counters).map(([type, n]) => `${n}x#${type}`).join(", ")}]`);
-  return parts.join(" ");
+  return parts.join(" ") + setNote;
 }
 
 /**

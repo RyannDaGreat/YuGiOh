@@ -99,9 +99,9 @@ async function pendulumWindow(left, right, hand) {
   if (errors.length) throw new Error(`card script errors: ${JSON.stringify(errors)}`);
 
   const script = [
-    new RegExp(`^Activate ${left} \\(P0 hand\\)`),
+    new RegExp(`^Activate ${left} \\(P0 hand \\d+\\)`),
     /^P0 s0$/,
-    new RegExp(`^Activate ${right} \\(P0 hand\\)`),
+    new RegExp(`^Activate ${right} \\(P0 hand \\d+\\)`),
     /^P0 s4$/,
     PENDULUM_SUMMON_ENTRY,
   ];
@@ -120,7 +120,7 @@ async function pendulumWindow(left, right, hand) {
     if (auto !== null) { core.duelSetResponse(handle, auto); continue; }
 
     const menu = buildMenu(pending, { selectHint: 0n, eventHint: 0n, field: null });
-    if (picks === script.length) { offered = menu.items.map((it) => it.label.replace(/ \(P0 hand\)$/, "")); break; }
+    if (picks === script.length) { offered = menu.items.map((it) => it.label.replace(/ \(P0 hand \d+\)$/, "")); break; }
     const index = menu.items.findIndex((it) => script[picks].test(it.label));
     // "respond?" windows are noise here; decline anything the script did not ask for.
     if (index < 0 && pending.type === OcgMessageType.SELECT_CHAIN && menu.zero) { core.duelSetResponse(handle, menu.zero.response); continue; }
