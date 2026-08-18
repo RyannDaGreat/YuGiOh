@@ -1,0 +1,185 @@
+/**
+ * The browser backing store for `cardsource.js`: the baked bundle under
+ * `web/static/carddata/`, fetched over HTTP.
+ *
+ * A static host has no SQLite and no 250 MB vendor tree, so `bin/bake-carddata.js`
+ * reduces both to what the built-in decks actually reference — a few hundred
+ * cards as one JSON file, their Lua as loose `.lua` files, and EDOPro's
+ * `strings.conf` verbatim. This module is the reader for that bundle.
+ *
+ * Two details make it work against a synchronous source API:
+ *
+ *  1. **Fetch once, serve from memory.** The ocgcore WASM core calls
+ *     `cardReader`/`scriptReader` synchronously from inside a duel step and
+ *     cannot await a `fetch`, so `openBrowserCardSource` pulls the whole bundle
+ *     down first (a couple of megabytes) and installs a `memoryCardSource`.
+ *     Nothing may start a duel until that promise resolves.
+ *  2. **`baseUrl` is not optional.** The site is served from a sub-path on
+ *     GitHub Pages (`/YuGiOh/`), so every URL is built from the base the caller
+ *     passes — typically SvelteKit's `base` plus `/carddata`. Hardcoding "/"
+ *     would 404 in production and only in production.
+ *
+ * `manifest.json` names every script file the bake emitted (a static host has
+ * no directory listing), so exactly those are fetched — shared libraries plus the
+ * scripts of cards that have one; vanillas have none and are never requested.
+ * The manifest's counts are cross-checked against that list, so a stale bake
+ * fails loudly at startup rather than as an inexplicable Lua error mid-duel.
+ */
+
+import { packLevel } from "./cards.js";
+import { memoryCardSource, setCardSource } from "./cardsource.js";
+
+/**
+ * The bundle is several hundred small files. Firing them all at once buries the
+ * browser's own per-host connection limit under a queue it cannot reorder, and
+ * one slow response then blocks the whole boot; a bounded pool keeps the pipe
+ * full without that.
+ */
+const FETCH_CONCURRENCY = 24;
+
+/**
+ * Command. Fetches one bundle file as text, throwing on anything but a 2xx —
+ * every file the manifest names must be there, so a miss is a broken build.
+ *
+ * Args:
+ *     url (string): Absolute or base-relative URL.
+ *
+ * Returns:
+ *     Promise<string>
+ *
+ * Examples:
+ *     >>> // await fetchText("/YuGiOh/carddata/strings.conf")   // "!system 20 Draw Phase\n..."
+ */
+async function fetchText(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`carddata fetch failed: ${response.status} ${url}`);
+  return await response.text();
+}
+
+/**
+ * Command. Runs `task` over every item with at most `limit` in flight, keeping
+ * results in input order.
+ *
+ * Args:
+ *     items (Array): Inputs.
+ *     limit (number): Maximum concurrent tasks.
+ *     task (function): `(item) => Promise<any>`.
+ *
+ * Returns:
+ *     Promise<Array>: Results, positionally matching `items`.
+ *
+ * Examples:
+ *     >>> // await mapPool([1, 2, 3], 2, async (n) => n * 2)   // [2, 4, 6]
+ */
+async function mapPool(items, limit, task) {
+  const results = new Array(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await task(items[index]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+/**
+ * Pure function. Converts one baked card record into the merged datas+texts row
+ * `cardsource.js` defines.
+ *
+ * The bake stores Level and both Pendulum Scales as separate fields; cards.cdb
+ * packs them into one column and `cards.js` decodes that packing, so they are
+ * folded back here rather than teaching the decoder a second layout.
+ *
+ * Args:
+ *     card (object): A `cards.json` entry: {code, name, desc, atk, def, level,
+ *         lscale, rscale, type, race, attribute, alias}, optionally `setcode`
+ *         and `strings`.
+ *
+ * Returns:
+ *     object: {id, alias, setcode, type, atk, def, level, race, attribute, name,
+ *     desc, strings}
+ *
+ * Examples:
+ *     >>> bakedRow({code: 89631139, name: "Blue-Eyes White Dragon", level: 8, lscale: 0, rscale: 0, race: "8192"}).level
+ *     8
+ *     >>> bakedRow({code: 16178681, name: "Odd-Eyes Pendulum Dragon", level: 7, lscale: 4, rscale: 4}).level
+ *     67371015
+ */
+export function bakedRow(card) {
+  return {
+    id: card.code,
+    alias: card.alias ?? 0,
+    setcode: card.setcode ?? 0,
+    type: card.type,
+    atk: card.atk,
+    def: card.def,
+    level: packLevel(card.level, card.lscale, card.rscale),
+    race: card.race,
+    attribute: card.attribute,
+    name: card.name,
+    desc: card.desc,
+    strings: card.strings ?? [],
+  };
+}
+
+/**
+ * Command. Fetches the baked card bundle and installs it as the app's card
+ * source. Call once, and await it, before any card is looked up or any duel is
+ * created — the core cannot wait for a fetch once a duel is running.
+ *
+ * Args:
+ *     baseUrl (string): URL of the `carddata` directory, with no trailing slash.
+ *         Under GitHub Pages this is `${base}/carddata`, not `/carddata`.
+ *
+ * Returns:
+ *     Promise<{cards: number, scripts: number}>: What was loaded, for logging.
+ *     `strings.conf` comes down with it and is served by the same source.
+ *
+ * Throws:
+ *     Error: if the bundle is missing, or holds fewer scripts than its own
+ *     manifest claims — a silently half-loaded database would surface much later
+ *     as an unexplainable duel desync.
+ *
+ * Examples:
+ *     >>> // await openBrowserCardSource("/YuGiOh/carddata")   // {cards: 584, scripts: 530}
+ */
+export async function openBrowserCardSource(baseUrl) {
+  if (!baseUrl) throw new Error("openBrowserCardSource needs the carddata base URL (e.g. `${base}/carddata`)");
+  const root = baseUrl.replace(/\/$/, "");
+
+  const [manifestText, cardsText, systemStrings] = await Promise.all([
+    fetchText(`${root}/manifest.json`),
+    fetchText(`${root}/cards.json`),
+    fetchText(`${root}/strings.conf`),
+  ]);
+  const manifest = JSON.parse(manifestText);
+  const baked = JSON.parse(cardsText);
+  const codes = Object.keys(baked);
+
+  // The manifest names every script file the bake emitted (a static host has no
+  // directory listing), so exactly those are fetched: shared libraries and the
+  // scripts of cards that have one. Vanillas have none and are never requested.
+  const names = manifest.scripts;
+  if (!Array.isArray(names) || !names.length) throw new Error("carddata manifest has no `scripts` list — re-run bin/bake-carddata.js");
+  const sources = await mapPool(names, FETCH_CONCURRENCY, (name) => fetchText(`${root}/scripts/${name}`));
+  const scripts = Object.fromEntries(names.map((name, i) => [name, sources[i]]));
+
+  const expected = manifest.sharedScripts + manifest.cardScripts;
+  if (names.length !== expected) {
+    throw new Error(`carddata is incomplete: manifest lists ${names.length} scripts but counts ${expected}`);
+  }
+  if (codes.length !== manifest.cards) {
+    throw new Error(`carddata is incomplete: cards.json holds ${codes.length} cards, manifest says ${manifest.cards}`);
+  }
+  if (!codes.some((code) => baked[code].setcode)) {
+    console.warn("carddata has no setcodes: archetype checks (IsSetCard) will not match — re-bake with the setcode column");
+  }
+
+  const cards = {};
+  for (const code of codes) cards[code] = bakedRow(baked[code]);
+  setCardSource(memoryCardSource(cards, scripts, systemStrings));
+
+  return { cards: codes.length, scripts: names.length };
+}

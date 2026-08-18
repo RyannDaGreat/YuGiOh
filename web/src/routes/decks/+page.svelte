@@ -1,4 +1,5 @@
 <script>
+  import { base } from "$app/paths";
   import Icon from "@iconify/svelte";
   import cardsIcon from "@iconify-icons/mdi/cards";
   import arrowLeft from "@iconify-icons/mdi/arrow-left";
@@ -49,7 +50,7 @@
 
 {#snippet tile(d)}
   <a
-    href="/decks/{d.id}"
+    href="{base}/decks/{d.id}"
     class="group flex flex-col gap-2 rounded-lg bg-black/40 border border-amber-900/60 p-3 hover:border-amber-500/70 hover:bg-black/60 transition-colors"
   >
     <div class="self-center transition-transform group-hover:scale-105">
@@ -84,7 +85,7 @@
       </h1>
       <p class="text-amber-100/60 text-sm">Pick a deck to inspect its cards and pilot notes, or send it straight into a new duel.</p>
     </div>
-    <a class="shrink-0 inline-flex items-center gap-1 text-amber-300 underline text-sm" href="/">
+    <a class="shrink-0 inline-flex items-center gap-1 text-amber-300 underline text-sm" href="{base}/">
       <Icon icon={arrowLeft} /> Back to duels
     </a>
   </header>

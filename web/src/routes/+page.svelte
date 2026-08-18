@@ -3,8 +3,29 @@
   import cardsIcon from "@iconify-icons/mdi/cards";
   import playIcon from "@iconify-icons/mdi/play";
   import DeckThumb from "$lib/pretty/DeckThumb.svelte";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
+  import { getArchive, importArchive as importArchiveApi, newDuel } from "$lib/api.js";
 
-  let { data, form } = $props();
+  let { data } = $props();
+  /** Error from the last create attempt, shown under the form. */
+  let createError = $state("");
+
+  /** Command. Creates the duel described by the form and opens seat 0 of it. */
+  async function createDuel(event) {
+    event.preventDefault();
+    const f = new FormData(event.currentTarget);
+    createError = "";
+    const r = await newDuel({
+      id: String(f.get("id") ?? "").trim(),
+      p0: String(f.get("p0")),
+      p1: String(f.get("p1")),
+      seed: String(f.get("seed") ?? "").trim(),
+      players: [String(f.get("player0") || "P0"), String(f.get("player1") || "P1")],
+    });
+    if (!r.ok) { createError = r.error; return; }
+    await goto(`${base}/duel/${r.id}?as=0`);
+  }
 
   /** Every duel ever played is kept; the two sections are just "still going" and "over". */
   const active = $derived(data.duels.filter((d) => !d.ended));
@@ -79,11 +100,9 @@
     archiveBusy = true;
     archiveNote = "";
     try {
-      const res = await fetch("/api/archive");
-      if (!res.ok) throw new Error(`export failed (${res.status})`);
-      const blob = await res.blob();
-      const name = (res.headers.get("content-disposition") ?? "").match(/filename="([^"]+)"/)?.[1] ?? "ygo-duels.json";
-      const url = URL.createObjectURL(blob);
+      const archive = await getArchive();
+      const name = `ygo-duels-${archive.exportedAt.slice(0, 19).replace(/[:T]/g, "-")}.json`;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(archive, null, 1)], { type: "application/json" }));
       const a = Object.assign(document.createElement("a"), { href: url, download: name });
       document.body.appendChild(a);
       a.click();
@@ -104,14 +123,8 @@
     archiveBusy = true;
     archiveNote = "";
     try {
-      const archive = JSON.parse(await file.text());
-      const res = await fetch("/api/archive", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ archive, replace: replaceOnImport }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.message ?? `import failed (${res.status})`);
+      const body = await importArchiveApi(JSON.parse(await file.text()), replaceOnImport);
+      if (!body.ok) throw new Error(body.error ?? "import failed");
       archiveNote = `imported ${body.written} file${body.written === 1 ? "" : "s"}` +
         (body.skipped ? `, skipped ${body.skipped} already here` : "");
       if (body.written) location.reload();
@@ -141,9 +154,9 @@
           <td class="text-amber-100/70 whitespace-nowrap">{stamp(d.created)}</td>
           <td class="text-amber-100/70 whitespace-nowrap">{stamp(d.lastMove)}</td>
           <td class="space-x-2 whitespace-nowrap">
-            <a class="underline text-amber-300" href="/duel/{d.id}?as=all" title="watch the whole game back, chat and all">replay</a>
-            <a class="underline text-amber-300" href="/duel/{d.id}?as=0">P0</a>
-            <a class="underline text-amber-300" href="/duel/{d.id}?as=1">P1</a>
+            <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=all" title="watch the whole game back, chat and all">replay</a>
+            <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=0">P0</a>
+            <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=1">P1</a>
           </td>
         </tr>
       {/each}
@@ -175,7 +188,7 @@
           <Icon icon="mdi:upload" /> Import
         </button>
         <input bind:this={fileInput} type="file" accept="application/json,.json" class="hidden" onchange={importArchive} />
-        <a class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-amber-900/40 border border-amber-700/60 text-amber-100 hover:bg-amber-800/50 transition-colors" href="/decks">
+        <a class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-amber-900/40 border border-amber-700/60 text-amber-100 hover:bg-amber-800/50 transition-colors" href="{base}/decks">
           <Icon icon={cardsIcon} /> Deck Library
         </a>
       </div>
@@ -206,18 +219,18 @@
 
   <section id="new-duel" class="rounded-md bg-black/40 border border-amber-900/60 p-3">
     <h2 class="font-bold text-amber-200 mb-2">New duel</h2>
-    <form method="POST" action="?/create" class="grid grid-cols-3 gap-3 items-end text-sm">
+    <form onsubmit={createDuel} class="grid grid-cols-3 gap-3 items-end text-sm">
       <label class="flex flex-col gap-1">id <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="id" required pattern="[A-Za-z0-9_\-]+" placeholder="game1" /></label>
       <label class="flex flex-col gap-1">P0 deck (goes first)
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p0" bind:value={p0}>{@render deckOptions()}</select>
-          <a href="/decks/{p0}?seat=0" title="inspect {nameOf[p0]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p0]} signatureCode={sigOf[p0]} name={nameOf[p0]} category={catOf[p0]} size="mini" /></a>
+          <a href="{base}/decks/{p0}?seat=0" title="inspect {nameOf[p0]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p0]} signatureCode={sigOf[p0]} name={nameOf[p0]} category={catOf[p0]} size="mini" /></a>
         </div>
       </label>
       <label class="flex flex-col gap-1">P1 deck
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p1" bind:value={p1}>{@render deckOptions()}</select>
-          <a href="/decks/{p1}?seat=1" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p1]} signatureCode={sigOf[p1]} name={nameOf[p1]} category={catOf[p1]} size="mini" /></a>
+          <a href="{base}/decks/{p1}?seat=1" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p1]} signatureCode={sigOf[p1]} name={nameOf[p1]} category={catOf[p1]} size="mini" /></a>
         </div>
       </label>
       <label class="flex flex-col gap-1">P0 player <input class="px-2 py-1 rounded bg-black/40 border border-amber-900" name="player0" placeholder="ryan" /></label>
@@ -226,7 +239,7 @@
       <button type="submit" class="col-span-3 justify-self-start inline-flex items-center gap-1.5 px-4 py-1 rounded bg-amber-300 text-amber-950 font-bold hover:bg-amber-200 transition-colors">
         <Icon icon={playIcon} /> Create
       </button>
-      {#if form?.error}<p class="col-span-3 text-red-300">{form.error}</p>{/if}
+      {#if createError}<p class="col-span-3 text-red-300">{createError}</p>{/if}
     </form>
   </section>
 </main>

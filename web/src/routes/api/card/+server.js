@@ -1,6 +1,6 @@
 /** Card text lookup for tooltips. */
 import { error, json } from "@sveltejs/kit";
-import { cardText } from "$lib/server/engine.js";
+import { cardText } from "$lib/engine.js";
 
 export function GET({ url }) {
   const name = url.searchParams.get("name");

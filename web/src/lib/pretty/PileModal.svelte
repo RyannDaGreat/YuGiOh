@@ -7,6 +7,9 @@
 </script>
 
 <script>
+  import { ASSETS } from "$lib/assets.js";
+  import { base } from "$app/paths";
+  import { getCard } from "$lib/api.js";
   import Icon from "@iconify/svelte";
   /**
    * The whole contents of one pile (graveyard, banished, deck, extra) as a grid
@@ -25,7 +28,7 @@
    * @prop {(card) => void} onclick
    * @prop {() => void} onclose
    */
-  let { title, entries = [], note = "", back = "/img/card-back.png", onhover = () => {}, onclick = () => {}, onclose = () => {} } = $props();
+  let { title, entries = [], note = "", back = `${base}/img/card-back.png`, onhover = () => {}, onclick = () => {}, onclose = () => {} } = $props();
 
   /** name -> card info, once fetched; drives the art and stat line. */
   let info = $state({});
@@ -54,9 +57,7 @@
     if (asked.has(name)) return;
     asked.add(name);
     if (!cache.has(name)) {
-      const res = await fetch(`/api/card?name=${encodeURIComponent(name)}`);
-      if (!res.ok) throw new Error(`card lookup failed for "${name}": ${res.status}`);
-      cache.set(name, await res.json());
+      cache.set(name, await getCard(name));
     }
     info[name] = cache.get(name);
   }
@@ -90,7 +91,7 @@
               onclick={() => c.name && onclick({ name: c.name, code: c.code })}
             >
               {#if c.code}
-                <img src="/pics/{c.code}.jpg" alt={c.name} class="absolute inset-0 w-full h-full object-cover" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+                <img src="{ASSETS}/pics/{c.code}.jpg" alt={c.name} class="absolute inset-0 w-full h-full object-cover" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
               {:else}
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#7a4a2a_0,#3b2314_70%)] border border-amber-900"></div>
                 {#if !c.name}<img src={back} alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />{/if}

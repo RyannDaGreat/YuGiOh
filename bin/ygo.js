@@ -11,9 +11,11 @@
  *     ygo card  "Trap Hole"        # rules text, offline
  */
 
-// Installs the real filesystem as the app volume (src/volume.js) before any
-// duel is read or written. A browser build installs a browser volume instead.
+// Installs the real filesystem as the app volume (src/volume.js) before any duel
+// is read or written, and cards.cdb as the card source (src/cardsource.js) before
+// any card is looked up. A browser build installs the browser backends instead.
 import "../src/volume-node.js";
+import "../src/cardsource-node.js";
 import { Command } from "commander";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";

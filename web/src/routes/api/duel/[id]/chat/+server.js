@@ -5,7 +5,7 @@
  * the duel record; the only thing a message changes is `duels/<id>.chat.json`.
  */
 import { error, json } from "@sveltejs/kit";
-import { chat, parseViewer, sendChat } from "$lib/server/engine.js";
+import { chat, parseViewer, sendChat } from "$lib/engine.js";
 
 export async function GET({ params }) {
   try {

@@ -9,7 +9,7 @@
  * Files: duels/.presence/<duelId>.<seat>.json = {label, kind, at, pid}
  */
 
-import { existsSync, join, mkdirSync, readFileSync, writeFileSync } from "./volume.js";
+import { existsSync, join, mkdirSync, readFileSync, writeFileSync, writerId } from "./volume.js";
 import { DUELS_DIR } from "./store.js";
 
 const PRESENCE_DIR = join(DUELS_DIR, ".presence");
@@ -44,7 +44,7 @@ export function presencePath(id, seat) {
  */
 export function heartbeat(id, seat, kind, now) {
   mkdirSync(PRESENCE_DIR, { recursive: true });
-  writeFileSync(presencePath(id, seat), JSON.stringify({ kind, at: now, pid: process.pid }));
+  writeFileSync(presencePath(id, seat), JSON.stringify({ kind, at: now, pid: writerId() }));
 }
 
 /**

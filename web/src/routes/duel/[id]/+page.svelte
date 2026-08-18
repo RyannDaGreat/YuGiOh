@@ -1,4 +1,6 @@
 <script>
+  import { base } from "$app/paths";
+  import { fork as forkApi, getCard, getDuel, getSleeves, play as playApi, sendChat as sendChatApi, setSleeve } from "$lib/api.js";
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import Table from "$lib/pretty/Table.svelte";
@@ -133,9 +135,6 @@
     return respondSpeCount === 0; // smart
   });
 
-  /** The playback suffix for an API call, so every fetch reads the same position. */
-  const atSuffix = () => (playbackAt === null ? "" : `&at=${playbackAt}`);
-
   /**
    * Command. Loads the unmasked board when debug is on in a seat view, and drops it
    * otherwise. A seat's own payload has hidden codes stripped server-side, so without
@@ -146,8 +145,7 @@
       debugView = null;
       return;
     }
-    const res = await fetch(`/api/duel/${view.id}?as=all${atSuffix()}`);
-    if (res.ok) debugView = await res.json();
+    try { debugView = await getDuel(view.id, "all", playbackAt === null ? undefined : playbackAt); } catch { debugView = null; }
   }
 
   /** Command. Toggles peek and reloads the unmasked board at once, not on the next poll. */
@@ -157,9 +155,8 @@
   }
 
   async function refresh() {
-    const res = await fetch(`/api/duel/${view.id}?as=${view.viewer === 2 ? "all" : view.viewer}${atSuffix()}`);
-    if (!res.ok) return;
-    const next = await res.json();
+    let next;
+    try { next = await getDuel(view.id, view.viewer === 2 ? "all" : view.viewer, playbackAt === null ? undefined : playbackAt); } catch { return; }
     if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) selected = [];
     view = next;
     slider = next.at;
@@ -176,8 +173,7 @@
     busy = true;
     errorText = "";
     const asSeat = view.viewer === 2 ? view.pendingPlayer : view.viewer;
-    const res = await fetch(`/api/duel/${view.id}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ as: asSeat, choice }) });
-    const body = await res.json();
+    const body = await playApi(view.id, asSeat, choice);
     if (!body.ok) errorText = body.error;
     selected = [];
     nameInput = "";
@@ -196,8 +192,7 @@
   async function showCard(c) {
     if (!c || !c.name) return;
     if (!cardCache.has(c.name)) {
-      const res = await fetch(`/api/card?name=${encodeURIComponent(c.name)}`);
-      cardCache.set(c.name, res.ok ? await res.json() : null);
+      cardCache.set(c.name, await getCard(c.name).catch(() => null));
     }
     card = cardCache.get(c.name);
   }
@@ -243,23 +238,21 @@
 
   async function forkHere() {
     if (!forkId) return;
-    const res = await fetch(`/api/duel/${view.id}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ fork: forkId, at: view.at }) });
-    const body = await res.json();
+    const body = await forkApi(view.id, forkId, view.at);
     if (!body.ok) { errorText = body.error; return; }
-    window.location.href = `/duel/${body.id}?as=${view.viewer === 2 ? "all" : view.viewer}`;
+    window.location.href = `${base}/duel/${body.id}?as=${view.viewer === 2 ? "all" : view.viewer}`;
   }
 
   async function loadSleeves() {
-    const res = await fetch("/api/sleeves");
-    if (!res.ok) return;
-    const body = await res.json();
+    let body;
+    try { body = await getSleeves(); } catch { return; }
     sleeves = body.sleeves;
     if (view.viewer !== 2) sleeveChoice = body.choices[view.players[view.viewer]] ?? "default";
   }
 
   async function pickSleeve(id) {
     sleeveChoice = id;
-    await fetch("/api/sleeves", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ player: view.players[view.viewer], sleeve: id }) });
+    await setSleeve(view.players[view.viewer], id);
     await refresh();
   }
 
@@ -268,8 +261,7 @@
     const text = chatText.trim();
     if (!text) return;
     chatText = "";
-    const res = await fetch(`/api/duel/${view.id}/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ as: view.viewer, text }) });
-    const body = await res.json();
+    const body = await sendChatApi(view.id, view.viewer, text);
     if (!body.ok) { errorText = body.error; return; }
     await refresh();
   }
@@ -303,7 +295,7 @@
   $effect(() => {
     document.title = myDecision ? `🔔 your move — YuGi ${view.id}` : `YuGi — ${view.id}`;
     // Autoplay is blocked until the page has seen a gesture; a rejected play() is expected and harmless.
-    if (myDecision && !bellRung && sound) new Audio(`/sfx/turn-bell.${BELL_EXT}`).play().catch(() => {});
+    if (myDecision && !bellRung && sound) new Audio(`${base}/sfx/turn-bell.${BELL_EXT}`).play().catch(() => {});
     bellRung = myDecision;
   });
 
@@ -377,7 +369,7 @@
 
 <main class="min-h-screen bg-[#120c08] text-amber-50 p-3 flex flex-col gap-3">
   <header class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-    <a href="/" class="text-amber-300 hover:underline inline-flex items-center gap-1"><Icon icon="mdi:arrow-left" />duels</a>
+    <a href="{base}/" class="text-amber-300 hover:underline inline-flex items-center gap-1"><Icon icon="mdi:arrow-left" />duels</a>
     <span class="font-mono text-amber-200">{view.id}</span>
     <span>You: <b>{viewerLabel}</b></span>
     <span class="text-amber-100/70">seat: <a class="underline" href="?as=0">P0</a> <a class="underline" href="?as=1">P1</a> <a class="underline" href="?as=all">all</a></span>

@@ -1,4 +1,6 @@
 <script>
+  import { base } from "$app/paths";
+  import { getCard } from "$lib/api.js";
   import Icon from "@iconify/svelte";
   import playCircle from "@iconify-icons/mdi/play-circle";
   import arrowLeft from "@iconify-icons/mdi/arrow-left";
@@ -68,9 +70,7 @@
     hovered = c;
     if (asked.has(c.name)) return;
     asked.add(c.name);
-    const res = await fetch(`/api/card?name=${encodeURIComponent(c.name)}`);
-    if (!res.ok) throw new Error(`card lookup failed for "${c.name}": ${res.status}`);
-    cardText[c.name] = await res.json();
+    cardText[c.name] = await getCard(c.name);
   }
 </script>
 
@@ -103,7 +103,7 @@
 {/snippet}
 
 <main class="min-h-screen bg-[#120c08] text-amber-50 p-6 w-full flex flex-col gap-6">
-  <a class="inline-flex items-center gap-1 text-amber-300 underline text-sm w-fit" href="/decks">
+  <a class="inline-flex items-center gap-1 text-amber-300 underline text-sm w-fit" href="{base}/decks">
     <Icon icon={arrowLeft} /> Deck Library
   </a>
 
@@ -122,7 +122,7 @@
       </div>
     </div>
     <a
-      href="/?p{data.seat}={data.id}#new-duel"
+      href="{base}/?p{data.seat}={data.id}#new-duel"
       class="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-amber-300 text-amber-950 font-bold hover:bg-amber-200 transition-colors"
     >
       <Icon icon={playCircle} /> Play this deck as P{data.seat}{data.seat === 0 ? " (goes 1st)" : " (goes 2nd)"}

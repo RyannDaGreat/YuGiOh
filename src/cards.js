@@ -1,25 +1,46 @@
 /**
- * Offline card database access.
+ * Offline card knowledge: decoding, labelling and memoizing what the card
+ * database says.
  *
- * Everything here reads the vendored Project Ignis `cards.cdb`, the exact same
- * database EDOPro ships, so passcodes line up 1:1 with the Lua scripts the
- * engine executes. No network access at any point — an agent mid-duel must be
- * able to look up any card's full effect text without leaving the machine.
+ * The bytes themselves come from `cardsource.js` — cards.cdb under Node, a
+ * baked JSON bundle in a browser — but every card *fact* is derived here, so
+ * both hosts agree on what a card is down to the last bit. No network access at
+ * any point: an agent mid-duel must be able to look up any card's full effect
+ * text without leaving the machine.
+ *
+ * This module owns the decoding of cards.cdb's cramped column layout (packed
+ * setcodes, a `level` column carrying three numbers, DEF doubling as Link
+ * markers) and the type/attribute/race label tables. A source hands over rows;
+ * nothing below this line knows where they came from.
  */
 
-import { DatabaseSync } from "node:sqlite";
-import { readFileSync, existsSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { all, idByName, rowById, script, search, textById } from "./cardsource.js";
 
-export const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CDB_PATH = join(REPO_ROOT, "vendor/BabelCDB/cards.cdb");
+/**
+ * Query. Absolute path of the repository root — where `vendor/`, `duels/` and
+ * `src/decks/` live — derived from this file's own location rather than the
+ * process's cwd, so `ygo` works from any directory.
+ *
+ * In a browser there is no repo and no disk: the module URL is `http(s):`, and
+ * the answer is "". Callers there must not be building filesystem paths at all,
+ * so an empty root makes that mistake obvious instead of inventing one. This
+ * avoids `node:url`/`node:path`, which a browser bundle cannot resolve.
+ *
+ * Returns:
+ *     string: Absolute path with no trailing slash, or "" off-disk.
+ *
+ * Examples:
+ *     >>> repoRoot().endsWith("/YuGi")   // true   (under Node, from a clone in YuGi/)
+ *     >>> // served from https://example.com/YuGiOh/_app/...  ->  ""
+ */
+function repoRoot() {
+  const dir = new URL(".", import.meta.url);
+  if (dir.protocol !== "file:") return "";
+  // dir is ".../<root>/src/"; dropping the last segment leaves the root.
+  return decodeURIComponent(dir.pathname).replace(/\/[^/]*\/$/, "");
+}
 
-/** Script lookup order: official card scripts first, then the shared library. */
-const SCRIPT_DIRS = [
-  join(REPO_ROOT, "vendor/CardScripts/official"),
-  join(REPO_ROOT, "vendor/CardScripts"),
-];
+export const REPO_ROOT = repoRoot();
 
 /** cards.cdb packs up to 4 archetype setcodes into one integer, 16 bits each. */
 const SETCODE_BITS = 16;
@@ -37,23 +58,11 @@ const LSCALE_SHIFT = 24;
 /** Bit in the `type` column marking a Link monster, whose `def` column holds markers. */
 const TYPE_LINK = 0x4000000;
 
-const db = new DatabaseSync(CDB_PATH, { readOnly: true });
-// setcode (4 packed 16-bit codes) and race (64-bit in modern cores) can exceed
-// 2^53; node:sqlite refuses to hand those over as numbers, so read them as text.
-const stmtById = db.prepare("SELECT id, ot, alias, CAST(setcode AS TEXT) AS setcode, type, atk, def, level, CAST(race AS TEXT) AS race, attribute, category FROM datas WHERE id = ?");
-const stmtTextById = db.prepare("SELECT * FROM texts WHERE id = ?");
-// Prefer the canonical printing (alias = 0) and TCG/OCG-legal cards (ot & 3)
-// over alternate arts, anime, and video-game versions that share a name.
-const stmtIdByName = db.prepare("SELECT t.id FROM texts t JOIN datas d ON d.id = t.id WHERE t.name = ? ORDER BY (d.alias != 0), ((d.ot & 3) = 0), t.id LIMIT 1");
-const stmtSearch = db.prepare(
-  "SELECT t.id, t.name FROM texts t WHERE t.name LIKE ? ORDER BY length(t.name), t.name LIMIT ?",
-);
-
-// cards.cdb is immutable for the life of the process, so the per-code / per-name
+// The card database is immutable for the life of the process, so the per-code / per-name
 // lookups below are memoized. deckLibrary() alone resolves several thousand names
 // (37 decks × validate + signature), and the core calls cardReader on every
-// replayed card — without caching, /decks and each replay re-query SQLite for the
-// same rows every time. Successful and null results are cached; an unknown NAME
+// replayed card — without caching, /decks and each replay re-query the source for
+// the same rows every time. Successful and null results are cached; an unknown NAME
 // throws in codeOf and is never cached (so a real typo still fails loudly).
 const codeByNameCache = new Map();
 const readerByCodeCache = new Map();
@@ -85,7 +94,32 @@ export function unpackSetcodes(packed) {
 }
 
 /**
- * Query. Reads one card's engine-facing data from cards.cdb.
+ * Pure function. The inverse of the LEVEL_MASK/RSCALE_SHIFT/LSCALE_SHIFT split
+ * above: folds a Level and its two Pendulum Scales back into cards.cdb's single
+ * `level` column.
+ *
+ * Only a source that stores the three numbers separately needs this — the baked
+ * browser bundle does — and it lives here so the packed layout is described in
+ * exactly one place.
+ *
+ * Args:
+ *     level (number): Level, Rank, or Link Rating (0-255).
+ *     lscale (number): Left Pendulum Scale (0 for a non-Pendulum card).
+ *     rscale (number): Right Pendulum Scale.
+ *
+ * Returns:
+ *     number: The packed `datas.level` value.
+ *
+ * Examples:
+ *     >>> packLevel(8, 0, 0)   // 8         (Blue-Eyes White Dragon)
+ *     >>> packLevel(7, 4, 4)   // 67371015  (Odd-Eyes Pendulum Dragon, Scale 4)
+ */
+export function packLevel(level, lscale, rscale) {
+  return (level & LEVEL_MASK) | (rscale << RSCALE_SHIFT) | (lscale << LSCALE_SHIFT);
+}
+
+/**
+ * Query. Reads one card's engine-facing data from the installed card source.
  *
  * This is the function handed to the core as its `cardReader`. Returning null
  * for an unknown passcode is expected behaviour, not an error — the core asks
@@ -103,7 +137,7 @@ export function unpackSetcodes(packed) {
  */
 export function cardReader(code) {
   if (readerByCodeCache.has(code)) return readerByCodeCache.get(code);
-  const row = stmtById.get(code);
+  const row = rowById(code);
   if (!row) { readerByCodeCache.set(code, null); return null; }
   const isLink = (row.type & TYPE_LINK) !== 0;
   const data = {
@@ -126,7 +160,7 @@ export function cardReader(code) {
 }
 
 /**
- * Query. Loads a Lua card or library script by name from the vendored scripts.
+ * Query. Loads a Lua card or library script by name from the installed source.
  *
  * Args:
  *     name (string): Script path the core requests, e.g. "c89631139.lua".
@@ -139,12 +173,7 @@ export function cardReader(code) {
  *     >>> scriptReader("c999999999.lua")                // null
  */
 export function scriptReader(name) {
-  const base = name.split("/").pop();
-  for (const dir of SCRIPT_DIRS) {
-    const path = join(dir, base);
-    if (existsSync(path)) return readFileSync(path, "utf8");
-  }
-  return null;
+  return script(name);
 }
 
 /**
@@ -167,10 +196,10 @@ export function scriptReader(name) {
 export function codeOf(name) {
   const cached = codeByNameCache.get(name);
   if (cached !== undefined) return cached;
-  const row = stmtIdByName.get(name);
-  if (!row) throw new Error(`Card not found in cards.cdb: ${JSON.stringify(name)}`);
-  codeByNameCache.set(name, row.id);
-  return row.id;
+  const id = idByName(name);
+  if (id === null) throw new Error(`Card not found in cards.cdb: ${JSON.stringify(name)}`);
+  codeByNameCache.set(name, id);
+  return id;
 }
 
 /**
@@ -190,8 +219,8 @@ export function codeOf(name) {
  */
 export function cardInfo(code) {
   if (infoByCodeCache.has(code)) return infoByCodeCache.get(code);
-  const data = stmtById.get(code);
-  const text = stmtTextById.get(code);
+  const data = rowById(code);
+  const text = textById(code);
   const info = (!data || !text) ? null : {
     code: data.id,
     name: text.name,
@@ -224,7 +253,7 @@ export function cardInfo(code) {
  */
 export function cardName(code) {
   if (nameByCodeCache.has(code)) return nameByCodeCache.get(code);
-  const name = stmtTextById.get(code)?.name ?? `card#${code}`;
+  const name = textById(code)?.name ?? `card#${code}`;
   nameByCodeCache.set(code, name);
   return name;
 }
@@ -244,10 +273,9 @@ export function cardName(code) {
  *     >>> cardString(46986414, 0)  // "Dark Magician" script string 0 (if defined) or null
  */
 export function cardString(code, index) {
-  const row = stmtTextById.get(code);
+  const row = textById(code);
   if (!row) return null;
-  const value = row[`str${index + 1}`];
-  return value ? value : null;
+  return row.strings[index] || null;
 }
 
 /** Type bits from OcgType that name what kind of card this is. */
@@ -411,7 +439,7 @@ export function summarizeCard(code) {
  *     >>> searchCards("zzzznotacard", 5)    // []
  */
 export function searchCards(term, limit) {
-  return stmtSearch.all(`%${term}%`, limit);
+  return search(term, limit);
 }
 
 /**
@@ -424,5 +452,5 @@ export function searchCards(term, limit) {
  *     >>> allCards().length > 14000 // true
  */
 export function allCards() {
-  return db.prepare("SELECT t.id AS code, t.name, t.desc FROM texts t JOIN datas d ON d.id = t.id ORDER BY t.name, t.id").all();
+  return all();
 }

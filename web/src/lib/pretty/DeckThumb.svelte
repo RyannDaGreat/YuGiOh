@@ -1,4 +1,5 @@
 <script>
+  import { ASSETS } from "$lib/assets.js";
   /**
    * A deck's thumbnail. Official products (category "structure") show their real
    * box cover art from /boxart/<setCode>, letterboxed in the card-shaped frame so
@@ -23,7 +24,7 @@
 {#if showBox && !boxMissing}
   <div class="relative card-box card-{size} card-back-bg overflow-hidden shadow-md border border-amber-900">
     <img
-      src="/boxart/{setCode}"
+      src="{ASSETS}/boxart/{setCode}"
       alt="{name} box art"
       title={name}
       class="absolute inset-0 w-full h-full object-contain"

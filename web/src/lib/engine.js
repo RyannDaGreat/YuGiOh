@@ -1,17 +1,22 @@
 /**
- * Server-side bridge to the duel engine in ../../../../src. Everything the web
+ * Bridge from the web UI to the duel engine in ../../../src. Everything the web
  * UI can do goes through session.js — the same module the CLI uses — so the two
  * interfaces cannot disagree about a duel.
+ *
+ * Host-agnostic on purpose: served from Node this runs behind the /api routes;
+ * built as a static page it runs IN the browser, called directly by $lib/api.js.
+ * The only difference is which volume and card source were installed at boot
+ * (hooks.server.js vs $lib/boot.js) — nothing in here knows or cares.
  */
 
-import { cardInfo, codeOf, summarizeCard } from "../../../../src/cards.js";
-import { chosenOption } from "../../../../src/menu.js";
-import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../../../../src/session.js";
-import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime } from "../../../../src/store.js";
-import { victoryString } from "../../../../src/strings.js";
+import { cardInfo, codeOf, summarizeCard } from "../../../src/cards.js";
+import { chosenOption } from "../../../src/menu.js";
+import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../../../src/session.js";
+import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime } from "../../../src/store.js";
+import { victoryString } from "../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
-import { heartbeat, presence } from "../../../../src/presence.js";
-import { appendChat, chatUpTo, loadChat } from "../../../../src/chat.js";
+import { heartbeat, presence } from "../../../src/presence.js";
+import { appendChat, chatUpTo, loadChat } from "../../../src/chat.js";
 
 export { listDecks, listDuels, parseViewer };
 

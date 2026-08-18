@@ -1,0 +1,54 @@
+# Builds the static flavour of the web UI and publishes it to GitHub Pages.
+#
+# The static build needs no vendor/ and no setup.sh: card data, scripts and art
+# are baked into web/static (bin/bake-carddata.js, bin/bake-pics.js) and
+# committed. So this is just: install, build, upload, deploy.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; a newer push supersedes an in-flight one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+      - name: Install (root engine + web UI)
+        run: |
+          npm ci
+          cd web && npm ci
+      - name: Build static site
+        run: bin/build-static.sh
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

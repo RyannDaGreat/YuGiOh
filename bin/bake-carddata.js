@@ -18,9 +18,12 @@
  */
 
 import "../src/volume-node.js";
+import "../src/cardsource-node.js";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { exportArchive } from "../src/archive.js";
 import { REPO_ROOT, cardInfo, codeOf } from "../src/cards.js";
+import { rowById, textById } from "../src/cardsource.js";
 import { listDecks, loadDeck } from "../src/store.js";
 
 const OUT = join(REPO_ROOT, "web/static/carddata");
@@ -47,12 +50,19 @@ const cards = {};
 for (const code of [...codes].sort((a, b) => a - b)) {
   const info = cardInfo(code);
   if (!info) throw new Error(`no card data for passcode ${code} — is cards.cdb current?`);
+  // setcode is what archetype checks (IsSetCard) match on, and the per-card
+  // script strings are the effect names prompts show — both invisible until a
+  // card misbehaves in the browser, so they ride along from the raw rows.
+  const row = rowById(code);
+  const text = textById(code);
   cards[code] = {
     code: info.code, name: info.name, desc: info.desc,
     atk: info.atk, def: info.def, level: info.level,
     lscale: info.lscale, rscale: info.rscale,
     type: info.type, race: String(info.race), attribute: info.attribute,
     alias: info.alias ?? 0,
+    setcode: String(row?.setcode ?? "0"),
+    strings: text?.strings ?? [],
   };
 }
 writeFileSync(join(OUT, "cards.json"), JSON.stringify(cards));
@@ -77,9 +87,21 @@ for (const code of codes) {
 // 3. System strings (phase names, prompts, victory reasons).
 writeFileSync(join(OUT, "strings.conf"), readFileSync(STRINGS_SRC));
 
+// 4. The built-in decks, as an archive (src/archive.js) holding only src/decks/*.
+//    A fresh browser has an empty volume; boot imports this with replace=false,
+//    so the decks appear once and a user's later edits are never overwritten.
+const decksOnly = exportArchive();
+decksOnly.files = Object.fromEntries(Object.entries(decksOnly.files).filter(([path]) => path.startsWith("src/decks/")));
+writeFileSync(join(OUT, "decks-seed.json"), JSON.stringify(decksOnly));
+
 const manifest = {
   bakedFrom: "vendor/CardScripts + vendor/BabelCDB (see setup.sh for the pinned commits)",
+  // The exact script files present, so a browser fetches these and nothing else:
+  // a static host has no directory listing, and a vanilla card legitimately has no
+  // script -- guessing "c<code>.lua" for every card would 404 on all 79 of them.
+  scripts: readdirSync(join(OUT, "scripts")).filter((n) => n.endsWith(".lua")).sort(),
   cards: Object.keys(cards).length,
+  seededDecks: Object.keys(decksOnly.files).length,
   sharedScripts: shared,
   cardScripts: scripts,
   vanillaCards: vanilla,
@@ -88,5 +110,5 @@ writeFileSync(join(OUT, "manifest.json"), JSON.stringify(manifest, null, 1));
 
 const size = (dir) => readdirSync(dir, { withFileTypes: true }).reduce((n, e) =>
   n + (e.isDirectory() ? size(join(dir, e.name)) : readFileSync(join(dir, e.name)).length), 0);
-console.log(`baked ${manifest.cards} cards, ${shared} shared + ${scripts} card scripts (${vanilla} vanillas need none)`);
+console.log(`baked ${manifest.cards} cards, ${shared} shared + ${scripts} card scripts (${vanilla} vanillas need none), ${manifest.seededDecks} decks`);
 console.log(`  -> web/static/carddata  ${(size(OUT) / 1024 / 1024).toFixed(2)} MB`);

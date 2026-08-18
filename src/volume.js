@@ -156,6 +156,21 @@ export function join(...parts) {
 }
 
 /**
+ * Query. A tag unique to this writer, for temp-file names and heartbeats: the
+ * process id under Node, a per-page random token in a browser (which has no pid).
+ *
+ * Returns:
+ *     string
+ *
+ * Examples:
+ *     >>> writerId()   // "48213" (Node)  or  "w-3f9a1c" (browser)
+ */
+export function writerId() {
+  return typeof process !== "undefined" && process.pid ? String(process.pid) : PAGE_WRITER_ID;
+}
+const PAGE_WRITER_ID = `w-${Math.random().toString(16).slice(2, 8)}`;
+
+/**
  * Query. A random id, from the Web Crypto API that Node 19+ and every browser
  * both expose on `globalThis` — so this needs no node:crypto import.
  *

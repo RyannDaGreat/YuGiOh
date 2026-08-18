@@ -18,3 +18,10 @@ duels/.presence/
 # Local API keys. NEVER committed — this file is the only place secrets live.
 .env.local
 .env*.local
+
+# Build product of bin/build-static.sh (copied from the repo-root PLAYER.md).
+web/static/PLAYER.md
+
+# Worktree of the orphan `assets` branch (bin/publish-assets.sh): full-resolution card
+# art and box art live there, referenced by URL, so main stays small.
+.assets/

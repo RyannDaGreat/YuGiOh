@@ -1,4 +1,5 @@
 <script>
+  import { base } from "$app/paths";
   /**
    * The duel table: opponent on top (mirrored), you at the bottom, LP counters,
    * phase strip, hands, and an effects overlay (daggers, flashes, floating
@@ -25,7 +26,7 @@
   import { flip } from "svelte/animate";
   import { sfx } from "./sound.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = ["/img/card-back.png", "/img/card-back.png"], attackers = [] } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [] } = $props();
 
   /**
    * Zone ids of monsters that may still declare an attack ("1-m-3"), from the core's

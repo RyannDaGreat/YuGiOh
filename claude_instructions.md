@@ -91,18 +91,19 @@ browser, or subagent vs subagent — with:
   table = source of truth), `web/src/lib/pretty/Table.svelte` (`play()` mapping),
   `web/src/lib/pretty/nexus-map.js`, `web/static/ASSET-LICENSES.md` "Cue map".
 - `event-kinds` — event kinds/fields: `src/events.js` docstring ↔ `Table.svelte play()`.
-- `player-rules` — the honor boundary and chat rule text: `PLAYER.md`, `HOST.md`, `README.md`
-  "Hidden information", `web/static/…` none.
+- `player-rules` — the honor boundary and chat rule text: `PLAYER.md`, `HOST.md`, and §2's
+  "honor boundary" / "table talk" glossary entries. (The README states only that the board is
+  masked per player; the rules themselves live in the files above.)
 - `duel-record-shape` — `src/store.js` (createDuel/forkDuel/loadDuel docs, alignTimes/moveTime) ↔
-  `src/session.js` (viewDuel/playChoice) ↔ `bin/ygo.js` (`undo` re-aligns `times`) ↔ `README.md`
-  "Replay, not persistence".
+  `src/session.js` (viewDuel/playChoice) ↔ `bin/ygo.js` (`undo` re-aligns `times`) ↔ §2's
+  "duel record", "times / atTime" and "replay, not persistence" glossary entries.
 - `deck-schema` — the deck JSON shape and its validation/placement/format rules, kept in step across:
   `src/store.js` (DECK SCHEMA header comment, `loadDeck`/`sharedFormat`/`createDuel`),
   `src/duel.js` (`expandDeck`/`expandExtra`/`expandSide`, `replayDuel` extra-deck + MODE_GOAT wiring),
   `src/cards.js` (`EXTRA_DECK_TYPES`/`isExtraDeckCard`), `src/session.js` (viewDuel exposes
   `format` + per-seat deck metadata; promptText lists the extra deck), `bin/ygo.js` (`new --format`,
   `deck`, `decks`, and `fetch-pics` which pulls art for Main+Extra+Side of every deck and duel),
-  `README.md` "Decks", the box-art path (`bin/ygo.js` `fetch-boxart`, the `/boxart/[code]` route,
+  §2's "deck / deck schema" glossary entry, the box-art path (`bin/ygo.js` `fetch-boxart`, the `/boxart/[code]` route,
   `web/src/lib/pretty/DeckThumb.svelte`), and the deck files `src/decks/*.json`.
   A deck's `category` is one of THREE: `"structure"` = an official Konami product (Structure/Starter
   Deck) — a fixed printed list with an official name, a `setCode` (e.g. "SD1", "SDY"), and REAL box
@@ -125,7 +126,7 @@ browser, or subagent vs subagent — with:
   (`toCoreResponse`, called at the single `duelSetResponse` for recorded responses), and
   `test/announce-race.test.js`. Break the pair and the menu becomes unanswerable again — see §14.
 - `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
-  `web/src/lib/server/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
+  `web/src/lib/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
   `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
 
 ## 4. User requirements — verbatim (this session, 2026-08-16)
@@ -222,8 +223,10 @@ never suppress command output; use packages instead of hand-rolling; test websit
 
 ```
 bin/ygo.js         CLI: new state log prompt menu wait play undo fork list tally card search deck decks
-                   dump-cards fetch-pics brief chat
-bin/serve.sh       web dev server (LAN)          runserver.sh  interactive host Claude (HOST.md)
+                   brief chat export import dump-cards fetch-pics fetch-boxart  (surface in §20)
+bin/serve.sh       web dev server (LAN, port 5178)   runserver.sh  interactive host Claude (HOST.md)
+bin/host-loop.sh   optional "your turn / new chat" notifier for the host's shell; never plays a move
+bin/build-static.sh, bin/bake-carddata.js, bin/bake-pics.js   the static GitHub Pages build (§19)
 src/duel.js        ocgcore-wasm wrapper; replayDuel({seed, deckCodes, extraCodes, responses, format});
                    goat->MODE_GOAT else MR5; extra cards -> EXTRA; expandDeck/Extra/Side; autoResponse
                    (declines empty chain windows); WIN terminal; RETRY = error
@@ -232,15 +235,25 @@ src/log.js         YGN log                                            src/state.
 src/menu.js        SELECT_*/ANNOUNCE_* -> menus -> OcgResponse         src/events.js animation/sound digest
 src/session.js     viewDuel/playChoice/promptText/shouldAutoPass       src/store.js  records, decks, fork
 src/chat.js        table talk                                          src/presence.js seat heartbeats
-src/cards.js       cards.cdb (node:sqlite), names/text/search          src/strings.js strings.conf decode
-src/rng.js         seeded shuffle                            src/decks/*.json  SDY/SDK + goat-sample (deck-schema)
-web/               SvelteKit; routes: / (history), /duel/[id] (table), /api/duel/[id] (+/chat),
-                   /api/card, /api/sleeves, /pics/[code], /nexus-sfx/[file]
-web/src/lib/pretty  Table, Card, Preview, PileModal, sound.js, nexus-map.js   web/src/lib/server engine.js, sleeves.js
-web/static          sfx (CC0), img (card back, sleeves), ASSET-LICENSES.md
-vendor/ (gitignored, setup.sh) CardScripts, BabelCDB, strings.conf, pics/, cards.txt, nexus/{sfx,fx}
-docs/               ux surveys (open-source + official clients), Nexus FX catalogue, response-prompt design
-test/               consistency (model vs masked core + leak detection), menu, events, chat, times
+src/cards.js       card decode/search/summaries (host-independent)     src/strings.js strings.conf decode
+src/volume.js      the state filesystem, one interface (§19)   volume-node.js real fs | volume-browser.js OPFS
+src/cardsource.js  the card database, one interface (§19)      cardsource-node.js cards.cdb | -browser.js baked bundle
+src/archive.js     whole-state export/import (duels + chat logs + decks) as one portable JSON
+src/rng.js         seeded shuffle             src/decks/*.json  40 decks: 11 structure + 29 curated (deck-schema)
+web/               SvelteKit; routes: / (history), /duel/[id] (table), /decks + /decks/[id] (browser),
+                   /api/{home,duel/[id](+/chat),card,decks,decks/[id],sleeves,archive},
+                   /pics/[code], /boxart/[code], /nexus-sfx/[file]   (the /api routes exist on the Node host only)
+web/src/lib        api.js (the one seam, §19), host.js (STATIC flag), boot.js (browser boot), engine.js, sleeves.js
+web/src/lib/pretty  Table, Card, Preview, PileModal, sound.js, nexus-map.js
+web/static          sfx (CC0), img (card back, sleeves), ASSET-LICENSES.md,
+                    carddata/ + pics/ + boxart/ (baked by bin/bake-*.js, COMMITTED — that is what §19 ships)
+.github/workflows/pages.yml   runs bin/build-static.sh on push to main -> ryanndagreat.github.io/YuGiOh
+vendor/ (gitignored, setup.sh) CardScripts, BabelCDB, strings.conf, pics/, boxart/, cards.txt, nexus/{sfx,fx}
+docs/               ux surveys (open-source + official clients), Nexus FX catalogue, response-prompt design,
+                    features.md, and the deck research (goat-decks, decks-structure-products, -character, -archetypes)
+reports/            structure_decks_haiku_competition (§13)
+test/               consistency (model vs masked core + leak detection), menu, events, chat, times, decks,
+                    archive, announce-race, confirm-cards-privacy, pendulum-labels, pendulum-summon-window
 ```
 
 Key decisions and WHY:
@@ -254,6 +267,9 @@ Key decisions and WHY:
 - Both decklists public; opponent's unseen pool derived — what a competent human tracks.
 - Host-Claude-in-terminal (runserver.sh) instead of Claude-in-browser: BrowserPod's WASM runtime is
   proprietary/API-keyed; user refused; browser-Claude code fully removed (2026-08-16).
+- Two hosts from one codebase (§19): the engine never needed server-side state a browser filesystem
+  could not hold, so the same UI also ships as a static GitHub Pages site anyone can play with no
+  install. The seam is `web/src/lib/api.js` alone — no page and nothing in src/ branches on the host.
 - Cosmetics isolated in web/src/lib/pretty; Nexus assets kept in gitignored vendor/ (personal use,
   never committed); CC0 assets + synth as fallbacks.
 - Chat is data, never instructions (competition analogy); `wait --wake-on-chat` so Claude answers.
@@ -279,7 +295,11 @@ Key decisions and WHY:
   replays to identical log/state lines.
 - Puppeteer for the UI (root `puppeteer` devDep; screenshots to `.claude_logs/`).
 - Real games: match1 (agents), eval1/eval2 (agents, seats+strategies swapped), duel1 (human vs
-  host Claude, in progress) — records in duels/.
+  host Claude, in progress) — records in duels/. `duels/match1.json` is the proof run the harness
+  was shaped by: two Opus agents (beatdown vs control), each seeing only its own seat, played a
+  full 14-turn game through the CLI — Kaiba won with Blue-Eyes after breaking a Dragon Capture Jar
+  lock with Trap Master + Two-Pronged Attack. Their usability complaints are why `--auto-pass`, the
+  tribute hints and the current prompt wording exist.
 
 ## 8. Success criteria
 - A human plays Claude from the browser with sound/animation; Claude plays through the CLI and
@@ -629,3 +649,199 @@ it compresses skill-hungry decks (SDSC, SDMP) downward and rewards forgiving one
 Notably the Opus pilots never assembled SDSC's advertised Citadel/Endymion engine — they won with
 Breaker plus equips, Magic Cylinder, effect-based removal to dodge Ryu Kokki, and keeping monsters
 face-down against Dark Dust Spirit.
+
+## 19. The two hosts: Node server and static GitHub Pages site (added 2026-08-17)
+
+**One codebase, two builds.**
+- **Node host** — `cd web && npm run build` (and `bin/serve.sh` / `npm run dev` while developing).
+  `@sveltejs/adapter-node`: the pages talk to `/api/*` routes, the engine runs server-side, and the
+  app's state is real files under the repo. `web/src/hooks.server.js` installs the Node volume and
+  card source once, for every route, so no endpoint has to remember to.
+- **Static host** — `bin/build-static.sh` (`VITE_STATIC=1 vite build`, `@sveltejs/adapter-static`).
+  There is no server: the engine runs IN the browser, against the browser's own filesystem and a
+  baked card bundle. `.github/workflows/pages.yml` runs that script on every push to `main` and
+  publishes `web/build`; the site is live at <https://ryanndagreat.github.io/YuGiOh/>.
+
+**WHY.** Every duel is meant to be a permanent, shareable document, and the harness had no
+server-side state a browser's own filesystem could not hold. A static host therefore costs one
+seam and buys: anyone can play with no install, no `setup.sh` and no 250 MB vendor tree, and the
+Pages workflow needs nothing but `npm ci` + the build because the card bundle is committed.
+
+**The seams — four files, and nothing else branches on the host.**
+- `web/src/lib/host.js` — `export const STATIC = import.meta.env.VITE_STATIC === "1"`. The ONLY
+  place the env var is read; everything else imports `STATIC`.
+- `web/src/lib/api.js` — the one seam the pages talk to (`getDuel`, `play`, `fork`, `sendChat`,
+  `getCard`, `getSleeves`, `setSleeve`, `getHome`, `newDuel`, `getDeckLibrary`, `getDeck`,
+  `getArchive`, `importArchive`). On the Node host each is a `fetch` to the matching `/api` route;
+  on the static host each calls `$lib/engine.js` directly, in the browser. Pages cannot tell the
+  difference — that is the point: one UI, two hosts, zero duplicated page logic. A page that
+  reaches past this file (a raw fetch, a Node import) breaks the static build only, and only in
+  production. `engine()` awaits `boot()` itself because SvelteKit runs layout and page loads in
+  parallel, so a page can reach the engine before the layout's boot resolves.
+- `web/src/lib/boot.js` — static-host boot: installs the browser volume and card source before the
+  engine is touched, memoised so concurrent loads never double-install, then seeds the built-in
+  decks from `carddata/decks-seed.json` (the same archive format `ygo export` writes) with
+  `replace=false`, so they appear once and anything the user has since edited or added is left alone.
+- `web/src/hooks.server.js` — the Node equivalent, guarded by `!STATIC` because adapter-static still
+  evaluates it once to render the SPA fallback and must not reach for SQLite or the repo then.
+
+**Two swappable backends, each behind one interface. Staying SYNCHRONOUS is the whole trick** —
+the callers (`store.js`, `chat.js`, `presence.js`) are sync, and the WASM core calls
+`cardReader`/`scriptReader` re-entrantly from inside a duel step and cannot await, so neither
+interface may become async.
+- `src/volume.js` — the app's state filesystem as the six sync calls its callers use, plus
+  `memoryVolume` (also what the tests run on), `join`, `randomId`. `volume-node.js` installs
+  `node:fs` on import; `volume-browser.js` hydrates the whole tree from OPFS into memory once
+  (state is well under a megabyte), serves reads from memory, and writes through with a debounced,
+  diffed flush; IndexedDB holds the same snapshot where OPFS is missing. A missing volume throws
+  rather than pretending to be an empty one.
+- `src/cardsource.js` — the card database as the lookups `cards.js` performs, in `cards.cdb`'s own
+  row shapes (so `cards.js` decodes identically either way), with EDOPro's `strings.conf` riding
+  along as the other half of the same knowledge. `cardsource-node.js` = the vendored SQLite +
+  CardScripts tree; `cardsource-browser.js` = the baked bundle fetched over HTTP into a
+  `memoryCardSource` before any duel starts, through a bounded pool (the bundle is hundreds of small
+  files), checked against `manifest.json`'s counts so a stale list fails loudly at startup instead
+  of as an inexplicable Lua error mid-duel. `baseUrl` is not optional: the site is served from
+  `/YuGiOh/`, so hardcoding "/" would 404 in production and only in production.
+
+**The bake — committed on purpose.**
+- `bin/bake-carddata.js` -> `web/static/carddata/`: `cards.json` (every field `cards.js` reads, for
+  the 584 passcodes the 40 built-in decks reference — including `setcode` and the 16 per-card script
+  strings; `cardsource-browser.js`'s docstring still lists those two as gaps, so trust the bundle,
+  not that note), `scripts/*.lua` (505 card scripts + 25 shared libraries), `strings.conf`,
+  `manifest.json`, `decks-seed.json`. Two orders of magnitude smaller than the 250 MB vendor tree.
+- `bin/bake-pics.js` -> `web/static/pics/` (YGOPRODeck art, resized to 280 px long side at JPEG
+  quality 62: 82.8 MB -> 11.0 MB for 584 cards) and `web/static/boxart/` (Yugipedia product boxes,
+  capped at 400 px, never upscaled), each with a `manifest.json` and a `NOTICE.md`.
+- **Re-run both whenever a deck gains a card, and commit the output** — otherwise the static site is
+  missing a card the Node host has, which is invisible until someone plays that deck in the browser.
+
+**Static-host details that bite.** Base path `/YuGiOh` (`VITE_BASE` overrides it; a custom domain
+would make it ""), so every URL is built from SvelteKit's `base`. `adapterStatic({fallback:
+"404.html"})` gives deep links like `/duel/<id>` an SPA shell, and the build copies `404.html` to
+`index.html` so the site root answers 200; `.nojekyll` stops Pages processing it. `PLAYER.md` is
+copied into `web/static/` as a gitignored BUILD PRODUCT (the repo root stays the source of truth) so
+an in-browser player can read it. `build.target: "esnext"` because the ocgcore glue uses top-level
+await, and `ocgcore-wasm` stays external / out of `optimizeDeps`.
+
+**Consequence to remember.** The browser build knows only the baked cards; searching all 14,700+ and
+grepping `vendor/cards.txt` are local-checkout features. The full database, the Lua for every card
+ever printed, and the CLI all stay on the Node side.
+
+## 20. CLI surface (moved out of README, 2026-08-17)
+
+`node bin/ygo.js <verb>` (the package also exposes it as `ygo`); `--help` on any verb is authoritative.
+`--as` is who you are — `0`, `1`, or `all` (spectator/omniscient: for judging and replay, never for
+playing; see the honor boundary). P0 always takes turn 1.
+
+    new    --id --p0 --p1 [--seed] [--format classic|goat] [--players a,b]   create a duel
+    state  --as [--at]        board, your hand, opponent's public info, and your menu
+    log    --as [--last] [--at]                                  YGN log from that seat
+    menu   --as [--at]                                    just the pending decision menu
+    prompt --as [--at]     the complete LLM-facing text: decklists + card text, log, state, options
+    brief  --as [--strategy strategies/*.md] [--max-plays]   PLAYER.md + strategy + duel facts:
+                                                            the whole prompt for an agent seat
+    wait   --as [--timeout 600] [--since] [--auto-pass --ask-for --ask-at] [--wake-on-chat]
+           block until it is this seat's decision (or the duel ends), then print what happened
+    play   <choice> --as [--quiet] [--auto-pass --ask-for --ask-at] [--since-chat]
+    chat   [text] --as [--last]      table talk; with TEXT sends it, without prints the log
+    fork   --at --id [--players]     branch: copy truncated at N moves under a new id
+    undo   [--n 1]                   rewind the last N responses (experiments; re-aligns `times`)
+    list · tally [prefix]            every record, kept and replayable; win/loss summary
+    card <name|passcode> · search <text> [--limit] · deck <name> · decks
+    export <file> · import <file> [--replace]      whole state as one portable archive (archive.js)
+    dump-cards [--out vendor/cards.txt] · fetch-pics [--deck] · fetch-boxart
+
+**Menu answers** (the `<choice>` of `play`, and what the web buttons send): `3` one option ·
+`1,4` several · `0` the pass/cancel/no option when it is offered · `name:<card>` for a
+"declare a card name" prompt · `random` a random legal move.
+
+**Auto-pass.** `--auto-pass` answers optional respond? prompts with "do not activate" — each pass is
+a real recorded response, never a skipped decision. `--ask-for "Trap Hole,Mirror Force"` keeps
+stopping for those cards, and `--ask-at summon,attack` narrows that to timings whose text mentions
+those words. `--wake-on-chat` makes `wait` also return, with no decision pending, as soon as the
+other seat says something — that is what lets the host answer chat promptly (HOST.md's never-idle
+contract).
+
+**Offline card lookup.** `ygo card` / `ygo search` hit `cards.cdb` directly; `vendor/cards.txt`
+(written by `dump-cards`, 14,700+ lines, one per card with full effect text) is the greppable form:
+`grep -i "cannot be destroyed by battle" vendor/cards.txt`.
+
+## 21. Text formats and the web surface (moved out of README, 2026-08-17)
+
+**Log (YGN)** — one line per event, absolute player labels, zone tokens `m0..m6` (monster),
+`s0..s4` (spell/trap), `field`, `pz0/1`, `hand`, `GY`, `banished`, `deck`, `extra`; `?` = a card you
+may not identify. A worked sample (note the `?`: this viewer could not identify P0's set monster
+until the flip revealed it):
+
+    == Turn 2 (P1) ==
+    -- Main Phase 1
+    P1 normal summons Ryu-Kishin Powered at m0 ATK
+    -- Battle Phase
+    Ryu-Kishin Powered (P1 m0) attacks ? (P0 m0)
+    Man-Eater Bug (P0 m0): fd DEF -> DEF
+      battle: Ryu-Kishin Powered 1600 ATK vs Man-Eater Bug 600 DEF: Man-Eater Bug destroyed
+    P0 activates Man-Eater Bug (m0) [chain 1]
+      targets Ryu-Kishin Powered (P1 m0)
+    >> chain 1 resolves: Man-Eater Bug
+    Ryu-Kishin Powered: P1 m0 (ATK) -> P1 GY
+
+**State** — LP, every zone with current ATK/DEF (and base where modified), your hand, both
+graveyards (public), and — because both decklists are public — the sorted multiset of cards you have
+NOT seen: your own deck with its order withheld, and for the opponent "hand + deck + face-downs" as
+one pool (the unseen pool). That last part is exactly what a competent human tracks by hand.
+
+**Web surface.** The index IS the duel history: in-progress and finished sections, each duel with
+its decks, result, move count, chat count, created and last-move times, and replay / P0 / P1 links,
+plus Export/Import of the whole state and the new-duel form; `/decks` browses the library by
+category. A duel page is `?as=0`, `?as=1` or `?as=all`: the table with real card art, LP counters,
+phase strip, a big preview of the hovered card with its text, the log (scrollable, auto-sticking to
+the bottom), pile modals for the public graveyards, seat-presence pills, a sleeve picker, and — when
+it is that seat's decision — the same menu the CLI shows, as buttons. Attacks, activations, damage
+and summons animate with sound (header toggle; browsers require a click first). The move scrubber
+replays any game and *fork here* branches it at that move. The page polls every 1.5 s
+(`POLL_MS`) while live, so a human in the browser and an agent on the CLI share one duel; playback
+pauses polling. A debug/peek toggle re-fetches the unmasked board for a seat view, deliberately as a
+second read so the toggle cannot light up on a duel it may not reveal. The Chat panel is table talk
+on the same timeline as the moves: scrub back and it shows the conversation as it stood then,
+read-only. The UI calls the same `src/session.js` the CLI does; everything visual lives in
+`web/src/lib/pretty/` and can be deleted without touching the engine.
+
+## 22. Format coverage, engine quirks and limitations (moved out of README, 2026-08-17)
+
+- Duels are Master Rule 5 by default (8000 LP, 5-card opening hand); `--format goat` builds under
+  `OcgDuelMode.MODE_GOAT` (April 2005 rules) instead, and both decks must share the format.
+- Extra decks are dealt into `OcgLocation.EXTRA`. Side decks are RECORDED but never swapped
+  in-engine, and there is no match play (no games 2/3, no side-decking step).
+- `ocgcore-wasm@0.1.2` quirks the wrapper works around: `createCore` is the default export;
+  `constant.lua` and `utility.lua` must be preloaded; `OcgQueryFlags.TYPE` mis-parses, so card type
+  is taken from `cards.cdb` instead; `MSG_MOVE`'s `reason` is not exposed, so a log line says where
+  a card went, not why (the surrounding lines make it clear).
+- The core keeps running after `MSG_WIN`; the harness treats WIN as terminal.
+- See also §12 (every card's right Pendulum Scale reads as 0 inside the core) and §15 (two defects
+  that can strand a duel mid-board). All of these are pinned-version behaviour: changing the
+  core/CardScripts pair changes how already-recorded duels replay, so they are documented, not
+  patched, and any bump happens between games followed by `npm test`.
+
+## 23. Third-party content, licensing and attribution (moved out of README, 2026-08-17)
+
+Yu-Gi-Oh! is Konami's property; this is a non-commercial fan project, unaffiliated and unendorsed.
+The README carries the short version of this section; the long version lives here and in the notice
+files named below.
+- **Rules engine**: `ocgcore-wasm` (npm), the WebAssembly build of ygopro-core.
+- **Card scripts and card database**: Project Ignis `CardScripts` and `BabelCDB`, pinned by commit
+  in `setup.sh` and licensed **AGPL-3.0** (`vendor/CardScripts/COPYING`). `strings.conf` comes from
+  Project Ignis `Distribution` at a pinned commit.
+- **Card art**: YGOPRODeck. Their terms forbid hotlinking their CDN and require self-hosting any
+  cached copy — which is why `vendor/pics/` (gitignored) and the re-encoded, committed
+  `web/static/pics/` exist. Provenance: `web/static/pics/NOTICE.md`.
+- **Box art**: official product scans from Yugipedia (`ms.yugipedia.com`), per each structure deck's
+  `boxArt` field. Provenance: `web/static/boxart/NOTICE.md`.
+- **Sounds and images we ship**: CC0 (Kenney, Fupi, PWL, Cethiel, Dumivid), except the two
+  `classic-*` sleeves, which are CC-BY 3.0 and REQUIRE crediting jeffshee. Every file, its source,
+  author, licence and any modification is listed in `web/static/ASSET-LICENSES.md`, which is also
+  where the cue map lives (`cue-names` binding). None of these come from Konami; the card back is a
+  generic fantasy design.
+- **Dueling Nexus duel-client cues**: fetched by `bin/fetch-nexus-sfx.sh` into gitignored `vendor/`
+  for personal use only. They are NEVER committed and the UI must stay fully playable without them —
+  the CC0 files plus the synth cover every cue.

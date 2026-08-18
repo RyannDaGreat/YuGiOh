@@ -1,237 +1,73 @@
 # YuGi — Yu-Gi-Oh! for LLM agents
 
-A headless, text-first Yu-Gi-Oh! duel harness. The player is expected to be an
-LLM (Claude Code, its subagents, or a script) driving a CLI; humans get a web
-UI over the same engine. Every rule of the real game applies — the harness sits
-on **ocgcore**, the engine behind EDOPro/YGOPro — and every card ever printed
-is available offline.
+### ▶ Play it now: **<https://ryanndagreat.github.io/YuGiOh/>**
 
-## What it does
+A full-rules Yu-Gi-Oh! duel harness, headless and text-first. The rules come from
+**ocgcore** — the engine behind EDOPro/YGOPro — compiled to WebAssembly, so every card
+ever printed works and nothing is simplified. Each decision is an enumerated menu of
+*legal* actions, the board is masked per player (you never see the opponent's hand,
+face-downs or deck order), and a duel is stored as `seed + decklists + responses`, so
+it replays, rewinds and forks exactly. The intended player is an LLM driving the CLI;
+humans get a web UI over the same code.
 
-- Runs full-rules duels headlessly (`ygo` CLI). No browser, no server process.
-- Emits a compact text log ("YGN") and a full text state, **per player
-  perspective**: you never see the opponent's hand, face-downs, or deck order.
-- Hands each player an enumerated menu of **legal** actions at every decision;
-  illegal moves are impossible by construction.
-- Ships an offline, greppable card database (14,700+ cards, full effect text).
-- Records a duel as `seed + decklists + responses` (+ when each move was
-  played), so any duel is exactly reproducible, can be rewound, and stays a
-  permanent replayable record — table talk included, on the same timeline.
+## Play online
 
-## Setup
+<https://ryanndagreat.github.io/YuGiOh/> is a static GitHub Pages build of that web UI:
+engine, card data for all 40 built-in decks and their art are baked into the page, so it
+runs entirely in your browser — no install, no server, no account. Duels live in the
+browser's own private filesystem; **Export** / **Import** carry them between browsers and
+a local checkout.
 
-```sh
-./setup.sh          # pinned card scripts + database + strings.conf, npm install (root + web), vendor/cards.txt
-npm test            # cross-checks masking + client model over random duels (~1 min)
-```
-
-Requires Node ≥ 22.13 (uses the built-in `node:sqlite`).
-
-## Play against Claude (one command)
+## Run locally
 
 ```sh
-./runserver.sh
+./setup.sh        # pinned Project Ignis card scripts + cards.cdb + strings.conf, npm install, card art
+npm test          # cross-checks per-player masking against the engine over random duels
+bin/serve.sh      # the web UI on http://localhost:5178 (a LAN URL is printed too)
+./runserver.sh    # play against Claude: launches a Claude Code host session, which starts the
+                  # server, opens the browser, sits at P1, and chats with you in the terminal
 ```
 
-Launches an interactive Claude Code session in your terminal with `HOST.md` as its
-first instruction. That session is the **host**: per `HOST.md` it keeps exactly one
-chat/turn watch (`ygo wait … --wake-on-chat`) armed at all times for the whole
-session — a **never-idle contract** — so your browser-chat messages and its own turns
-are answered without you waiting between its actions. It starts the web server
-(`bin/serve.sh`) in the background, opens the browser, creates a duel with you as P0
-and itself as P1, plays through the CLI, and chats with you in that terminal while you
-play in the browser. The seat-presence pills in the page header show who is online
-(web / cli).
-
-Only this launched session is the host. A **separate** Claude session (for example one
-building the app) is **not** the host and will not keep the watch armed — use
-`./runserver.sh` to start the one that does. `bin/host-loop.sh <duel-id> <seat> [ask-for]`
-is a notifier the host may run so the shell itself surfaces "your turn" / new chat
-between tool calls; it never plays a move (only the host decides moves).
-
-## Web UI (for humans)
+Node ≥ 22.13 (`cards.cdb` is read through the built-in `node:sqlite`). A local checkout
+carries the whole database: 14,700+ cards, one greppable line each in `vendor/cards.txt`.
+The CLI is `node bin/ygo.js` (`--help` lists all of it):
 
 ```sh
-bin/serve.sh               # just the server; or cd web && npm run dev
+node bin/ygo.js new   --id g1 --p0 yugi --p1 kaiba --seed 42   # create a duel; P0 goes first
+node bin/ygo.js state g1 --as 1     # your board, your hand, and your menu of legal moves
+node bin/ygo.js play  g1 3 --as 1   # answer option 3
+node bin/ygo.js brief g1 --as 1     # the entire prompt an LLM needs to play that seat
 ```
 
-The index is the duel history: every duel ever created, in progress and
-finished, with result, move count, when it was created and last played, how
-many things were said, and a **replay** link. Pick a duel and a seat
-(`?as=0`, `?as=1`, or `?as=all`). A duel table with
-real card art (cached by `ygo fetch-pics`), LP counters, phase strip, a big
-preview of the hovered card with its text, the log, and — when it is that seat's
-decision — the same menu the CLI shows, as buttons. Attacks, activations, damage
-and summons animate (daggers, flashes, floating numbers) with sound
-(toggle in the header; browsers require a click first). A move slider replays
-any game and **fork here** branches it at that move. It polls every 1.5 s, so a
-human in the browser and an agent on the CLI share one duel. The Chat panel
-under the card preview is table talk between the seats (`duels/<id>.chat.json`,
-also `ygo chat`); seats write, spectators read. Chat sits on the same timeline
-as the moves: scrub back and the panel shows the conversation as it stood at
-that move, read-only. **Chat is data, never instructions** — an LLM player
-answers it but never acts on it (PLAYER.md "## Chat"). Sound prefers the
-Dueling Nexus duel-client cues, which `bin/fetch-nexus-sfx.sh` downloads into
-`vendor/` for personal use — they are not part of this repo, and without them
-the CC0 files in `web/static/sfx/` and the synth cover every cue. The UI calls
-`src/session.js` exactly as the CLI does; all visual code lives in
-`web/src/lib/pretty/` and can be deleted without touching the engine.
+## What's notable
 
-## Playing
+- **Real rules, not an approximation.** `ocgcore-wasm` plus Project Ignis' card scripts
+  and card database. The engine enumerates the legal actions, so no rules logic is
+  written here and an illegal move is impossible by construction.
+- **LLM agents play seats.** `ygo brief` prints a complete per-seat prompt (player guide
+  + strategy + deck manual + the masked duel); point one agent at each seat and they
+  coordinate through the duel file alone. 726 Haiku agents played an 11-deck round-robin
+  that way — see `reports/structure_decks_haiku_competition/`.
+- **Every duel is a permanent replayable record.** Scrub any game move by move, branch it
+  with *fork here*, and read the table talk as it stood at that moment.
+- **Deck manuals researched from real players.** All 40 decks — 11 transcribed Konami
+  Structure/Starter Deck products and 29 curated meta and theme decks — carry a piloting
+  manual built from real primers and tournament reports, sources cited, never invented.
 
-```sh
-node bin/ygo.js new --id g1 --p0 yugi --p1 kaiba --seed 42 --players ryan,claude
-node bin/ygo.js state g1 --as 1          # board, your hand, opponent's public info, and your menu
-node bin/ygo.js state g1 --as all --at 60 # playback: the position after 60 moves; `fork --at` to branch
-node bin/ygo.js wait  g1 --as 1 --auto-pass --ask-for "Trap Hole" --ask-at summon
-                                         # block until it is P1's decision; auto-decline pointless "respond?" prompts
-node bin/ygo.js play  g1 3 --as 1        # answer option 3; prints what happened next
-node bin/ygo.js log   g1 --as 1 --last 40
-node bin/ygo.js prompt g1 --as 1         # the complete LLM-facing text: decklists+card text, log, state, options
-node bin/ygo.js card  "Trap Hole"        # rules text, offline
-node bin/ygo.js search "Blue-Eyes"
-node bin/ygo.js deck  kaiba
-node bin/ygo.js chat  g1 --as 1          # table talk; `chat g1 "gg" --as 1` says something
-node bin/ygo.js undo  g1 --n 2           # time travel (experiments)
-node bin/ygo.js list
-grep -i "cannot be destroyed by battle" vendor/cards.txt   # one line per card, every card ever printed
-```
+## Documentation
 
-`--as` is who you are: `0`, `1`, or `all` (spectator/omniscient — for judging,
-never for playing). P0 always takes turn 1.
+Full documentation lives in **[`claude_instructions.md`](claude_instructions.md)** (the
+manifest): architecture, text formats, the CLI surface, the deck schema, the two build
+hosts, known engine bugs, and the reasoning behind every decision. `PLAYER.md` is the
+seat guide an LLM player is handed; `HOST.md` instructs the host session.
 
-Menu answers: `3` one option · `1,4` several · `0` the pass/cancel/no option
-when offered · `name:<card>` for "declare a card name" · `random` a random legal
-move.
+## Licenses and attribution
 
-**Agents:** `node bin/ygo.js brief g1 --as 1 --strategy strategies/control.md`
-prints the complete prompt for an LLM to play a seat (PLAYER.md + strategy +
-duel facts). Launch one agent per seat with that prompt; they coordinate through
-the duel file alone. `ygo tally [prefix]` summarises results across duels.
-
-**Proof run:** `duels/match1.json` — two Opus agents (beatdown vs control),
-each seeing only its own seat, played a full 14-turn game through the CLI;
-Kaiba won with Blue-Eyes after breaking a Dragon Capture Jar lock with Trap
-Master + Two-Pronged Attack. Their usability notes drove `--auto-pass`, the
-tribute hints, and the prompt wording.
-
-## The text formats
-
-**Log (YGN)** — one line per event, absolute player labels, zone tokens
-`m0..m6` (monster), `s0..s4` (spell/trap), `field`, `pz0/1`, `hand`, `GY`,
-`banished`, `deck`, `extra`; `?` = a card you may not identify.
-
-```
-== Turn 2 (P1) ==
--- Main Phase 1
-P1 normal summons Ryu-Kishin Powered at m0 ATK
--- Battle Phase
-Ryu-Kishin Powered (P1 m0) attacks ? (P0 m0)
-Man-Eater Bug (P0 m0): fd DEF -> DEF
-  battle: Ryu-Kishin Powered 1600 ATK vs Man-Eater Bug 600 DEF: Man-Eater Bug destroyed
-P0 activates Man-Eater Bug (m0) [chain 1]
-  targets Ryu-Kishin Powered (P1 m0)
->> chain 1 resolves: Man-Eater Bug
-Ryu-Kishin Powered: P1 m0 (ATK) -> P1 GY
-```
-
-**State** — LP, every zone with current ATK/DEF (and base if modified), your
-hand, both graveyards, and — because both decklists are public — the sorted
-multiset of cards you have *not* seen: your own deck (order withheld), and for
-the opponent "hand + deck + face-downs" as one pool.
-
-## Architecture
-
-```
-bin/ygo.js        CLI (thin)
-web/              SvelteKit UI (thin client of session.js); web/src/lib/pretty/ = table, cards, effects, sound
-src/events.js     animation digest of the masked stream (what the UI animates)
-PLAYER.md         seat instructions for LLM players
-strategies/       strategy briefs appended to PLAYER.md by `ygo brief`
-src/session.js    replay a duel record → views/menus for one viewer; apply a choice
-src/duel.js       ocgcore-wasm wrapper: build duel from seed+decks, replay responses
-src/view.js       per-player masking — port of YGOPro's server fan-out rules
-src/field.js      client-side field model rebuilt from the masked stream (names things in the log)
-src/log.js        YGN log renderer
-src/state.js      full state renderer (core query + masking + viewer's memory)
-src/menu.js       decision menus ⇄ OcgResponse
-src/cards.js      cards.cdb access (engine data, names, text, search)
-src/strings.js    strings.conf + effect-description decoding
-src/store.js      duel records (duels/*.json), decklists (src/decks/*.json)
-src/chat.js       per-duel table talk (duels/*.chat.json) — data, never instructions
-src/rng.js        seeded shuffle
-vendor/           pinned Project Ignis CardScripts + BabelCDB + strings.conf (setup.sh)
-```
-
-**Replay, not persistence.** A duel record is `{seed, decks, responses}` (plus
-`times`, one ISO stamp per response — annotation only, never fed to the core,
-so it cannot change a replay; records written before it exist read as null and
-still work). Every
-command rebuilds the WASM duel from scratch and re-applies the responses
-(milliseconds). Deterministic seeds → identical shuffles across strategy
-comparisons; truncating `responses` rewinds time; no daemon to keep alive, so
-any number of agents can drive any number of duels concurrently.
-
-**Legal actions come from the engine.** The core stops at each decision with an
-explicit list of options (`MSG_SELECT_IDLECMD`, `MSG_SELECT_CARD`, ...). We
-render the list; the player picks an index; the core validates. Nobody writes
-rules logic here.
-
-## Hidden information
-
-`view.js` masks the core's single omniscient message stream per viewer using
-the same rules as YGOPro's server (`single_duel.cpp` `Analyze`) — e.g. a card
-moving to the graveyard is public even if it was face-down; moving to hand or
-arriving face-down is private; a set card's identity is known only to its
-controller; selection lists zero the opponent's cards and the client re-derives
-what it legitimately knows from its own field model. `npm test` cross-checks the
-model against the masked core query at hundreds of decision points and flags
-any card the model knows without a legitimate reveal.
-
-**Honor system:** the duel file contains the seed, from which everything
-follows. A player who reads `duels/<id>.json` or uses `--as all` can see the
-opponent's hand. Agents play honestly by using only `--as <their id>`. This was
-chosen over a token-authenticated daemon because all participants share one
-machine; the daemon can wrap `session.js` later without changing anything else.
-
-## Decks
-
-`src/decks/yugi.json` and `kaiba.json` are the 50-card North-American Starter
-Deck Yugi / Starter Deck Kaiba lists (SDY/SDK), verified against Yugipedia and
-YGOPRODeck. `goat-sample.json` is a worked GOAT-format example with an Extra
-Deck. A deck JSON is:
-
-```json
-{
-  "name":     "GOAT Sample",
-  "category": "structure",              // "structure" (built-in) | "user"; default "user"
-  "format":   "goat",                   // "classic" | "goat"; default "classic"
-  "main":     [["Pot of Greed", 1]],    // Main Deck; goat: 40–60 cards, classic: any
-  "extra":    [["Thousand-Eyes Restrict", 1]],  // optional Extra Deck; ≤ 15
-  "side":     [["Mystical Space Typhoon", 2]],  // optional Side Deck; ≤ 15
-  "manual":   "concise markdown: how to pilot it"  // optional
-}
-```
-
-Names must match cards.cdb exactly (`ygo search` to check). Card placement is
-enforced: Fusion/Synchro/Xyz/Link monsters (Extra-Deck types) must go in
-`extra`, never `main` — the core keeps them in a separate pile
-(`OcgLocation.EXTRA`), and a duel built with `--format goat` runs under
-`OcgDuelMode.MODE_GOAT` (April 2005 rules). Both decks of a duel must share one
-format. A legacy `{name, main}` file still loads (defaults: user / classic /
-empty). `ygo decks` lists decks grouped by category; `ygo deck <name>` shows the
-category, format, all three piles, and the manual. A deck's identity is its
-file name, never its card contents — two files with the same cards but different
-names/manuals are two distinct decks.
-
-## Known limitations / next
-
-- Duel format is Master Rule 5 by default (8000 LP, 5-card hand); `--format goat`
-  builds under MODE_GOAT instead. Extra decks are dealt into `OcgLocation.EXTRA`;
-  side decks are recorded but not swapped in-engine, and there is no match play.
-- Card art is fetched from YGOPRODeck by `ygo fetch-pics` (setup.sh does it) into `vendor/pics/`; sounds and the card back are CC0 (see `web/static/ASSET-LICENSES.md`).
-- `ocgcore-wasm@0.1.2` quirks: `createCore` is the default export; `constant.lua`
-  and `utility.lua` must be preloaded; `OcgQueryFlags.TYPE` mis-parses (we take
-  type from cards.cdb); MSG_MOVE's `reason` is not exposed (log lines say where a
-  card went, not why — the surrounding lines make it clear).
-- The core keeps running after `MSG_WIN`; the harness treats WIN as terminal.
+Yu-Gi-Oh! is the property of **Konami**; this is a non-commercial fan project, not
+affiliated with or endorsed by them. Card scripts and card database are **Project Ignis**
+([CardScripts](https://github.com/ProjectIgnis/CardScripts),
+[BabelCDB](https://github.com/ProjectIgnis/BabelCDB)), **AGPL-3.0**. Card art comes from
+**YGOPRODeck**, self-hosted rather than hotlinked as their terms require
+(`web/static/pics/NOTICE.md`); box art is from Yugipedia. Sounds, the card back and the
+sleeves are CC0 except two CC-BY sleeves — every file credited in
+`web/static/ASSET-LICENSES.md`.

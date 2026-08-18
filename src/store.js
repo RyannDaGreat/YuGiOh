@@ -48,7 +48,7 @@
  */
 
 
-import { existsSync, join, mkdirSync, randomId, readdirSync, readFileSync, renameSync, writeFileSync } from "./volume.js";
+import { existsSync, join, mkdirSync, randomId, readdirSync, readFileSync, renameSync, writeFileSync, writerId } from "./volume.js";
 import stripJsonComments from "strip-json-comments";
 import { REPO_ROOT, cardInfo, codeOf, isExtraDeckCard, typeLabel } from "./cards.js";
 import { expandDeck, expandExtra, expandSide } from "./duel.js";
@@ -331,7 +331,7 @@ export function loadDuel(id) {
 export function saveDuel(duel) {
   mkdirSync(DUELS_DIR, { recursive: true });
   const path = duelPath(duel.id);
-  const tmp = `${path}.${process.pid}.${randomId().slice(0, 8)}.tmp`;
+  const tmp = `${path}.${writerId()}.${randomId().slice(0, 8)}.tmp`;
   writeFileSync(tmp, JSON.stringify(duel, null, 1));
   renameSync(tmp, path);
 }

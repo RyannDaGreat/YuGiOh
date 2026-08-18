@@ -3,13 +3,14 @@
  * player label used in duel records ("ryan", "claude", ...), stored in
  * web/data/sleeves.json so the engine's duel records stay cosmetics-free.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { base } from "$app/paths";
+import { REPO_ROOT } from "../../../src/store.js";
+import { existsSync, join, mkdirSync, readFileSync, writeFileSync } from "../../../src/volume.js";
 
-const WEB_ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../..");
-const STORE = join(WEB_ROOT, "data/sleeves.json");
-const MANIFEST = join(WEB_ROOT, "static/img/sleeves/manifest.json");
+// Both live on the app volume (src/volume.js), so a static build keeps a player's
+// sleeve choice in the browser's own storage exactly as Node keeps it on disk.
+const STORE = join(REPO_ROOT, "web/data/sleeves.json");
+const MANIFEST = join(REPO_ROOT, "web/static/img/sleeves/manifest.json");
 /** Sleeve used when a player has not chosen one. */
 export const DEFAULT_SLEEVE = "default";
 
@@ -46,7 +47,7 @@ export function loadChoices() {
 export function chooseSleeve(player, sleeve) {
   if (!listSleeves().some((s) => s.id === sleeve)) throw new Error(`unknown sleeve: ${sleeve}`);
   const choices = { ...loadChoices(), [player]: sleeve };
-  mkdirSync(dirname(STORE), { recursive: true });
+  mkdirSync(STORE.slice(0, STORE.lastIndexOf("/")), { recursive: true });
   writeFileSync(STORE, JSON.stringify(choices, null, 2));
 }
 
@@ -64,6 +65,6 @@ export function seatBacks(players) {
   const choices = loadChoices();
   return players.map((label) => {
     const chosen = sleeves.find((s) => s.id === (choices[label] ?? DEFAULT_SLEEVE)) ?? sleeves[0];
-    return `/img/${chosen.file}`;
+    return `${base}/img/${chosen.file}`;
   });
 }

@@ -1,6 +1,6 @@
 /** JSON API for one duel: GET the view for a viewer; POST a choice. */
 import { error, json } from "@sveltejs/kit";
-import { duelPayload, fork, parseViewer, play } from "$lib/server/engine.js";
+import { duelPayload, fork, parseViewer, play } from "$lib/engine.js";
 
 export async function GET({ params, url }) {
   try {

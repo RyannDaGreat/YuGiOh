@@ -24,6 +24,7 @@
  * Browsers only allow audio after a user gesture; `unlock()` must be called
  * from a click handler once (the mute toggle does it).
  */
+import { base } from "$app/paths";
 import { nexusUrl } from "./nexus-map.js";
 
 /** File basenames to try when a cue's own name has no file, so older files keep working. */
@@ -56,7 +57,7 @@ const CLIP_VOLUME = 0.5;
 function candidateUrls(name) {
   const nexus = nexusUrl(name);
   const basenames = ALIASES[name] ? [name, ALIASES[name]] : [name];
-  const own = basenames.flatMap((base) => EXTENSIONS.map((ext) => `/sfx/${base}.${ext}`));
+  const own = basenames.flatMap((stem) => EXTENSIONS.map((ext) => `${base}/sfx/${stem}.${ext}`));
   return nexus ? [nexus, ...own] : own;
 }
 

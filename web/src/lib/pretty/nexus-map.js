@@ -18,6 +18,8 @@
  * with no separate counter-tick sound), so those fall through to /sfx/.
  */
 
+import { base } from "$app/paths";
+
 /** Cue name -> filename in vendor/nexus/sfx/. Absent key = no Nexus sound. */
 export const NEXUS_FILES = {
   // Summoning family.
@@ -58,5 +60,5 @@ export const NEXUS_FILES = {
  * @example nexusUrl("banished")      // null
  */
 export function nexusUrl(name) {
-  return NEXUS_FILES[name] ? `/nexus-sfx/${NEXUS_FILES[name]}` : null;
+  return NEXUS_FILES[name] ? `${base}/nexus-sfx/${NEXUS_FILES[name]}` : null;
 }

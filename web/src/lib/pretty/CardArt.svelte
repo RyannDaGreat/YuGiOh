@@ -1,4 +1,5 @@
 <script>
+  import { ASSETS } from "$lib/assets.js";
   /**
    * Plain card art at a chosen box size, with the table's radial card-back as a
    * fallback when the image is missing (e.g. vendor/pics not yet fetched). The
@@ -17,7 +18,7 @@
 <div class="relative card-box card-{size} card-back-bg overflow-hidden shadow-md border border-amber-900">
   {#if !broken}
     <img
-      src="/pics/{code}.jpg"
+      src="{ASSETS}/pics/{code}.jpg"
       alt={name}
       title={name}
       class="absolute inset-0 w-full h-full object-cover"

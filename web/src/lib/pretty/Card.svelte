@@ -1,4 +1,6 @@
 <script>
+  import { ASSETS } from "$lib/assets.js";
+  import { base } from "$app/paths";
   /**
    * One card box, true 59:86 proportion. Shows art when the viewer may see the
    * card, a back otherwise; Defense Position is rotated in place.
@@ -14,7 +16,7 @@
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
    */
-  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, back = "/img/card-back.png", onhover = () => {}, onclick = () => {} } = $props();
+  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, back = `${base}/img/card-back.png`, onhover = () => {}, onclick = () => {} } = $props();
 
   const isDefense = $derived(Boolean(card && /DEF/.test(card.position ?? "")));
   const known = $derived(Boolean(card && card.code));
@@ -52,7 +54,7 @@
         <img src={back} alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
       {#if mode === "art" || mode === "peek"}
-        <img src="/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+        <img src="{ASSETS}/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
       {#if mode === "peek"}
         <span class="absolute inset-x-0 bottom-0 text-[0.5rem] leading-tight bg-sky-900/80 text-sky-100 text-center">set</span>

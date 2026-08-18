@@ -1,9 +1,15 @@
 /**
- * Server startup. Installs the real filesystem as the app's volume (src/volume.js)
+ * Server startup. On the Node host, installs the real filesystem as the app's
+ * volume and SQLite as its card source (src/volume-node.js, src/cardsource-node.js)
  * once, for every server route — so no individual endpoint has to remember to.
  *
- * The static build has no server and therefore no hooks: it installs the browser
- * volume (src/volume-browser.js) from the client instead. That one line is the
- * entire difference between the two hosts.
+ * On the static host there is no server: the browser installs its own backends
+ * from $lib/boot.js. adapter-static still evaluates this file once to render the
+ * SPA fallback page, and it must not reach for SQLite or the repo then.
  */
-import "../../src/volume-node.js";
+import { STATIC } from "$lib/host.js";
+
+if (!STATIC) {
+  await import("../../src/volume-node.js");
+  await import("../../src/cardsource-node.js");
+}

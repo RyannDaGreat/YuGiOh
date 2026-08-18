@@ -21,6 +21,8 @@
  * Run: npm test
  */
 
+// Installs cards.cdb as the card source (src/cardsource.js).
+import "../src/cardsource-node.js";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import createCore, { OcgDuelMode, OcgLocation, OcgMessageType, OcgPosition, OcgProcessResult, OcgQueryFlags } from "ocgcore-wasm";

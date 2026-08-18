@@ -13,11 +13,8 @@
  *     card != 0  ->  card `card`'s string #index (cards.cdb texts.str1..str16)
  */
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { REPO_ROOT, cardName, cardString } from "./cards.js";
-
-const STRINGS_PATH = join(REPO_ROOT, "vendor/strings.conf");
+import { cardName, cardString } from "./cards.js";
+import { strings as stringsText } from "./cardsource.js";
 
 /** Bit split of a description code, per EDOPro's GetDesc. */
 const DESC_CARD_SHIFT = 20n;
@@ -60,7 +57,14 @@ export function parseStringsConf(text) {
   return tables;
 }
 
-const TABLES = parseStringsConf(readFileSync(STRINGS_PATH, "utf8"));
+/**
+ * The parsed tables, built on first use rather than at import. strings.conf
+ * comes from the installed card source (src/cardsource.js) — real file under
+ * Node, the baked bundle in a browser — and the source is installed at boot,
+ * after this module has already been imported.
+ */
+let tables = null;
+const TABLES = () => (tables ??= parseStringsConf(stringsText()));
 
 /**
  * Query. System string by id (reads the loaded strings table).
@@ -77,7 +81,7 @@ const TABLES = parseStringsConf(readFileSync(STRINGS_PATH, "utf8"));
  *     >>> sysString(999999) // "sys#999999"
  */
 export function sysString(id) {
-  return TABLES.system.get(Number(id)) ?? `sys#${id}`;
+  return TABLES().system.get(Number(id)) ?? `sys#${id}`;
 }
 
 /**
@@ -94,7 +98,7 @@ export function sysString(id) {
  *     >>> victoryString(2) // "Cards can't be drawn"
  */
 export function victoryString(reason) {
-  return TABLES.victory.get(Number(reason)) ?? `victory#${reason}`;
+  return TABLES().victory.get(Number(reason)) ?? `victory#${reason}`;
 }
 
 /**
@@ -110,7 +114,7 @@ export function victoryString(reason) {
  *     >>> counterName(1) // "Spell Counter"
  */
 export function counterName(counterType) {
-  return TABLES.counter.get(Number(counterType)) ?? `counter#${counterType}`;
+  return TABLES().counter.get(Number(counterType)) ?? `counter#${counterType}`;
 }
 
 /**

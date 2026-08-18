@@ -1,6 +1,6 @@
 /** Sleeve (card back) choices: GET the catalogue + choices; POST {player, sleeve} to choose. */
 import { json } from "@sveltejs/kit";
-import { chooseSleeve, listSleeves, loadChoices } from "$lib/server/sleeves.js";
+import { chooseSleeve, listSleeves, loadChoices } from "$lib/sleeves.js";
 
 export function GET() {
   return json({ sleeves: listSleeves(), choices: loadChoices() });
