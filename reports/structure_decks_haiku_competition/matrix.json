@@ -1,0 +1,1437 @@
+{
+  "field": [
+    {
+      "file": "yugi",
+      "name": "Yugi",
+      "setCode": "SDY",
+      "format": "classic"
+    },
+    {
+      "file": "kaiba",
+      "name": "Kaiba",
+      "setCode": "SDK",
+      "format": "classic"
+    },
+    {
+      "file": "pegasus-structure-deck",
+      "name": "Starter Deck: Pegasus",
+      "setCode": "SDP",
+      "format": "classic"
+    },
+    {
+      "file": "dragons-roar",
+      "name": "Dragon's Roar (SD1)",
+      "setCode": "SD1",
+      "format": "classic"
+    },
+    {
+      "file": "zombie-madness",
+      "name": "Zombie Madness (SD2)",
+      "setCode": "SD2",
+      "format": "classic"
+    },
+    {
+      "file": "blaze-of-destruction",
+      "name": "Blaze of Destruction (SD3)",
+      "setCode": "SD3",
+      "format": "classic"
+    },
+    {
+      "file": "fury-from-the-deep",
+      "name": "Fury from the Deep (SD4)",
+      "setCode": "SD4",
+      "format": "classic"
+    },
+    {
+      "file": "spellcasters-judgment",
+      "name": "Spellcaster's Judgment (SD6)",
+      "setCode": "SD6",
+      "format": "classic"
+    },
+    {
+      "file": "machine-revolt",
+      "name": "Machine Re-Volt (SD10)",
+      "setCode": "SD10",
+      "format": "classic"
+    },
+    {
+      "file": "spellcasters-command",
+      "name": "Spellcaster's Command (SDSC)",
+      "setCode": "SDSC",
+      "format": "classic"
+    },
+    {
+      "file": "master-of-pendulum",
+      "name": "Master of Pendulum (SDMP)",
+      "setCode": "SDMP",
+      "format": "classic"
+    }
+  ],
+  "cells": [
+    {
+      "row": "SDY",
+      "col": "SDY",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SDK",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SDP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SD1",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDY",
+      "col": "SD2",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDY",
+      "col": "SD3",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDY",
+      "col": "SD4",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SD6",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SD10",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SDSC",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDY",
+      "col": "SDMP",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SDY",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SDK",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SDP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDK",
+      "col": "SD1",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SD2",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SD3",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SD4",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SD6",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SD10",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDK",
+      "col": "SDSC",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDK",
+      "col": "SDMP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDP",
+      "col": "SDY",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SDK",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SDP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDP",
+      "col": "SD1",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SD2",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SD3",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SD4",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SD6",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SD10",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDP",
+      "col": "SDSC",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDP",
+      "col": "SDMP",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SDY",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SDK",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD1",
+      "col": "SDP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD1",
+      "col": "SD1",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SD2",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SD3",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SD4",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SD6",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD1",
+      "col": "SD10",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD1",
+      "col": "SDSC",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD1",
+      "col": "SDMP",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD2",
+      "col": "SDY",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SDK",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SDP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SD1",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD2",
+      "col": "SD2",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD2",
+      "col": "SD3",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SD4",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SD6",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD2",
+      "col": "SD10",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SDSC",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD2",
+      "col": "SDMP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SDY",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SDK",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SDP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SD1",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SD2",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD3",
+      "col": "SD3",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SD4",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD3",
+      "col": "SD6",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SD10",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SDSC",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD3",
+      "col": "SDMP",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD4",
+      "col": "SDY",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SDK",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD4",
+      "col": "SDP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SD1",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SD2",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD4",
+      "col": "SD3",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SD4",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SD6",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SD10",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SDSC",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD4",
+      "col": "SDMP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD6",
+      "col": "SDY",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD6",
+      "col": "SDK",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD6",
+      "col": "SDP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD6",
+      "col": "SD1",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD6",
+      "col": "SD2",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD6",
+      "col": "SD3",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD6",
+      "col": "SD4",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD6",
+      "col": "SD6",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD6",
+      "col": "SD10",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD6",
+      "col": "SDSC",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD6",
+      "col": "SDMP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD10",
+      "col": "SDY",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SDK",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD10",
+      "col": "SDP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD10",
+      "col": "SD1",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SD2",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SD3",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SD4",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SD6",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SD10",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SD10",
+      "col": "SDSC",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SD10",
+      "col": "SDMP",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDSC",
+      "col": "SDY",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDSC",
+      "col": "SDK",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDSC",
+      "col": "SDP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDSC",
+      "col": "SD1",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDSC",
+      "col": "SD2",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDSC",
+      "col": "SD3",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDSC",
+      "col": "SD4",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDSC",
+      "col": "SD6",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDSC",
+      "col": "SD10",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDSC",
+      "col": "SDSC",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDSC",
+      "col": "SDMP",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDMP",
+      "col": "SDY",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDMP",
+      "col": "SDK",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDMP",
+      "col": "SDP",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDMP",
+      "col": "SD1",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDMP",
+      "col": "SD2",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDMP",
+      "col": "SD3",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDMP",
+      "col": "SD4",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDMP",
+      "col": "SD6",
+      "rowWins": 0,
+      "colWins": 3,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    },
+    {
+      "row": "SDMP",
+      "col": "SD10",
+      "rowWins": 3,
+      "colWins": 0,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDMP",
+      "col": "SDSC",
+      "rowWins": 2,
+      "colWins": 1,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "row"
+    },
+    {
+      "row": "SDMP",
+      "col": "SDMP",
+      "rowWins": 1,
+      "colWins": 2,
+      "draws": 0,
+      "played": 3,
+      "complete": true,
+      "winner": "col"
+    }
+  ],
+  "standings": [
+    {
+      "setCode": "SD2",
+      "name": "Zombie Madness (SD2)",
+      "firstW": 23,
+      "firstL": 7,
+      "secondW": 25,
+      "secondL": 5,
+      "draws": 0,
+      "wins": 48,
+      "losses": 12,
+      "games": 60,
+      "winRate": 0.8
+    },
+    {
+      "setCode": "SD4",
+      "name": "Fury from the Deep (SD4)",
+      "firstW": 21,
+      "firstL": 9,
+      "secondW": 21,
+      "secondL": 9,
+      "draws": 0,
+      "wins": 42,
+      "losses": 18,
+      "games": 60,
+      "winRate": 0.7
+    },
+    {
+      "setCode": "SD3",
+      "name": "Blaze of Destruction (SD3)",
+      "firstW": 17,
+      "firstL": 13,
+      "secondW": 19,
+      "secondL": 11,
+      "draws": 0,
+      "wins": 36,
+      "losses": 24,
+      "games": 60,
+      "winRate": 0.6
+    },
+    {
+      "setCode": "SD6",
+      "name": "Spellcaster's Judgment (SD6)",
+      "firstW": 16,
+      "firstL": 14,
+      "secondW": 19,
+      "secondL": 11,
+      "draws": 0,
+      "wins": 35,
+      "losses": 25,
+      "games": 60,
+      "winRate": 0.5833333333333334
+    },
+    {
+      "setCode": "SD1",
+      "name": "Dragon's Roar (SD1)",
+      "firstW": 14,
+      "firstL": 16,
+      "secondW": 19,
+      "secondL": 11,
+      "draws": 0,
+      "wins": 33,
+      "losses": 27,
+      "games": 60,
+      "winRate": 0.55
+    },
+    {
+      "setCode": "SDY",
+      "name": "Yugi",
+      "firstW": 16,
+      "firstL": 14,
+      "secondW": 16,
+      "secondL": 14,
+      "draws": 0,
+      "wins": 32,
+      "losses": 28,
+      "games": 60,
+      "winRate": 0.5333333333333333
+    },
+    {
+      "setCode": "SDMP",
+      "name": "Master of Pendulum (SDMP)",
+      "firstW": 14,
+      "firstL": 16,
+      "secondW": 14,
+      "secondL": 16,
+      "draws": 0,
+      "wins": 28,
+      "losses": 32,
+      "games": 60,
+      "winRate": 0.4666666666666667
+    },
+    {
+      "setCode": "SDSC",
+      "name": "Spellcaster's Command (SDSC)",
+      "firstW": 14,
+      "firstL": 16,
+      "secondW": 11,
+      "secondL": 19,
+      "draws": 0,
+      "wins": 25,
+      "losses": 35,
+      "games": 60,
+      "winRate": 0.4166666666666667
+    },
+    {
+      "setCode": "SDK",
+      "name": "Kaiba",
+      "firstW": 9,
+      "firstL": 21,
+      "secondW": 13,
+      "secondL": 17,
+      "draws": 0,
+      "wins": 22,
+      "losses": 38,
+      "games": 60,
+      "winRate": 0.36666666666666664
+    },
+    {
+      "setCode": "SD10",
+      "name": "Machine Re-Volt (SD10)",
+      "firstW": 12,
+      "firstL": 18,
+      "secondW": 7,
+      "secondL": 23,
+      "draws": 0,
+      "wins": 19,
+      "losses": 41,
+      "games": 60,
+      "winRate": 0.31666666666666665
+    },
+    {
+      "setCode": "SDP",
+      "name": "Starter Deck: Pegasus",
+      "firstW": 5,
+      "firstL": 25,
+      "secondW": 5,
+      "secondL": 25,
+      "draws": 0,
+      "wins": 10,
+      "losses": 50,
+      "games": 60,
+      "winRate": 0.16666666666666666
+    }
+  ],
+  "totals": {
+    "duels": 363,
+    "played": 363,
+    "finished": 363,
+    "unfinished": [],
+    "missing": [],
+    "p0Wins": 178,
+    "p1Wins": 185,
+    "draws": 0
+  }
+}

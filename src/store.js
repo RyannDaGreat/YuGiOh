@@ -47,6 +47,7 @@
  * empty extra/side, empty manual). See the `deck-schema` semantic binding.
  */
 
+import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import stripJsonComments from "strip-json-comments";
@@ -314,13 +315,21 @@ export function loadDuel(id) {
 /**
  * Command. Writes a duel record atomically (temp file + rename).
  *
+ * The temp name is UNIQUE PER WRITER, and that matters. A fixed `<path>.tmp` is
+ * atomic against readers but not against other writers: two processes writing the
+ * same duel both open the same temp file, their writes interleave, and the rename
+ * then publishes the shredded result as a valid-looking record. That is not
+ * theoretical — it destroyed `sdc-SDP-vs-SDSC-g3` during the structure-deck
+ * tournament when a seed reset ran while an agent was mid-move. Distinct temp
+ * names make concurrent writers merely last-one-wins instead of corrupting.
+ *
  * Args:
  *     duel (object): Record as returned by loadDuel/createDuel.
  */
 export function saveDuel(duel) {
   mkdirSync(DUELS_DIR, { recursive: true });
   const path = duelPath(duel.id);
-  const tmp = `${path}.tmp`;
+  const tmp = `${path}.${process.pid}.${randomUUID().slice(0, 8)}.tmp`;
   writeFileSync(tmp, JSON.stringify(duel, null, 1));
   renameSync(tmp, path);
 }

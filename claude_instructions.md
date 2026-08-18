@@ -119,6 +119,11 @@ browser, or subagent vs subagent — with:
   `docs/goat-decks.md`, `docs/decks-structure-products.md`, `docs/decks-character.md`,
   `docs/decks-archetypes.md`), never invented, with the exact printed products (Starter/Structure
   Decks) transcribed verbatim.
+- `race-response` — the "Declare a Type" (MSG_ANNOUNCE_RACE) response convention: the Race bit is
+  stored in the record as a decimal STRING and widened back to BigInt at the core boundary. Kept in
+  step across `src/menu.js` (`ANNOUNCE_RACE` case, `value: bit.toString()`), `src/duel.js`
+  (`toCoreResponse`, called at the single `duelSetResponse` for recorded responses), and
+  `test/announce-race.test.js`. Break the pair and the menu becomes unanswerable again — see §14.
 - `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
   `web/src/lib/server/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
   `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
@@ -392,3 +397,235 @@ markers from `rscale`. Consequences, measured 2026-08-17:
 This is why the scale shown to players comes from cards.cdb, not from the core query. FIXING IT
 CHANGES REPLAYS: a recorded response can become illegal, so patch it only between games, never
 while a duel is in progress, and re-run `npm test` afterwards.
+
+## 13. Structure-deck Haiku tournament — reports/structure_decks_haiku_competition (added 2026-08-17)
+
+**Problem.** The user asked which of the repo's structure decks are the best ones, and specified
+the experiment: an NxN competition between Haiku agents, every structure deck against every other,
+best-of-three matches, laid out as a grid with `column = deck, row = deck` where "each triangular
+half decides who goes first" (and the diagonal is a same-deck mirror where seating cannot matter).
+The concurrency was raised mid-run at the user's instruction: it began at "up to 20 Haiku agents at
+once" (which, at two agents per duel, the user confirmed means **10 matches in flight**) and then
+"actually I think it's safe to go hyper-frenzy for haiku duelists, so we can do 100 matches at once"
+= **200 concurrent Haiku agents**, with the standing constraint "make sure they're all haiku agents,
+we don't want high cost". Results stored under `reports/structure_decks_haiku_competition`.
+Two hard constraints, both stated by the user mid-run and both non-negotiable:
+"**only structure decks! not curated**", and "**there are NO SHORTCUTS allowed, every duel match
+must be completed, otherwise it's useless**" — with a standing instruction that if agents ever do
+abandon a duel, come up with a mechanism to force it.
+
+**Field.** The decks with `category: "structure"` — i.e. the official Konami products, per the
+three-way category split in the `deck-schema` binding: SDY, SDK, SDP, SD1, SD2, SD3, SD4, SD6,
+SD10, SDSC, SDMP (11 decks, all `format: "classic"`, so every pairing is legal unmodified).
+`curated` and `user` decks are excluded by definition, not by a hand-written list, so adding a
+structure deck to `src/decks/` automatically enlarges the tournament.
+
+**Grid semantics (the one rule that makes the halves mean something).** In cell (row, col) the
+**ROW deck is P0 and goes first**; the column deck is P1 and goes second. An unordered pairing
+{A, B} therefore appears twice — at (A,B) with A on the play, at (B,A) with B on the play — so the
+upper and lower triangles are the two seatings of the same matchup, which is what the user asked
+for. 11x11 = 121 cells; best-of-three with **all three games always played** (no early stop at 2-0,
+so every cell carries the same weight) = **363 duels = 726 Haiku agents**.
+
+**Cost control (user requirement: "make sure they're all haiku agents. we don't want high cost").**
+`MODEL = "haiku"` is the single place a model is named, and it is used for *both* seat agents and
+nudge agents — nothing in this tournament ever runs Opus or Sonnet. On top of that every agent is
+launched with `--max-budget-usd`: `AGENT_BUDGET_USD` for a seat, `NUDGE_BUDGET_USD` for a
+single-decision nudge. The cap bounds a runaway agent without ever abandoning a duel: an agent that
+hits it simply stops, and the relaunch mechanism sends in a fresh one to resume the board.
+Verified at scale by grepping every `--model` flag on the machine: 100% `haiku`.
+
+**Scaling to 100 matches (2026-08-17).** Three changes were needed to go from 10 to 100 matches:
+`seatPrompt` became **async** (`execFile` promisified) because a synchronous `ygo brief` spawn blocks
+the driver's single thread, and at 100 matches it is called 200 times in a burst; `AGENT_TIMEOUT_MS`
+was raised to 90 min because at high concurrency a *healthy* agent waits a long time for its
+opponent; and seats are told to pass `wait --timeout 2700` for the same reason. Measured at 200
+agents: load average ~33 of 128 logical CPUs, ~70 GB of 480 GB resident (~322 MB per agent),
+disk essentially idle — the machine is not the limit, and throughput went from ~5 duels/10 min to
+~80 duels/12 min.
+
+**Why a driver script and not the orchestrating session.** 726 agents spawned from a conversation
+would spend the entire context on bookkeeping. `tools/run-tournament.mjs` owns the pool; the
+tournament's whole state lives in the duel records, so the driver is stoppable and resumable
+(it skips duels the engine already calls finished) and the session only babysits it.
+
+**Equal players, unequal decks.** Every seat is `claude --model haiku -p "<ygo brief output>"`.
+No `--strategy` file is passed to either side, deliberately: both seats get the identical baseline
+from `PLAYER.md`, so the only asymmetry anywhere in the tournament is the decklist. Seeds are fixed
+per duel (`SEED_BASE` in `tools/schedule.mjs`), so the whole thing is reproducible.
+
+**No shortcuts, no abandoned duels (user requirement).** A duel counts only when the rules engine
+declares it over; nothing is ever resolved by life points, by random play, or by assumption.
+1. *Relaunch* — a pair that stops early, crashes or is killed on timeout is replaced by a fresh
+   pair on the same record; the CLI is stateless, so they resume mid-board.
+2. *Nudge (the forcing mechanism)* — because a relaunched pair could stall the same way twice, any
+   pair round that fails to finish the duel is followed by a single-decision Haiku agent on
+   whichever seat the engine is waiting on, whose entire job is to answer that one menu and exit.
+   Every menu has at least one legal answer (passing is an answer), so the board always moves, and
+   the decision is still a Haiku decision — never the driver's. Then a fresh pair resumes.
+   A board that survives `NUDGE_TRIES` focused agents is logged `stuck` in `progress.jsonl` for
+   inspection and retried by the next run: a bug to surface, never a result to invent.
+`tools/autoplay.mjs` (random legal moves) is calibration/fuzzing only and **refuses any `sdc-*`
+id**; it exists because it measured the thing that sized this tournament (a classic duel runs
+~250-490 decisions; two Haiku agents finish one in 8-9 minutes).
+
+**The honor boundary is enforced here, not trusted.** `PLAYER.md` asks a seat to use only
+`--as <its own seat>` and never to read `duels/<id>.json` — which stores the seed, hence the
+opponent's hand and the deck order. Across 726 agents "asked" is not enough for the numbers to
+mean anything, so `tools/seat-guard.sh` is installed as a `PreToolUse` hook (via
+`claude --settings '<json>'`) and allowlists each seat's shell down to `node bin/ygo.js <play-verb>
+… --as <its own seat>`. Blocked: `--as all` / `--as 2`, the other seat, anything naming `duels/`,
+`undo`/`fork` (a losing agent must not be able to rewind), `play … random`, and command chaining
+(`;` `&&` `||` `|` backticks `$( )`) so a permitted prefix cannot smuggle a second command. Verified
+live before the run: a seat's `cat duels/…` is denied. Two duels played before the hook existed were
+deleted and replayed, so all 363 run under identical conditions.
+
+**Files.** `tools/roster.mjs` (the field, in Konami release order = matrix order) ·
+`tools/schedule.mjs` -> `schedule.json` (121 cells, 363 duel ids + seeds) · `tools/seat-guard.sh` ·
+`tools/run-tournament.mjs` (pool, relaunch, nudge; `--matches`, `--only`, `--limit`, `--dry-run`) ·
+`tools/collect.mjs` -> `results.jsonl` + `matrix.md` + `matrix.json` · `tools/report.mjs` ->
+`index.html` · `tools/screenshot.mjs` (renders the report to `.claude_vlm_checks/`) ·
+`tools/autoplay.mjs` · `progress.jsonl` (append-only per-attempt history) · `README.md`
+(methodology + glossary). Duel ids are `sdc-<rowSet>-vs-<colSet>-g<n>`.
+
+**Report encoding decisions.** The matrix is *diverging* (row deck ahead <-> column deck ahead) with
+a neutral gray midpoint, because the quantity has a natural zero (a level cell); each arm is one hue
+mixed toward the surface in three equal steps, so it stays lightness-monotonic. Standings bars are
+one hue because they are one series. "On the play" vs "on the draw" are two series on one shared
+0-100% axis — never two axes. Both themes are declared explicitly (`prefers-color-scheme` plus a
+`data-theme` scope), and the matrix and standings are literal tables, so nothing is color-only.
+
+**What it measures, and what it does not.** How eleven printed decklists perform against each other
+when piloted by equally weak, equally uninformed players. That is not the human-tournament answer:
+a deck whose strength depends on subtle sequencing underperforms here; a deck that wins by having
+bigger numbers overperforms. Three games per cell ranks decks; it does not make any single cell
+trustworthy. The going-first split reported at the bottom of `matrix.md` is the scale against which
+the rest of the table should be read.
+
+## 14. FIXED ENGINE BUG — "Declare a Type" was unanswerable (2026-08-17)
+
+**Symptom.** Any duel that reached a `MSG_ANNOUNCE_RACE` decision ("Declare a Type (choose 1)")
+could never be finished. Every attempt to answer it — by a player, an agent, or the CLI — died with:
+
+    error: Do not know how to serialize a BigInt
+
+**Cause.** The core's Race values are 64-bit: `OcgRace` is a **bigint** enum (the highest printed
+Race bit is 2147483648), and `ocgRaceString`'s keys are BigInt. `src/menu.js` put those BigInt bits
+straight into the response object, and a duel record is JSON — `JSON.stringify` throws on BigInt — so
+`saveDuel` blew up before the response could ever be recorded. Note the asymmetry that hid this:
+`OcgAttribute` is a plain **number**, so the neighbouring ANNOUNCE_ATTRIB menu always worked.
+
+**Fix.** The response now carries the Race bit as a decimal STRING (JSON-safe and lossless), and
+`toCoreResponse` in `src/duel.js` widens it back to BigInt at the one boundary where recorded
+responses meet the core (`core.duelSetResponse`). See the `race-response` binding.
+
+**How it was found.** The structure-deck tournament (§13) logged 21 duels as `stuck` — and 13 of them
+were sitting on this exact menu, which is what turned "flaky agents" into "reproducible bug". The
+diagnosis was done on a `ygo fork` COPY of a stuck duel, never on the tournament record itself, so no
+tournament decision was ever made by the operator instead of by a Haiku agent. Lesson worth keeping:
+the harness's `stuck` log existed precisely so that an unfinishable board would surface as a bug
+rather than be quietly resolved — and that is what it did.
+
+**Replay safety.** No existing record contains an ANNOUNCE_RACE response (they all failed before
+being written), so nothing recorded before this fix changes meaning. `npm test` passes (54 tests
+before, plus `test/announce-race.test.js`).
+
+## 15. KNOWN ENGINE BUGS that can strand a duel mid-board (found 2026-08-17)
+
+Two defects can put a duel in a position **no player can answer**. Neither is fixable without
+changing the pinned core/CardScripts pair, and changing that pair changes how every already-recorded
+duel replays (the same hazard §12 documents for Pendulum scales), so they are documented rather than
+patched. A stranded duel has to be replayed from a fresh shuffle — see the tournament's
+`tools/reseed.mjs` and its `reseeds.jsonl` ledger.
+
+**(a) `chain.lua:85` — CHAININFO flag mismatch.** Answering the pending menu raises a Lua error from
+the card scripts (`chain.lua:85 in local 'fn'`, reached via `proc_workaround.lua:147`). The pinned
+CardScripts commit uses a CHAININFO flag the pinned core (v11) does not know. Every observed instance
+involves **SD10 Machine Re-Volt**, and the agent-visible message names `c80045583.lua` — Ancient Gear
+Cannon. Symptom: the board looks ordinary (e.g. "Select the zone to place …") and answering throws.
+
+**(b) `MSG_SELECT_SUM` dead end.** The message decodes to nonsense: `selects_must` entries with
+impossible players and locations (P69, P254, `loc120`), and `min`/`max` of 0 against a required
+`amount` of 1 — rendered as "choose exactly 0 more". Every observed instance involves **SDP Starter
+Deck: Pegasus** (Toon tribute lines). PROVEN dead end, not merely ugly: probing the core directly
+(`tools/probe-sum.mjs`) shows `selects = 0` — the core offers ZERO selectable cards while still
+demanding more sum — and it REJECTS the empty selection. So do NOT "fix" this by offering a
+"select nothing" option: that reading was tried, and the core rejected it, which is what proves
+`min`/`max` are misread rather than genuinely zero. `src/menu.js` carries a comment saying so.
+
+**Triage.** `reports/structure_decks_haiku_competition/tools/triage.mjs` classifies any unfinished
+duel as `answerable` / `script` / `malformed` by forking it and trying to answer the fork — never the
+record itself, since a decision inside a real duel belongs to its player.
+
+## 16. FIXED DATA-CORRUPTION BUG — saveDuel's temp file was not unique (2026-08-17)
+
+**Symptom.** `duels/sdc-SDP-vs-SDSC-g3.json` became invalid JSON (trailing `}]` after the end of the
+document), which crashed every reader with `SyntaxError: Unexpected non-whitespace character after
+JSON`. One record out of 363.
+
+**Cause.** `saveDuel` wrote to a FIXED `${path}.tmp` and renamed it. Rename makes the publish atomic
+against READERS, but the temp file itself was shared: two processes writing the same duel both opened
+`<id>.json.tmp`, their writes interleaved, and the rename then published the mixture as a
+valid-looking record. Triggered by a seed reset running while an agent was mid-move — but the hazard
+is general: any two concurrent writers to one duel could corrupt it, including two agents that end up
+on the same seat.
+
+**Fix.** The temp name is now unique per writer: `${path}.${process.pid}.${randomUUID().slice(0,8)}.tmp`.
+Concurrent writers become last-one-wins instead of corrupting. Operationally: **stop the writers
+before rewriting their data** — reseed with the driver stopped.
+
+## 17. FIXED HIDDEN-INFORMATION LEAK — a deck reveal was shown to the wrong player (2026-08-17)
+
+**Symptom.** A seat could be shown the ENTIRE contents of its opponent's Deck, and from that
+deduce their exact hand by elimination — the one thing the "unseen" pool exists to prevent. Found
+because an agent said so in its own duel report ("revealed all 32 cards of their deck… by
+elimination I knew their exact hand"), a claim that did not match the card it named, so it was
+checked instead of believed.
+
+**Cause.** `src/view.js` `maskMessage`, case `CONFIRM_CARDS`, keyed privacy on **`msg.player`** —
+the player being SHOWN the cards — instead of on **who owns them**:
+
+    const privateReveal = first && (first.location === DECK || first.location === EXTRA);
+    return privateReveal && msg.player !== viewer ? null : msg;   // wrong field
+
+Nobleman of Crossout makes BOTH players search their Decks for copies of a name, so the core
+addresses one search to each player, and P0's deck contents arrive stamped `player: 1`. The rule
+then forwarded them to P1. Verified in `opus-sdsc-vs-sd2-g2`: one `CONFIRM_CARDS` carried 32 cards
+with `controller: 0` addressed to `player: 1`, and another carried 34 of P1's to P0.
+
+**Fix.** Privacy now keys on the revealed cards' controller — a Deck/Extra reveal is visible only to
+the player who controls those cards, and a mixed-owner bundle is shown to neither. Hand and
+graveyard reveals stay public, because those happen at the table. Tests:
+`test/confirm-cards-privacy.test.js`. The spectator (viewer 2) still sees everything, by design.
+
+**Replay safety.** Masking decides what a PLAYER SEES; it never touches recorded responses or the
+core. So this fix changes no recorded duel's outcome — but duels played before it were played with
+the leak available.
+
+**Audited blast radius** (`reports/structure_decks_haiku_competition/tools/audit-leak.mjs`, which
+replays the raw core stream and applies the OLD rule to measure exposure):
+- **11 of 363 tournament duels (3.0%)**, touching 10 of 121 cells; **89 card names total, 71 of them
+  in one duel** (`sdc-SD3-vs-SDP-g2`); the other ten leaked 1–5 names each.
+- 7 of the 11 involve **SDK**, whose decklist carries Nobleman of Crossout — that card is the trigger.
+- **The informed seat won 4 and lost 6.** No edge in practice.
+- **Removing all 11 duels leaves the standings in the identical order**, every deck within ~2 points.
+  So the published win matrix stands.
+- Of the five pilot-experiment duels, only `g2` was affected; it is discarded in
+  `reports/structure_decks_haiku_competition/pilot-experiment.md`.
+
+**LESSON, worth more than the bug.** The first version of the audit reported "0 of 363 affected".
+That was a FALSE NEGATIVE: it iterated `viewDuel(...).messages`, and `viewDuel` returns
+`messageCount` only — so the loop ran over `undefined ?? []` and produced a comfortingly clean
+zero. An audit that cannot fail loudly is worse than no audit. Always sanity-check a
+"nothing found" result against a case known to be positive before believing it.
+
+## 18. Pilot strength vs deck strength (2026-08-17)
+
+`reports/structure_decks_haiku_competition/pilot-experiment.md`. Same two decklists as the
+tournament's most lopsided pairing (SD2 beat SDSC 6-0, 1st vs 8th), with SDSC handed to an **Opus**
+agent and SD2 left with **Haiku**: SDSC won **5-0** (4-0 discarding the leak-contaminated g2), from
+both seats. The tournament ranking is therefore a statement about decks *at a fixed pilot strength*;
+it compresses skill-hungry decks (SDSC, SDMP) downward and rewards forgiving ones (SD2's recursion).
+Notably the Opus pilots never assembled SDSC's advertised Citadel/Endymion engine — they won with
+Breaker plus equips, Magic Cylinder, effect-based removal to dodge Ryu Kokki, and keeping monsters
+face-down against Dark Dust Spirit.

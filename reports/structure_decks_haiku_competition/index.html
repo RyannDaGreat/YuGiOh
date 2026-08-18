@@ -1,0 +1,2984 @@
+<meta charset="utf-8">
+<title>Structure Deck Gauntlet</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-0: #f7f7f5;
+    --surface-1: #fcfcfb;
+    --surface-2: #f0efec;
+    --hairline: #e2e1dc;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #85837c;
+    --text-on-fill: #ffffff;
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --diverge-row: #2a78d6;
+    --diverge-col: #d03b3b;
+    --diverge-mid: #f0efec;
+    --mirror-fill: #eceae5;
+
+    --step-1: 26%;
+    --step-2: 56%;
+    --step-3: 86%;
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 28px;
+    --space-xl: 48px;
+    --radius-mark: 4px;
+    --radius-card: 10px;
+    --bar-height: 14px;
+    --bar-gap: 2px;
+    --cell-min: 52px;
+    --page-max: 1180px;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --hero-size: 40px;
+    --tooltip-max: 340px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-0: #131312;
+      --surface-1: #1a1a19;
+      --surface-2: #232322;
+      --hairline: #333330;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted: #8f8e85;
+      --text-on-fill: #ffffff;
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --diverge-row: #3987e5;
+      --diverge-col: #e66767;
+      --diverge-mid: #383835;
+      --mirror-fill: #2a2a28;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-0: #131312;
+    --surface-1: #1a1a19;
+    --surface-2: #232322;
+    --hairline: #333330;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #8f8e85;
+    --text-on-fill: #ffffff;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --diverge-row: #3987e5;
+    --diverge-col: #e66767;
+    --diverge-mid: #383835;
+    --mirror-fill: #2a2a28;
+  }
+
+  body { margin: 0; background: var(--surface-0); color: var(--text-primary); font-family: var(--font-sans); line-height: 1.5; }
+  main { max-width: var(--page-max); margin: 0 auto; padding: var(--space-xl) var(--space-md); }
+  h1 { font-size: 28px; margin: 0 0 var(--space-sm); letter-spacing: -0.01em; }
+  h2 { font-size: 18px; margin: var(--space-xl) 0 var(--space-sm); }
+  h3 { font-size: 14px; margin: var(--space-lg) 0 var(--space-sm); color: var(--text-secondary); font-weight: 600; }
+  p, li { color: var(--text-secondary); max-width: 76ch; }
+  a { color: var(--series-1); }
+  .lede { font-size: 15px; }
+  .card { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--radius-card); padding: var(--space-md); }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--space-sm); margin: var(--space-lg) 0; }
+  .tile { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--radius-card); padding: var(--space-md); }
+  .tile .k { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+  .tile .v { font-size: var(--hero-size); font-weight: 650; line-height: 1.1; margin-top: var(--space-xs); }
+  .tile .s { font-size: 13px; color: var(--text-secondary); }
+
+  .scroll { overflow-x: auto; }
+  table { border-collapse: separate; border-spacing: var(--bar-gap); font-size: 13px; }
+  .matrix th { font-weight: 600; color: var(--text-secondary); font-size: 12px; }
+  .matrix thead th { padding: 0 var(--space-xs) var(--space-xs); text-align: center; }
+  .matrix thead th.corner { text-align: left; white-space: nowrap; color: var(--text-muted); font-weight: 500; }
+  .rowhead { text-align: left; padding-right: var(--space-sm); white-space: nowrap; }
+  .set { font-family: var(--font-mono); font-weight: 700; }
+  .deckname { color: var(--text-muted); font-weight: 400; }
+  .cell { min-width: var(--cell-min); text-align: center; border-radius: var(--radius-mark); padding: var(--space-sm) var(--space-xs); background: var(--diverge-mid); color: var(--text-primary); font-variant-numeric: tabular-nums; cursor: default; }
+  .cell:focus-visible { outline: 2px solid var(--series-1); outline-offset: 1px; }
+  .cell.empty { background: var(--surface-2); color: var(--text-muted); }
+  .cell.mirror { background: var(--mirror-fill); color: var(--text-muted); }
+  .cell .mark { color: var(--text-muted); }
+  .cell.r1 { background: color-mix(in oklab, var(--diverge-row) var(--step-1), var(--surface-1)); }
+  .cell.r2 { background: color-mix(in oklab, var(--diverge-row) var(--step-2), var(--surface-1)); }
+  .cell.r3 { background: color-mix(in oklab, var(--diverge-row) var(--step-3), var(--surface-1)); color: var(--text-on-fill); }
+  .cell.c1 { background: color-mix(in oklab, var(--diverge-col) var(--step-1), var(--surface-1)); }
+  .cell.c2 { background: color-mix(in oklab, var(--diverge-col) var(--step-2), var(--surface-1)); }
+  .cell.c3 { background: color-mix(in oklab, var(--diverge-col) var(--step-3), var(--surface-1)); color: var(--text-on-fill); }
+  .record { text-align: center; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .rank { display: inline-block; min-width: var(--space-md); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  /* An upset is called out by an outline, never by hue alone — the hue is already
+     spoken for by the margin, and outline survives colour-blindness and print. */
+  .cell.upset { outline: 2px solid var(--text-primary); outline-offset: -2px; }
+  .upsetkey { outline: 2px solid var(--text-primary); outline-offset: 1px; padding: 0 var(--space-xs); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; margin: var(--space-sm) 0 var(--space-md); font-size: 12px; color: var(--text-secondary); }
+  .ramp { display: flex; gap: var(--bar-gap); align-items: center; }
+  .swatch { width: 26px; height: var(--bar-height); border-radius: var(--radius-mark); }
+  .key { display: inline-flex; align-items: center; gap: var(--space-xs); }
+  .keydot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .barrow { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(120px, 3fr) 56px 84px; gap: var(--space-sm); align-items: center; padding: var(--space-xs) 0; font-size: 13px; }
+  .barrow.seat { grid-template-columns: 64px 1fr; }
+  .barlabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bartrack { background: var(--surface-2); border-radius: var(--radius-mark); }
+  .bartrack.stack { display: grid; gap: var(--bar-gap); background: none; }
+  .bar { height: var(--bar-height); border-radius: 0 var(--radius-mark) var(--radius-mark) 0; background: var(--series-1); min-width: var(--radius-mark); }
+  .bar.play { background: var(--series-1); }
+  .bar.draw { background: var(--series-2); }
+  .inbar { display: none; }
+  .barvalue { text-align: right; font-variant-numeric: tabular-nums; }
+  .barsub { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+  details { margin-top: var(--space-md); }
+  summary { cursor: pointer; color: var(--text-secondary); font-size: 13px; }
+  .data { width: 100%; border-spacing: 0; margin-top: var(--space-sm); }
+  .data th, .data td { border-bottom: 1px solid var(--hairline); padding: var(--space-xs) var(--space-sm); text-align: left; }
+  .data th { color: var(--text-muted); font-weight: 600; font-size: 12px; }
+  .data td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mono { font-family: var(--font-mono); font-size: 12px; }
+
+  #tip { position: fixed; z-index: 10; max-width: var(--tooltip-max); background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--hairline); border-radius: var(--radius-mark); padding: var(--space-sm); font-size: 12px; white-space: pre-line; box-shadow: 0 2px 10px rgb(0 0 0 / 0.18); pointer-events: none; display: none; }
+  footer { margin-top: var(--space-xl); color: var(--text-muted); font-size: 12px; }
+</style>
+
+<main>
+<h1>Structure Deck Gauntlet</h1>
+<p class="lede">Every official Konami product in this repo plays every other one — and itself — in a best-of-three.
+Both seats of every duel are played by a <strong>Claude Haiku</strong> agent through this repo's CLI, under the real
+rules. Same model on both sides, no strategy briefs, no human input: the only difference between two seats is the
+decklist, which is what makes this table a statement about <em>decks</em>.</p>
+
+<div class="tiles">
+  <div class="tile"><div class="k">duels finished</div><div class="v">363</div><div class="s">of 363 scheduled · 11×11 grid, best-of-3</div></div>
+  <div class="tile"><div class="k">strongest deck</div><div class="v">SD2</div><div class="s">Zombie Madness (SD2) · 80.0% of 60 duels</div></div>
+  <div class="tile"><div class="k">going first won</div><div class="v">49.0%</div><div class="s">178 first · 185 second · 0 draws</div></div>
+  <div class="tile"><div class="k">haiku agents</div><div class="v">726</div><div class="s">two per duel, one per seat — never a costlier model</div></div>
+</div>
+
+<h2>The win matrix</h2>
+<p><strong>The row deck goes first</strong> (seat P0, takes turn 1); the column deck goes second. That is what makes the two
+triangular halves meaningful: a pairing appears once in each half, so every matchup is measured from both seatings. The
+diagonal is a mirror match, where seating cannot matter. Each cell reads <strong>row wins–column wins</strong>.</p>
+
+<div class="legend">
+  <span class="ramp">
+    <span>column deck ahead (went second)</span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-col) var(--step-3), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-col) var(--step-2), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-col) var(--step-1), var(--surface-1))"></span>
+    <span class="swatch" style="background: var(--diverge-mid)"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-row) var(--step-1), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-row) var(--step-2), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-row) var(--step-3), var(--surface-1))"></span>
+    <span>row deck ahead (went first)</span>
+  </span>
+  <span class="key"><span class="keydot" style="background: var(--mirror-fill)"></span> mirror match</span>
+  <span class="key"><span class="keydot" style="background: var(--surface-2)"></span> not played</span>
+  <span><code>*</code> cell not finished</span>
+</div>
+
+<div class="scroll">
+<table class="matrix">
+  <thead><tr><th class="corner">first ↓ &nbsp;\&nbsp; second →</th><th scope="col">SDY</th><th scope="col">SDK</th><th scope="col">SDP</th><th scope="col">SD1</th><th scope="col">SD2</th><th scope="col">SD3</th><th scope="col">SD4</th><th scope="col">SD6</th><th scope="col">SD10</th><th scope="col">SDSC</th><th scope="col">SDMP</th><th scope="col">cells</th></tr></thead>
+  <tbody><tr><th scope="row" class="rowhead"><span class="set">SDY</span> <span class="deckname">Yugi</span></th><td class="cell mirror" tabindex="0" data-detail="SDY first vs SDY
+g1: SDY wins — LP reached 0, LP -1150–7950, 257 moves
+g2: SDY wins — LP reached 0, LP 4500–-500, 351 moves
+g3: SDY wins — LP reached 0, LP 7700–-1450, 109 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDY first vs SDK
+g1: SDK wins — LP reached 0, LP -1600–4550, 209 moves
+g2: SDY wins — LP reached 0, LP 6250–-1000, 331 moves
+g3: SDY wins — LP reached 0, LP 3850–-1250, 259 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDY first vs SDP
+g1: SDP wins — LP reached 0, LP -1100–6300, 187 moves
+g2: SDY wins — LP reached 0, LP 5900–-200, 75 moves
+g3: SDY wins — LP reached 0, LP 5000–-400, 230 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SDY first vs SD1
+g1: SD1 wins — LP reached 0, LP -100–8000, 111 moves
+g2: SD1 wins — LP reached 0, LP -150–7900, 189 moves
+g3: SD1 wins — LP reached 0, LP -1500–8000, 215 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDY first vs SD2
+g1: SD2 wins — LP reached 0, LP -1250–7650, 142 moves
+g2: SD2 wins — LP reached 0, LP -200–3400, 201 moves
+g3: SDY wins — LP reached 0, LP 4300–-350, 155 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDY first vs SD3
+g1: SD3 wins — LP reached 0, LP -200–6400, 57 moves
+g2: SD3 wins — LP reached 0, LP -500–8000, 116 moves
+g3: SD3 wins — LP reached 0, LP -100–5100, 226 moves"><span class="score">0–3</span></td><td class="cell r3" tabindex="0" data-detail="SDY first vs SD4
+g1: SDY wins — LP reached 0, LP 8000–-200, 91 moves
+g2: SDY wins — LP reached 0, LP 2900–-1200, 305 moves
+g3: SDY wins — LP reached 0, LP 5900–-100, 160 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SDY first vs SD6
+g1: SD6 wins — LP reached 0, LP -1250–7650, 417 moves
+g2: SDY wins — LP reached 0, LP 6800–-500, 95 moves
+g3: SDY wins — LP reached 0, LP 5200–-2450, 123 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SDY first vs SD10
+g1: SDY wins — LP reached 0, LP 8000–-400, 77 moves
+g2: SDY wins — LP reached 0, LP 6800–-1000, 99 moves
+g3: SDY wins — LP reached 0, LP 6800–-1100, 102 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SDY first vs SDSC
+g1: SDSC wins — LP reached 0, LP -1650–8000, 281 moves
+g2: SDY wins — LP reached 0, LP 5200–-1000, 174 moves
+g3: SDY wins — LP reached 0, LP 5600–-1250, 88 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SDY first vs SDMP
+g1: SDMP wins — LP reached 0, LP -200–3350, 108 moves
+g2: SDMP wins — LP reached 0, LP -1150–1000, 137 moves
+g3: SDY wins — LP reached 0, LP 8000–-1100, 140 moves"><span class="score">1–2</span></td><td class="record">6–4</td></tr><tr><th scope="row" class="rowhead"><span class="set">SDK</span> <span class="deckname">Kaiba</span></th><td class="cell c1" tabindex="0" data-detail="SDK first vs SDY
+g1: SDY wins — LP reached 0, LP -1050–6000, 264 moves
+g2: SDY wins — LP reached 0, LP -700–2150, 398 moves
+g3: SDK wins — LP reached 0, LP 5200–-200, 240 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SDK first vs SDK
+g1: SDK wins — LP reached 0, LP -900–6450, 120 moves
+g2: SDK wins — LP reached 0, LP -800–5100, 212 moves
+g3: SDK wins — LP reached 0, LP 8000–-300, 157 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SDK first vs SDP
+g1: SDP wins — LP reached 0, LP 0–4500, 170 moves
+g2: SDK wins — LP reached 0, LP 7600–-1500, 189 moves
+g3: SDK wins — LP reached 0, LP 8000–-700, 153 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SDK first vs SD1
+g1: SD1 wins — LP reached 0, LP -600–5900, 111 moves
+g2: SD1 wins — LP reached 0, LP -1900–7500, 209 moves
+g3: SD1 wins — LP reached 0, LP -1500–7500, 208 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK first vs SD2
+g1: SD2 wins — LP reached 0, LP -1000–7200, 297 moves
+g2: SD2 wins — LP reached 0, LP -100–7900, 166 moves
+g3: SD2 wins — LP reached 0, LP -400–6400, 99 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK first vs SD3
+g1: SD3 wins — LP reached 0, LP -1150–8000, 243 moves
+g2: SD3 wins — LP reached 0, LP -800–7500, 179 moves
+g3: SD3 wins — LP reached 0, LP -200–8000, 161 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK first vs SD4
+g1: SD4 wins — LP reached 0, LP -1200–7900, 75 moves
+g2: SD4 wins — LP reached 0, LP -700–1100, 173 moves
+g3: SD4 wins — LP reached 0, LP -900–8000, 112 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK first vs SD6
+g1: SD6 wins — LP reached 0, LP -600–9300, 149 moves
+g2: SD6 wins — LP reached 0, LP -700–4400, 336 moves
+g3: SD6 wins — LP reached 0, LP -1600–2050, 226 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SDK first vs SD10
+g1: SD10 wins — LP reached 0, LP -750–4250, 202 moves
+g2: SDK wins — LP reached 0, LP 7100–-1200, 88 moves
+g3: SDK wins — LP reached 0, LP 8000–-700, 131 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SDK first vs SDSC
+g1: SDK wins — LP reached 0, LP 4600–-100, 223 moves
+g2: SDSC wins — LP reached 0, LP -1000–6800, 71 moves
+g3: SDSC wins — LP reached 0, LP -1200–8000, 278 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SDK first vs SDMP
+g1: SDK wins — LP reached 0, LP 8000–-400, 92 moves
+g2: SDK wins — LP reached 0, LP 8500–-1300, 80 moves
+g3: SDK wins — LP reached 0, LP 8000–-1600, 80 moves"><span class="score">3–0</span></td><td class="record">3–7</td></tr><tr><th scope="row" class="rowhead"><span class="set">SDP</span> <span class="deckname">Starter Deck: Pegasus</span></th><td class="cell c1" tabindex="0" data-detail="SDP first vs SDY
+g1: SDP wins — LP reached 0, LP 5350–-1000, 100 moves
+g2: SDY wins — LP reached 0, LP -500–8000, 146 moves
+g3: SDY wins — LP reached 0, LP -1200–7800, 66 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDP first vs SDK
+g1: SDK wins — LP reached 0, LP -1350–7500, 248 moves
+g2: SDK wins — LP reached 0, LP -700–8000, 120 moves
+g3: SDK wins — LP reached 0, LP -1200–1800, 143 moves"><span class="score">0–3</span></td><td class="cell mirror" tabindex="0" data-detail="SDP first vs SDP
+g1: SDP wins — LP reached 0, LP 700–-1450, 267 moves
+g2: SDP wins — LP reached 0, LP 3950–-750, 182 moves
+g3: SDP wins — LP reached 0, LP 7500–-1300, 132 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SDP first vs SD1
+g1: SD1 wins — LP reached 0, LP -100–5550, 562 moves
+g2: SD1 wins — LP reached 0, LP -500–8000, 63 moves
+g3: SDP wins — LP reached 0, LP 3100–0, 492 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDP first vs SD2
+g1: SD2 wins — LP reached 0, LP -1450–4250, 274 moves
+g2: SD2 wins — LP reached 0, LP -900–7900, 293 moves
+g3: SD2 wins — LP reached 0, LP -300–600, 381 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDP first vs SD3
+g1: SD3 wins — LP reached 0, LP -900–8000, 113 moves
+g2: SD3 wins — LP reached 0, LP -2100–6200, 288 moves
+g3: SDP wins — LP reached 0, LP 7300–-100, 147 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDP first vs SD4
+g1: SD4 wins — LP reached 0, LP -400–6350, 157 moves
+g2: SD4 wins — LP reached 0, LP -1700–8000, 44 moves
+g3: SD4 wins — LP reached 0, LP -1000–5700, 279 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDP first vs SD6
+g1: SD6 wins — LP reached 0, LP -1700–7900, 64 moves
+g2: SD6 wins — LP reached 0, LP -600–8600, 202 moves
+g3: SD6 wins — LP reached 0, LP -400–6700, 84 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDP first vs SD10
+g1: SD10 wins — LP reached 0, LP -450–5850, 252 moves
+g2: SD10 wins — LP reached 0, LP -1700–6600, 139 moves
+g3: SD10 wins — LP reached 0, LP -400–7600, 168 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SDP first vs SDSC
+g1: SDP wins — LP reached 0, LP 7400–-1450, 156 moves
+g2: SDSC wins — LP reached 0, LP -800–1000, 384 moves
+g3: SDP wins — LP reached 0, LP 5900–-1350, 335 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SDP first vs SDMP
+g1: SDMP wins — LP reached 0, LP -1150–8000, 151 moves
+g2: SDMP wins — LP reached 0, LP -900–8000, 205 moves
+g3: SDMP wins — LP reached 0, LP -1300–8000, 151 moves"><span class="score">0–3</span></td><td class="record">1–9</td></tr><tr><th scope="row" class="rowhead"><span class="set">SD1</span> <span class="deckname">Dragon's Roar (SD1)</span></th><td class="cell c1" tabindex="0" data-detail="SD1 first vs SDY
+g1: SD1 wins — LP reached 0, LP 7150–-2100, 80 moves
+g2: SDY wins — LP reached 0, LP 0–900, 289 moves
+g3: SDY wins — LP reached 0, LP 0–1900, 191 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD1 first vs SDK
+g1: SDK wins — LP reached 0, LP -500–6300, 150 moves
+g2: SD1 wins — LP reached 0, LP 8000–-2300, 136 moves
+g3: SD1 wins — LP reached 0, LP 7900–-200, 315 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD1 first vs SDP
+g1: SD1 wins — LP reached 0, LP 7600–-700, 147 moves
+g2: SD1 wins — LP reached 0, LP 6900–-500, 281 moves
+g3: SD1 wins — LP reached 0, LP 8000–-200, 203 moves"><span class="score">3–0</span></td><td class="cell mirror" tabindex="0" data-detail="SD1 first vs SD1
+g1: SD1 wins — LP reached 0, LP 4700–-1500, 317 moves
+g2: SD1 wins — LP reached 0, LP -1400–6100, 270 moves
+g3: SD1 wins — LP reached 0, LP 0–3800, 216 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD1 first vs SD2
+g1: SD2 wins — LP reached 0, LP 0–6500, 389 moves
+g2: SD2 wins — LP reached 0, LP -1100–5600, 269 moves
+g3: SD1 wins — LP reached 0, LP 7850–-750, 99 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD1 first vs SD3
+g1: SD1 wins — LP reached 0, LP 7400–-1100, 296 moves
+g2: SD3 wins — LP reached 0, LP -1250–6800, 236 moves
+g3: SD3 wins — LP reached 0, LP 0–6300, 183 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SD1 first vs SD4
+g1: SD4 wins — LP reached 0, LP -1400–8000, 168 moves
+g2: SD4 wins — LP reached 0, LP -1400–6800, 144 moves
+g3: SD4 wins — LP reached 0, LP -1100–8000, 182 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SD1 first vs SD6
+g1: SD1 wins — LP reached 0, LP 3600–-900, 241 moves
+g2: SD6 wins — LP reached 0, LP -1900–6300, 80 moves
+g3: SD1 wins — LP reached 0, LP 8000–-1600, 67 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD1 first vs SD10
+g1: SD10 wins — LP reached 0, LP 0–5200, 198 moves
+g2: SD1 wins — LP reached 0, LP 7800–-400, 231 moves
+g3: SD1 wins — LP reached 0, LP 6600–-100, 195 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD1 first vs SDSC
+g1: SD1 wins — LP reached 0, LP 2250–-150, 282 moves
+g2: SDSC wins — LP reached 0, LP -200–4000, 240 moves
+g3: SDSC wins — LP reached 0, LP -1400–4350, 560 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD1 first vs SDMP
+g1: SDMP wins — LP reached 0, LP -2100–6500, 158 moves
+g2: SD1 wins — LP reached 0, LP 8000–-500, 116 moves
+g3: SDMP wins — LP reached 0, LP -300–4500, 191 moves"><span class="score">1–2</span></td><td class="record">4–6</td></tr><tr><th scope="row" class="rowhead"><span class="set">SD2</span> <span class="deckname">Zombie Madness (SD2)</span></th><td class="cell r1" tabindex="0" data-detail="SD2 first vs SDY
+g1: SD2 wins — LP reached 0, LP 8000–-600, 216 moves
+g2: SDY wins — LP reached 0, LP -300–8000, 157 moves
+g3: SD2 wins — LP reached 0, LP 8000–-600, 272 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD2 first vs SDK
+g1: SD2 wins — LP reached 0, LP 3400–-1250, 183 moves
+g2: SDK wins — LP reached 0, LP -800–3550, 484 moves
+g3: SD2 wins — LP reached 0, LP 6300–-1400, 121 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD2 first vs SDP
+g1: SD2 wins — LP reached 0, LP 2000–-400, 340 moves
+g2: SDP wins — LP reached 0, LP -150–7100, 133 moves
+g3: SD2 wins — LP reached 0, LP 8000–-650, 76 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD2 first vs SD1
+g1: SD2 wins — LP reached 0, LP 2300–-400, 142 moves
+g2: SD1 wins — LP reached 0, LP -500–8000, 174 moves
+g3: SD1 wins — LP reached 0, LP -500–7850, 81 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SD2 first vs SD2
+g1: SD2 wins — LP reached 0, LP -800–8200, 256 moves
+g2: SD2 wins — LP reached 0, LP -1350–4450, 175 moves
+g3: SD2 wins — LP reached 0, LP -300–7100, 169 moves"><span class="score">0–3</span></td><td class="cell r3" tabindex="0" data-detail="SD2 first vs SD3
+g1: SD2 wins — LP reached 0, LP 5150–-700, 182 moves
+g2: SD2 wins — LP reached 0, LP 5600–-1450, 210 moves
+g3: SD2 wins — LP reached 0, LP 4750–-200, 183 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD2 first vs SD4
+g1: SD2 wins — LP reached 0, LP 4400–-1700, 319 moves
+g2: SD2 wins — LP reached 0, LP 4300–-1650, 140 moves
+g3: SD2 wins — LP reached 0, LP 900–-200, 264 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SD2 first vs SD6
+g1: SD2 wins — LP reached 0, LP 5800–-50, 98 moves
+g2: SD6 wins — LP reached 0, LP -950–7900, 170 moves
+g3: SD6 wins — LP reached 0, LP -50–6450, 142 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SD2 first vs SD10
+g1: SD2 wins — LP reached 0, LP 8000–0, 65 moves
+g2: SD2 wins — LP reached 0, LP 8000–-500, 142 moves
+g3: SD2 wins — LP reached 0, LP 7800–-850, 205 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD2 first vs SDSC
+g1: SD2 wins — LP reached 0, LP 5400–-1200, 176 moves
+g2: SD2 wins — LP reached 0, LP 6100–-800, 280 moves
+g3: SD2 wins — LP reached 0, LP 6450–-600, 284 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD2 first vs SDMP
+g1: SD2 wins — LP reached 0, LP 3600–-400, 199 moves
+g2: SD2 wins — LP reached 0, LP 400–-400, 213 moves
+g3: SD2 wins — LP reached 0, LP 8000–-1100, 260 moves"><span class="score">3–0</span></td><td class="record">8–2</td></tr><tr><th scope="row" class="rowhead"><span class="set">SD3</span> <span class="deckname">Blaze of Destruction (SD3)</span></th><td class="cell r1" tabindex="0" data-detail="SD3 first vs SDY
+g1: SD3 wins — LP reached 0, LP 2150–-100, 150 moves
+g2: SD3 wins — LP reached 0, LP 8000–-300, 55 moves
+g3: SDY wins — LP reached 0, LP -800–4450, 371 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 first vs SDK
+g1: SD3 wins — LP reached 0, LP 5600–-200, 144 moves
+g2: SDK wins — LP reached 0, LP -1800–1300, 341 moves
+g3: SD3 wins — LP reached 0, LP 8000–-200, 124 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD3 first vs SDP
+g1: SD3 wins — LP reached 0, LP 7600–-850, 270 moves
+g2: SD3 wins — LP reached 0, LP 8000–-650, 152 moves
+g3: SD3 wins — LP reached 0, LP 7000–-1300, 130 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD3 first vs SD1
+g1: SD3 wins — LP reached 0, LP 7000–-300, 87 moves
+g2: SD3 wins — LP reached 0, LP 8000–-600, 99 moves
+g3: SD1 wins — LP reached 0, LP -200–5900, 288 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD3 first vs SD2
+g1: SD2 wins — LP reached 0, LP -650–8000, 246 moves
+g2: SD3 wins — LP reached 0, LP 8000–-650, 142 moves
+g3: SD2 wins — LP reached 0, LP -2500–7250, 161 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SD3 first vs SD3
+g1: SD3 wins — LP reached 0, LP 2700–-900, 210 moves
+g2: SD3 wins — LP reached 0, LP 7000–0, 254 moves
+g3: SD3 wins — LP reached 0, LP -400–3600, 437 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SD3 first vs SD4
+g1: SD4 wins — LP reached 0, LP -2000–2000, 310 moves
+g2: SD4 wins — LP reached 0, LP -350–7600, 152 moves
+g3: SD4 wins — LP reached 0, LP -1600–3000, 347 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SD3 first vs SD6
+g1: SD3 wins — LP reached 0, LP 8000–0, 100 moves
+g2: SD3 wins — LP reached 0, LP 600–-500, 228 moves
+g3: SD6 wins — LP reached 0, LP -900–1900, 341 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 first vs SD10
+g1: SD10 wins — LP reached 0, LP 0–1800, 267 moves
+g2: SD3 wins — LP reached 0, LP 7800–-1300, 79 moves
+g3: SD3 wins — LP reached 0, LP 5600–-200, 82 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 first vs SDSC
+g1: SD3 wins — LP reached 0, LP 8000–-800, 59 moves
+g2: SDSC wins — LP reached 0, LP -1100–7000, 183 moves
+g3: SD3 wins — LP reached 0, LP 8000–-600, 103 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD3 first vs SDMP
+g1: SD3 wins — LP reached 0, LP 3100–-700, 186 moves
+g2: SDMP wins — LP reached 0, LP -1300–6000, 297 moves
+g3: SDMP wins — LP reached 0, LP -1200–4400, 222 moves"><span class="score">1–2</span></td><td class="record">7–3</td></tr><tr><th scope="row" class="rowhead"><span class="set">SD4</span> <span class="deckname">Fury from the Deep (SD4)</span></th><td class="cell r1" tabindex="0" data-detail="SD4 first vs SDY
+g1: SDY wins — LP reached 0, LP -2300–450, 331 moves
+g2: SD4 wins — LP reached 0, LP 4750–-1050, 214 moves
+g3: SD4 wins — LP reached 0, LP 6500–-1450, 139 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD4 first vs SDK
+g1: SD4 wins — LP reached 0, LP 6400–-100, 116 moves
+g2: SDK wins — LP reached 0, LP 0–7000, 98 moves
+g3: SDK wins — LP reached 0, LP -100–100, 247 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SD4 first vs SDP
+g1: SD4 wins — LP reached 0, LP 8000–-600, 247 moves
+g2: SD4 wins — LP reached 0, LP 700–-100, 284 moves
+g3: SD4 wins — LP reached 0, LP 8000–-200, 128 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD4 first vs SD1
+g1: SD4 wins — LP reached 0, LP 5550–-800, 97 moves
+g2: SD1 wins — LP reached 0, LP -1050–700, 316 moves
+g3: SD4 wins — LP reached 0, LP 8000–-200, 104 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD4 first vs SD2
+g1: SD4 wins — LP reached 0, LP 4400–-900, 182 moves
+g2: SD2 wins — LP reached 0, LP -900–4400, 315 moves
+g3: SD2 wins — LP reached 0, LP -1150–6400, 171 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD4 first vs SD3
+g1: SD4 wins — LP reached 0, LP 6300–-400, 152 moves
+g2: SD3 wins — LP reached 0, LP 0–1100, 345 moves
+g3: SD4 wins — LP reached 0, LP 6200–-700, 122 moves"><span class="score">2–1</span></td><td class="cell mirror" tabindex="0" data-detail="SD4 first vs SD4
+g1: SD4 wins — LP reached 0, LP 350–-1350, 291 moves
+g2: SD4 wins — LP reached 0, LP -250–7600, 94 moves
+g3: SD4 wins — LP reached 0, LP 11000–-700, 263 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD4 first vs SD6
+g1: SD4 wins — LP reached 0, LP 6700–-600, 228 moves
+g2: SD4 wins — LP reached 0, LP 4300–-200, 71 moves
+g3: SD4 wins — LP reached 0, LP 8000–-300, 121 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD4 first vs SD10
+g1: SD4 wins — LP reached 0, LP 6200–-600, 204 moves
+g2: SD4 wins — LP reached 0, LP 2700–-600, 381 moves
+g3: SD4 wins — LP reached 0, LP 1300–-1300, 198 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD4 first vs SDSC
+g1: SDSC wins — LP reached 0, LP -550–5150, 134 moves
+g2: SD4 wins — LP reached 0, LP 1200–-1900, 130 moves
+g3: SD4 wins — LP reached 0, LP 5250–-600, 303 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 first vs SDMP
+g1: SD4 wins — LP reached 0, LP 5900–-1200, 178 moves
+g2: SDMP wins — LP reached 0, LP -550–6700, 101 moves
+g3: SD4 wins — LP reached 0, LP 8000–-1200, 150 moves"><span class="score">2–1</span></td><td class="record">8–2</td></tr><tr><th scope="row" class="rowhead"><span class="set">SD6</span> <span class="deckname">Spellcaster's Judgment (SD6)</span></th><td class="cell c1" tabindex="0" data-detail="SD6 first vs SDY
+g1: SDY wins — LP reached 0, LP -300–8400, 122 moves
+g2: SD6 wins — LP reached 0, LP 6400–-600, 147 moves
+g3: SDY wins — LP reached 0, LP -300–1000, 96 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD6 first vs SDK
+g1: SD6 wins — LP reached 0, LP 4000–-1050, 213 moves
+g2: SDK wins — LP reached 0, LP -400–5300, 363 moves
+g3: SDK wins — LP reached 0, LP -800–10000, 54 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SD6 first vs SDP
+g1: SD6 wins — LP reached 0, LP 6700–-900, 334 moves
+g2: SD6 wins — LP reached 0, LP 8000–-200, 165 moves
+g3: SD6 wins — LP reached 0, LP 8000–-600, 60 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SD6 first vs SD1
+g1: SD1 wins — LP reached 0, LP -600–7700, 198 moves
+g2: SD6 wins — LP reached 0, LP 10000–-400, 92 moves
+g3: SD1 wins — LP reached 0, LP -1000–6300, 187 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SD6 first vs SD2
+g1: SD2 wins — LP reached 0, LP -150–4400, 118 moves
+g2: SD2 wins — LP reached 0, LP -1100–7600, 131 moves
+g3: SD2 wins — LP reached 0, LP -650–7600, 114 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SD6 first vs SD3
+g1: SD6 wins — LP reached 0, LP 7000–-1500, 123 moves
+g2: SD3 wins — LP reached 0, LP -700–2100, 551 moves
+g3: SD3 wins — LP reached 0, LP -2650–8000, 84 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD6 first vs SD4
+g1: SD4 wins — LP reached 0, LP -900–8000, 125 moves
+g2: SD6 wins — LP reached 0, LP 6300–-950, 85 moves
+g3: SD6 wins — LP reached 0, LP 7900–-1600, 111 moves"><span class="score">2–1</span></td><td class="cell mirror" tabindex="0" data-detail="SD6 first vs SD6
+g1: SD6 wins — LP reached 0, LP 8000–-100, 80 moves
+g2: SD6 wins — LP reached 0, LP -900–4200, 395 moves
+g3: SD6 wins — LP reached 0, LP 4800–-1100, 147 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD6 first vs SD10
+g1: SD10 wins — LP reached 0, LP -150–300, 132 moves
+g2: SD6 wins — LP reached 0, LP 100–-900, 132 moves
+g3: SD6 wins — LP reached 0, LP 8000–-1400, 70 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD6 first vs SDSC
+g1: SD6 wins — LP reached 0, LP 6800–-1350, 317 moves
+g2: SD6 wins — LP reached 0, LP 5300–-750, 489 moves
+g3: SD6 wins — LP reached 0, LP 4900–-100, 223 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD6 first vs SDMP
+g1: SDMP wins — LP reached 0, LP -400–4700, 334 moves
+g2: SD6 wins — LP reached 0, LP 7400–-900, 85 moves
+g3: SD6 wins — LP reached 0, LP 5900–-1800, 191 moves"><span class="score">2–1</span></td><td class="record">5–5</td></tr><tr><th scope="row" class="rowhead"><span class="set">SD10</span> <span class="deckname">Machine Re-Volt (SD10)</span></th><td class="cell c1" tabindex="0" data-detail="SD10 first vs SDY
+g1: SDY wins — LP reached 0, LP -100–7400, 111 moves
+g2: SD10 wins — LP reached 0, LP 7700–-1150, 112 moves
+g3: SDY wins — LP reached 0, LP -1600–8000, 42 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD10 first vs SDK
+g1: SD10 wins — LP reached 0, LP 7000–-2900, 116 moves
+g2: SDK wins — LP reached 0, LP -1650–7750, 98 moves
+g3: SD10 wins — LP reached 0, LP 6700–-550, 225 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD10 first vs SDP
+g1: SD10 wins — LP reached 0, LP 2200–-800, 240 moves
+g2: SD10 wins — LP reached 0, LP 8000–-1600, 134 moves
+g3: SDP wins — LP reached 0, LP -1200–8000, 95 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SD1
+g1: SD1 wins — LP reached 0, LP -1400–8000, 112 moves
+g2: SD1 wins — LP reached 0, LP -1000–8000, 86 moves
+g3: SD10 wins — LP reached 0, LP 7100–-600, 187 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SD2
+g1: SD2 wins — LP reached 0, LP -450–7500, 136 moves
+g2: SD10 wins — LP reached 0, LP 5150–-750, 138 moves
+g3: SD2 wins — LP reached 0, LP -600–7900, 154 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SD3
+g1: SD3 wins — LP reached 0, LP -1500–3800, 199 moves
+g2: SD10 wins — LP reached 0, LP 3900–-400, 124 moves
+g3: SD3 wins — LP reached 0, LP -400–8000, 86 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SD4
+g1: SD4 wins — LP reached 0, LP -1400–8000, 42 moves
+g2: SD4 wins — LP reached 0, LP -1200–7300, 200 moves
+g3: SD10 wins — LP reached 0, LP 8000–-1800, 151 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SD6
+g1: SD6 wins — LP reached 0, LP -800–10400, 131 moves
+g2: SD6 wins — LP reached 0, LP -1100–8000, 64 moves
+g3: SD10 wins — LP reached 0, LP 8000–-100, 67 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SD10 first vs SD10
+g1: SD10 wins — LP reached 0, LP 8000–-600, 168 moves
+g2: SD10 wins — LP reached 0, LP 8000–-600, 151 moves
+g3: SD10 wins — LP reached 0, LP -2100–500, 362 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SDSC
+g1: SDSC wins — LP reached 0, LP -300–5400, 108 moves
+g2: SDSC wins — LP reached 0, LP -500–8000, 59 moves
+g3: SD10 wins — LP reached 0, LP 7700–-650, 193 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 first vs SDMP
+g1: SD10 wins — LP reached 0, LP 6700–-1200, 114 moves
+g2: SDMP wins — LP reached 0, LP -1100–8000, 120 moves
+g3: SDMP wins — LP reached 0, LP -1100–8000, 100 moves"><span class="score">1–2</span></td><td class="record">2–8</td></tr><tr><th scope="row" class="rowhead"><span class="set">SDSC</span> <span class="deckname">Spellcaster's Command (SDSC)</span></th><td class="cell r1" tabindex="0" data-detail="SDSC first vs SDY
+g1: SDSC wins — LP reached 0, LP 6400–-300, 172 moves
+g2: SDSC wins — LP reached 0, LP 8000–-300, 301 moves
+g3: SDY wins — LP reached 0, LP -1250–4350, 96 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDSC first vs SDK
+g1: SDK wins — LP reached 0, LP -600–6700, 156 moves
+g2: SDSC wins — LP reached 0, LP 8000–-1100, 56 moves
+g3: SDSC wins — LP reached 0, LP 6600–-150, 218 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDSC first vs SDP
+g1: SDSC wins — LP reached 0, LP 6400–-100, 250 moves
+g2: SDSC wins — LP reached 0, LP 3100–-1650, 258 moves
+g3: SDP wins — LP reached 0, LP -50–1950, 196 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDSC first vs SD1
+g1: SD1 wins — LP reached 0, LP -1100–7400, 202 moves
+g2: SDSC wins — LP reached 0, LP 2400–-1900, 267 moves
+g3: SDSC wins — LP reached 0, LP 8000–-2500, 155 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SDSC first vs SD2
+g1: SD2 wins — LP reached 0, LP -1300–7750, 151 moves
+g2: SD2 wins — LP reached 0, LP -1500–8000, 77 moves
+g3: SD2 wins — LP reached 0, LP -900–5250, 339 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDSC first vs SD3
+g1: SDSC wins — LP reached 0, LP 6800–-1800, 225 moves
+g2: SD3 wins — LP reached 0, LP -400–8000, 61 moves
+g3: SD3 wins — LP reached 0, LP -1350–6150, 266 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDSC first vs SD4
+g1: SD4 wins — LP reached 0, LP 0–8000, 95 moves
+g2: SD4 wins — LP reached 0, LP -850–7250, 338 moves
+g3: SD4 wins — LP reached 0, LP -100–5850, 124 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDSC first vs SD6
+g1: SD6 wins — LP reached 0, LP -300–7400, 175 moves
+g2: SD6 wins — LP reached 0, LP -700–8000, 106 moves
+g3: SD6 wins — LP reached 0, LP -1150–5700, 168 moves"><span class="score">0–3</span></td><td class="cell r3" tabindex="0" data-detail="SDSC first vs SD10
+g1: SDSC wins — LP reached 0, LP 7200–-1150, 123 moves
+g2: SDSC wins — LP reached 0, LP 5950–-950, 176 moves
+g3: SDSC wins — LP reached 0, LP 6750–-1050, 87 moves"><span class="score">3–0</span></td><td class="cell mirror" tabindex="0" data-detail="SDSC first vs SDSC
+g1: SDSC wins — LP reached 0, LP -2000–6100, 244 moves
+g2: SDSC wins — LP reached 0, LP 6400–-1700, 265 moves
+g3: SDSC wins — LP reached 0, LP -1600–5200, 196 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SDSC first vs SDMP
+g1: SDSC wins — LP reached 0, LP 8000–0, 53 moves
+g2: SDSC wins — LP reached 0, LP 7900–-1600, 102 moves
+g3: SDMP wins — LP reached 0, LP 0–5300, 210 moves"><span class="score">2–1</span></td><td class="record">6–4</td></tr><tr><th scope="row" class="rowhead"><span class="set">SDMP</span> <span class="deckname">Master of Pendulum (SDMP)</span></th><td class="cell c1" tabindex="0" data-detail="SDMP first vs SDY
+g1: SDY wins — LP reached 0, LP -1000–2800, 109 moves
+g2: SDMP wins — LP reached 0, LP 8000–-1300, 88 moves
+g3: SDY wins — LP reached 0, LP -1700–7000, 196 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SDMP first vs SDK
+g1: SDMP wins — LP reached 0, LP 6900–-700, 112 moves
+g2: SDMP wins — LP reached 0, LP 6900–-1500, 111 moves
+g3: SDMP wins — LP reached 0, LP 4800–-600, 135 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SDMP first vs SDP
+g1: SDMP wins — LP reached 0, LP 6800–-300, 160 moves
+g2: SDMP wins — LP reached 0, LP 6200–-1500, 203 moves
+g3: SDMP wins — LP reached 0, LP 8000–-700, 246 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SDMP first vs SD1
+g1: SDMP wins — LP reached 0, LP 5800–-1300, 117 moves
+g2: SD1 wins — LP reached 0, LP -1300–7900, 189 moves
+g3: SD1 wins — LP reached 0, LP -600–6700, 57 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDMP first vs SD2
+g1: SD2 wins — LP reached 0, LP -1200–8000, 170 moves
+g2: SD2 wins — LP reached 0, LP -900–7900, 132 moves
+g3: SD2 wins — LP reached 0, LP -1400–5900, 327 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDMP first vs SD3
+g1: SDMP wins — LP reached 0, LP 6300–-2100, 151 moves
+g2: SD3 wins — LP reached 0, LP -800–4700, 162 moves
+g3: SD3 wins — LP reached 0, LP -250–8000, 112 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDMP first vs SD4
+g1: SD4 wins — LP reached 0, LP -1900–8000, 113 moves
+g2: SD4 wins — LP reached 0, LP -1000–2000, 176 moves
+g3: SD4 wins — LP reached 0, LP -600–8000, 91 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDMP first vs SD6
+g1: SD6 wins — LP reached 0, LP -1500–8000, 59 moves
+g2: SD6 wins — LP reached 0, LP -600–7500, 88 moves
+g3: SD6 wins — LP reached 0, LP -900–8000, 93 moves"><span class="score">0–3</span></td><td class="cell r3" tabindex="0" data-detail="SDMP first vs SD10
+g1: SDMP wins — LP reached 0, LP 7100–0, 113 moves
+g2: SDMP wins — LP reached 0, LP 7700–-1400, 64 moves
+g3: SDMP wins — LP reached 0, LP 8000–-1800, 139 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SDMP first vs SDSC
+g1: SDMP wins — LP reached 0, LP 7500–-200, 301 moves
+g2: SDSC wins — LP reached 0, LP 0–4700, 180 moves
+g3: SDMP wins — LP reached 0, LP 8000–-1300, 217 moves"><span class="score">2–1</span></td><td class="cell mirror" tabindex="0" data-detail="SDMP first vs SDMP
+g1: SDMP wins — LP reached 0, LP -300–6100, 299 moves
+g2: SDMP wins — LP reached 0, LP 8000–-400, 173 moves
+g3: SDMP wins — LP reached 0, LP -1200–7500, 79 moves"><span class="score">1–2</span></td><td class="record">4–6</td></tr></tbody>
+</table>
+</div>
+
+<h2>The same grid, ordered by strength</h2>
+<p>Identical data, both axes sorted strongest to weakest. If the field were a clean pecking order this
+would be <strong>blue above the diagonal and red below it</strong> — stronger decks beating weaker ones
+whichever seat they took. It mostly is, and the exceptions are the interesting part.</p>
+<div class="scroll">
+<table class="matrix">
+  <thead><tr><th class="corner">first ↓ &nbsp;\&nbsp; second →</th><th scope="col">SD2</th><th scope="col">SD4</th><th scope="col">SD3</th><th scope="col">SD6</th><th scope="col">SD1</th><th scope="col">SDY</th><th scope="col">SDMP</th><th scope="col">SDSC</th><th scope="col">SDK</th><th scope="col">SD10</th><th scope="col">SDP</th></tr></thead>
+  <tbody><tr><th scope="row" class="rowhead"><span class="rank">1</span> <span class="set">SD2</span> <span class="deckname">Zombie Madness (SD2)</span></th><td class="cell mirror" tabindex="0" data-detail="SD2 mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">0–3</span></td><td class="cell r3" tabindex="0" data-detail="SD2 (rank 1) first vs SD4 (rank 2)
+g1: SD2 wins — LP 4400–-1700, 319 moves
+g2: SD2 wins — LP 4300–-1650, 140 moves
+g3: SD2 wins — LP 900–-200, 264 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD2 (rank 1) first vs SD3 (rank 3)
+g1: SD2 wins — LP 5150–-700, 182 moves
+g2: SD2 wins — LP 5600–-1450, 210 moves
+g3: SD2 wins — LP 4750–-200, 183 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SD2 (rank 1) first vs SD6 (rank 4)
+g1: SD2 wins — LP 5800–-50, 98 moves
+g2: SD6 wins — LP -950–7900, 170 moves
+g3: SD6 wins — LP -50–6450, 142 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD2 (rank 1) first vs SD1 (rank 5)
+g1: SD2 wins — LP 2300–-400, 142 moves
+g2: SD1 wins — LP -500–8000, 174 moves
+g3: SD1 wins — LP -500–7850, 81 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD2 (rank 1) first vs SDY (rank 6)
+g1: SD2 wins — LP 8000–-600, 216 moves
+g2: SDY wins — LP -300–8000, 157 moves
+g3: SD2 wins — LP 8000–-600, 272 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD2 (rank 1) first vs SDMP (rank 7)
+g1: SD2 wins — LP 3600–-400, 199 moves
+g2: SD2 wins — LP 400–-400, 213 moves
+g3: SD2 wins — LP 8000–-1100, 260 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD2 (rank 1) first vs SDSC (rank 8)
+g1: SD2 wins — LP 5400–-1200, 176 moves
+g2: SD2 wins — LP 6100–-800, 280 moves
+g3: SD2 wins — LP 6450–-600, 284 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD2 (rank 1) first vs SDK (rank 9)
+g1: SD2 wins — LP 3400–-1250, 183 moves
+g2: SDK wins — LP -800–3550, 484 moves
+g3: SD2 wins — LP 6300–-1400, 121 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD2 (rank 1) first vs SD10 (rank 10)
+g1: SD2 wins — LP 8000–0, 65 moves
+g2: SD2 wins — LP 8000–-500, 142 moves
+g3: SD2 wins — LP 7800–-850, 205 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD2 (rank 1) first vs SDP (rank 11)
+g1: SD2 wins — LP 2000–-400, 340 moves
+g2: SDP wins — LP -150–7100, 133 moves
+g3: SD2 wins — LP 8000–-650, 76 moves"><span class="score">2–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">2</span> <span class="set">SD4</span> <span class="deckname">Fury from the Deep (SD4)</span></th><td class="cell c1" tabindex="0" data-detail="SD4 (rank 2) first vs SD2 (rank 1)
+g1: SD4 wins — LP 4400–-900, 182 moves
+g2: SD2 wins — LP -900–4400, 315 moves
+g3: SD2 wins — LP -1150–6400, 171 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SD4 mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 (rank 2) first vs SD3 (rank 3)
+g1: SD4 wins — LP 6300–-400, 152 moves
+g2: SD3 wins — LP 0–1100, 345 moves
+g3: SD4 wins — LP 6200–-700, 122 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD4 (rank 2) first vs SD6 (rank 4)
+g1: SD4 wins — LP 6700–-600, 228 moves
+g2: SD4 wins — LP 4300–-200, 71 moves
+g3: SD4 wins — LP 8000–-300, 121 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SD4 (rank 2) first vs SD1 (rank 5)
+g1: SD4 wins — LP 5550–-800, 97 moves
+g2: SD1 wins — LP -1050–700, 316 moves
+g3: SD4 wins — LP 8000–-200, 104 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 (rank 2) first vs SDY (rank 6)
+g1: SDY wins — LP -2300–450, 331 moves
+g2: SD4 wins — LP 4750–-1050, 214 moves
+g3: SD4 wins — LP 6500–-1450, 139 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 (rank 2) first vs SDMP (rank 7)
+g1: SD4 wins — LP 5900–-1200, 178 moves
+g2: SDMP wins — LP -550–6700, 101 moves
+g3: SD4 wins — LP 8000–-1200, 150 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 (rank 2) first vs SDSC (rank 8)
+g1: SDSC wins — LP -550–5150, 134 moves
+g2: SD4 wins — LP 1200–-1900, 130 moves
+g3: SD4 wins — LP 5250–-600, 303 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD4 (rank 2) first vs SDK (rank 9)
+g1: SD4 wins — LP 6400–-100, 116 moves
+g2: SDK wins — LP 0–7000, 98 moves
+g3: SDK wins — LP -100–100, 247 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SD4 (rank 2) first vs SD10 (rank 10)
+g1: SD4 wins — LP 6200–-600, 204 moves
+g2: SD4 wins — LP 2700–-600, 381 moves
+g3: SD4 wins — LP 1300–-1300, 198 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SD4 (rank 2) first vs SDP (rank 11)
+g1: SD4 wins — LP 8000–-600, 247 moves
+g2: SD4 wins — LP 700–-100, 284 moves
+g3: SD4 wins — LP 8000–-200, 128 moves"><span class="score">3–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">3</span> <span class="set">SD3</span> <span class="deckname">Blaze of Destruction (SD3)</span></th><td class="cell c1" tabindex="0" data-detail="SD3 (rank 3) first vs SD2 (rank 1)
+g1: SD2 wins — LP -650–8000, 246 moves
+g2: SD3 wins — LP 8000–-650, 142 moves
+g3: SD2 wins — LP -2500–7250, 161 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SD3 (rank 3) first vs SD4 (rank 2)
+g1: SD4 wins — LP -2000–2000, 310 moves
+g2: SD4 wins — LP -350–7600, 152 moves
+g3: SD4 wins — LP -1600–3000, 347 moves"><span class="score">0–3</span></td><td class="cell mirror" tabindex="0" data-detail="SD3 mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 (rank 3) first vs SD6 (rank 4)
+g1: SD3 wins — LP 8000–0, 100 moves
+g2: SD3 wins — LP 600–-500, 228 moves
+g3: SD6 wins — LP -900–1900, 341 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 (rank 3) first vs SD1 (rank 5)
+g1: SD3 wins — LP 7000–-300, 87 moves
+g2: SD3 wins — LP 8000–-600, 99 moves
+g3: SD1 wins — LP -200–5900, 288 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 (rank 3) first vs SDY (rank 6)
+g1: SD3 wins — LP 2150–-100, 150 moves
+g2: SD3 wins — LP 8000–-300, 55 moves
+g3: SDY wins — LP -800–4450, 371 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD3 (rank 3) first vs SDMP (rank 7)
+g1: SD3 wins — LP 3100–-700, 186 moves
+g2: SDMP wins — LP -1300–6000, 297 moves
+g3: SDMP wins — LP -1200–4400, 222 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD3 (rank 3) first vs SDSC (rank 8)
+g1: SD3 wins — LP 8000–-800, 59 moves
+g2: SDSC wins — LP -1100–7000, 183 moves
+g3: SD3 wins — LP 8000–-600, 103 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 (rank 3) first vs SDK (rank 9)
+g1: SD3 wins — LP 5600–-200, 144 moves
+g2: SDK wins — LP -1800–1300, 341 moves
+g3: SD3 wins — LP 8000–-200, 124 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 (rank 3) first vs SD10 (rank 10)
+g1: SD10 wins — LP 0–1800, 267 moves
+g2: SD3 wins — LP 7800–-1300, 79 moves
+g3: SD3 wins — LP 5600–-200, 82 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD3 (rank 3) first vs SDP (rank 11)
+g1: SD3 wins — LP 7600–-850, 270 moves
+g2: SD3 wins — LP 8000–-650, 152 moves
+g3: SD3 wins — LP 7000–-1300, 130 moves"><span class="score">3–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">4</span> <span class="set">SD6</span> <span class="deckname">Spellcaster's Judgment (SD6)</span></th><td class="cell c3" tabindex="0" data-detail="SD6 (rank 4) first vs SD2 (rank 1)
+g1: SD2 wins — LP -150–4400, 118 moves
+g2: SD2 wins — LP -1100–7600, 131 moves
+g3: SD2 wins — LP -650–7600, 114 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SD6 (rank 4) first vs SD4 (rank 2)
+g1: SD4 wins — LP -900–8000, 125 moves
+g2: SD6 wins — LP 6300–-950, 85 moves
+g3: SD6 wins — LP 7900–-1600, 111 moves"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD6 (rank 4) first vs SD3 (rank 3)
+g1: SD6 wins — LP 7000–-1500, 123 moves
+g2: SD3 wins — LP -700–2100, 551 moves
+g3: SD3 wins — LP -2650–8000, 84 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SD6 mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SD6 (rank 4) first vs SD1 (rank 5)
+g1: SD1 wins — LP -600–7700, 198 moves
+g2: SD6 wins — LP 10000–-400, 92 moves
+g3: SD1 wins — LP -1000–6300, 187 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD6 (rank 4) first vs SDY (rank 6)
+g1: SDY wins — LP -300–8400, 122 moves
+g2: SD6 wins — LP 6400–-600, 147 moves
+g3: SDY wins — LP -300–1000, 96 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD6 (rank 4) first vs SDMP (rank 7)
+g1: SDMP wins — LP -400–4700, 334 moves
+g2: SD6 wins — LP 7400–-900, 85 moves
+g3: SD6 wins — LP 5900–-1800, 191 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD6 (rank 4) first vs SDSC (rank 8)
+g1: SD6 wins — LP 6800–-1350, 317 moves
+g2: SD6 wins — LP 5300–-750, 489 moves
+g3: SD6 wins — LP 4900–-100, 223 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SD6 (rank 4) first vs SDK (rank 9)
+g1: SD6 wins — LP 4000–-1050, 213 moves
+g2: SDK wins — LP -400–5300, 363 moves
+g3: SDK wins — LP -800–10000, 54 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD6 (rank 4) first vs SD10 (rank 10)
+g1: SD10 wins — LP -150–300, 132 moves
+g2: SD6 wins — LP 100–-900, 132 moves
+g3: SD6 wins — LP 8000–-1400, 70 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD6 (rank 4) first vs SDP (rank 11)
+g1: SD6 wins — LP 6700–-900, 334 moves
+g2: SD6 wins — LP 8000–-200, 165 moves
+g3: SD6 wins — LP 8000–-600, 60 moves"><span class="score">3–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">5</span> <span class="set">SD1</span> <span class="deckname">Dragon's Roar (SD1)</span></th><td class="cell c1" tabindex="0" data-detail="SD1 (rank 5) first vs SD2 (rank 1)
+g1: SD2 wins — LP 0–6500, 389 moves
+g2: SD2 wins — LP -1100–5600, 269 moves
+g3: SD1 wins — LP 7850–-750, 99 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SD1 (rank 5) first vs SD4 (rank 2)
+g1: SD4 wins — LP -1400–8000, 168 moves
+g2: SD4 wins — LP -1400–6800, 144 moves
+g3: SD4 wins — LP -1100–8000, 182 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SD1 (rank 5) first vs SD3 (rank 3)
+g1: SD1 wins — LP 7400–-1100, 296 moves
+g2: SD3 wins — LP -1250–6800, 236 moves
+g3: SD3 wins — LP 0–6300, 183 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD1 (rank 5) first vs SD6 (rank 4)
+g1: SD1 wins — LP 3600–-900, 241 moves
+g2: SD6 wins — LP -1900–6300, 80 moves
+g3: SD1 wins — LP 8000–-1600, 67 moves"><span class="score">2–1</span></td><td class="cell mirror" tabindex="0" data-detail="SD1 mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD1 (rank 5) first vs SDY (rank 6)
+g1: SD1 wins — LP 7150–-2100, 80 moves
+g2: SDY wins — LP 0–900, 289 moves
+g3: SDY wins — LP 0–1900, 191 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD1 (rank 5) first vs SDMP (rank 7)
+g1: SDMP wins — LP -2100–6500, 158 moves
+g2: SD1 wins — LP 8000–-500, 116 moves
+g3: SDMP wins — LP -300–4500, 191 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD1 (rank 5) first vs SDSC (rank 8)
+g1: SD1 wins — LP 2250–-150, 282 moves
+g2: SDSC wins — LP -200–4000, 240 moves
+g3: SDSC wins — LP -1400–4350, 560 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD1 (rank 5) first vs SDK (rank 9)
+g1: SDK wins — LP -500–6300, 150 moves
+g2: SD1 wins — LP 8000–-2300, 136 moves
+g3: SD1 wins — LP 7900–-200, 315 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD1 (rank 5) first vs SD10 (rank 10)
+g1: SD10 wins — LP 0–5200, 198 moves
+g2: SD1 wins — LP 7800–-400, 231 moves
+g3: SD1 wins — LP 6600–-100, 195 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SD1 (rank 5) first vs SDP (rank 11)
+g1: SD1 wins — LP 7600–-700, 147 moves
+g2: SD1 wins — LP 6900–-500, 281 moves
+g3: SD1 wins — LP 8000–-200, 203 moves"><span class="score">3–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">6</span> <span class="set">SDY</span> <span class="deckname">Yugi</span></th><td class="cell c1" tabindex="0" data-detail="SDY (rank 6) first vs SD2 (rank 1)
+g1: SD2 wins — LP -1250–7650, 142 moves
+g2: SD2 wins — LP -200–3400, 201 moves
+g3: SDY wins — LP 4300–-350, 155 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SDY (rank 6) first vs SD4 (rank 2)
+g1: SDY wins — LP 8000–-200, 91 moves
+g2: SDY wins — LP 2900–-1200, 305 moves
+g3: SDY wins — LP 5900–-100, 160 moves"><span class="score">3–0</span></td><td class="cell c3" tabindex="0" data-detail="SDY (rank 6) first vs SD3 (rank 3)
+g1: SD3 wins — LP -200–6400, 57 moves
+g2: SD3 wins — LP -500–8000, 116 moves
+g3: SD3 wins — LP -100–5100, 226 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SDY (rank 6) first vs SD6 (rank 4)
+g1: SD6 wins — LP -1250–7650, 417 moves
+g2: SDY wins — LP 6800–-500, 95 moves
+g3: SDY wins — LP 5200–-2450, 123 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SDY (rank 6) first vs SD1 (rank 5)
+g1: SD1 wins — LP -100–8000, 111 moves
+g2: SD1 wins — LP -150–7900, 189 moves
+g3: SD1 wins — LP -1500–8000, 215 moves"><span class="score">0–3</span></td><td class="cell mirror" tabindex="0" data-detail="SDY mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">2–1</span></td><td class="cell c1" tabindex="0" data-detail="SDY (rank 6) first vs SDMP (rank 7)
+g1: SDMP wins — LP -200–3350, 108 moves
+g2: SDMP wins — LP -1150–1000, 137 moves
+g3: SDY wins — LP 8000–-1100, 140 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SDY (rank 6) first vs SDSC (rank 8)
+g1: SDSC wins — LP -1650–8000, 281 moves
+g2: SDY wins — LP 5200–-1000, 174 moves
+g3: SDY wins — LP 5600–-1250, 88 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDY (rank 6) first vs SDK (rank 9)
+g1: SDK wins — LP -1600–4550, 209 moves
+g2: SDY wins — LP 6250–-1000, 331 moves
+g3: SDY wins — LP 3850–-1250, 259 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SDY (rank 6) first vs SD10 (rank 10)
+g1: SDY wins — LP 8000–-400, 77 moves
+g2: SDY wins — LP 6800–-1000, 99 moves
+g3: SDY wins — LP 6800–-1100, 102 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SDY (rank 6) first vs SDP (rank 11)
+g1: SDP wins — LP -1100–6300, 187 moves
+g2: SDY wins — LP 5900–-200, 75 moves
+g3: SDY wins — LP 5000–-400, 230 moves"><span class="score">2–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">7</span> <span class="set">SDMP</span> <span class="deckname">Master of Pendulum (SDMP)</span></th><td class="cell c3" tabindex="0" data-detail="SDMP (rank 7) first vs SD2 (rank 1)
+g1: SD2 wins — LP -1200–8000, 170 moves
+g2: SD2 wins — LP -900–7900, 132 moves
+g3: SD2 wins — LP -1400–5900, 327 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDMP (rank 7) first vs SD4 (rank 2)
+g1: SD4 wins — LP -1900–8000, 113 moves
+g2: SD4 wins — LP -1000–2000, 176 moves
+g3: SD4 wins — LP -600–8000, 91 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDMP (rank 7) first vs SD3 (rank 3)
+g1: SDMP wins — LP 6300–-2100, 151 moves
+g2: SD3 wins — LP -800–4700, 162 moves
+g3: SD3 wins — LP -250–8000, 112 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDMP (rank 7) first vs SD6 (rank 4)
+g1: SD6 wins — LP -1500–8000, 59 moves
+g2: SD6 wins — LP -600–7500, 88 moves
+g3: SD6 wins — LP -900–8000, 93 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDMP (rank 7) first vs SD1 (rank 5)
+g1: SDMP wins — LP 5800–-1300, 117 moves
+g2: SD1 wins — LP -1300–7900, 189 moves
+g3: SD1 wins — LP -600–6700, 57 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SDMP (rank 7) first vs SDY (rank 6)
+g1: SDY wins — LP -1000–2800, 109 moves
+g2: SDMP wins — LP 8000–-1300, 88 moves
+g3: SDY wins — LP -1700–7000, 196 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SDMP mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SDMP (rank 7) first vs SDSC (rank 8)
+g1: SDMP wins — LP 7500–-200, 301 moves
+g2: SDSC wins — LP 0–4700, 180 moves
+g3: SDMP wins — LP 8000–-1300, 217 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SDMP (rank 7) first vs SDK (rank 9)
+g1: SDMP wins — LP 6900–-700, 112 moves
+g2: SDMP wins — LP 6900–-1500, 111 moves
+g3: SDMP wins — LP 4800–-600, 135 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SDMP (rank 7) first vs SD10 (rank 10)
+g1: SDMP wins — LP 7100–0, 113 moves
+g2: SDMP wins — LP 7700–-1400, 64 moves
+g3: SDMP wins — LP 8000–-1800, 139 moves"><span class="score">3–0</span></td><td class="cell r3" tabindex="0" data-detail="SDMP (rank 7) first vs SDP (rank 11)
+g1: SDMP wins — LP 6800–-300, 160 moves
+g2: SDMP wins — LP 6200–-1500, 203 moves
+g3: SDMP wins — LP 8000–-700, 246 moves"><span class="score">3–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">8</span> <span class="set">SDSC</span> <span class="deckname">Spellcaster's Command (SDSC)</span></th><td class="cell c3" tabindex="0" data-detail="SDSC (rank 8) first vs SD2 (rank 1)
+g1: SD2 wins — LP -1300–7750, 151 moves
+g2: SD2 wins — LP -1500–8000, 77 moves
+g3: SD2 wins — LP -900–5250, 339 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDSC (rank 8) first vs SD4 (rank 2)
+g1: SD4 wins — LP 0–8000, 95 moves
+g2: SD4 wins — LP -850–7250, 338 moves
+g3: SD4 wins — LP -100–5850, 124 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDSC (rank 8) first vs SD3 (rank 3)
+g1: SDSC wins — LP 6800–-1800, 225 moves
+g2: SD3 wins — LP -400–8000, 61 moves
+g3: SD3 wins — LP -1350–6150, 266 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDSC (rank 8) first vs SD6 (rank 4)
+g1: SD6 wins — LP -300–7400, 175 moves
+g2: SD6 wins — LP -700–8000, 106 moves
+g3: SD6 wins — LP -1150–5700, 168 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SDSC (rank 8) first vs SD1 (rank 5)
+g1: SD1 wins — LP -1100–7400, 202 moves
+g2: SDSC wins — LP 2400–-1900, 267 moves
+g3: SDSC wins — LP 8000–-2500, 155 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDSC (rank 8) first vs SDY (rank 6)
+g1: SDSC wins — LP 6400–-300, 172 moves
+g2: SDSC wins — LP 8000–-300, 301 moves
+g3: SDY wins — LP -1250–4350, 96 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDSC (rank 8) first vs SDMP (rank 7)
+g1: SDSC wins — LP 8000–0, 53 moves
+g2: SDSC wins — LP 7900–-1600, 102 moves
+g3: SDMP wins — LP 0–5300, 210 moves"><span class="score">2–1</span></td><td class="cell mirror" tabindex="0" data-detail="SDSC mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SDSC (rank 8) first vs SDK (rank 9)
+g1: SDK wins — LP -600–6700, 156 moves
+g2: SDSC wins — LP 8000–-1100, 56 moves
+g3: SDSC wins — LP 6600–-150, 218 moves"><span class="score">2–1</span></td><td class="cell r3" tabindex="0" data-detail="SDSC (rank 8) first vs SD10 (rank 10)
+g1: SDSC wins — LP 7200–-1150, 123 moves
+g2: SDSC wins — LP 5950–-950, 176 moves
+g3: SDSC wins — LP 6750–-1050, 87 moves"><span class="score">3–0</span></td><td class="cell r1" tabindex="0" data-detail="SDSC (rank 8) first vs SDP (rank 11)
+g1: SDSC wins — LP 6400–-100, 250 moves
+g2: SDSC wins — LP 3100–-1650, 258 moves
+g3: SDP wins — LP -50–1950, 196 moves"><span class="score">2–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">9</span> <span class="set">SDK</span> <span class="deckname">Kaiba</span></th><td class="cell c3" tabindex="0" data-detail="SDK (rank 9) first vs SD2 (rank 1)
+g1: SD2 wins — LP -1000–7200, 297 moves
+g2: SD2 wins — LP -100–7900, 166 moves
+g3: SD2 wins — LP -400–6400, 99 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK (rank 9) first vs SD4 (rank 2)
+g1: SD4 wins — LP -1200–7900, 75 moves
+g2: SD4 wins — LP -700–1100, 173 moves
+g3: SD4 wins — LP -900–8000, 112 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK (rank 9) first vs SD3 (rank 3)
+g1: SD3 wins — LP -1150–8000, 243 moves
+g2: SD3 wins — LP -800–7500, 179 moves
+g3: SD3 wins — LP -200–8000, 161 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK (rank 9) first vs SD6 (rank 4)
+g1: SD6 wins — LP -600–9300, 149 moves
+g2: SD6 wins — LP -700–4400, 336 moves
+g3: SD6 wins — LP -1600–2050, 226 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDK (rank 9) first vs SD1 (rank 5)
+g1: SD1 wins — LP -600–5900, 111 moves
+g2: SD1 wins — LP -1900–7500, 209 moves
+g3: SD1 wins — LP -1500–7500, 208 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDK (rank 9) first vs SDY (rank 6)
+g1: SDY wins — LP -1050–6000, 264 moves
+g2: SDY wins — LP -700–2150, 398 moves
+g3: SDK wins — LP 5200–-200, 240 moves"><span class="score">1–2</span></td><td class="cell r3" tabindex="0" data-detail="SDK (rank 9) first vs SDMP (rank 7)
+g1: SDK wins — LP 8000–-400, 92 moves
+g2: SDK wins — LP 8500–-1300, 80 moves
+g3: SDK wins — LP 8000–-1600, 80 moves"><span class="score">3–0</span></td><td class="cell c1" tabindex="0" data-detail="SDK (rank 9) first vs SDSC (rank 8)
+g1: SDK wins — LP 4600–-100, 223 moves
+g2: SDSC wins — LP -1000–6800, 71 moves
+g3: SDSC wins — LP -1200–8000, 278 moves"><span class="score">1–2</span></td><td class="cell mirror" tabindex="0" data-detail="SDK mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SDK (rank 9) first vs SD10 (rank 10)
+g1: SD10 wins — LP -750–4250, 202 moves
+g2: SDK wins — LP 7100–-1200, 88 moves
+g3: SDK wins — LP 8000–-700, 131 moves"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SDK (rank 9) first vs SDP (rank 11)
+g1: SDP wins — LP 0–4500, 170 moves
+g2: SDK wins — LP 7600–-1500, 189 moves
+g3: SDK wins — LP 8000–-700, 153 moves"><span class="score">2–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">10</span> <span class="set">SD10</span> <span class="deckname">Machine Re-Volt (SD10)</span></th><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SD2 (rank 1)
+g1: SD2 wins — LP -450–7500, 136 moves
+g2: SD10 wins — LP 5150–-750, 138 moves
+g3: SD2 wins — LP -600–7900, 154 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SD4 (rank 2)
+g1: SD4 wins — LP -1400–8000, 42 moves
+g2: SD4 wins — LP -1200–7300, 200 moves
+g3: SD10 wins — LP 8000–-1800, 151 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SD3 (rank 3)
+g1: SD3 wins — LP -1500–3800, 199 moves
+g2: SD10 wins — LP 3900–-400, 124 moves
+g3: SD3 wins — LP -400–8000, 86 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SD6 (rank 4)
+g1: SD6 wins — LP -800–10400, 131 moves
+g2: SD6 wins — LP -1100–8000, 64 moves
+g3: SD10 wins — LP 8000–-100, 67 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SD1 (rank 5)
+g1: SD1 wins — LP -1400–8000, 112 moves
+g2: SD1 wins — LP -1000–8000, 86 moves
+g3: SD10 wins — LP 7100–-600, 187 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SDY (rank 6)
+g1: SDY wins — LP -100–7400, 111 moves
+g2: SD10 wins — LP 7700–-1150, 112 moves
+g3: SDY wins — LP -1600–8000, 42 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SDMP (rank 7)
+g1: SD10 wins — LP 6700–-1200, 114 moves
+g2: SDMP wins — LP -1100–8000, 120 moves
+g3: SDMP wins — LP -1100–8000, 100 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SD10 (rank 10) first vs SDSC (rank 8)
+g1: SDSC wins — LP -300–5400, 108 moves
+g2: SDSC wins — LP -500–8000, 59 moves
+g3: SD10 wins — LP 7700–-650, 193 moves"><span class="score">1–2</span></td><td class="cell r1" tabindex="0" data-detail="SD10 (rank 10) first vs SDK (rank 9)
+g1: SD10 wins — LP 7000–-2900, 116 moves
+g2: SDK wins — LP -1650–7750, 98 moves
+g3: SD10 wins — LP 6700–-550, 225 moves"><span class="score">2–1</span></td><td class="cell mirror" tabindex="0" data-detail="SD10 mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">2–1</span></td><td class="cell r1" tabindex="0" data-detail="SD10 (rank 10) first vs SDP (rank 11)
+g1: SD10 wins — LP 2200–-800, 240 moves
+g2: SD10 wins — LP 8000–-1600, 134 moves
+g3: SDP wins — LP -1200–8000, 95 moves"><span class="score">2–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">11</span> <span class="set">SDP</span> <span class="deckname">Starter Deck: Pegasus</span></th><td class="cell c3" tabindex="0" data-detail="SDP (rank 11) first vs SD2 (rank 1)
+g1: SD2 wins — LP -1450–4250, 274 moves
+g2: SD2 wins — LP -900–7900, 293 moves
+g3: SD2 wins — LP -300–600, 381 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDP (rank 11) first vs SD4 (rank 2)
+g1: SD4 wins — LP -400–6350, 157 moves
+g2: SD4 wins — LP -1700–8000, 44 moves
+g3: SD4 wins — LP -1000–5700, 279 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDP (rank 11) first vs SD3 (rank 3)
+g1: SD3 wins — LP -900–8000, 113 moves
+g2: SD3 wins — LP -2100–6200, 288 moves
+g3: SDP wins — LP 7300–-100, 147 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDP (rank 11) first vs SD6 (rank 4)
+g1: SD6 wins — LP -1700–7900, 64 moves
+g2: SD6 wins — LP -600–8600, 202 moves
+g3: SD6 wins — LP -400–6700, 84 moves"><span class="score">0–3</span></td><td class="cell c1" tabindex="0" data-detail="SDP (rank 11) first vs SD1 (rank 5)
+g1: SD1 wins — LP -100–5550, 562 moves
+g2: SD1 wins — LP -500–8000, 63 moves
+g3: SDP wins — LP 3100–0, 492 moves"><span class="score">1–2</span></td><td class="cell c1" tabindex="0" data-detail="SDP (rank 11) first vs SDY (rank 6)
+g1: SDP wins — LP 5350–-1000, 100 moves
+g2: SDY wins — LP -500–8000, 146 moves
+g3: SDY wins — LP -1200–7800, 66 moves"><span class="score">1–2</span></td><td class="cell c3" tabindex="0" data-detail="SDP (rank 11) first vs SDMP (rank 7)
+g1: SDMP wins — LP -1150–8000, 151 moves
+g2: SDMP wins — LP -900–8000, 205 moves
+g3: SDMP wins — LP -1300–8000, 151 moves"><span class="score">0–3</span></td><td class="cell r1" tabindex="0" data-detail="SDP (rank 11) first vs SDSC (rank 8)
+g1: SDP wins — LP 7400–-1450, 156 moves
+g2: SDSC wins — LP -800–1000, 384 moves
+g3: SDP wins — LP 5900–-1350, 335 moves"><span class="score">2–1</span></td><td class="cell c3" tabindex="0" data-detail="SDP (rank 11) first vs SDK (rank 9)
+g1: SDK wins — LP -1350–7500, 248 moves
+g2: SDK wins — LP -700–8000, 120 moves
+g3: SDK wins — LP -1200–1800, 143 moves"><span class="score">0–3</span></td><td class="cell c3" tabindex="0" data-detail="SDP (rank 11) first vs SD10 (rank 10)
+g1: SD10 wins — LP -450–5850, 252 moves
+g2: SD10 wins — LP -1700–6600, 139 moves
+g3: SD10 wins — LP -400–7600, 168 moves"><span class="score">0–3</span></td><td class="cell mirror" tabindex="0" data-detail="SDP mirror match — both seats hold the same deck, so seating cannot matter"><span class="score">3–0</span></td></tr></tbody>
+</table>
+</div>
+
+<h2>Head-to-head: six games per pairing</h2>
+<p>Both seatings merged, so <strong>who went first is gone from this table entirely</strong> — each cell is
+one pairing's whole six-game record. This is the cleanest read on "who beats whom": the
+4 <span class="upsetkey">outlined</span> cells are <strong>upsets</strong>, where the
+lower-standing deck won the pairing.</p>
+<div class="legend">
+  <span class="ramp">
+    <span>column deck ahead</span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-col) var(--step-3), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-col) var(--step-2), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-col) var(--step-1), var(--surface-1))"></span>
+    <span class="swatch" style="background: var(--diverge-mid)"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-row) var(--step-1), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-row) var(--step-2), var(--surface-1))"></span>
+    <span class="swatch" style="background: color-mix(in oklab, var(--diverge-row) var(--step-3), var(--surface-1))"></span>
+    <span>row deck ahead</span>
+  </span>
+  <span>4–2 · 5–1 · 6–0 · gray = 3–3</span>
+</div>
+<div class="scroll">
+<table class="matrix">
+  <thead><tr><th class="corner">rank ↓ deck</th><th scope="col">SD2</th><th scope="col">SD4</th><th scope="col">SD3</th><th scope="col">SD6</th><th scope="col">SD1</th><th scope="col">SDY</th><th scope="col">SDMP</th><th scope="col">SDSC</th><th scope="col">SDK</th><th scope="col">SD10</th><th scope="col">SDP</th></tr></thead>
+  <tbody><tr><th scope="row" class="rowhead"><span class="rank">1</span> <span class="set">SD2</span> <span class="deckname">Zombie Madness (SD2)</span></th><td class="cell mirror">—</td><td class="cell r2" tabindex="0" data-detail="SD2 5–1 SD4 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r2" tabindex="0" data-detail="SD2 5–1 SD3 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r1" tabindex="0" data-detail="SD2 4–2 SD6 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell s0" tabindex="0" data-detail="SD2 3–3 SD1 over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell r1" tabindex="0" data-detail="SD2 4–2 SDY over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r3" tabindex="0" data-detail="SD2 6–0 SDMP over all six games (both seatings)"><span class="score">6–0</span></td><td class="cell r3" tabindex="0" data-detail="SD2 6–0 SDSC over all six games (both seatings)"><span class="score">6–0</span></td><td class="cell r2" tabindex="0" data-detail="SD2 5–1 SDK over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r2" tabindex="0" data-detail="SD2 5–1 SD10 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r2" tabindex="0" data-detail="SD2 5–1 SDP over all six games (both seatings)"><span class="score">5–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">2</span> <span class="set">SD4</span> <span class="deckname">Fury from the Deep (SD4)</span></th><td class="cell c2" tabindex="0" data-detail="SD4 1–5 SD2 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell mirror">—</td><td class="cell r2" tabindex="0" data-detail="SD4 5–1 SD3 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 4–2 SD6 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SD4 5–1 SD1 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell c1" tabindex="0" data-detail="SD4 2–4 SDY over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell r2" tabindex="0" data-detail="SD4 5–1 SDMP over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r2" tabindex="0" data-detail="SD4 5–1 SDSC over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r1" tabindex="0" data-detail="SD4 4–2 SDK over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SD4 5–1 SD10 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r3" tabindex="0" data-detail="SD4 6–0 SDP over all six games (both seatings)"><span class="score">6–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">3</span> <span class="set">SD3</span> <span class="deckname">Blaze of Destruction (SD3)</span></th><td class="cell c2" tabindex="0" data-detail="SD3 1–5 SD2 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c2" tabindex="0" data-detail="SD3 1–5 SD4 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell mirror">—</td><td class="cell r1" tabindex="0" data-detail="SD3 4–2 SD6 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r1" tabindex="0" data-detail="SD3 4–2 SD1 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SD3 5–1 SDY over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell s0" tabindex="0" data-detail="SD3 3–3 SDMP over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell r1" tabindex="0" data-detail="SD3 4–2 SDSC over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SD3 5–1 SDK over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r1" tabindex="0" data-detail="SD3 4–2 SD10 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SD3 5–1 SDP over all six games (both seatings)"><span class="score">5–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">4</span> <span class="set">SD6</span> <span class="deckname">Spellcaster's Judgment (SD6)</span></th><td class="cell c1" tabindex="0" data-detail="SD6 2–4 SD2 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c1" tabindex="0" data-detail="SD6 2–4 SD4 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c1" tabindex="0" data-detail="SD6 2–4 SD3 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell mirror">—</td><td class="cell c1" tabindex="0" data-detail="SD6 2–4 SD1 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c1" tabindex="0" data-detail="SD6 2–4 SDY over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell r2" tabindex="0" data-detail="SD6 5–1 SDMP over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r3" tabindex="0" data-detail="SD6 6–0 SDSC over all six games (both seatings)"><span class="score">6–0</span></td><td class="cell r1" tabindex="0" data-detail="SD6 4–2 SDK over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r1" tabindex="0" data-detail="SD6 4–2 SD10 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r3" tabindex="0" data-detail="SD6 6–0 SDP over all six games (both seatings)"><span class="score">6–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">5</span> <span class="set">SD1</span> <span class="deckname">Dragon's Roar (SD1)</span></th><td class="cell s0" tabindex="0" data-detail="SD1 3–3 SD2 over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell c2" tabindex="0" data-detail="SD1 1–5 SD4 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SD1 2–4 SD3 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell r1 upset" tabindex="0" data-detail="SD1 4–2 SD6 over all six games (both seatings)
+UPSET: SD1 stands 1 places lower"><span class="score">4–2</span></td><td class="cell mirror">—</td><td class="cell r1" tabindex="0" data-detail="SD1 4–2 SDY over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell s0" tabindex="0" data-detail="SD1 3–3 SDMP over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell c1" tabindex="0" data-detail="SD1 2–4 SDSC over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell r2" tabindex="0" data-detail="SD1 5–1 SDK over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r1" tabindex="0" data-detail="SD1 4–2 SD10 over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SD1 5–1 SDP over all six games (both seatings)"><span class="score">5–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">6</span> <span class="set">SDY</span> <span class="deckname">Yugi</span></th><td class="cell c1" tabindex="0" data-detail="SDY 2–4 SD2 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell r1 upset" tabindex="0" data-detail="SDY 4–2 SD4 over all six games (both seatings)
+UPSET: SDY stands 4 places lower"><span class="score">4–2</span></td><td class="cell c2" tabindex="0" data-detail="SDY 1–5 SD3 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell r1 upset" tabindex="0" data-detail="SDY 4–2 SD6 over all six games (both seatings)
+UPSET: SDY stands 2 places lower"><span class="score">4–2</span></td><td class="cell c1" tabindex="0" data-detail="SDY 2–4 SD1 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell mirror">—</td><td class="cell s0" tabindex="0" data-detail="SDY 3–3 SDMP over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell s0" tabindex="0" data-detail="SDY 3–3 SDSC over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell r1" tabindex="0" data-detail="SDY 4–2 SDK over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SDY 5–1 SD10 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r1" tabindex="0" data-detail="SDY 4–2 SDP over all six games (both seatings)"><span class="score">4–2</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">7</span> <span class="set">SDMP</span> <span class="deckname">Master of Pendulum (SDMP)</span></th><td class="cell c3" tabindex="0" data-detail="SDMP 0–6 SD2 over all six games (both seatings)"><span class="score">0–6</span></td><td class="cell c2" tabindex="0" data-detail="SDMP 1–5 SD4 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell s0" tabindex="0" data-detail="SDMP 3–3 SD3 over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell c2" tabindex="0" data-detail="SDMP 1–5 SD6 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell s0" tabindex="0" data-detail="SDMP 3–3 SD1 over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell s0" tabindex="0" data-detail="SDMP 3–3 SDY over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell mirror">—</td><td class="cell s0" tabindex="0" data-detail="SDMP 3–3 SDSC over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell s0" tabindex="0" data-detail="SDMP 3–3 SDK over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell r2" tabindex="0" data-detail="SDMP 5–1 SD10 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell r3" tabindex="0" data-detail="SDMP 6–0 SDP over all six games (both seatings)"><span class="score">6–0</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">8</span> <span class="set">SDSC</span> <span class="deckname">Spellcaster's Command (SDSC)</span></th><td class="cell c3" tabindex="0" data-detail="SDSC 0–6 SD2 over all six games (both seatings)"><span class="score">0–6</span></td><td class="cell c2" tabindex="0" data-detail="SDSC 1–5 SD4 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SDSC 2–4 SD3 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c3" tabindex="0" data-detail="SDSC 0–6 SD6 over all six games (both seatings)"><span class="score">0–6</span></td><td class="cell r1 upset" tabindex="0" data-detail="SDSC 4–2 SD1 over all six games (both seatings)
+UPSET: SDSC stands 3 places lower"><span class="score">4–2</span></td><td class="cell s0" tabindex="0" data-detail="SDSC 3–3 SDY over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell s0" tabindex="0" data-detail="SDSC 3–3 SDMP over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell mirror">—</td><td class="cell r1" tabindex="0" data-detail="SDSC 4–2 SDK over all six games (both seatings)"><span class="score">4–2</span></td><td class="cell r2" tabindex="0" data-detail="SDSC 5–1 SD10 over all six games (both seatings)"><span class="score">5–1</span></td><td class="cell s0" tabindex="0" data-detail="SDSC 3–3 SDP over all six games (both seatings)"><span class="score">3–3</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">9</span> <span class="set">SDK</span> <span class="deckname">Kaiba</span></th><td class="cell c2" tabindex="0" data-detail="SDK 1–5 SD2 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SDK 2–4 SD4 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c2" tabindex="0" data-detail="SDK 1–5 SD3 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SDK 2–4 SD6 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c2" tabindex="0" data-detail="SDK 1–5 SD1 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SDK 2–4 SDY over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell s0" tabindex="0" data-detail="SDK 3–3 SDMP over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell c1" tabindex="0" data-detail="SDK 2–4 SDSC over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell mirror">—</td><td class="cell s0" tabindex="0" data-detail="SDK 3–3 SD10 over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell r2" tabindex="0" data-detail="SDK 5–1 SDP over all six games (both seatings)"><span class="score">5–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">10</span> <span class="set">SD10</span> <span class="deckname">Machine Re-Volt (SD10)</span></th><td class="cell c2" tabindex="0" data-detail="SD10 1–5 SD2 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c2" tabindex="0" data-detail="SD10 1–5 SD4 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SD10 2–4 SD3 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c1" tabindex="0" data-detail="SD10 2–4 SD6 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c1" tabindex="0" data-detail="SD10 2–4 SD1 over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c2" tabindex="0" data-detail="SD10 1–5 SDY over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c2" tabindex="0" data-detail="SD10 1–5 SDMP over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c2" tabindex="0" data-detail="SD10 1–5 SDSC over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell s0" tabindex="0" data-detail="SD10 3–3 SDK over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell mirror">—</td><td class="cell r2" tabindex="0" data-detail="SD10 5–1 SDP over all six games (both seatings)"><span class="score">5–1</span></td></tr><tr><th scope="row" class="rowhead"><span class="rank">11</span> <span class="set">SDP</span> <span class="deckname">Starter Deck: Pegasus</span></th><td class="cell c2" tabindex="0" data-detail="SDP 1–5 SD2 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c3" tabindex="0" data-detail="SDP 0–6 SD4 over all six games (both seatings)"><span class="score">0–6</span></td><td class="cell c2" tabindex="0" data-detail="SDP 1–5 SD3 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c3" tabindex="0" data-detail="SDP 0–6 SD6 over all six games (both seatings)"><span class="score">0–6</span></td><td class="cell c2" tabindex="0" data-detail="SDP 1–5 SD1 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c1" tabindex="0" data-detail="SDP 2–4 SDY over all six games (both seatings)"><span class="score">2–4</span></td><td class="cell c3" tabindex="0" data-detail="SDP 0–6 SDMP over all six games (both seatings)"><span class="score">0–6</span></td><td class="cell s0" tabindex="0" data-detail="SDP 3–3 SDSC over all six games (both seatings)"><span class="score">3–3</span></td><td class="cell c2" tabindex="0" data-detail="SDP 1–5 SDK over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell c2" tabindex="0" data-detail="SDP 1–5 SD10 over all six games (both seatings)"><span class="score">1–5</span></td><td class="cell mirror">—</td></tr></tbody>
+</table>
+</div>
+
+<h3>How well does the pecking order hold?</h3>
+<div class="tiles">
+  <div class="tile"><div class="k">hierarchy held</div><div class="v">42</div><div class="s">of 55 pairings the higher-standing deck won</div></div>
+  <div class="tile"><div class="k">dead even</div><div class="v">9</div><div class="s">pairings split 3–3 across six games</div></div>
+  <div class="tile"><div class="k">upsets</div><div class="v">4</div><div class="s">pairings the lower-standing deck won</div></div>
+</div>
+<ul><li><strong>SDY beat SD4 4–2</strong> — SDY stands 4 places lower overall, yet won the pairing. A rank is an average; a matchup is not.</li><li><strong>SDSC beat SD1 4–2</strong> — SDSC stands 3 places lower overall, yet won the pairing. A rank is an average; a matchup is not.</li><li><strong>SDY beat SD6 4–2</strong> — SDY stands 2 places lower overall, yet won the pairing. A rank is an average; a matchup is not.</li><li><strong>SD1 beat SD6 4–2</strong> — SD1 stands 1 place lower overall, yet won the pairing. A rank is an average; a matchup is not.</li></ul>
+<p class="lede">Split 3–3: SDY/SDSC · SDY/SDMP · SDK/SD10 · SDMP/SDK · SDSC/SDP · SD2/SD1 · SD1/SDMP · SD3/SDMP · SDMP/SDSC. With six games a 3–3 means the pairing is genuinely close, not that the evidence ran out.</p>
+
+<h2>Standings</h2>
+<p>Every duel a deck played, on either side of the grid. Mirror matches are excluded — a deck cannot beat itself.</p>
+<div class="card">
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SD2</span> <span class="deckname">Zombie Madness (SD2)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 100.0%"></div></div>
+    <div class="barvalue">80.0%</div>
+    <div class="barsub">48W 12L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SD4</span> <span class="deckname">Fury from the Deep (SD4)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 87.5%"></div></div>
+    <div class="barvalue">70.0%</div>
+    <div class="barsub">42W 18L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SD3</span> <span class="deckname">Blaze of Destruction (SD3)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 75.0%"></div></div>
+    <div class="barvalue">60.0%</div>
+    <div class="barsub">36W 24L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SD6</span> <span class="deckname">Spellcaster's Judgment (SD6)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 72.9%"></div></div>
+    <div class="barvalue">58.3%</div>
+    <div class="barsub">35W 25L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SD1</span> <span class="deckname">Dragon's Roar (SD1)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 68.8%"></div></div>
+    <div class="barvalue">55.0%</div>
+    <div class="barsub">33W 27L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SDY</span> <span class="deckname">Yugi</span></div>
+    <div class="bartrack"><div class="bar" style="width: 66.7%"></div></div>
+    <div class="barvalue">53.3%</div>
+    <div class="barsub">32W 28L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SDMP</span> <span class="deckname">Master of Pendulum (SDMP)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 58.3%"></div></div>
+    <div class="barvalue">46.7%</div>
+    <div class="barsub">28W 32L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SDSC</span> <span class="deckname">Spellcaster's Command (SDSC)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 52.1%"></div></div>
+    <div class="barvalue">41.7%</div>
+    <div class="barsub">25W 35L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SDK</span> <span class="deckname">Kaiba</span></div>
+    <div class="bartrack"><div class="bar" style="width: 45.8%"></div></div>
+    <div class="barvalue">36.7%</div>
+    <div class="barsub">22W 38L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SD10</span> <span class="deckname">Machine Re-Volt (SD10)</span></div>
+    <div class="bartrack"><div class="bar" style="width: 39.6%"></div></div>
+    <div class="barvalue">31.7%</div>
+    <div class="barsub">19W 41L</div>
+  </div>
+  <div class="barrow">
+    <div class="barlabel"><span class="set">SDP</span> <span class="deckname">Starter Deck: Pegasus</span></div>
+    <div class="bartrack"><div class="bar" style="width: 20.8%"></div></div>
+    <div class="barvalue">16.7%</div>
+    <div class="barsub">10W 50L</div>
+  </div></div>
+
+<h3>Win rate on the play vs on the draw</h3>
+<div class="legend">
+  <span class="key"><span class="keydot" style="background: var(--series-1)"></span> on the play (went first)</span>
+  <span class="key"><span class="keydot" style="background: var(--series-2)"></span> on the draw (went second)</span>
+  <span>same 0–100% scale for both</span>
+</div>
+<div class="card">
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SD2</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 76.7%"><span class="inbar">77%</span></div>
+      <div class="bar draw" style="width: 83.3%"><span class="inbar">83%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SD4</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 70.0%"><span class="inbar">70%</span></div>
+      <div class="bar draw" style="width: 70.0%"><span class="inbar">70%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SD3</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 56.7%"><span class="inbar">57%</span></div>
+      <div class="bar draw" style="width: 63.3%"><span class="inbar">63%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SD6</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 53.3%"><span class="inbar">53%</span></div>
+      <div class="bar draw" style="width: 63.3%"><span class="inbar">63%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SD1</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 46.7%"><span class="inbar">47%</span></div>
+      <div class="bar draw" style="width: 63.3%"><span class="inbar">63%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SDY</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 53.3%"><span class="inbar">53%</span></div>
+      <div class="bar draw" style="width: 53.3%"><span class="inbar">53%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SDMP</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 46.7%"><span class="inbar">47%</span></div>
+      <div class="bar draw" style="width: 46.7%"><span class="inbar">47%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SDSC</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 46.7%"><span class="inbar">47%</span></div>
+      <div class="bar draw" style="width: 36.7%"><span class="inbar">37%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SDK</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 30.0%"><span class="inbar">30%</span></div>
+      <div class="bar draw" style="width: 43.3%"><span class="inbar">43%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SD10</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 40.0%"><span class="inbar">40%</span></div>
+      <div class="bar draw" style="width: 23.3%"><span class="inbar">23%</span></div>
+    </div>
+  </div>
+  <div class="barrow seat">
+    <div class="barlabel"><span class="set">SDP</span></div>
+    <div class="bartrack stack">
+      <div class="bar play" style="width: 16.7%"><span class="inbar">17%</span></div>
+      <div class="bar draw" style="width: 16.7%"><span class="inbar">17%</span></div>
+    </div>
+  </div></div>
+
+<details>
+  <summary>Standings as a table</summary>
+  <table class="data">
+    <thead><tr><th>#</th><th>deck</th><th>duels</th><th>W</th><th>L</th><th>D</th><th>win rate</th><th>on the play</th><th>on the draw</th></tr></thead>
+    <tbody><tr><td class="num">1</td><td><span class="set">SD2</span> Zombie Madness (SD2)</td><td class="num">60</td><td class="num">48</td><td class="num">12</td><td class="num">0</td><td class="num">80.0%</td><td class="num">23–7</td><td class="num">25–5</td></tr><tr><td class="num">2</td><td><span class="set">SD4</span> Fury from the Deep (SD4)</td><td class="num">60</td><td class="num">42</td><td class="num">18</td><td class="num">0</td><td class="num">70.0%</td><td class="num">21–9</td><td class="num">21–9</td></tr><tr><td class="num">3</td><td><span class="set">SD3</span> Blaze of Destruction (SD3)</td><td class="num">60</td><td class="num">36</td><td class="num">24</td><td class="num">0</td><td class="num">60.0%</td><td class="num">17–13</td><td class="num">19–11</td></tr><tr><td class="num">4</td><td><span class="set">SD6</span> Spellcaster's Judgment (SD6)</td><td class="num">60</td><td class="num">35</td><td class="num">25</td><td class="num">0</td><td class="num">58.3%</td><td class="num">16–14</td><td class="num">19–11</td></tr><tr><td class="num">5</td><td><span class="set">SD1</span> Dragon's Roar (SD1)</td><td class="num">60</td><td class="num">33</td><td class="num">27</td><td class="num">0</td><td class="num">55.0%</td><td class="num">14–16</td><td class="num">19–11</td></tr><tr><td class="num">6</td><td><span class="set">SDY</span> Yugi</td><td class="num">60</td><td class="num">32</td><td class="num">28</td><td class="num">0</td><td class="num">53.3%</td><td class="num">16–14</td><td class="num">16–14</td></tr><tr><td class="num">7</td><td><span class="set">SDMP</span> Master of Pendulum (SDMP)</td><td class="num">60</td><td class="num">28</td><td class="num">32</td><td class="num">0</td><td class="num">46.7%</td><td class="num">14–16</td><td class="num">14–16</td></tr><tr><td class="num">8</td><td><span class="set">SDSC</span> Spellcaster's Command (SDSC)</td><td class="num">60</td><td class="num">25</td><td class="num">35</td><td class="num">0</td><td class="num">41.7%</td><td class="num">14–16</td><td class="num">11–19</td></tr><tr><td class="num">9</td><td><span class="set">SDK</span> Kaiba</td><td class="num">60</td><td class="num">22</td><td class="num">38</td><td class="num">0</td><td class="num">36.7%</td><td class="num">9–21</td><td class="num">13–17</td></tr><tr><td class="num">10</td><td><span class="set">SD10</span> Machine Re-Volt (SD10)</td><td class="num">60</td><td class="num">19</td><td class="num">41</td><td class="num">0</td><td class="num">31.7%</td><td class="num">12–18</td><td class="num">7–23</td></tr><tr><td class="num">11</td><td><span class="set">SDP</span> Starter Deck: Pegasus</td><td class="num">60</td><td class="num">10</td><td class="num">50</td><td class="num">0</td><td class="num">16.7%</td><td class="num">5–25</td><td class="num">5–25</td></tr></tbody>
+  </table>
+</details>
+
+<details>
+  <summary>Every duel (363 records)</summary>
+  <table class="data">
+    <thead><tr><th>duel</th><th>first</th><th>second</th><th>winner</th><th>ended by</th><th class="num">LP first</th><th class="num">LP second</th><th class="num">moves</th></tr></thead>
+    <tbody><tr>
+  <td class="mono">sdc-SDY-vs-SDY-g1</td><td>SDY</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1150</td><td class="num">7950</td><td class="num">257</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDY-g2</td><td>SDY</td><td>SDY</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4500</td><td class="num">-500</td><td class="num">351</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDY-g3</td><td>SDY</td><td>SDY</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7700</td><td class="num">-1450</td><td class="num">109</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDK-g1</td><td>SDY</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1600</td><td class="num">4550</td><td class="num">209</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDK-g2</td><td>SDY</td><td>SDK</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6250</td><td class="num">-1000</td><td class="num">331</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDK-g3</td><td>SDY</td><td>SDK</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3850</td><td class="num">-1250</td><td class="num">259</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDP-g1</td><td>SDY</td><td>SDP</td>
+  <td>SDP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">6300</td><td class="num">187</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDP-g2</td><td>SDY</td><td>SDP</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5900</td><td class="num">-200</td><td class="num">75</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDP-g3</td><td>SDY</td><td>SDP</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5000</td><td class="num">-400</td><td class="num">230</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD1-g1</td><td>SDY</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">8000</td><td class="num">111</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD1-g2</td><td>SDY</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-150</td><td class="num">7900</td><td class="num">189</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD1-g3</td><td>SDY</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1500</td><td class="num">8000</td><td class="num">215</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD2-g1</td><td>SDY</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1250</td><td class="num">7650</td><td class="num">142</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD2-g2</td><td>SDY</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-200</td><td class="num">3400</td><td class="num">201</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD2-g3</td><td>SDY</td><td>SD2</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4300</td><td class="num">-350</td><td class="num">155</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD3-g1</td><td>SDY</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-200</td><td class="num">6400</td><td class="num">57</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD3-g2</td><td>SDY</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">8000</td><td class="num">116</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD3-g3</td><td>SDY</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">5100</td><td class="num">226</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD4-g1</td><td>SDY</td><td>SD4</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-200</td><td class="num">91</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD4-g2</td><td>SDY</td><td>SD4</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2900</td><td class="num">-1200</td><td class="num">305</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD4-g3</td><td>SDY</td><td>SD4</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5900</td><td class="num">-100</td><td class="num">160</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD6-g1</td><td>SDY</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1250</td><td class="num">7650</td><td class="num">417</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD6-g2</td><td>SDY</td><td>SD6</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6800</td><td class="num">-500</td><td class="num">95</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD6-g3</td><td>SDY</td><td>SD6</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5200</td><td class="num">-2450</td><td class="num">123</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD10-g1</td><td>SDY</td><td>SD10</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-400</td><td class="num">77</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD10-g2</td><td>SDY</td><td>SD10</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6800</td><td class="num">-1000</td><td class="num">99</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SD10-g3</td><td>SDY</td><td>SD10</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6800</td><td class="num">-1100</td><td class="num">102</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDSC-g1</td><td>SDY</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1650</td><td class="num">8000</td><td class="num">281</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDSC-g2</td><td>SDY</td><td>SDSC</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5200</td><td class="num">-1000</td><td class="num">174</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDSC-g3</td><td>SDY</td><td>SDSC</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5600</td><td class="num">-1250</td><td class="num">88</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDMP-g1</td><td>SDY</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-200</td><td class="num">3350</td><td class="num">108</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDMP-g2</td><td>SDY</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1150</td><td class="num">1000</td><td class="num">137</td>
+</tr><tr>
+  <td class="mono">sdc-SDY-vs-SDMP-g3</td><td>SDY</td><td>SDMP</td>
+  <td>SDY (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1100</td><td class="num">140</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDY-g1</td><td>SDK</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1050</td><td class="num">6000</td><td class="num">264</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDY-g2</td><td>SDK</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-700</td><td class="num">2150</td><td class="num">398</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDY-g3</td><td>SDK</td><td>SDY</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5200</td><td class="num">-200</td><td class="num">240</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDK-g1</td><td>SDK</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">6450</td><td class="num">120</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDK-g2</td><td>SDK</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">5100</td><td class="num">212</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDK-g3</td><td>SDK</td><td>SDK</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-300</td><td class="num">157</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDP-g1</td><td>SDK</td><td>SDP</td>
+  <td>SDP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">4500</td><td class="num">170</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDP-g2</td><td>SDK</td><td>SDP</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7600</td><td class="num">-1500</td><td class="num">189</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDP-g3</td><td>SDK</td><td>SDP</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-700</td><td class="num">153</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD1-g1</td><td>SDK</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">5900</td><td class="num">111</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD1-g2</td><td>SDK</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1900</td><td class="num">7500</td><td class="num">209</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD1-g3</td><td>SDK</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1500</td><td class="num">7500</td><td class="num">208</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD2-g1</td><td>SDK</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">7200</td><td class="num">297</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD2-g2</td><td>SDK</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">7900</td><td class="num">166</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD2-g3</td><td>SDK</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">6400</td><td class="num">99</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD3-g1</td><td>SDK</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1150</td><td class="num">8000</td><td class="num">243</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD3-g2</td><td>SDK</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">7500</td><td class="num">179</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD3-g3</td><td>SDK</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-200</td><td class="num">8000</td><td class="num">161</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD4-g1</td><td>SDK</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">7900</td><td class="num">75</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD4-g2</td><td>SDK</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-700</td><td class="num">1100</td><td class="num">173</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD4-g3</td><td>SDK</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">8000</td><td class="num">112</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD6-g1</td><td>SDK</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">9300</td><td class="num">149</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD6-g2</td><td>SDK</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-700</td><td class="num">4400</td><td class="num">336</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD6-g3</td><td>SDK</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1600</td><td class="num">2050</td><td class="num">226</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD10-g1</td><td>SDK</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-750</td><td class="num">4250</td><td class="num">202</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD10-g2</td><td>SDK</td><td>SD10</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7100</td><td class="num">-1200</td><td class="num">88</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SD10-g3</td><td>SDK</td><td>SD10</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-700</td><td class="num">131</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDSC-g1</td><td>SDK</td><td>SDSC</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4600</td><td class="num">-100</td><td class="num">223</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDSC-g2</td><td>SDK</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">6800</td><td class="num">71</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDSC-g3</td><td>SDK</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">8000</td><td class="num">278</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDMP-g1</td><td>SDK</td><td>SDMP</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-400</td><td class="num">92</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDMP-g2</td><td>SDK</td><td>SDMP</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8500</td><td class="num">-1300</td><td class="num">80</td>
+</tr><tr>
+  <td class="mono">sdc-SDK-vs-SDMP-g3</td><td>SDK</td><td>SDMP</td>
+  <td>SDK (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1600</td><td class="num">80</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDY-g1</td><td>SDP</td><td>SDY</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5350</td><td class="num">-1000</td><td class="num">100</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDY-g2</td><td>SDP</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">8000</td><td class="num">146</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDY-g3</td><td>SDP</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">7800</td><td class="num">66</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDK-g1</td><td>SDP</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1350</td><td class="num">7500</td><td class="num">248</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDK-g2</td><td>SDP</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-700</td><td class="num">8000</td><td class="num">120</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDK-g3</td><td>SDP</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">1800</td><td class="num">143</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDP-g1</td><td>SDP</td><td>SDP</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">700</td><td class="num">-1450</td><td class="num">267</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDP-g2</td><td>SDP</td><td>SDP</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3950</td><td class="num">-750</td><td class="num">182</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDP-g3</td><td>SDP</td><td>SDP</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7500</td><td class="num">-1300</td><td class="num">132</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD1-g1</td><td>SDP</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">5550</td><td class="num">562</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD1-g2</td><td>SDP</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">8000</td><td class="num">63</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD1-g3</td><td>SDP</td><td>SD1</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3100</td><td class="num">0</td><td class="num">492</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD2-g1</td><td>SDP</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1450</td><td class="num">4250</td><td class="num">274</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD2-g2</td><td>SDP</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">7900</td><td class="num">293</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD2-g3</td><td>SDP</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">600</td><td class="num">381</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD3-g1</td><td>SDP</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">8000</td><td class="num">113</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD3-g2</td><td>SDP</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2100</td><td class="num">6200</td><td class="num">288</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD3-g3</td><td>SDP</td><td>SD3</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7300</td><td class="num">-100</td><td class="num">147</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD4-g1</td><td>SDP</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">6350</td><td class="num">157</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD4-g2</td><td>SDP</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1700</td><td class="num">8000</td><td class="num">44</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD4-g3</td><td>SDP</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">5700</td><td class="num">279</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD6-g1</td><td>SDP</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1700</td><td class="num">7900</td><td class="num">64</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD6-g2</td><td>SDP</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">8600</td><td class="num">202</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD6-g3</td><td>SDP</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">6700</td><td class="num">84</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD10-g1</td><td>SDP</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-450</td><td class="num">5850</td><td class="num">252</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD10-g2</td><td>SDP</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1700</td><td class="num">6600</td><td class="num">139</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SD10-g3</td><td>SDP</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">7600</td><td class="num">168</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDSC-g1</td><td>SDP</td><td>SDSC</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7400</td><td class="num">-1450</td><td class="num">156</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDSC-g2</td><td>SDP</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">1000</td><td class="num">384</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDSC-g3</td><td>SDP</td><td>SDSC</td>
+  <td>SDP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5900</td><td class="num">-1350</td><td class="num">335</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDMP-g1</td><td>SDP</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1150</td><td class="num">8000</td><td class="num">151</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDMP-g2</td><td>SDP</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">8000</td><td class="num">205</td>
+</tr><tr>
+  <td class="mono">sdc-SDP-vs-SDMP-g3</td><td>SDP</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1300</td><td class="num">8000</td><td class="num">151</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDY-g1</td><td>SD1</td><td>SDY</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7150</td><td class="num">-2100</td><td class="num">80</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDY-g2</td><td>SD1</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">900</td><td class="num">289</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDY-g3</td><td>SD1</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">1900</td><td class="num">191</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDK-g1</td><td>SD1</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">6300</td><td class="num">150</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDK-g2</td><td>SD1</td><td>SDK</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-2300</td><td class="num">136</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDK-g3</td><td>SD1</td><td>SDK</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7900</td><td class="num">-200</td><td class="num">315</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDP-g1</td><td>SD1</td><td>SDP</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7600</td><td class="num">-700</td><td class="num">147</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDP-g2</td><td>SD1</td><td>SDP</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6900</td><td class="num">-500</td><td class="num">281</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDP-g3</td><td>SD1</td><td>SDP</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-200</td><td class="num">203</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD1-g1</td><td>SD1</td><td>SD1</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4700</td><td class="num">-1500</td><td class="num">317</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD1-g2</td><td>SD1</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">6100</td><td class="num">270</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD1-g3</td><td>SD1</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">3800</td><td class="num">216</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD2-g1</td><td>SD1</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">6500</td><td class="num">389</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD2-g2</td><td>SD1</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">5600</td><td class="num">269</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD2-g3</td><td>SD1</td><td>SD2</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7850</td><td class="num">-750</td><td class="num">99</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD3-g1</td><td>SD1</td><td>SD3</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7400</td><td class="num">-1100</td><td class="num">296</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD3-g2</td><td>SD1</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1250</td><td class="num">6800</td><td class="num">236</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD3-g3</td><td>SD1</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">6300</td><td class="num">183</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD4-g1</td><td>SD1</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">8000</td><td class="num">168</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD4-g2</td><td>SD1</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">6800</td><td class="num">144</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD4-g3</td><td>SD1</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">8000</td><td class="num">182</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD6-g1</td><td>SD1</td><td>SD6</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3600</td><td class="num">-900</td><td class="num">241</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD6-g2</td><td>SD1</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1900</td><td class="num">6300</td><td class="num">80</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD6-g3</td><td>SD1</td><td>SD6</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1600</td><td class="num">67</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD10-g1</td><td>SD1</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">5200</td><td class="num">198</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD10-g2</td><td>SD1</td><td>SD10</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7800</td><td class="num">-400</td><td class="num">231</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SD10-g3</td><td>SD1</td><td>SD10</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6600</td><td class="num">-100</td><td class="num">195</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDSC-g1</td><td>SD1</td><td>SDSC</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2250</td><td class="num">-150</td><td class="num">282</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDSC-g2</td><td>SD1</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-200</td><td class="num">4000</td><td class="num">240</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDSC-g3</td><td>SD1</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">4350</td><td class="num">560</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDMP-g1</td><td>SD1</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2100</td><td class="num">6500</td><td class="num">158</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDMP-g2</td><td>SD1</td><td>SDMP</td>
+  <td>SD1 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-500</td><td class="num">116</td>
+</tr><tr>
+  <td class="mono">sdc-SD1-vs-SDMP-g3</td><td>SD1</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">4500</td><td class="num">191</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDY-g1</td><td>SD2</td><td>SDY</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">216</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDY-g2</td><td>SD2</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">8000</td><td class="num">157</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDY-g3</td><td>SD2</td><td>SDY</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">272</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDK-g1</td><td>SD2</td><td>SDK</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3400</td><td class="num">-1250</td><td class="num">183</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDK-g2</td><td>SD2</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">3550</td><td class="num">484</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDK-g3</td><td>SD2</td><td>SDK</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6300</td><td class="num">-1400</td><td class="num">121</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDP-g1</td><td>SD2</td><td>SDP</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2000</td><td class="num">-400</td><td class="num">340</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDP-g2</td><td>SD2</td><td>SDP</td>
+  <td>SDP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-150</td><td class="num">7100</td><td class="num">133</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDP-g3</td><td>SD2</td><td>SDP</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-650</td><td class="num">76</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD1-g1</td><td>SD2</td><td>SD1</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2300</td><td class="num">-400</td><td class="num">142</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD1-g2</td><td>SD2</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">8000</td><td class="num">174</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD1-g3</td><td>SD2</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">7850</td><td class="num">81</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD2-g1</td><td>SD2</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">8200</td><td class="num">256</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD2-g2</td><td>SD2</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1350</td><td class="num">4450</td><td class="num">175</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD2-g3</td><td>SD2</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">7100</td><td class="num">169</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD3-g1</td><td>SD2</td><td>SD3</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5150</td><td class="num">-700</td><td class="num">182</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD3-g2</td><td>SD2</td><td>SD3</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5600</td><td class="num">-1450</td><td class="num">210</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD3-g3</td><td>SD2</td><td>SD3</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4750</td><td class="num">-200</td><td class="num">183</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD4-g1</td><td>SD2</td><td>SD4</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4400</td><td class="num">-1700</td><td class="num">319</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD4-g2</td><td>SD2</td><td>SD4</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4300</td><td class="num">-1650</td><td class="num">140</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD4-g3</td><td>SD2</td><td>SD4</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">900</td><td class="num">-200</td><td class="num">264</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD6-g1</td><td>SD2</td><td>SD6</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5800</td><td class="num">-50</td><td class="num">98</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD6-g2</td><td>SD2</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-950</td><td class="num">7900</td><td class="num">170</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD6-g3</td><td>SD2</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-50</td><td class="num">6450</td><td class="num">142</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD10-g1</td><td>SD2</td><td>SD10</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">0</td><td class="num">65</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD10-g2</td><td>SD2</td><td>SD10</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-500</td><td class="num">142</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SD10-g3</td><td>SD2</td><td>SD10</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7800</td><td class="num">-850</td><td class="num">205</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDSC-g1</td><td>SD2</td><td>SDSC</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5400</td><td class="num">-1200</td><td class="num">176</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDSC-g2</td><td>SD2</td><td>SDSC</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6100</td><td class="num">-800</td><td class="num">280</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDSC-g3</td><td>SD2</td><td>SDSC</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6450</td><td class="num">-600</td><td class="num">284</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDMP-g1</td><td>SD2</td><td>SDMP</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3600</td><td class="num">-400</td><td class="num">199</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDMP-g2</td><td>SD2</td><td>SDMP</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">400</td><td class="num">-400</td><td class="num">213</td>
+</tr><tr>
+  <td class="mono">sdc-SD2-vs-SDMP-g3</td><td>SD2</td><td>SDMP</td>
+  <td>SD2 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1100</td><td class="num">260</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDY-g1</td><td>SD3</td><td>SDY</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2150</td><td class="num">-100</td><td class="num">150</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDY-g2</td><td>SD3</td><td>SDY</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-300</td><td class="num">55</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDY-g3</td><td>SD3</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">4450</td><td class="num">371</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDK-g1</td><td>SD3</td><td>SDK</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5600</td><td class="num">-200</td><td class="num">144</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDK-g2</td><td>SD3</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1800</td><td class="num">1300</td><td class="num">341</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDK-g3</td><td>SD3</td><td>SDK</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-200</td><td class="num">124</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDP-g1</td><td>SD3</td><td>SDP</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7600</td><td class="num">-850</td><td class="num">270</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDP-g2</td><td>SD3</td><td>SDP</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-650</td><td class="num">152</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDP-g3</td><td>SD3</td><td>SDP</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7000</td><td class="num">-1300</td><td class="num">130</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD1-g1</td><td>SD3</td><td>SD1</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7000</td><td class="num">-300</td><td class="num">87</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD1-g2</td><td>SD3</td><td>SD1</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">99</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD1-g3</td><td>SD3</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-200</td><td class="num">5900</td><td class="num">288</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD2-g1</td><td>SD3</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-650</td><td class="num">8000</td><td class="num">246</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD2-g2</td><td>SD3</td><td>SD2</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-650</td><td class="num">142</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD2-g3</td><td>SD3</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2500</td><td class="num">7250</td><td class="num">161</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD3-g1</td><td>SD3</td><td>SD3</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2700</td><td class="num">-900</td><td class="num">210</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD3-g2</td><td>SD3</td><td>SD3</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7000</td><td class="num">0</td><td class="num">254</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD3-g3</td><td>SD3</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">3600</td><td class="num">437</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD4-g1</td><td>SD3</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2000</td><td class="num">2000</td><td class="num">310</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD4-g2</td><td>SD3</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-350</td><td class="num">7600</td><td class="num">152</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD4-g3</td><td>SD3</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1600</td><td class="num">3000</td><td class="num">347</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD6-g1</td><td>SD3</td><td>SD6</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">0</td><td class="num">100</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD6-g2</td><td>SD3</td><td>SD6</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">600</td><td class="num">-500</td><td class="num">228</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD6-g3</td><td>SD3</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">1900</td><td class="num">341</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD10-g1</td><td>SD3</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">1800</td><td class="num">267</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD10-g2</td><td>SD3</td><td>SD10</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7800</td><td class="num">-1300</td><td class="num">79</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SD10-g3</td><td>SD3</td><td>SD10</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5600</td><td class="num">-200</td><td class="num">82</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDSC-g1</td><td>SD3</td><td>SDSC</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-800</td><td class="num">59</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDSC-g2</td><td>SD3</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">7000</td><td class="num">183</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDSC-g3</td><td>SD3</td><td>SDSC</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">103</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDMP-g1</td><td>SD3</td><td>SDMP</td>
+  <td>SD3 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3100</td><td class="num">-700</td><td class="num">186</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDMP-g2</td><td>SD3</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1300</td><td class="num">6000</td><td class="num">297</td>
+</tr><tr>
+  <td class="mono">sdc-SD3-vs-SDMP-g3</td><td>SD3</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">4400</td><td class="num">222</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDY-g1</td><td>SD4</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2300</td><td class="num">450</td><td class="num">331</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDY-g2</td><td>SD4</td><td>SDY</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4750</td><td class="num">-1050</td><td class="num">214</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDY-g3</td><td>SD4</td><td>SDY</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6500</td><td class="num">-1450</td><td class="num">139</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDK-g1</td><td>SD4</td><td>SDK</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6400</td><td class="num">-100</td><td class="num">116</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDK-g2</td><td>SD4</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">7000</td><td class="num">98</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDK-g3</td><td>SD4</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">100</td><td class="num">247</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDP-g1</td><td>SD4</td><td>SDP</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">247</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDP-g2</td><td>SD4</td><td>SDP</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">700</td><td class="num">-100</td><td class="num">284</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDP-g3</td><td>SD4</td><td>SDP</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-200</td><td class="num">128</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD1-g1</td><td>SD4</td><td>SD1</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5550</td><td class="num">-800</td><td class="num">97</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD1-g2</td><td>SD4</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1050</td><td class="num">700</td><td class="num">316</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD1-g3</td><td>SD4</td><td>SD1</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-200</td><td class="num">104</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD2-g1</td><td>SD4</td><td>SD2</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4400</td><td class="num">-900</td><td class="num">182</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD2-g2</td><td>SD4</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">4400</td><td class="num">315</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD2-g3</td><td>SD4</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1150</td><td class="num">6400</td><td class="num">171</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD3-g1</td><td>SD4</td><td>SD3</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6300</td><td class="num">-400</td><td class="num">152</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD3-g2</td><td>SD4</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">1100</td><td class="num">345</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD3-g3</td><td>SD4</td><td>SD3</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6200</td><td class="num">-700</td><td class="num">122</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD4-g1</td><td>SD4</td><td>SD4</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">350</td><td class="num">-1350</td><td class="num">291</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD4-g2</td><td>SD4</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-250</td><td class="num">7600</td><td class="num">94</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD4-g3</td><td>SD4</td><td>SD4</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">11000</td><td class="num">-700</td><td class="num">263</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD6-g1</td><td>SD4</td><td>SD6</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6700</td><td class="num">-600</td><td class="num">228</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD6-g2</td><td>SD4</td><td>SD6</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4300</td><td class="num">-200</td><td class="num">71</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD6-g3</td><td>SD4</td><td>SD6</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-300</td><td class="num">121</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD10-g1</td><td>SD4</td><td>SD10</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6200</td><td class="num">-600</td><td class="num">204</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD10-g2</td><td>SD4</td><td>SD10</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2700</td><td class="num">-600</td><td class="num">381</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SD10-g3</td><td>SD4</td><td>SD10</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">1300</td><td class="num">-1300</td><td class="num">198</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDSC-g1</td><td>SD4</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-550</td><td class="num">5150</td><td class="num">134</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDSC-g2</td><td>SD4</td><td>SDSC</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">1200</td><td class="num">-1900</td><td class="num">130</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDSC-g3</td><td>SD4</td><td>SDSC</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5250</td><td class="num">-600</td><td class="num">303</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDMP-g1</td><td>SD4</td><td>SDMP</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5900</td><td class="num">-1200</td><td class="num">178</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDMP-g2</td><td>SD4</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-550</td><td class="num">6700</td><td class="num">101</td>
+</tr><tr>
+  <td class="mono">sdc-SD4-vs-SDMP-g3</td><td>SD4</td><td>SDMP</td>
+  <td>SD4 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1200</td><td class="num">150</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDY-g1</td><td>SD6</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">8400</td><td class="num">122</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDY-g2</td><td>SD6</td><td>SDY</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6400</td><td class="num">-600</td><td class="num">147</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDY-g3</td><td>SD6</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">1000</td><td class="num">96</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDK-g1</td><td>SD6</td><td>SDK</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4000</td><td class="num">-1050</td><td class="num">213</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDK-g2</td><td>SD6</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">5300</td><td class="num">363</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDK-g3</td><td>SD6</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">10000</td><td class="num">54</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDP-g1</td><td>SD6</td><td>SDP</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6700</td><td class="num">-900</td><td class="num">334</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDP-g2</td><td>SD6</td><td>SDP</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-200</td><td class="num">165</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDP-g3</td><td>SD6</td><td>SDP</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">60</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD1-g1</td><td>SD6</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">7700</td><td class="num">198</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD1-g2</td><td>SD6</td><td>SD1</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">10000</td><td class="num">-400</td><td class="num">92</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD1-g3</td><td>SD6</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">6300</td><td class="num">187</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD2-g1</td><td>SD6</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-150</td><td class="num">4400</td><td class="num">118</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD2-g2</td><td>SD6</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">7600</td><td class="num">131</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD2-g3</td><td>SD6</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-650</td><td class="num">7600</td><td class="num">114</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD3-g1</td><td>SD6</td><td>SD3</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7000</td><td class="num">-1500</td><td class="num">123</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD3-g2</td><td>SD6</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-700</td><td class="num">2100</td><td class="num">551</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD3-g3</td><td>SD6</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2650</td><td class="num">8000</td><td class="num">84</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD4-g1</td><td>SD6</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">8000</td><td class="num">125</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD4-g2</td><td>SD6</td><td>SD4</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6300</td><td class="num">-950</td><td class="num">85</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD4-g3</td><td>SD6</td><td>SD4</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7900</td><td class="num">-1600</td><td class="num">111</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD6-g1</td><td>SD6</td><td>SD6</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-100</td><td class="num">80</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD6-g2</td><td>SD6</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">4200</td><td class="num">395</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD6-g3</td><td>SD6</td><td>SD6</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4800</td><td class="num">-1100</td><td class="num">147</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD10-g1</td><td>SD6</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-150</td><td class="num">300</td><td class="num">132</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD10-g2</td><td>SD6</td><td>SD10</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">100</td><td class="num">-900</td><td class="num">132</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SD10-g3</td><td>SD6</td><td>SD10</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1400</td><td class="num">70</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDSC-g1</td><td>SD6</td><td>SDSC</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6800</td><td class="num">-1350</td><td class="num">317</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDSC-g2</td><td>SD6</td><td>SDSC</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5300</td><td class="num">-750</td><td class="num">489</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDSC-g3</td><td>SD6</td><td>SDSC</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4900</td><td class="num">-100</td><td class="num">223</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDMP-g1</td><td>SD6</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">4700</td><td class="num">334</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDMP-g2</td><td>SD6</td><td>SDMP</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7400</td><td class="num">-900</td><td class="num">85</td>
+</tr><tr>
+  <td class="mono">sdc-SD6-vs-SDMP-g3</td><td>SD6</td><td>SDMP</td>
+  <td>SD6 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5900</td><td class="num">-1800</td><td class="num">191</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDY-g1</td><td>SD10</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">7400</td><td class="num">111</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDY-g2</td><td>SD10</td><td>SDY</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7700</td><td class="num">-1150</td><td class="num">112</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDY-g3</td><td>SD10</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1600</td><td class="num">8000</td><td class="num">42</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDK-g1</td><td>SD10</td><td>SDK</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7000</td><td class="num">-2900</td><td class="num">116</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDK-g2</td><td>SD10</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1650</td><td class="num">7750</td><td class="num">98</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDK-g3</td><td>SD10</td><td>SDK</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6700</td><td class="num">-550</td><td class="num">225</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDP-g1</td><td>SD10</td><td>SDP</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2200</td><td class="num">-800</td><td class="num">240</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDP-g2</td><td>SD10</td><td>SDP</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1600</td><td class="num">134</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDP-g3</td><td>SD10</td><td>SDP</td>
+  <td>SDP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">8000</td><td class="num">95</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD1-g1</td><td>SD10</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">8000</td><td class="num">112</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD1-g2</td><td>SD10</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">8000</td><td class="num">86</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD1-g3</td><td>SD10</td><td>SD1</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7100</td><td class="num">-600</td><td class="num">187</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD2-g1</td><td>SD10</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-450</td><td class="num">7500</td><td class="num">136</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD2-g2</td><td>SD10</td><td>SD2</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5150</td><td class="num">-750</td><td class="num">138</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD2-g3</td><td>SD10</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">7900</td><td class="num">154</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD3-g1</td><td>SD10</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1500</td><td class="num">3800</td><td class="num">199</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD3-g2</td><td>SD10</td><td>SD3</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3900</td><td class="num">-400</td><td class="num">124</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD3-g3</td><td>SD10</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">8000</td><td class="num">86</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD4-g1</td><td>SD10</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">8000</td><td class="num">42</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD4-g2</td><td>SD10</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">7300</td><td class="num">200</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD4-g3</td><td>SD10</td><td>SD4</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1800</td><td class="num">151</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD6-g1</td><td>SD10</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">10400</td><td class="num">131</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD6-g2</td><td>SD10</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">8000</td><td class="num">64</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD6-g3</td><td>SD10</td><td>SD6</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-100</td><td class="num">67</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD10-g1</td><td>SD10</td><td>SD10</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">168</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD10-g2</td><td>SD10</td><td>SD10</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-600</td><td class="num">151</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SD10-g3</td><td>SD10</td><td>SD10</td>
+  <td>SD10 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2100</td><td class="num">500</td><td class="num">362</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDSC-g1</td><td>SD10</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">5400</td><td class="num">108</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDSC-g2</td><td>SD10</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-500</td><td class="num">8000</td><td class="num">59</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDSC-g3</td><td>SD10</td><td>SDSC</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7700</td><td class="num">-650</td><td class="num">193</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDMP-g1</td><td>SD10</td><td>SDMP</td>
+  <td>SD10 (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6700</td><td class="num">-1200</td><td class="num">114</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDMP-g2</td><td>SD10</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">8000</td><td class="num">120</td>
+</tr><tr>
+  <td class="mono">sdc-SD10-vs-SDMP-g3</td><td>SD10</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">8000</td><td class="num">100</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDY-g1</td><td>SDSC</td><td>SDY</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6400</td><td class="num">-300</td><td class="num">172</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDY-g2</td><td>SDSC</td><td>SDY</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-300</td><td class="num">301</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDY-g3</td><td>SDSC</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1250</td><td class="num">4350</td><td class="num">96</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDK-g1</td><td>SDSC</td><td>SDK</td>
+  <td>SDK (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">6700</td><td class="num">156</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDK-g2</td><td>SDSC</td><td>SDK</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1100</td><td class="num">56</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDK-g3</td><td>SDSC</td><td>SDK</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6600</td><td class="num">-150</td><td class="num">218</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDP-g1</td><td>SDSC</td><td>SDP</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6400</td><td class="num">-100</td><td class="num">250</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDP-g2</td><td>SDSC</td><td>SDP</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">3100</td><td class="num">-1650</td><td class="num">258</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDP-g3</td><td>SDSC</td><td>SDP</td>
+  <td>SDP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-50</td><td class="num">1950</td><td class="num">196</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD1-g1</td><td>SDSC</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1100</td><td class="num">7400</td><td class="num">202</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD1-g2</td><td>SDSC</td><td>SD1</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">2400</td><td class="num">-1900</td><td class="num">267</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD1-g3</td><td>SDSC</td><td>SD1</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-2500</td><td class="num">155</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD2-g1</td><td>SDSC</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1300</td><td class="num">7750</td><td class="num">151</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD2-g2</td><td>SDSC</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1500</td><td class="num">8000</td><td class="num">77</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD2-g3</td><td>SDSC</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">5250</td><td class="num">339</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD3-g1</td><td>SDSC</td><td>SD3</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6800</td><td class="num">-1800</td><td class="num">225</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD3-g2</td><td>SDSC</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-400</td><td class="num">8000</td><td class="num">61</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD3-g3</td><td>SDSC</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1350</td><td class="num">6150</td><td class="num">266</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD4-g1</td><td>SDSC</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">8000</td><td class="num">95</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD4-g2</td><td>SDSC</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-850</td><td class="num">7250</td><td class="num">338</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD4-g3</td><td>SDSC</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-100</td><td class="num">5850</td><td class="num">124</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD6-g1</td><td>SDSC</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">7400</td><td class="num">175</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD6-g2</td><td>SDSC</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-700</td><td class="num">8000</td><td class="num">106</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD6-g3</td><td>SDSC</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1150</td><td class="num">5700</td><td class="num">168</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD10-g1</td><td>SDSC</td><td>SD10</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7200</td><td class="num">-1150</td><td class="num">123</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD10-g2</td><td>SDSC</td><td>SD10</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5950</td><td class="num">-950</td><td class="num">176</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SD10-g3</td><td>SDSC</td><td>SD10</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6750</td><td class="num">-1050</td><td class="num">87</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDSC-g1</td><td>SDSC</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-2000</td><td class="num">6100</td><td class="num">244</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDSC-g2</td><td>SDSC</td><td>SDSC</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6400</td><td class="num">-1700</td><td class="num">265</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDSC-g3</td><td>SDSC</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1600</td><td class="num">5200</td><td class="num">196</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDMP-g1</td><td>SDSC</td><td>SDMP</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">0</td><td class="num">53</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDMP-g2</td><td>SDSC</td><td>SDMP</td>
+  <td>SDSC (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7900</td><td class="num">-1600</td><td class="num">102</td>
+</tr><tr>
+  <td class="mono">sdc-SDSC-vs-SDMP-g3</td><td>SDSC</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">5300</td><td class="num">210</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDY-g1</td><td>SDMP</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">2800</td><td class="num">109</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDY-g2</td><td>SDMP</td><td>SDY</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1300</td><td class="num">88</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDY-g3</td><td>SDMP</td><td>SDY</td>
+  <td>SDY (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1700</td><td class="num">7000</td><td class="num">196</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDK-g1</td><td>SDMP</td><td>SDK</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6900</td><td class="num">-700</td><td class="num">112</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDK-g2</td><td>SDMP</td><td>SDK</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6900</td><td class="num">-1500</td><td class="num">111</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDK-g3</td><td>SDMP</td><td>SDK</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">4800</td><td class="num">-600</td><td class="num">135</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDP-g1</td><td>SDMP</td><td>SDP</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6800</td><td class="num">-300</td><td class="num">160</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDP-g2</td><td>SDMP</td><td>SDP</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6200</td><td class="num">-1500</td><td class="num">203</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDP-g3</td><td>SDMP</td><td>SDP</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-700</td><td class="num">246</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD1-g1</td><td>SDMP</td><td>SD1</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">5800</td><td class="num">-1300</td><td class="num">117</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD1-g2</td><td>SDMP</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1300</td><td class="num">7900</td><td class="num">189</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD1-g3</td><td>SDMP</td><td>SD1</td>
+  <td>SD1 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">6700</td><td class="num">57</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD2-g1</td><td>SDMP</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">8000</td><td class="num">170</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD2-g2</td><td>SDMP</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">7900</td><td class="num">132</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD2-g3</td><td>SDMP</td><td>SD2</td>
+  <td>SD2 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1400</td><td class="num">5900</td><td class="num">327</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD3-g1</td><td>SDMP</td><td>SD3</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">6300</td><td class="num">-2100</td><td class="num">151</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD3-g2</td><td>SDMP</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-800</td><td class="num">4700</td><td class="num">162</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD3-g3</td><td>SDMP</td><td>SD3</td>
+  <td>SD3 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-250</td><td class="num">8000</td><td class="num">112</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD4-g1</td><td>SDMP</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1900</td><td class="num">8000</td><td class="num">113</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD4-g2</td><td>SDMP</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1000</td><td class="num">2000</td><td class="num">176</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD4-g3</td><td>SDMP</td><td>SD4</td>
+  <td>SD4 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">8000</td><td class="num">91</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD6-g1</td><td>SDMP</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1500</td><td class="num">8000</td><td class="num">59</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD6-g2</td><td>SDMP</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-600</td><td class="num">7500</td><td class="num">88</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD6-g3</td><td>SDMP</td><td>SD6</td>
+  <td>SD6 (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-900</td><td class="num">8000</td><td class="num">93</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD10-g1</td><td>SDMP</td><td>SD10</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7100</td><td class="num">0</td><td class="num">113</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD10-g2</td><td>SDMP</td><td>SD10</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7700</td><td class="num">-1400</td><td class="num">64</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SD10-g3</td><td>SDMP</td><td>SD10</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1800</td><td class="num">139</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDSC-g1</td><td>SDMP</td><td>SDSC</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">7500</td><td class="num">-200</td><td class="num">301</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDSC-g2</td><td>SDMP</td><td>SDSC</td>
+  <td>SDSC (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">0</td><td class="num">4700</td><td class="num">180</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDSC-g3</td><td>SDMP</td><td>SDSC</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-1300</td><td class="num">217</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDMP-g1</td><td>SDMP</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-300</td><td class="num">6100</td><td class="num">299</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDMP-g2</td><td>SDMP</td><td>SDMP</td>
+  <td>SDMP (first)</td>
+  <td>LP reached 0</td>
+  <td class="num">8000</td><td class="num">-400</td><td class="num">173</td>
+</tr><tr>
+  <td class="mono">sdc-SDMP-vs-SDMP-g3</td><td>SDMP</td><td>SDMP</td>
+  <td>SDMP (second)</td>
+  <td>LP reached 0</td>
+  <td class="num">-1200</td><td class="num">7500</td><td class="num">79</td>
+</tr></tbody>
+  </table>
+</details>
+
+<h2>Replayed duels (16 of 363)</h2>
+<p>Two defects in the rules engine can leave a board in a position <strong>no player can answer</strong>:
+a <code>chain.lua</code> CHAININFO error where the pinned card scripts and the pinned core disagree (every case
+involved SD10 / Ancient Gear Cannon), and a <code>MSG_SELECT_SUM</code> dead end where the core offers zero
+selectable cards yet still demands more sum, and rejects the empty answer (every case involved SDP's Toon
+tribute lines). Neither is fixable without changing the core/scripts pair, which would change how every
+already-finished duel replays.</p>
+<p>Those duels were therefore <strong>replayed from a fresh shuffle</strong>: the unplayable game was discarded
+and two Haiku agents played the cell again from move 0 with a new seed, under identical conditions. This never
+decides a duel — no winner is picked, no life points compared, no move played by the operator — and a duel the
+engine calls <em>finished</em> is refused outright, so a result can never be re-rolled, only an unplayable
+position. 19 resets across 16 duels; some needed a second
+shuffle because the same defect recurred.</p>
+<details>
+  <summary>The reseed ledger</summary>
+  <table class="data">
+    <thead><tr><th>duel</th><th class="num">attempt</th><th class="num">moves discarded</th><th class="num">old seed</th><th class="num">new seed</th><th>reason</th></tr></thead>
+    <tbody><tr><td class="mono">sdc-SDY-vs-SD10-g3</td><td class="num">1</td><td class="num">108</td><td class="num">20260844</td><td class="num">21260847</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD1-vs-SD10-g1</td><td class="num">1</td><td class="num">121</td><td class="num">20260941</td><td class="num">21260944</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD1-vs-SD10-g2</td><td class="num">1</td><td class="num">134</td><td class="num">20260942</td><td class="num">21260945</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD4-vs-SD10-g2</td><td class="num">1</td><td class="num">116</td><td class="num">20261041</td><td class="num">21261044</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD10-vs-SDY-g1</td><td class="num">1</td><td class="num">108</td><td class="num">20261082</td><td class="num">21261085</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD10-vs-SDK-g1</td><td class="num">1</td><td class="num">251</td><td class="num">20261085</td><td class="num">21261088</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD10-vs-SD4-g1</td><td class="num">1</td><td class="num">57</td><td class="num">20261100</td><td class="num">21261103</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SD10-vs-SD10-g3</td><td class="num">1</td><td class="num">261</td><td class="num">20261108</td><td class="num">21261111</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SDY-vs-SDP-g2</td><td class="num">1</td><td class="num">208</td><td class="num">20260825</td><td class="num">21260828</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDP-vs-SDY-g3</td><td class="num">1</td><td class="num">32</td><td class="num">20260886</td><td class="num">21260889</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDP-vs-SD2-g1</td><td class="num">1</td><td class="num">129</td><td class="num">20260896</td><td class="num">21260899</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDP-vs-SD4-g2</td><td class="num">1</td><td class="num">116</td><td class="num">20260903</td><td class="num">21260906</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDP-vs-SD6-g2</td><td class="num">1</td><td class="num">187</td><td class="num">20260906</td><td class="num">21260909</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDP-vs-SD10-g2</td><td class="num">1</td><td class="num">53</td><td class="num">20260909</td><td class="num">21260912</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDP-vs-SDSC-g3</td><td class="num">1</td><td class="num">65</td><td class="num">20260913</td><td class="num">21260916</td><td>MSG_SELECT_SUM mis-decode — menu offers no legal answer (choose exactly 0 more of a required 1)</td></tr><tr><td class="mono">sdc-SDY-vs-SD10-g3</td><td class="num">2</td><td class="num">225</td><td class="num">21260847</td><td class="num">23260853</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SDP-vs-SD10-g2</td><td class="num">2</td><td class="num">225</td><td class="num">21260912</td><td class="num">23260918</td><td>chain.lua:85 CHAININFO script error — position unanswerable by any player</td></tr><tr><td class="mono">sdc-SDP-vs-SD4-g1</td><td class="num">1</td><td class="num">166</td><td class="num">20260902</td><td class="num">21260905</td><td>MSG_SELECT_SUM dead end — core offers 0 selectable cards yet demands more sum, and rejects the empty answer</td></tr><tr><td class="mono">sdc-SDP-vs-SDSC-g3</td><td class="num">2</td><td class="num">211</td><td class="num">21260916</td><td class="num">23260922</td><td>MSG_SELECT_SUM dead end — core offers 0 selectable cards yet demands more sum, and rejects the empty answer</td></tr></tbody>
+  </table>
+</details>
+
+<h2>How this was run</h2>
+<ul>
+  <li><strong>Field:</strong> the 11 decks marked <code>category: "structure"</code> — official Starter and Structure Decks, fixed printed lists. Curated and user decks are excluded.</li>
+  <li><strong>Players:</strong> one headless Haiku agent per seat, prompted with <code>ygo brief</code> (that is <code>PLAYER.md</code> plus the seat facts) and nothing else. No strategy brief on either side.</li>
+  <li><strong>Hidden information is enforced, not trusted:</strong> a <code>PreToolUse</code> hook restricts each seat's shell to <code>ygo</code> calls for its own seat — no spectator view, no other seat, nothing under <code>duels/</code> (the record holds the seed, hence the opponent's hand), no <code>undo</code>/<code>fork</code>, no random play.</li>
+  <li><strong>No shortcuts:</strong> a duel counts only when the rules engine declares it over. Nothing is decided by life points, by random play, or by assumption. If a pair of agents leaves a duel unfinished, a fresh single-decision Haiku agent is sent in to answer the pending menu, then a fresh pair resumes — repeatedly, until the engine ends the duel.</li>
+  <li><strong>Reproducible:</strong> fixed per-duel seeds; every result above is re-derived by replaying <code>duels/*.json</code>.</li>
+</ul>
+
+<h2>What this measures</h2>
+<p>How these 11 printed decklists perform against each other <em>when piloted by equally weak, equally uninformed
+players</em>. That is a real question, and its answer is not the human-tournament answer: a deck whose strength depends on
+subtle sequencing underperforms here, and a deck that wins by having bigger numbers overperforms. Three games per cell
+ranks decks; it does not make any single cell trustworthy. The going-first split in the tiles above is the honest scale
+for reading the rest.</p>
+
+<footer>Generated 2026-08-17T23:55:33.110Z · <code>reports/structure_decks_haiku_competition/</code> · matrix and standings also in <code>matrix.md</code>, raw rows in <code>results.jsonl</code></footer>
+</main>
+
+<div id="tip" role="tooltip"></div>
+<script>
+  // Per-cell hover/focus detail. The tooltip enhances; every number it shows is
+  // already in the cell, the matrix table, or the "Every duel" table below.
+  const tip = document.getElementById("tip");
+  const GAP = 12;
+  function show(el) {
+    tip.textContent = el.dataset.detail || "";
+    tip.style.display = "block";
+    const r = el.getBoundingClientRect();
+    const t = tip.getBoundingClientRect();
+    tip.style.left = Math.max(GAP, Math.min(window.innerWidth - t.width - GAP, r.left + r.width / 2 - t.width / 2)) + "px";
+    tip.style.top = (r.top > t.height + GAP ? r.top - t.height - GAP : r.bottom + GAP) + "px";
+  }
+  const hide = () => { tip.style.display = "none"; };
+  for (const el of document.querySelectorAll(".cell[data-detail]")) {
+    el.addEventListener("mouseenter", () => show(el));
+    el.addEventListener("focus", () => show(el));
+    el.addEventListener("mouseleave", hide);
+    el.addEventListener("blur", hide);
+  }
+  window.addEventListener("scroll", hide, { passive: true });
+</script>

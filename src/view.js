@@ -101,11 +101,20 @@ export function maskMessage(msg, viewer) {
       return null;
 
     case OcgMessageType.CONFIRM_CARDS: {
-      // Revealing from the deck/extra deck shows only the named player; from the
-      // hand or graveyard it is a reveal to everyone at the table.
+      // A reveal out of a DECK or EXTRA DECK is private to whoever OWNS those cards.
+      // Key it on the revealed cards' controller, NEVER on msg.player: the core
+      // addresses this message to the player being shown the search, and for a
+      // "both players banish every copy" effect (Nobleman of Crossout) that player
+      // is the OPPONENT of the deck being searched. Keying on msg.player therefore
+      // handed a seat its opponent's entire deck list — and with it their exact
+      // hand by elimination, which is precisely what the "unseen" pool exists to
+      // prevent. Found 2026-08-17 by an agent that used it to read a hand.
+      // Reveals from the hand or graveyard stay public: those happen at the table.
       const first = msg.cards[0];
-      const privateReveal = first && (first.location === OcgLocation.DECK || first.location === OcgLocation.EXTRA);
-      return privateReveal && msg.player !== viewer ? null : msg;
+      if (!first) return msg;
+      const fromHiddenPile = first.location === OcgLocation.DECK || first.location === OcgLocation.EXTRA;
+      if (!fromHiddenPile) return msg;
+      return msg.cards.every((c) => c.controller === viewer) ? msg : null;
     }
 
     case OcgMessageType.SHUFFLE_HAND:

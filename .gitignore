@@ -12,3 +12,5 @@ vendor/
 # (src/presence.js). It says nothing about the game and never touches the duel
 # record, so versioning it only produces churn on every session.
 duels/.presence/
+/.claude_vlm_checks
+/duels

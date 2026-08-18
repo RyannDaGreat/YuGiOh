@@ -1,0 +1,2856 @@
+{
+  "field": [
+    {
+      "file": "yugi",
+      "name": "Yugi",
+      "setCode": "SDY",
+      "format": "classic"
+    },
+    {
+      "file": "kaiba",
+      "name": "Kaiba",
+      "setCode": "SDK",
+      "format": "classic"
+    },
+    {
+      "file": "pegasus-structure-deck",
+      "name": "Starter Deck: Pegasus",
+      "setCode": "SDP",
+      "format": "classic"
+    },
+    {
+      "file": "dragons-roar",
+      "name": "Dragon's Roar (SD1)",
+      "setCode": "SD1",
+      "format": "classic"
+    },
+    {
+      "file": "zombie-madness",
+      "name": "Zombie Madness (SD2)",
+      "setCode": "SD2",
+      "format": "classic"
+    },
+    {
+      "file": "blaze-of-destruction",
+      "name": "Blaze of Destruction (SD3)",
+      "setCode": "SD3",
+      "format": "classic"
+    },
+    {
+      "file": "fury-from-the-deep",
+      "name": "Fury from the Deep (SD4)",
+      "setCode": "SD4",
+      "format": "classic"
+    },
+    {
+      "file": "spellcasters-judgment",
+      "name": "Spellcaster's Judgment (SD6)",
+      "setCode": "SD6",
+      "format": "classic"
+    },
+    {
+      "file": "machine-revolt",
+      "name": "Machine Re-Volt (SD10)",
+      "setCode": "SD10",
+      "format": "classic"
+    },
+    {
+      "file": "spellcasters-command",
+      "name": "Spellcaster's Command (SDSC)",
+      "setCode": "SDSC",
+      "format": "classic"
+    },
+    {
+      "file": "master-of-pendulum",
+      "name": "Master of Pendulum (SDMP)",
+      "setCode": "SDMP",
+      "format": "classic"
+    }
+  ],
+  "games": 3,
+  "cells": [
+    {
+      "row": "SDY",
+      "col": "SDY",
+      "p0": "yugi",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SDY-g1",
+          "game": 1,
+          "seed": 20260818
+        },
+        {
+          "id": "sdc-SDY-vs-SDY-g2",
+          "game": 2,
+          "seed": 20260819
+        },
+        {
+          "id": "sdc-SDY-vs-SDY-g3",
+          "game": 3,
+          "seed": 20260820
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SDK",
+      "p0": "yugi",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SDK-g1",
+          "game": 1,
+          "seed": 20260821
+        },
+        {
+          "id": "sdc-SDY-vs-SDK-g2",
+          "game": 2,
+          "seed": 20260822
+        },
+        {
+          "id": "sdc-SDY-vs-SDK-g3",
+          "game": 3,
+          "seed": 20260823
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SDP",
+      "p0": "yugi",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SDP-g1",
+          "game": 1,
+          "seed": 20260824
+        },
+        {
+          "id": "sdc-SDY-vs-SDP-g2",
+          "game": 2,
+          "seed": 20260825
+        },
+        {
+          "id": "sdc-SDY-vs-SDP-g3",
+          "game": 3,
+          "seed": 20260826
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SD1",
+      "p0": "yugi",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SD1-g1",
+          "game": 1,
+          "seed": 20260827
+        },
+        {
+          "id": "sdc-SDY-vs-SD1-g2",
+          "game": 2,
+          "seed": 20260828
+        },
+        {
+          "id": "sdc-SDY-vs-SD1-g3",
+          "game": 3,
+          "seed": 20260829
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SD2",
+      "p0": "yugi",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SD2-g1",
+          "game": 1,
+          "seed": 20260830
+        },
+        {
+          "id": "sdc-SDY-vs-SD2-g2",
+          "game": 2,
+          "seed": 20260831
+        },
+        {
+          "id": "sdc-SDY-vs-SD2-g3",
+          "game": 3,
+          "seed": 20260832
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SD3",
+      "p0": "yugi",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SD3-g1",
+          "game": 1,
+          "seed": 20260833
+        },
+        {
+          "id": "sdc-SDY-vs-SD3-g2",
+          "game": 2,
+          "seed": 20260834
+        },
+        {
+          "id": "sdc-SDY-vs-SD3-g3",
+          "game": 3,
+          "seed": 20260835
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SD4",
+      "p0": "yugi",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SD4-g1",
+          "game": 1,
+          "seed": 20260836
+        },
+        {
+          "id": "sdc-SDY-vs-SD4-g2",
+          "game": 2,
+          "seed": 20260837
+        },
+        {
+          "id": "sdc-SDY-vs-SD4-g3",
+          "game": 3,
+          "seed": 20260838
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SD6",
+      "p0": "yugi",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SD6-g1",
+          "game": 1,
+          "seed": 20260839
+        },
+        {
+          "id": "sdc-SDY-vs-SD6-g2",
+          "game": 2,
+          "seed": 20260840
+        },
+        {
+          "id": "sdc-SDY-vs-SD6-g3",
+          "game": 3,
+          "seed": 20260841
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SD10",
+      "p0": "yugi",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SD10-g1",
+          "game": 1,
+          "seed": 20260842
+        },
+        {
+          "id": "sdc-SDY-vs-SD10-g2",
+          "game": 2,
+          "seed": 20260843
+        },
+        {
+          "id": "sdc-SDY-vs-SD10-g3",
+          "game": 3,
+          "seed": 20260844
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SDSC",
+      "p0": "yugi",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20260845
+        },
+        {
+          "id": "sdc-SDY-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20260846
+        },
+        {
+          "id": "sdc-SDY-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20260847
+        }
+      ]
+    },
+    {
+      "row": "SDY",
+      "col": "SDMP",
+      "p0": "yugi",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SDY-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20260848
+        },
+        {
+          "id": "sdc-SDY-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20260849
+        },
+        {
+          "id": "sdc-SDY-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20260850
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SDY",
+      "p0": "kaiba",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SDY-g1",
+          "game": 1,
+          "seed": 20260851
+        },
+        {
+          "id": "sdc-SDK-vs-SDY-g2",
+          "game": 2,
+          "seed": 20260852
+        },
+        {
+          "id": "sdc-SDK-vs-SDY-g3",
+          "game": 3,
+          "seed": 20260853
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SDK",
+      "p0": "kaiba",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SDK-g1",
+          "game": 1,
+          "seed": 20260854
+        },
+        {
+          "id": "sdc-SDK-vs-SDK-g2",
+          "game": 2,
+          "seed": 20260855
+        },
+        {
+          "id": "sdc-SDK-vs-SDK-g3",
+          "game": 3,
+          "seed": 20260856
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SDP",
+      "p0": "kaiba",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SDP-g1",
+          "game": 1,
+          "seed": 20260857
+        },
+        {
+          "id": "sdc-SDK-vs-SDP-g2",
+          "game": 2,
+          "seed": 20260858
+        },
+        {
+          "id": "sdc-SDK-vs-SDP-g3",
+          "game": 3,
+          "seed": 20260859
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SD1",
+      "p0": "kaiba",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SD1-g1",
+          "game": 1,
+          "seed": 20260860
+        },
+        {
+          "id": "sdc-SDK-vs-SD1-g2",
+          "game": 2,
+          "seed": 20260861
+        },
+        {
+          "id": "sdc-SDK-vs-SD1-g3",
+          "game": 3,
+          "seed": 20260862
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SD2",
+      "p0": "kaiba",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SD2-g1",
+          "game": 1,
+          "seed": 20260863
+        },
+        {
+          "id": "sdc-SDK-vs-SD2-g2",
+          "game": 2,
+          "seed": 20260864
+        },
+        {
+          "id": "sdc-SDK-vs-SD2-g3",
+          "game": 3,
+          "seed": 20260865
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SD3",
+      "p0": "kaiba",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SD3-g1",
+          "game": 1,
+          "seed": 20260866
+        },
+        {
+          "id": "sdc-SDK-vs-SD3-g2",
+          "game": 2,
+          "seed": 20260867
+        },
+        {
+          "id": "sdc-SDK-vs-SD3-g3",
+          "game": 3,
+          "seed": 20260868
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SD4",
+      "p0": "kaiba",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SD4-g1",
+          "game": 1,
+          "seed": 20260869
+        },
+        {
+          "id": "sdc-SDK-vs-SD4-g2",
+          "game": 2,
+          "seed": 20260870
+        },
+        {
+          "id": "sdc-SDK-vs-SD4-g3",
+          "game": 3,
+          "seed": 20260871
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SD6",
+      "p0": "kaiba",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SD6-g1",
+          "game": 1,
+          "seed": 20260872
+        },
+        {
+          "id": "sdc-SDK-vs-SD6-g2",
+          "game": 2,
+          "seed": 20260873
+        },
+        {
+          "id": "sdc-SDK-vs-SD6-g3",
+          "game": 3,
+          "seed": 20260874
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SD10",
+      "p0": "kaiba",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SD10-g1",
+          "game": 1,
+          "seed": 20260875
+        },
+        {
+          "id": "sdc-SDK-vs-SD10-g2",
+          "game": 2,
+          "seed": 20260876
+        },
+        {
+          "id": "sdc-SDK-vs-SD10-g3",
+          "game": 3,
+          "seed": 20260877
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SDSC",
+      "p0": "kaiba",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20260878
+        },
+        {
+          "id": "sdc-SDK-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20260879
+        },
+        {
+          "id": "sdc-SDK-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20260880
+        }
+      ]
+    },
+    {
+      "row": "SDK",
+      "col": "SDMP",
+      "p0": "kaiba",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SDK-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20260881
+        },
+        {
+          "id": "sdc-SDK-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20260882
+        },
+        {
+          "id": "sdc-SDK-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20260883
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SDY",
+      "p0": "pegasus-structure-deck",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SDY-g1",
+          "game": 1,
+          "seed": 20260884
+        },
+        {
+          "id": "sdc-SDP-vs-SDY-g2",
+          "game": 2,
+          "seed": 20260885
+        },
+        {
+          "id": "sdc-SDP-vs-SDY-g3",
+          "game": 3,
+          "seed": 20260886
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SDK",
+      "p0": "pegasus-structure-deck",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SDK-g1",
+          "game": 1,
+          "seed": 20260887
+        },
+        {
+          "id": "sdc-SDP-vs-SDK-g2",
+          "game": 2,
+          "seed": 20260888
+        },
+        {
+          "id": "sdc-SDP-vs-SDK-g3",
+          "game": 3,
+          "seed": 20260889
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SDP",
+      "p0": "pegasus-structure-deck",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SDP-g1",
+          "game": 1,
+          "seed": 20260890
+        },
+        {
+          "id": "sdc-SDP-vs-SDP-g2",
+          "game": 2,
+          "seed": 20260891
+        },
+        {
+          "id": "sdc-SDP-vs-SDP-g3",
+          "game": 3,
+          "seed": 20260892
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SD1",
+      "p0": "pegasus-structure-deck",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SD1-g1",
+          "game": 1,
+          "seed": 20260893
+        },
+        {
+          "id": "sdc-SDP-vs-SD1-g2",
+          "game": 2,
+          "seed": 20260894
+        },
+        {
+          "id": "sdc-SDP-vs-SD1-g3",
+          "game": 3,
+          "seed": 20260895
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SD2",
+      "p0": "pegasus-structure-deck",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SD2-g1",
+          "game": 1,
+          "seed": 20260896
+        },
+        {
+          "id": "sdc-SDP-vs-SD2-g2",
+          "game": 2,
+          "seed": 20260897
+        },
+        {
+          "id": "sdc-SDP-vs-SD2-g3",
+          "game": 3,
+          "seed": 20260898
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SD3",
+      "p0": "pegasus-structure-deck",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SD3-g1",
+          "game": 1,
+          "seed": 20260899
+        },
+        {
+          "id": "sdc-SDP-vs-SD3-g2",
+          "game": 2,
+          "seed": 20260900
+        },
+        {
+          "id": "sdc-SDP-vs-SD3-g3",
+          "game": 3,
+          "seed": 20260901
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SD4",
+      "p0": "pegasus-structure-deck",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SD4-g1",
+          "game": 1,
+          "seed": 20260902
+        },
+        {
+          "id": "sdc-SDP-vs-SD4-g2",
+          "game": 2,
+          "seed": 20260903
+        },
+        {
+          "id": "sdc-SDP-vs-SD4-g3",
+          "game": 3,
+          "seed": 20260904
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SD6",
+      "p0": "pegasus-structure-deck",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SD6-g1",
+          "game": 1,
+          "seed": 20260905
+        },
+        {
+          "id": "sdc-SDP-vs-SD6-g2",
+          "game": 2,
+          "seed": 20260906
+        },
+        {
+          "id": "sdc-SDP-vs-SD6-g3",
+          "game": 3,
+          "seed": 20260907
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SD10",
+      "p0": "pegasus-structure-deck",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SD10-g1",
+          "game": 1,
+          "seed": 20260908
+        },
+        {
+          "id": "sdc-SDP-vs-SD10-g2",
+          "game": 2,
+          "seed": 20260909
+        },
+        {
+          "id": "sdc-SDP-vs-SD10-g3",
+          "game": 3,
+          "seed": 20260910
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SDSC",
+      "p0": "pegasus-structure-deck",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20260911
+        },
+        {
+          "id": "sdc-SDP-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20260912
+        },
+        {
+          "id": "sdc-SDP-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20260913
+        }
+      ]
+    },
+    {
+      "row": "SDP",
+      "col": "SDMP",
+      "p0": "pegasus-structure-deck",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SDP-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20260914
+        },
+        {
+          "id": "sdc-SDP-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20260915
+        },
+        {
+          "id": "sdc-SDP-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20260916
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SDY",
+      "p0": "dragons-roar",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SDY-g1",
+          "game": 1,
+          "seed": 20260917
+        },
+        {
+          "id": "sdc-SD1-vs-SDY-g2",
+          "game": 2,
+          "seed": 20260918
+        },
+        {
+          "id": "sdc-SD1-vs-SDY-g3",
+          "game": 3,
+          "seed": 20260919
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SDK",
+      "p0": "dragons-roar",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SDK-g1",
+          "game": 1,
+          "seed": 20260920
+        },
+        {
+          "id": "sdc-SD1-vs-SDK-g2",
+          "game": 2,
+          "seed": 20260921
+        },
+        {
+          "id": "sdc-SD1-vs-SDK-g3",
+          "game": 3,
+          "seed": 20260922
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SDP",
+      "p0": "dragons-roar",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SDP-g1",
+          "game": 1,
+          "seed": 20260923
+        },
+        {
+          "id": "sdc-SD1-vs-SDP-g2",
+          "game": 2,
+          "seed": 20260924
+        },
+        {
+          "id": "sdc-SD1-vs-SDP-g3",
+          "game": 3,
+          "seed": 20260925
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SD1",
+      "p0": "dragons-roar",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SD1-g1",
+          "game": 1,
+          "seed": 20260926
+        },
+        {
+          "id": "sdc-SD1-vs-SD1-g2",
+          "game": 2,
+          "seed": 20260927
+        },
+        {
+          "id": "sdc-SD1-vs-SD1-g3",
+          "game": 3,
+          "seed": 20260928
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SD2",
+      "p0": "dragons-roar",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SD2-g1",
+          "game": 1,
+          "seed": 20260929
+        },
+        {
+          "id": "sdc-SD1-vs-SD2-g2",
+          "game": 2,
+          "seed": 20260930
+        },
+        {
+          "id": "sdc-SD1-vs-SD2-g3",
+          "game": 3,
+          "seed": 20260931
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SD3",
+      "p0": "dragons-roar",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SD3-g1",
+          "game": 1,
+          "seed": 20260932
+        },
+        {
+          "id": "sdc-SD1-vs-SD3-g2",
+          "game": 2,
+          "seed": 20260933
+        },
+        {
+          "id": "sdc-SD1-vs-SD3-g3",
+          "game": 3,
+          "seed": 20260934
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SD4",
+      "p0": "dragons-roar",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SD4-g1",
+          "game": 1,
+          "seed": 20260935
+        },
+        {
+          "id": "sdc-SD1-vs-SD4-g2",
+          "game": 2,
+          "seed": 20260936
+        },
+        {
+          "id": "sdc-SD1-vs-SD4-g3",
+          "game": 3,
+          "seed": 20260937
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SD6",
+      "p0": "dragons-roar",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SD6-g1",
+          "game": 1,
+          "seed": 20260938
+        },
+        {
+          "id": "sdc-SD1-vs-SD6-g2",
+          "game": 2,
+          "seed": 20260939
+        },
+        {
+          "id": "sdc-SD1-vs-SD6-g3",
+          "game": 3,
+          "seed": 20260940
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SD10",
+      "p0": "dragons-roar",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SD10-g1",
+          "game": 1,
+          "seed": 20260941
+        },
+        {
+          "id": "sdc-SD1-vs-SD10-g2",
+          "game": 2,
+          "seed": 20260942
+        },
+        {
+          "id": "sdc-SD1-vs-SD10-g3",
+          "game": 3,
+          "seed": 20260943
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SDSC",
+      "p0": "dragons-roar",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20260944
+        },
+        {
+          "id": "sdc-SD1-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20260945
+        },
+        {
+          "id": "sdc-SD1-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20260946
+        }
+      ]
+    },
+    {
+      "row": "SD1",
+      "col": "SDMP",
+      "p0": "dragons-roar",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SD1-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20260947
+        },
+        {
+          "id": "sdc-SD1-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20260948
+        },
+        {
+          "id": "sdc-SD1-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20260949
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SDY",
+      "p0": "zombie-madness",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SDY-g1",
+          "game": 1,
+          "seed": 20260950
+        },
+        {
+          "id": "sdc-SD2-vs-SDY-g2",
+          "game": 2,
+          "seed": 20260951
+        },
+        {
+          "id": "sdc-SD2-vs-SDY-g3",
+          "game": 3,
+          "seed": 20260952
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SDK",
+      "p0": "zombie-madness",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SDK-g1",
+          "game": 1,
+          "seed": 20260953
+        },
+        {
+          "id": "sdc-SD2-vs-SDK-g2",
+          "game": 2,
+          "seed": 20260954
+        },
+        {
+          "id": "sdc-SD2-vs-SDK-g3",
+          "game": 3,
+          "seed": 20260955
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SDP",
+      "p0": "zombie-madness",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SDP-g1",
+          "game": 1,
+          "seed": 20260956
+        },
+        {
+          "id": "sdc-SD2-vs-SDP-g2",
+          "game": 2,
+          "seed": 20260957
+        },
+        {
+          "id": "sdc-SD2-vs-SDP-g3",
+          "game": 3,
+          "seed": 20260958
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SD1",
+      "p0": "zombie-madness",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SD1-g1",
+          "game": 1,
+          "seed": 20260959
+        },
+        {
+          "id": "sdc-SD2-vs-SD1-g2",
+          "game": 2,
+          "seed": 20260960
+        },
+        {
+          "id": "sdc-SD2-vs-SD1-g3",
+          "game": 3,
+          "seed": 20260961
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SD2",
+      "p0": "zombie-madness",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SD2-g1",
+          "game": 1,
+          "seed": 20260962
+        },
+        {
+          "id": "sdc-SD2-vs-SD2-g2",
+          "game": 2,
+          "seed": 20260963
+        },
+        {
+          "id": "sdc-SD2-vs-SD2-g3",
+          "game": 3,
+          "seed": 20260964
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SD3",
+      "p0": "zombie-madness",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SD3-g1",
+          "game": 1,
+          "seed": 20260965
+        },
+        {
+          "id": "sdc-SD2-vs-SD3-g2",
+          "game": 2,
+          "seed": 20260966
+        },
+        {
+          "id": "sdc-SD2-vs-SD3-g3",
+          "game": 3,
+          "seed": 20260967
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SD4",
+      "p0": "zombie-madness",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SD4-g1",
+          "game": 1,
+          "seed": 20260968
+        },
+        {
+          "id": "sdc-SD2-vs-SD4-g2",
+          "game": 2,
+          "seed": 20260969
+        },
+        {
+          "id": "sdc-SD2-vs-SD4-g3",
+          "game": 3,
+          "seed": 20260970
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SD6",
+      "p0": "zombie-madness",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SD6-g1",
+          "game": 1,
+          "seed": 20260971
+        },
+        {
+          "id": "sdc-SD2-vs-SD6-g2",
+          "game": 2,
+          "seed": 20260972
+        },
+        {
+          "id": "sdc-SD2-vs-SD6-g3",
+          "game": 3,
+          "seed": 20260973
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SD10",
+      "p0": "zombie-madness",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SD10-g1",
+          "game": 1,
+          "seed": 20260974
+        },
+        {
+          "id": "sdc-SD2-vs-SD10-g2",
+          "game": 2,
+          "seed": 20260975
+        },
+        {
+          "id": "sdc-SD2-vs-SD10-g3",
+          "game": 3,
+          "seed": 20260976
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SDSC",
+      "p0": "zombie-madness",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20260977
+        },
+        {
+          "id": "sdc-SD2-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20260978
+        },
+        {
+          "id": "sdc-SD2-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20260979
+        }
+      ]
+    },
+    {
+      "row": "SD2",
+      "col": "SDMP",
+      "p0": "zombie-madness",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SD2-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20260980
+        },
+        {
+          "id": "sdc-SD2-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20260981
+        },
+        {
+          "id": "sdc-SD2-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20260982
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SDY",
+      "p0": "blaze-of-destruction",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SDY-g1",
+          "game": 1,
+          "seed": 20260983
+        },
+        {
+          "id": "sdc-SD3-vs-SDY-g2",
+          "game": 2,
+          "seed": 20260984
+        },
+        {
+          "id": "sdc-SD3-vs-SDY-g3",
+          "game": 3,
+          "seed": 20260985
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SDK",
+      "p0": "blaze-of-destruction",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SDK-g1",
+          "game": 1,
+          "seed": 20260986
+        },
+        {
+          "id": "sdc-SD3-vs-SDK-g2",
+          "game": 2,
+          "seed": 20260987
+        },
+        {
+          "id": "sdc-SD3-vs-SDK-g3",
+          "game": 3,
+          "seed": 20260988
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SDP",
+      "p0": "blaze-of-destruction",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SDP-g1",
+          "game": 1,
+          "seed": 20260989
+        },
+        {
+          "id": "sdc-SD3-vs-SDP-g2",
+          "game": 2,
+          "seed": 20260990
+        },
+        {
+          "id": "sdc-SD3-vs-SDP-g3",
+          "game": 3,
+          "seed": 20260991
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SD1",
+      "p0": "blaze-of-destruction",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SD1-g1",
+          "game": 1,
+          "seed": 20260992
+        },
+        {
+          "id": "sdc-SD3-vs-SD1-g2",
+          "game": 2,
+          "seed": 20260993
+        },
+        {
+          "id": "sdc-SD3-vs-SD1-g3",
+          "game": 3,
+          "seed": 20260994
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SD2",
+      "p0": "blaze-of-destruction",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SD2-g1",
+          "game": 1,
+          "seed": 20260995
+        },
+        {
+          "id": "sdc-SD3-vs-SD2-g2",
+          "game": 2,
+          "seed": 20260996
+        },
+        {
+          "id": "sdc-SD3-vs-SD2-g3",
+          "game": 3,
+          "seed": 20260997
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SD3",
+      "p0": "blaze-of-destruction",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SD3-g1",
+          "game": 1,
+          "seed": 20260998
+        },
+        {
+          "id": "sdc-SD3-vs-SD3-g2",
+          "game": 2,
+          "seed": 20260999
+        },
+        {
+          "id": "sdc-SD3-vs-SD3-g3",
+          "game": 3,
+          "seed": 20261000
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SD4",
+      "p0": "blaze-of-destruction",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SD4-g1",
+          "game": 1,
+          "seed": 20261001
+        },
+        {
+          "id": "sdc-SD3-vs-SD4-g2",
+          "game": 2,
+          "seed": 20261002
+        },
+        {
+          "id": "sdc-SD3-vs-SD4-g3",
+          "game": 3,
+          "seed": 20261003
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SD6",
+      "p0": "blaze-of-destruction",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SD6-g1",
+          "game": 1,
+          "seed": 20261004
+        },
+        {
+          "id": "sdc-SD3-vs-SD6-g2",
+          "game": 2,
+          "seed": 20261005
+        },
+        {
+          "id": "sdc-SD3-vs-SD6-g3",
+          "game": 3,
+          "seed": 20261006
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SD10",
+      "p0": "blaze-of-destruction",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SD10-g1",
+          "game": 1,
+          "seed": 20261007
+        },
+        {
+          "id": "sdc-SD3-vs-SD10-g2",
+          "game": 2,
+          "seed": 20261008
+        },
+        {
+          "id": "sdc-SD3-vs-SD10-g3",
+          "game": 3,
+          "seed": 20261009
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SDSC",
+      "p0": "blaze-of-destruction",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20261010
+        },
+        {
+          "id": "sdc-SD3-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20261011
+        },
+        {
+          "id": "sdc-SD3-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20261012
+        }
+      ]
+    },
+    {
+      "row": "SD3",
+      "col": "SDMP",
+      "p0": "blaze-of-destruction",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SD3-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20261013
+        },
+        {
+          "id": "sdc-SD3-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20261014
+        },
+        {
+          "id": "sdc-SD3-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20261015
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SDY",
+      "p0": "fury-from-the-deep",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SDY-g1",
+          "game": 1,
+          "seed": 20261016
+        },
+        {
+          "id": "sdc-SD4-vs-SDY-g2",
+          "game": 2,
+          "seed": 20261017
+        },
+        {
+          "id": "sdc-SD4-vs-SDY-g3",
+          "game": 3,
+          "seed": 20261018
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SDK",
+      "p0": "fury-from-the-deep",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SDK-g1",
+          "game": 1,
+          "seed": 20261019
+        },
+        {
+          "id": "sdc-SD4-vs-SDK-g2",
+          "game": 2,
+          "seed": 20261020
+        },
+        {
+          "id": "sdc-SD4-vs-SDK-g3",
+          "game": 3,
+          "seed": 20261021
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SDP",
+      "p0": "fury-from-the-deep",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SDP-g1",
+          "game": 1,
+          "seed": 20261022
+        },
+        {
+          "id": "sdc-SD4-vs-SDP-g2",
+          "game": 2,
+          "seed": 20261023
+        },
+        {
+          "id": "sdc-SD4-vs-SDP-g3",
+          "game": 3,
+          "seed": 20261024
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SD1",
+      "p0": "fury-from-the-deep",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SD1-g1",
+          "game": 1,
+          "seed": 20261025
+        },
+        {
+          "id": "sdc-SD4-vs-SD1-g2",
+          "game": 2,
+          "seed": 20261026
+        },
+        {
+          "id": "sdc-SD4-vs-SD1-g3",
+          "game": 3,
+          "seed": 20261027
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SD2",
+      "p0": "fury-from-the-deep",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SD2-g1",
+          "game": 1,
+          "seed": 20261028
+        },
+        {
+          "id": "sdc-SD4-vs-SD2-g2",
+          "game": 2,
+          "seed": 20261029
+        },
+        {
+          "id": "sdc-SD4-vs-SD2-g3",
+          "game": 3,
+          "seed": 20261030
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SD3",
+      "p0": "fury-from-the-deep",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SD3-g1",
+          "game": 1,
+          "seed": 20261031
+        },
+        {
+          "id": "sdc-SD4-vs-SD3-g2",
+          "game": 2,
+          "seed": 20261032
+        },
+        {
+          "id": "sdc-SD4-vs-SD3-g3",
+          "game": 3,
+          "seed": 20261033
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SD4",
+      "p0": "fury-from-the-deep",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SD4-g1",
+          "game": 1,
+          "seed": 20261034
+        },
+        {
+          "id": "sdc-SD4-vs-SD4-g2",
+          "game": 2,
+          "seed": 20261035
+        },
+        {
+          "id": "sdc-SD4-vs-SD4-g3",
+          "game": 3,
+          "seed": 20261036
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SD6",
+      "p0": "fury-from-the-deep",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SD6-g1",
+          "game": 1,
+          "seed": 20261037
+        },
+        {
+          "id": "sdc-SD4-vs-SD6-g2",
+          "game": 2,
+          "seed": 20261038
+        },
+        {
+          "id": "sdc-SD4-vs-SD6-g3",
+          "game": 3,
+          "seed": 20261039
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SD10",
+      "p0": "fury-from-the-deep",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SD10-g1",
+          "game": 1,
+          "seed": 20261040
+        },
+        {
+          "id": "sdc-SD4-vs-SD10-g2",
+          "game": 2,
+          "seed": 20261041
+        },
+        {
+          "id": "sdc-SD4-vs-SD10-g3",
+          "game": 3,
+          "seed": 20261042
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SDSC",
+      "p0": "fury-from-the-deep",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20261043
+        },
+        {
+          "id": "sdc-SD4-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20261044
+        },
+        {
+          "id": "sdc-SD4-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20261045
+        }
+      ]
+    },
+    {
+      "row": "SD4",
+      "col": "SDMP",
+      "p0": "fury-from-the-deep",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SD4-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20261046
+        },
+        {
+          "id": "sdc-SD4-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20261047
+        },
+        {
+          "id": "sdc-SD4-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20261048
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SDY",
+      "p0": "spellcasters-judgment",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SDY-g1",
+          "game": 1,
+          "seed": 20261049
+        },
+        {
+          "id": "sdc-SD6-vs-SDY-g2",
+          "game": 2,
+          "seed": 20261050
+        },
+        {
+          "id": "sdc-SD6-vs-SDY-g3",
+          "game": 3,
+          "seed": 20261051
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SDK",
+      "p0": "spellcasters-judgment",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SDK-g1",
+          "game": 1,
+          "seed": 20261052
+        },
+        {
+          "id": "sdc-SD6-vs-SDK-g2",
+          "game": 2,
+          "seed": 20261053
+        },
+        {
+          "id": "sdc-SD6-vs-SDK-g3",
+          "game": 3,
+          "seed": 20261054
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SDP",
+      "p0": "spellcasters-judgment",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SDP-g1",
+          "game": 1,
+          "seed": 20261055
+        },
+        {
+          "id": "sdc-SD6-vs-SDP-g2",
+          "game": 2,
+          "seed": 20261056
+        },
+        {
+          "id": "sdc-SD6-vs-SDP-g3",
+          "game": 3,
+          "seed": 20261057
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SD1",
+      "p0": "spellcasters-judgment",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SD1-g1",
+          "game": 1,
+          "seed": 20261058
+        },
+        {
+          "id": "sdc-SD6-vs-SD1-g2",
+          "game": 2,
+          "seed": 20261059
+        },
+        {
+          "id": "sdc-SD6-vs-SD1-g3",
+          "game": 3,
+          "seed": 20261060
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SD2",
+      "p0": "spellcasters-judgment",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SD2-g1",
+          "game": 1,
+          "seed": 20261061
+        },
+        {
+          "id": "sdc-SD6-vs-SD2-g2",
+          "game": 2,
+          "seed": 20261062
+        },
+        {
+          "id": "sdc-SD6-vs-SD2-g3",
+          "game": 3,
+          "seed": 20261063
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SD3",
+      "p0": "spellcasters-judgment",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SD3-g1",
+          "game": 1,
+          "seed": 20261064
+        },
+        {
+          "id": "sdc-SD6-vs-SD3-g2",
+          "game": 2,
+          "seed": 20261065
+        },
+        {
+          "id": "sdc-SD6-vs-SD3-g3",
+          "game": 3,
+          "seed": 20261066
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SD4",
+      "p0": "spellcasters-judgment",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SD4-g1",
+          "game": 1,
+          "seed": 20261067
+        },
+        {
+          "id": "sdc-SD6-vs-SD4-g2",
+          "game": 2,
+          "seed": 20261068
+        },
+        {
+          "id": "sdc-SD6-vs-SD4-g3",
+          "game": 3,
+          "seed": 20261069
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SD6",
+      "p0": "spellcasters-judgment",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SD6-g1",
+          "game": 1,
+          "seed": 20261070
+        },
+        {
+          "id": "sdc-SD6-vs-SD6-g2",
+          "game": 2,
+          "seed": 20261071
+        },
+        {
+          "id": "sdc-SD6-vs-SD6-g3",
+          "game": 3,
+          "seed": 20261072
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SD10",
+      "p0": "spellcasters-judgment",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SD10-g1",
+          "game": 1,
+          "seed": 20261073
+        },
+        {
+          "id": "sdc-SD6-vs-SD10-g2",
+          "game": 2,
+          "seed": 20261074
+        },
+        {
+          "id": "sdc-SD6-vs-SD10-g3",
+          "game": 3,
+          "seed": 20261075
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SDSC",
+      "p0": "spellcasters-judgment",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20261076
+        },
+        {
+          "id": "sdc-SD6-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20261077
+        },
+        {
+          "id": "sdc-SD6-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20261078
+        }
+      ]
+    },
+    {
+      "row": "SD6",
+      "col": "SDMP",
+      "p0": "spellcasters-judgment",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SD6-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20261079
+        },
+        {
+          "id": "sdc-SD6-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20261080
+        },
+        {
+          "id": "sdc-SD6-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20261081
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SDY",
+      "p0": "machine-revolt",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SDY-g1",
+          "game": 1,
+          "seed": 20261082
+        },
+        {
+          "id": "sdc-SD10-vs-SDY-g2",
+          "game": 2,
+          "seed": 20261083
+        },
+        {
+          "id": "sdc-SD10-vs-SDY-g3",
+          "game": 3,
+          "seed": 20261084
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SDK",
+      "p0": "machine-revolt",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SDK-g1",
+          "game": 1,
+          "seed": 20261085
+        },
+        {
+          "id": "sdc-SD10-vs-SDK-g2",
+          "game": 2,
+          "seed": 20261086
+        },
+        {
+          "id": "sdc-SD10-vs-SDK-g3",
+          "game": 3,
+          "seed": 20261087
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SDP",
+      "p0": "machine-revolt",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SDP-g1",
+          "game": 1,
+          "seed": 20261088
+        },
+        {
+          "id": "sdc-SD10-vs-SDP-g2",
+          "game": 2,
+          "seed": 20261089
+        },
+        {
+          "id": "sdc-SD10-vs-SDP-g3",
+          "game": 3,
+          "seed": 20261090
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SD1",
+      "p0": "machine-revolt",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SD1-g1",
+          "game": 1,
+          "seed": 20261091
+        },
+        {
+          "id": "sdc-SD10-vs-SD1-g2",
+          "game": 2,
+          "seed": 20261092
+        },
+        {
+          "id": "sdc-SD10-vs-SD1-g3",
+          "game": 3,
+          "seed": 20261093
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SD2",
+      "p0": "machine-revolt",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SD2-g1",
+          "game": 1,
+          "seed": 20261094
+        },
+        {
+          "id": "sdc-SD10-vs-SD2-g2",
+          "game": 2,
+          "seed": 20261095
+        },
+        {
+          "id": "sdc-SD10-vs-SD2-g3",
+          "game": 3,
+          "seed": 20261096
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SD3",
+      "p0": "machine-revolt",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SD3-g1",
+          "game": 1,
+          "seed": 20261097
+        },
+        {
+          "id": "sdc-SD10-vs-SD3-g2",
+          "game": 2,
+          "seed": 20261098
+        },
+        {
+          "id": "sdc-SD10-vs-SD3-g3",
+          "game": 3,
+          "seed": 20261099
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SD4",
+      "p0": "machine-revolt",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SD4-g1",
+          "game": 1,
+          "seed": 20261100
+        },
+        {
+          "id": "sdc-SD10-vs-SD4-g2",
+          "game": 2,
+          "seed": 20261101
+        },
+        {
+          "id": "sdc-SD10-vs-SD4-g3",
+          "game": 3,
+          "seed": 20261102
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SD6",
+      "p0": "machine-revolt",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SD6-g1",
+          "game": 1,
+          "seed": 20261103
+        },
+        {
+          "id": "sdc-SD10-vs-SD6-g2",
+          "game": 2,
+          "seed": 20261104
+        },
+        {
+          "id": "sdc-SD10-vs-SD6-g3",
+          "game": 3,
+          "seed": 20261105
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SD10",
+      "p0": "machine-revolt",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SD10-g1",
+          "game": 1,
+          "seed": 20261106
+        },
+        {
+          "id": "sdc-SD10-vs-SD10-g2",
+          "game": 2,
+          "seed": 20261107
+        },
+        {
+          "id": "sdc-SD10-vs-SD10-g3",
+          "game": 3,
+          "seed": 20261108
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SDSC",
+      "p0": "machine-revolt",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20261109
+        },
+        {
+          "id": "sdc-SD10-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20261110
+        },
+        {
+          "id": "sdc-SD10-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20261111
+        }
+      ]
+    },
+    {
+      "row": "SD10",
+      "col": "SDMP",
+      "p0": "machine-revolt",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SD10-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20261112
+        },
+        {
+          "id": "sdc-SD10-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20261113
+        },
+        {
+          "id": "sdc-SD10-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20261114
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SDY",
+      "p0": "spellcasters-command",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SDY-g1",
+          "game": 1,
+          "seed": 20261115
+        },
+        {
+          "id": "sdc-SDSC-vs-SDY-g2",
+          "game": 2,
+          "seed": 20261116
+        },
+        {
+          "id": "sdc-SDSC-vs-SDY-g3",
+          "game": 3,
+          "seed": 20261117
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SDK",
+      "p0": "spellcasters-command",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SDK-g1",
+          "game": 1,
+          "seed": 20261118
+        },
+        {
+          "id": "sdc-SDSC-vs-SDK-g2",
+          "game": 2,
+          "seed": 20261119
+        },
+        {
+          "id": "sdc-SDSC-vs-SDK-g3",
+          "game": 3,
+          "seed": 20261120
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SDP",
+      "p0": "spellcasters-command",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SDP-g1",
+          "game": 1,
+          "seed": 20261121
+        },
+        {
+          "id": "sdc-SDSC-vs-SDP-g2",
+          "game": 2,
+          "seed": 20261122
+        },
+        {
+          "id": "sdc-SDSC-vs-SDP-g3",
+          "game": 3,
+          "seed": 20261123
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SD1",
+      "p0": "spellcasters-command",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SD1-g1",
+          "game": 1,
+          "seed": 20261124
+        },
+        {
+          "id": "sdc-SDSC-vs-SD1-g2",
+          "game": 2,
+          "seed": 20261125
+        },
+        {
+          "id": "sdc-SDSC-vs-SD1-g3",
+          "game": 3,
+          "seed": 20261126
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SD2",
+      "p0": "spellcasters-command",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SD2-g1",
+          "game": 1,
+          "seed": 20261127
+        },
+        {
+          "id": "sdc-SDSC-vs-SD2-g2",
+          "game": 2,
+          "seed": 20261128
+        },
+        {
+          "id": "sdc-SDSC-vs-SD2-g3",
+          "game": 3,
+          "seed": 20261129
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SD3",
+      "p0": "spellcasters-command",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SD3-g1",
+          "game": 1,
+          "seed": 20261130
+        },
+        {
+          "id": "sdc-SDSC-vs-SD3-g2",
+          "game": 2,
+          "seed": 20261131
+        },
+        {
+          "id": "sdc-SDSC-vs-SD3-g3",
+          "game": 3,
+          "seed": 20261132
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SD4",
+      "p0": "spellcasters-command",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SD4-g1",
+          "game": 1,
+          "seed": 20261133
+        },
+        {
+          "id": "sdc-SDSC-vs-SD4-g2",
+          "game": 2,
+          "seed": 20261134
+        },
+        {
+          "id": "sdc-SDSC-vs-SD4-g3",
+          "game": 3,
+          "seed": 20261135
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SD6",
+      "p0": "spellcasters-command",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SD6-g1",
+          "game": 1,
+          "seed": 20261136
+        },
+        {
+          "id": "sdc-SDSC-vs-SD6-g2",
+          "game": 2,
+          "seed": 20261137
+        },
+        {
+          "id": "sdc-SDSC-vs-SD6-g3",
+          "game": 3,
+          "seed": 20261138
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SD10",
+      "p0": "spellcasters-command",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SD10-g1",
+          "game": 1,
+          "seed": 20261139
+        },
+        {
+          "id": "sdc-SDSC-vs-SD10-g2",
+          "game": 2,
+          "seed": 20261140
+        },
+        {
+          "id": "sdc-SDSC-vs-SD10-g3",
+          "game": 3,
+          "seed": 20261141
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SDSC",
+      "p0": "spellcasters-command",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20261142
+        },
+        {
+          "id": "sdc-SDSC-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20261143
+        },
+        {
+          "id": "sdc-SDSC-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20261144
+        }
+      ]
+    },
+    {
+      "row": "SDSC",
+      "col": "SDMP",
+      "p0": "spellcasters-command",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SDSC-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20261145
+        },
+        {
+          "id": "sdc-SDSC-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20261146
+        },
+        {
+          "id": "sdc-SDSC-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20261147
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SDY",
+      "p0": "master-of-pendulum",
+      "p1": "yugi",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SDY-g1",
+          "game": 1,
+          "seed": 20261148
+        },
+        {
+          "id": "sdc-SDMP-vs-SDY-g2",
+          "game": 2,
+          "seed": 20261149
+        },
+        {
+          "id": "sdc-SDMP-vs-SDY-g3",
+          "game": 3,
+          "seed": 20261150
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SDK",
+      "p0": "master-of-pendulum",
+      "p1": "kaiba",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SDK-g1",
+          "game": 1,
+          "seed": 20261151
+        },
+        {
+          "id": "sdc-SDMP-vs-SDK-g2",
+          "game": 2,
+          "seed": 20261152
+        },
+        {
+          "id": "sdc-SDMP-vs-SDK-g3",
+          "game": 3,
+          "seed": 20261153
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SDP",
+      "p0": "master-of-pendulum",
+      "p1": "pegasus-structure-deck",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SDP-g1",
+          "game": 1,
+          "seed": 20261154
+        },
+        {
+          "id": "sdc-SDMP-vs-SDP-g2",
+          "game": 2,
+          "seed": 20261155
+        },
+        {
+          "id": "sdc-SDMP-vs-SDP-g3",
+          "game": 3,
+          "seed": 20261156
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SD1",
+      "p0": "master-of-pendulum",
+      "p1": "dragons-roar",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SD1-g1",
+          "game": 1,
+          "seed": 20261157
+        },
+        {
+          "id": "sdc-SDMP-vs-SD1-g2",
+          "game": 2,
+          "seed": 20261158
+        },
+        {
+          "id": "sdc-SDMP-vs-SD1-g3",
+          "game": 3,
+          "seed": 20261159
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SD2",
+      "p0": "master-of-pendulum",
+      "p1": "zombie-madness",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SD2-g1",
+          "game": 1,
+          "seed": 20261160
+        },
+        {
+          "id": "sdc-SDMP-vs-SD2-g2",
+          "game": 2,
+          "seed": 20261161
+        },
+        {
+          "id": "sdc-SDMP-vs-SD2-g3",
+          "game": 3,
+          "seed": 20261162
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SD3",
+      "p0": "master-of-pendulum",
+      "p1": "blaze-of-destruction",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SD3-g1",
+          "game": 1,
+          "seed": 20261163
+        },
+        {
+          "id": "sdc-SDMP-vs-SD3-g2",
+          "game": 2,
+          "seed": 20261164
+        },
+        {
+          "id": "sdc-SDMP-vs-SD3-g3",
+          "game": 3,
+          "seed": 20261165
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SD4",
+      "p0": "master-of-pendulum",
+      "p1": "fury-from-the-deep",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SD4-g1",
+          "game": 1,
+          "seed": 20261166
+        },
+        {
+          "id": "sdc-SDMP-vs-SD4-g2",
+          "game": 2,
+          "seed": 20261167
+        },
+        {
+          "id": "sdc-SDMP-vs-SD4-g3",
+          "game": 3,
+          "seed": 20261168
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SD6",
+      "p0": "master-of-pendulum",
+      "p1": "spellcasters-judgment",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SD6-g1",
+          "game": 1,
+          "seed": 20261169
+        },
+        {
+          "id": "sdc-SDMP-vs-SD6-g2",
+          "game": 2,
+          "seed": 20261170
+        },
+        {
+          "id": "sdc-SDMP-vs-SD6-g3",
+          "game": 3,
+          "seed": 20261171
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SD10",
+      "p0": "master-of-pendulum",
+      "p1": "machine-revolt",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SD10-g1",
+          "game": 1,
+          "seed": 20261172
+        },
+        {
+          "id": "sdc-SDMP-vs-SD10-g2",
+          "game": 2,
+          "seed": 20261173
+        },
+        {
+          "id": "sdc-SDMP-vs-SD10-g3",
+          "game": 3,
+          "seed": 20261174
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SDSC",
+      "p0": "master-of-pendulum",
+      "p1": "spellcasters-command",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SDSC-g1",
+          "game": 1,
+          "seed": 20261175
+        },
+        {
+          "id": "sdc-SDMP-vs-SDSC-g2",
+          "game": 2,
+          "seed": 20261176
+        },
+        {
+          "id": "sdc-SDMP-vs-SDSC-g3",
+          "game": 3,
+          "seed": 20261177
+        }
+      ]
+    },
+    {
+      "row": "SDMP",
+      "col": "SDMP",
+      "p0": "master-of-pendulum",
+      "p1": "master-of-pendulum",
+      "duels": [
+        {
+          "id": "sdc-SDMP-vs-SDMP-g1",
+          "game": 1,
+          "seed": 20261178
+        },
+        {
+          "id": "sdc-SDMP-vs-SDMP-g2",
+          "game": 2,
+          "seed": 20261179
+        },
+        {
+          "id": "sdc-SDMP-vs-SDMP-g3",
+          "game": 3,
+          "seed": 20261180
+        }
+      ]
+    }
+  ]
+}

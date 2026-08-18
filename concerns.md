@@ -352,3 +352,176 @@ RULES (not a bug): user asked why Skilled Dark Magician can't be activated with 
 New curated decks (research + validated, 40 main / 15 extra each, 0 missing cards — vendored cards.cdb is full modern BabelCDB): shadow-spectre-endymion (masterduelmeta Jan-2026), cimoooooooo-sky-striker (named after Cimoooooooo), sushi-boat (= Gunkan Suship archetype).
 
 STILL OPEN (proposed to user, not built): per-game background player agents (one Claude per game) to fix host "which table" confusion + keep P1 online + enable AI-vs-AI and go-second. Significant host-architecture change that auto-spawns claude processes — awaiting go-ahead on approach.
+
+---
+
+## 2026-08-17 — Structure-deck Haiku tournament (reports/structure_decks_haiku_competition)
+
+Task: an 11x11 all-play-all between the repo's structure decks, both seats played by Haiku agents,
+best-of-three per cell. Modes in force: autopilot + bulldog. Manifest section 13 has the design;
+this is the record of what went wrong on the way and what was learned.
+
+### Wrong turns and corrections
+
+1. **Environment was not set up in this container.** `node bin/ygo.js` failed twice before anything
+   else could happen: first `Cannot find package 'commander'` (no `npm install`), then
+   `unable to open database file` (no `vendor/BabelCDB/cards.cdb`). `bash setup.sh` fixes both;
+   it takes a few minutes because CardScripts + BabelCDB are ~370 MB of clones. Lesson: in a fresh
+   container, run `setup.sh` before believing any CLI error.
+
+2. **I designed a "stall rescue" that finished abandoned duels with random legal moves, and wrote it
+   into `autoplay.mjs`'s header as one of its two jobs.** The user caught it immediately: "We must
+   make sure agents NEVER abandon their duels", and earlier "There are NO SHORTCUTS allowed, every
+   duel match must be completed. Otherwise its useless." They were right and the idea was worse than
+   useless: a matrix where some cells were decided by a coin-flip policy would look exactly like a
+   matrix of real results. Corrected: the rescue path was deleted, `autoplay.mjs` is calibration and
+   fuzzing only and now *refuses* any `sdc-*` id, and the forcing mechanism became the `nudge`
+   (fresh single-decision Haiku agents on the pending seat) so that progress is forced without any
+   decision ever being made by something other than a Haiku agent. Lesson to keep: when a harness
+   has a "resolve it somehow" escape hatch, the escape hatch silently becomes part of the results.
+
+3. **First pilot ran without the honor boundary being enforced.** It completed (450 moves, 9.2 min),
+   and only afterwards did I check whether a seat could actually read the duel record. It could:
+   with `--allowed-tools "Bash(node bin/ygo.js:*)"` and no `--dangerously-skip-permissions`, a live
+   headless Haiku agent still ran `cat duels/<id>.json` successfully — an allowlist alone did not
+   restrict Bash in this build. Fixed with a `PreToolUse` hook (`tools/seat-guard.sh`) passed via
+   `claude --settings '<json>'`, which allowlists the shell down to `ygo` verbs for the agent's own
+   seat and blocks `--as all`, the other seat, `duels/`, `undo`/`fork`, `play … random`, and command
+   chaining; re-verified live (the same `cat` is now denied). The two duels played before the hook
+   existed were **deleted and replayed** so all 363 run under identical conditions. Lesson: verify
+   a boundary by trying to cross it, before the run rather than after it.
+
+4. **Process-count monitoring was wrong for ~15 minutes and looked like a crash.** `pgrep -fc
+   "claude --dangerously"` reported 1 agent while 20 were running: `claude` on this machine is a
+   bash wrapper that re-execs `/root/.local/share/claude/versions/<v>`, so the flag order in the
+   original command line is gone. `pgrep -fc no-session-persistence` counts the tournament's agents
+   correctly. Also lost the first status logger by backgrounding it from a shell that then exited —
+   the second one is a script started with `setsid nohup … < /dev/null`, which survives.
+
+### Measurements worth keeping
+
+- Uniformly random legal play: a classic-format duel ends in ~490 decisions, ~70 s of pure replay.
+- Two Haiku agents, one duel, no contention: 250-450 decisions, 8-9 minutes, finished on the first
+  attempt with no nudging in all three pilot duels.
+- 10 matches (20 agents) in flight: load average ~4 on 64 cores, so the machine is not the limit;
+  agent latency is. Concurrency stays at the user's 20-agent cap regardless.
+- The first mirror cell (SDY vs SDY) split 1-1 across its first two games — a small but reassuring
+  sanity signal that seating and seeds are not biased.
+
+### Risks being watched during the run
+
+- Long tail: a stall detected only after a 40-minute agent timeout costs that whole 40 minutes.
+- Haiku agents burning context in duels that run past ~400 decisions; the addendum tells them not to
+  re-read the whole board each turn, and the nudge agents have no context to lose.
+- `progress.jsonl` `"stuck":true` records are the thing to grep for; none so far.
+
+### 2026-08-17, later — the tournament found a real engine bug (and nearly blamed the agents for it)
+
+**What I got wrong first.** 21 duels were logged `stuck`. I attributed them to the 500-agent overload
+window, because two of them were stamped inside it and the boards looked ordinary — the first one I
+inspected was sitting on "Select a face-up card(s) (choose exactly 1)" with two legal options. That
+explanation was comfortable and wrong. What broke it was counting stuck ids per duel instead of just
+counting stuck records: **13 of the 21 involved SD4**, and 5 involved SD10. Overload does not pick
+favourites among decks. A pattern by deck means a card, not a load average.
+
+**The bug.** Those duels were all pending on `MSG_ANNOUNCE_RACE` — "Declare a Type (choose 1)".
+Answering it failed with `Do not know how to serialize a BigInt`: `OcgRace` is a bigint enum and
+`src/menu.js` put the raw BigInt bit into the response, but a duel record is JSON and
+`JSON.stringify` throws on BigInt. **The menu was unanswerable by anyone.** Every nudge agent tried
+faithfully and got an error, which is exactly why the `stuck` counter kept climbing. Fixed by storing
+the Race bit as a decimal string and widening it back in `toCoreResponse` at the `duelSetResponse`
+boundary; see manifest §14 and `test/announce-race.test.js`. `npm test`: 54 pass, plus 3 new.
+
+**Method note worth repeating.** The reproduction was done on `ygo fork` of a stuck duel into
+`diag-type1`, never on the tournament record. Playing a real tournament duel myself would have made
+that cell's result mine rather than a Haiku agent's — the exact shortcut the user forbade. When a
+tournament duel needs debugging, fork it.
+
+**Two lessons.**
+1. A "stuck" log is only useful if something actually reads it. It was designed so an unfinishable
+   board would surface as a bug instead of being quietly resolved, and that is what happened — but
+   only once I grouped the records by duel instead of trusting the total.
+2. When failures cluster by deck, stop theorising about infrastructure.
+
+**Also fixed on the way (harness, not engine).** The earlier zero-progress attempts had a different
+and equally self-inflicted cause: the haiku duelists read `/root/CleanCode/CLAUDE.md`'s "required
+model: Opus 1M context — immediately warn the user" rule and refused to play, replying things like
+"Please switch to Opus (1M context) and restart this duel." They were obeying a project rule written
+for the interactive session. The seat prompt now says explicitly that the agent is Haiku by design,
+that the rule is about the human's own session, and that there is nobody to ask — decide and play.
+Lesson: a subagent inherits the repo's CLAUDE.md, so any rule addressed to "the session" will be
+followed by agents it was never meant for.
+
+### 2026-08-17, later still — two more engine bugs, one self-inflicted corruption, and being wrong twice
+
+**Triage beat guessing.** With 27 duels unfinished I stopped theorising and wrote
+`tools/triage.mjs`: fork each unfinished duel, try to answer the fork, classify the failure, delete
+the fork. It split cleanly into three causes that no amount of staring at logs had revealed —
+12 `answerable` (11 of them SD4: the BigInt bug, now fixed), 8 `script` (ALL SD10: `chain.lua:85`),
+7 `malformed` (ALL SDP: `MSG_SELECT_SUM`). One tool, three answers. Should have written it sooner.
+
+**Wrong idea #1, and the test that killed it.** Every malformed menu said "choose exactly 0 more", so
+I concluded the core meant "the total is already met, select nothing" and that our menu layer simply
+had no way to submit an empty list. I implemented that as a `zero` option — then tested it on a fork
+and the core REJECTED `{type:14, indicies:[]}`. That rejection is the proof that `min`/`max` are
+misread rather than genuinely zero, so my "fix" would have offered players an option that always
+fails: worse than no option at all. Reverted, and the reasoning is now a comment in `src/menu.js` so
+the next reader does not repeat it.
+
+**Then I probed instead of guessing.** `tools/probe-sum.mjs` bypasses the menu and asks the core what
+it will accept: `selects = 0`, `selects_must = 1`, `amount = 1`, empty rejected. The core offers zero
+selectable cards while demanding more sum. A true dead end, proven rather than inferred. Lesson: when
+a decode looks wrong, ask the core directly; do not reason about what it "must" mean.
+
+**Wrong idea #2 — and this one cost data.** I ran `reseed.mjs` on 15 duels **while the driver was
+still running**. `saveDuel` used a fixed `${path}.tmp`, so my write and a live agent's move
+interleaved into the same temp file and the rename published the wreck:
+`sdc-SDP-vs-SDSC-g3.json` became invalid JSON and crashed the driver and the collector. Only one of
+363 records was hit (I checked all of them). Fixed the latent bug — unique temp name per writer, see
+manifest §16 — and rebuilt the record from its decks and reseeded seed; nothing real was lost, since
+it had already been reset to 0 moves. The irony is exact: I had been carefully killing orphan agents
+before every relaunch specifically to avoid two writers on one record, then created two writers from
+the other direction. **Stop the writers before rewriting their data.**
+
+**On reseeding as a policy.** 19 resets across 15 duels (some needed a second shuffle, because the
+same defect recurred). It is the only way to fill a cell whose game the engine cannot finish, and it
+is safe only because of two properties: `reseed.mjs` REFUSES to touch a duel the engine calls
+finished — so a *result* can never be re-rolled, only an unplayable position — and every reset is
+appended to `reseeds.jsonl` with old seed, new seed, discarded move count and reason. If either
+property is ever relaxed, the tournament stops being evidence.
+
+### 2026-08-17, evening — the user's question found a hidden-information leak, and my first audit lied about it
+
+The user asked why they could see the opponent's cards in the browser. The immediate answer was
+mundane and mine: the `/duel/[id]` route defaults to `parseViewer(... ?? "all")`, the omniscient
+spectator, so the link I handed them was the cheating view (`?as=0` is the seat view). But chasing
+it turned up something real.
+
+**The leak.** An Opus agent's duel report claimed Nobleman of Crossout "revealed all 32 cards of
+their deck". That is not what the card does, so I checked rather than accepting it — and it was
+true. `maskMessage`'s `CONFIRM_CARDS` case keyed privacy on `msg.player` (the player being shown the
+cards) instead of the cards' owner, and Nobleman makes BOTH players search their decks, so each
+seat received the other's full deck list. Fixed to key on `controller`; 4 regression tests; see
+manifest §17.
+
+**My audit produced a false negative, and I nearly reported it.** The first version scanned
+`viewDuel(...).messages` — a field that does not exist (`viewDuel` returns `messageCount`) — so it
+looped over an empty array and printed "0 of 363 duels affected (0.0%)". A clean zero, on the
+question of whether the tournament I had just published was compromised. I caught it only because
+zero was implausible given I had a confirmed positive case in hand. Rewritten against the raw core
+stream via `replayDuel`, it correctly finds 11 duels.
+
+**Lesson: never accept a negative audit result without a positive control.** The failure mode is
+silent and the output is reassuring, which is the worst possible combination. Any future audit
+should assert it can detect a known-bad case before it is trusted on unknown ones.
+
+**Actual blast radius, once measured properly:** 11/363 duels (3.0%), 89 card names with 71 in a
+single duel, the informed seat went 4-6, and excluding all 11 duels leaves the standings in exactly
+the same order. The matrix stands. Only `g2` of the five pilot duels was contaminated, and it is
+discarded there.
+
+**Second lesson, about agent reports.** A losing agent's explanation of why it lost is exactly the
+thing to distrust — but here it was a WINNING agent's explanation that exposed a bug, because it
+described a capability it should not have had. Read agent self-reports for claims about the
+ENVIRONMENT, not just about play; those are checkable, and when one is impossible it is a bug
+report.

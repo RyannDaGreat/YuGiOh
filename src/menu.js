@@ -389,6 +389,13 @@ export function buildMenu(msg, ctx) {
       const items = msg.selects.map((c, i) => ({ label: `${entryLabel(c, ctx.field)} [${c.amount}]`, value: i }));
       const goal = msg.select_max ? `total exactly ${msg.amount}` : `total at least ${msg.amount}`;
       const title = `P${msg.player}: ${selectPrompt(SYS_SELECT)} (${goal}${must.length ? `; already included: ${must.join(", ")}` : ""}, choose ${rangeText(msg.min, msg.max)} more)`;
+      // KNOWN BUG, do not "fix" by offering an empty selection: on some SELECT_SUM
+      // messages this decodes to nonsense — `selects_must` entries with impossible
+      // players and zones (P69, loc120), and min/max of 0 against a required total
+      // of 1 ("choose exactly 0 more"). The empty answer that "0 more" implies is
+      // REJECTED by the core, which proves min/max themselves are misread rather
+      // than genuinely zero. Every observed instance is an SDP (Toon) tribute line.
+      // See manifest §15; such a position is unanswerable and has to be replayed.
       return { title, items, zero: null, mode: "many", min: msg.min, max: msg.max, build: (idx) => ({ type: R.SELECT_SUM, indicies: idx }) };
     }
     case T.SELECT_POSITION: {
@@ -428,7 +435,12 @@ export function buildMenu(msg, ctx) {
       return { title: `P${msg.player}: choose an order (list all, first = top)`, items, zero: { label: "Keep current order", response: { type: R.SORT_CARD, order: null } }, mode: "order", min: items.length, max: items.length, build: (order) => ({ type: R.SORT_CARD, order }) };
     }
     case T.ANNOUNCE_RACE: {
-      const items = [...ocgRaceString.entries()].filter(([bit]) => msg.available & bit).map(([bit, name]) => ({ label: name, value: bit }));
+      // Race bits are 64-bit in the core (`OcgRace` is a bigint enum), but a duel
+      // record must stay JSON and `JSON.stringify` throws on BigInt — which used to
+      // make this menu literally unanswerable ("Do not know how to serialize a
+      // BigInt"). So the response carries the bit as a decimal STRING;
+      // `toCoreResponse` in duel.js widens it back on the way to the core.
+      const items = [...ocgRaceString.entries()].filter(([bit]) => msg.available & bit).map(([bit, name]) => ({ label: name, value: bit.toString() }));
       return { title: `P${msg.player}: ${selectPrompt(SYS_DECLARE_RACE)} (choose ${msg.count})`, items, zero: null, mode: "many", min: msg.count, max: msg.count, build: (races) => ({ type: R.ANNOUNCE_RACE, races }) };
     }
     case T.ANNOUNCE_ATTRIB: {

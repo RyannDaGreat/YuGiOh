@@ -1,0 +1,363 @@
+{"id":"sdc-SDY-vs-SDY-g1","p0":"Yugi","p1":"Yugi","moves":257,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1150,7950],"row":"SDY","col":"SDY","game":1}
+{"id":"sdc-SDY-vs-SDY-g2","p0":"Yugi","p1":"Yugi","moves":351,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4500,-500],"row":"SDY","col":"SDY","game":2}
+{"id":"sdc-SDY-vs-SDY-g3","p0":"Yugi","p1":"Yugi","moves":109,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7700,-1450],"row":"SDY","col":"SDY","game":3}
+{"id":"sdc-SDY-vs-SDK-g1","p0":"Yugi","p1":"Kaiba","moves":209,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1600,4550],"row":"SDY","col":"SDK","game":1}
+{"id":"sdc-SDY-vs-SDK-g2","p0":"Yugi","p1":"Kaiba","moves":331,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6250,-1000],"row":"SDY","col":"SDK","game":2}
+{"id":"sdc-SDY-vs-SDK-g3","p0":"Yugi","p1":"Kaiba","moves":259,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3850,-1250],"row":"SDY","col":"SDK","game":3}
+{"id":"sdc-SDY-vs-SDP-g1","p0":"Yugi","p1":"Starter Deck: Pegasus","moves":187,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,6300],"row":"SDY","col":"SDP","game":1}
+{"id":"sdc-SDY-vs-SDP-g2","p0":"Yugi","p1":"Starter Deck: Pegasus","moves":75,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5900,-200],"row":"SDY","col":"SDP","game":2}
+{"id":"sdc-SDY-vs-SDP-g3","p0":"Yugi","p1":"Starter Deck: Pegasus","moves":230,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5000,-400],"row":"SDY","col":"SDP","game":3}
+{"id":"sdc-SDY-vs-SD1-g1","p0":"Yugi","p1":"Dragon's Roar (SD1)","moves":111,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,8000],"row":"SDY","col":"SD1","game":1}
+{"id":"sdc-SDY-vs-SD1-g2","p0":"Yugi","p1":"Dragon's Roar (SD1)","moves":189,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-150,7900],"row":"SDY","col":"SD1","game":2}
+{"id":"sdc-SDY-vs-SD1-g3","p0":"Yugi","p1":"Dragon's Roar (SD1)","moves":215,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1500,8000],"row":"SDY","col":"SD1","game":3}
+{"id":"sdc-SDY-vs-SD2-g1","p0":"Yugi","p1":"Zombie Madness (SD2)","moves":142,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1250,7650],"row":"SDY","col":"SD2","game":1}
+{"id":"sdc-SDY-vs-SD2-g2","p0":"Yugi","p1":"Zombie Madness (SD2)","moves":201,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-200,3400],"row":"SDY","col":"SD2","game":2}
+{"id":"sdc-SDY-vs-SD2-g3","p0":"Yugi","p1":"Zombie Madness (SD2)","moves":155,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4300,-350],"row":"SDY","col":"SD2","game":3}
+{"id":"sdc-SDY-vs-SD3-g1","p0":"Yugi","p1":"Blaze of Destruction (SD3)","moves":57,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-200,6400],"row":"SDY","col":"SD3","game":1}
+{"id":"sdc-SDY-vs-SD3-g2","p0":"Yugi","p1":"Blaze of Destruction (SD3)","moves":116,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,8000],"row":"SDY","col":"SD3","game":2}
+{"id":"sdc-SDY-vs-SD3-g3","p0":"Yugi","p1":"Blaze of Destruction (SD3)","moves":226,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,5100],"row":"SDY","col":"SD3","game":3}
+{"id":"sdc-SDY-vs-SD4-g1","p0":"Yugi","p1":"Fury from the Deep (SD4)","moves":91,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-200],"row":"SDY","col":"SD4","game":1}
+{"id":"sdc-SDY-vs-SD4-g2","p0":"Yugi","p1":"Fury from the Deep (SD4)","moves":305,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2900,-1200],"row":"SDY","col":"SD4","game":2}
+{"id":"sdc-SDY-vs-SD4-g3","p0":"Yugi","p1":"Fury from the Deep (SD4)","moves":160,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5900,-100],"row":"SDY","col":"SD4","game":3}
+{"id":"sdc-SDY-vs-SD6-g1","p0":"Yugi","p1":"Spellcaster's Judgment (SD6)","moves":417,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1250,7650],"row":"SDY","col":"SD6","game":1}
+{"id":"sdc-SDY-vs-SD6-g2","p0":"Yugi","p1":"Spellcaster's Judgment (SD6)","moves":95,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6800,-500],"row":"SDY","col":"SD6","game":2}
+{"id":"sdc-SDY-vs-SD6-g3","p0":"Yugi","p1":"Spellcaster's Judgment (SD6)","moves":123,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5200,-2450],"row":"SDY","col":"SD6","game":3}
+{"id":"sdc-SDY-vs-SD10-g1","p0":"Yugi","p1":"Machine Re-Volt (SD10)","moves":77,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-400],"row":"SDY","col":"SD10","game":1}
+{"id":"sdc-SDY-vs-SD10-g2","p0":"Yugi","p1":"Machine Re-Volt (SD10)","moves":99,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6800,-1000],"row":"SDY","col":"SD10","game":2}
+{"id":"sdc-SDY-vs-SD10-g3","p0":"Yugi","p1":"Machine Re-Volt (SD10)","moves":102,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6800,-1100],"row":"SDY","col":"SD10","game":3}
+{"id":"sdc-SDY-vs-SDSC-g1","p0":"Yugi","p1":"Spellcaster's Command (SDSC)","moves":281,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1650,8000],"row":"SDY","col":"SDSC","game":1}
+{"id":"sdc-SDY-vs-SDSC-g2","p0":"Yugi","p1":"Spellcaster's Command (SDSC)","moves":174,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5200,-1000],"row":"SDY","col":"SDSC","game":2}
+{"id":"sdc-SDY-vs-SDSC-g3","p0":"Yugi","p1":"Spellcaster's Command (SDSC)","moves":88,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5600,-1250],"row":"SDY","col":"SDSC","game":3}
+{"id":"sdc-SDY-vs-SDMP-g1","p0":"Yugi","p1":"Master of Pendulum (SDMP)","moves":108,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-200,3350],"row":"SDY","col":"SDMP","game":1}
+{"id":"sdc-SDY-vs-SDMP-g2","p0":"Yugi","p1":"Master of Pendulum (SDMP)","moves":137,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1150,1000],"row":"SDY","col":"SDMP","game":2}
+{"id":"sdc-SDY-vs-SDMP-g3","p0":"Yugi","p1":"Master of Pendulum (SDMP)","moves":140,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1100],"row":"SDY","col":"SDMP","game":3}
+{"id":"sdc-SDK-vs-SDY-g1","p0":"Kaiba","p1":"Yugi","moves":264,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1050,6000],"row":"SDK","col":"SDY","game":1}
+{"id":"sdc-SDK-vs-SDY-g2","p0":"Kaiba","p1":"Yugi","moves":398,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-700,2150],"row":"SDK","col":"SDY","game":2}
+{"id":"sdc-SDK-vs-SDY-g3","p0":"Kaiba","p1":"Yugi","moves":240,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5200,-200],"row":"SDK","col":"SDY","game":3}
+{"id":"sdc-SDK-vs-SDK-g1","p0":"Kaiba","p1":"Kaiba","moves":120,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,6450],"row":"SDK","col":"SDK","game":1}
+{"id":"sdc-SDK-vs-SDK-g2","p0":"Kaiba","p1":"Kaiba","moves":212,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,5100],"row":"SDK","col":"SDK","game":2}
+{"id":"sdc-SDK-vs-SDK-g3","p0":"Kaiba","p1":"Kaiba","moves":157,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-300],"row":"SDK","col":"SDK","game":3}
+{"id":"sdc-SDK-vs-SDP-g1","p0":"Kaiba","p1":"Starter Deck: Pegasus","moves":170,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,4500],"row":"SDK","col":"SDP","game":1}
+{"id":"sdc-SDK-vs-SDP-g2","p0":"Kaiba","p1":"Starter Deck: Pegasus","moves":189,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7600,-1500],"row":"SDK","col":"SDP","game":2}
+{"id":"sdc-SDK-vs-SDP-g3","p0":"Kaiba","p1":"Starter Deck: Pegasus","moves":153,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-700],"row":"SDK","col":"SDP","game":3}
+{"id":"sdc-SDK-vs-SD1-g1","p0":"Kaiba","p1":"Dragon's Roar (SD1)","moves":111,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,5900],"row":"SDK","col":"SD1","game":1}
+{"id":"sdc-SDK-vs-SD1-g2","p0":"Kaiba","p1":"Dragon's Roar (SD1)","moves":209,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1900,7500],"row":"SDK","col":"SD1","game":2}
+{"id":"sdc-SDK-vs-SD1-g3","p0":"Kaiba","p1":"Dragon's Roar (SD1)","moves":208,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1500,7500],"row":"SDK","col":"SD1","game":3}
+{"id":"sdc-SDK-vs-SD2-g1","p0":"Kaiba","p1":"Zombie Madness (SD2)","moves":297,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,7200],"row":"SDK","col":"SD2","game":1}
+{"id":"sdc-SDK-vs-SD2-g2","p0":"Kaiba","p1":"Zombie Madness (SD2)","moves":166,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,7900],"row":"SDK","col":"SD2","game":2}
+{"id":"sdc-SDK-vs-SD2-g3","p0":"Kaiba","p1":"Zombie Madness (SD2)","moves":99,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,6400],"row":"SDK","col":"SD2","game":3}
+{"id":"sdc-SDK-vs-SD3-g1","p0":"Kaiba","p1":"Blaze of Destruction (SD3)","moves":243,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1150,8000],"row":"SDK","col":"SD3","game":1}
+{"id":"sdc-SDK-vs-SD3-g2","p0":"Kaiba","p1":"Blaze of Destruction (SD3)","moves":179,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,7500],"row":"SDK","col":"SD3","game":2}
+{"id":"sdc-SDK-vs-SD3-g3","p0":"Kaiba","p1":"Blaze of Destruction (SD3)","moves":161,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-200,8000],"row":"SDK","col":"SD3","game":3}
+{"id":"sdc-SDK-vs-SD4-g1","p0":"Kaiba","p1":"Fury from the Deep (SD4)","moves":75,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,7900],"row":"SDK","col":"SD4","game":1}
+{"id":"sdc-SDK-vs-SD4-g2","p0":"Kaiba","p1":"Fury from the Deep (SD4)","moves":173,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-700,1100],"row":"SDK","col":"SD4","game":2}
+{"id":"sdc-SDK-vs-SD4-g3","p0":"Kaiba","p1":"Fury from the Deep (SD4)","moves":112,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,8000],"row":"SDK","col":"SD4","game":3}
+{"id":"sdc-SDK-vs-SD6-g1","p0":"Kaiba","p1":"Spellcaster's Judgment (SD6)","moves":149,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,9300],"row":"SDK","col":"SD6","game":1}
+{"id":"sdc-SDK-vs-SD6-g2","p0":"Kaiba","p1":"Spellcaster's Judgment (SD6)","moves":336,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-700,4400],"row":"SDK","col":"SD6","game":2}
+{"id":"sdc-SDK-vs-SD6-g3","p0":"Kaiba","p1":"Spellcaster's Judgment (SD6)","moves":226,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1600,2050],"row":"SDK","col":"SD6","game":3}
+{"id":"sdc-SDK-vs-SD10-g1","p0":"Kaiba","p1":"Machine Re-Volt (SD10)","moves":202,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-750,4250],"row":"SDK","col":"SD10","game":1}
+{"id":"sdc-SDK-vs-SD10-g2","p0":"Kaiba","p1":"Machine Re-Volt (SD10)","moves":88,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7100,-1200],"row":"SDK","col":"SD10","game":2}
+{"id":"sdc-SDK-vs-SD10-g3","p0":"Kaiba","p1":"Machine Re-Volt (SD10)","moves":131,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-700],"row":"SDK","col":"SD10","game":3}
+{"id":"sdc-SDK-vs-SDSC-g1","p0":"Kaiba","p1":"Spellcaster's Command (SDSC)","moves":223,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4600,-100],"row":"SDK","col":"SDSC","game":1}
+{"id":"sdc-SDK-vs-SDSC-g2","p0":"Kaiba","p1":"Spellcaster's Command (SDSC)","moves":71,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,6800],"row":"SDK","col":"SDSC","game":2}
+{"id":"sdc-SDK-vs-SDSC-g3","p0":"Kaiba","p1":"Spellcaster's Command (SDSC)","moves":278,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,8000],"row":"SDK","col":"SDSC","game":3}
+{"id":"sdc-SDK-vs-SDMP-g1","p0":"Kaiba","p1":"Master of Pendulum (SDMP)","moves":92,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-400],"row":"SDK","col":"SDMP","game":1}
+{"id":"sdc-SDK-vs-SDMP-g2","p0":"Kaiba","p1":"Master of Pendulum (SDMP)","moves":80,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8500,-1300],"row":"SDK","col":"SDMP","game":2}
+{"id":"sdc-SDK-vs-SDMP-g3","p0":"Kaiba","p1":"Master of Pendulum (SDMP)","moves":80,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1600],"row":"SDK","col":"SDMP","game":3}
+{"id":"sdc-SDP-vs-SDY-g1","p0":"Starter Deck: Pegasus","p1":"Yugi","moves":100,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5350,-1000],"row":"SDP","col":"SDY","game":1}
+{"id":"sdc-SDP-vs-SDY-g2","p0":"Starter Deck: Pegasus","p1":"Yugi","moves":146,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,8000],"row":"SDP","col":"SDY","game":2}
+{"id":"sdc-SDP-vs-SDY-g3","p0":"Starter Deck: Pegasus","p1":"Yugi","moves":66,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,7800],"row":"SDP","col":"SDY","game":3}
+{"id":"sdc-SDP-vs-SDK-g1","p0":"Starter Deck: Pegasus","p1":"Kaiba","moves":248,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1350,7500],"row":"SDP","col":"SDK","game":1}
+{"id":"sdc-SDP-vs-SDK-g2","p0":"Starter Deck: Pegasus","p1":"Kaiba","moves":120,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-700,8000],"row":"SDP","col":"SDK","game":2}
+{"id":"sdc-SDP-vs-SDK-g3","p0":"Starter Deck: Pegasus","p1":"Kaiba","moves":143,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,1800],"row":"SDP","col":"SDK","game":3}
+{"id":"sdc-SDP-vs-SDP-g1","p0":"Starter Deck: Pegasus","p1":"Starter Deck: Pegasus","moves":267,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[700,-1450],"row":"SDP","col":"SDP","game":1}
+{"id":"sdc-SDP-vs-SDP-g2","p0":"Starter Deck: Pegasus","p1":"Starter Deck: Pegasus","moves":182,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3950,-750],"row":"SDP","col":"SDP","game":2}
+{"id":"sdc-SDP-vs-SDP-g3","p0":"Starter Deck: Pegasus","p1":"Starter Deck: Pegasus","moves":132,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7500,-1300],"row":"SDP","col":"SDP","game":3}
+{"id":"sdc-SDP-vs-SD1-g1","p0":"Starter Deck: Pegasus","p1":"Dragon's Roar (SD1)","moves":562,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,5550],"row":"SDP","col":"SD1","game":1}
+{"id":"sdc-SDP-vs-SD1-g2","p0":"Starter Deck: Pegasus","p1":"Dragon's Roar (SD1)","moves":63,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,8000],"row":"SDP","col":"SD1","game":2}
+{"id":"sdc-SDP-vs-SD1-g3","p0":"Starter Deck: Pegasus","p1":"Dragon's Roar (SD1)","moves":492,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3100,0],"row":"SDP","col":"SD1","game":3}
+{"id":"sdc-SDP-vs-SD2-g1","p0":"Starter Deck: Pegasus","p1":"Zombie Madness (SD2)","moves":274,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1450,4250],"row":"SDP","col":"SD2","game":1}
+{"id":"sdc-SDP-vs-SD2-g2","p0":"Starter Deck: Pegasus","p1":"Zombie Madness (SD2)","moves":293,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,7900],"row":"SDP","col":"SD2","game":2}
+{"id":"sdc-SDP-vs-SD2-g3","p0":"Starter Deck: Pegasus","p1":"Zombie Madness (SD2)","moves":381,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,600],"row":"SDP","col":"SD2","game":3}
+{"id":"sdc-SDP-vs-SD3-g1","p0":"Starter Deck: Pegasus","p1":"Blaze of Destruction (SD3)","moves":113,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,8000],"row":"SDP","col":"SD3","game":1}
+{"id":"sdc-SDP-vs-SD3-g2","p0":"Starter Deck: Pegasus","p1":"Blaze of Destruction (SD3)","moves":288,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2100,6200],"row":"SDP","col":"SD3","game":2}
+{"id":"sdc-SDP-vs-SD3-g3","p0":"Starter Deck: Pegasus","p1":"Blaze of Destruction (SD3)","moves":147,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7300,-100],"row":"SDP","col":"SD3","game":3}
+{"id":"sdc-SDP-vs-SD4-g1","p0":"Starter Deck: Pegasus","p1":"Fury from the Deep (SD4)","moves":157,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,6350],"row":"SDP","col":"SD4","game":1}
+{"id":"sdc-SDP-vs-SD4-g2","p0":"Starter Deck: Pegasus","p1":"Fury from the Deep (SD4)","moves":44,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1700,8000],"row":"SDP","col":"SD4","game":2}
+{"id":"sdc-SDP-vs-SD4-g3","p0":"Starter Deck: Pegasus","p1":"Fury from the Deep (SD4)","moves":279,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,5700],"row":"SDP","col":"SD4","game":3}
+{"id":"sdc-SDP-vs-SD6-g1","p0":"Starter Deck: Pegasus","p1":"Spellcaster's Judgment (SD6)","moves":64,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1700,7900],"row":"SDP","col":"SD6","game":1}
+{"id":"sdc-SDP-vs-SD6-g2","p0":"Starter Deck: Pegasus","p1":"Spellcaster's Judgment (SD6)","moves":202,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,8600],"row":"SDP","col":"SD6","game":2}
+{"id":"sdc-SDP-vs-SD6-g3","p0":"Starter Deck: Pegasus","p1":"Spellcaster's Judgment (SD6)","moves":84,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,6700],"row":"SDP","col":"SD6","game":3}
+{"id":"sdc-SDP-vs-SD10-g1","p0":"Starter Deck: Pegasus","p1":"Machine Re-Volt (SD10)","moves":252,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-450,5850],"row":"SDP","col":"SD10","game":1}
+{"id":"sdc-SDP-vs-SD10-g2","p0":"Starter Deck: Pegasus","p1":"Machine Re-Volt (SD10)","moves":139,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1700,6600],"row":"SDP","col":"SD10","game":2}
+{"id":"sdc-SDP-vs-SD10-g3","p0":"Starter Deck: Pegasus","p1":"Machine Re-Volt (SD10)","moves":168,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,7600],"row":"SDP","col":"SD10","game":3}
+{"id":"sdc-SDP-vs-SDSC-g1","p0":"Starter Deck: Pegasus","p1":"Spellcaster's Command (SDSC)","moves":156,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7400,-1450],"row":"SDP","col":"SDSC","game":1}
+{"id":"sdc-SDP-vs-SDSC-g2","p0":"Starter Deck: Pegasus","p1":"Spellcaster's Command (SDSC)","moves":384,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,1000],"row":"SDP","col":"SDSC","game":2}
+{"id":"sdc-SDP-vs-SDSC-g3","p0":"Starter Deck: Pegasus","p1":"Spellcaster's Command (SDSC)","moves":335,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5900,-1350],"row":"SDP","col":"SDSC","game":3}
+{"id":"sdc-SDP-vs-SDMP-g1","p0":"Starter Deck: Pegasus","p1":"Master of Pendulum (SDMP)","moves":151,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1150,8000],"row":"SDP","col":"SDMP","game":1}
+{"id":"sdc-SDP-vs-SDMP-g2","p0":"Starter Deck: Pegasus","p1":"Master of Pendulum (SDMP)","moves":205,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,8000],"row":"SDP","col":"SDMP","game":2}
+{"id":"sdc-SDP-vs-SDMP-g3","p0":"Starter Deck: Pegasus","p1":"Master of Pendulum (SDMP)","moves":151,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1300,8000],"row":"SDP","col":"SDMP","game":3}
+{"id":"sdc-SD1-vs-SDY-g1","p0":"Dragon's Roar (SD1)","p1":"Yugi","moves":80,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7150,-2100],"row":"SD1","col":"SDY","game":1}
+{"id":"sdc-SD1-vs-SDY-g2","p0":"Dragon's Roar (SD1)","p1":"Yugi","moves":289,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,900],"row":"SD1","col":"SDY","game":2}
+{"id":"sdc-SD1-vs-SDY-g3","p0":"Dragon's Roar (SD1)","p1":"Yugi","moves":191,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,1900],"row":"SD1","col":"SDY","game":3}
+{"id":"sdc-SD1-vs-SDK-g1","p0":"Dragon's Roar (SD1)","p1":"Kaiba","moves":150,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,6300],"row":"SD1","col":"SDK","game":1}
+{"id":"sdc-SD1-vs-SDK-g2","p0":"Dragon's Roar (SD1)","p1":"Kaiba","moves":136,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-2300],"row":"SD1","col":"SDK","game":2}
+{"id":"sdc-SD1-vs-SDK-g3","p0":"Dragon's Roar (SD1)","p1":"Kaiba","moves":315,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7900,-200],"row":"SD1","col":"SDK","game":3}
+{"id":"sdc-SD1-vs-SDP-g1","p0":"Dragon's Roar (SD1)","p1":"Starter Deck: Pegasus","moves":147,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7600,-700],"row":"SD1","col":"SDP","game":1}
+{"id":"sdc-SD1-vs-SDP-g2","p0":"Dragon's Roar (SD1)","p1":"Starter Deck: Pegasus","moves":281,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6900,-500],"row":"SD1","col":"SDP","game":2}
+{"id":"sdc-SD1-vs-SDP-g3","p0":"Dragon's Roar (SD1)","p1":"Starter Deck: Pegasus","moves":203,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-200],"row":"SD1","col":"SDP","game":3}
+{"id":"sdc-SD1-vs-SD1-g1","p0":"Dragon's Roar (SD1)","p1":"Dragon's Roar (SD1)","moves":317,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4700,-1500],"row":"SD1","col":"SD1","game":1}
+{"id":"sdc-SD1-vs-SD1-g2","p0":"Dragon's Roar (SD1)","p1":"Dragon's Roar (SD1)","moves":270,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,6100],"row":"SD1","col":"SD1","game":2}
+{"id":"sdc-SD1-vs-SD1-g3","p0":"Dragon's Roar (SD1)","p1":"Dragon's Roar (SD1)","moves":216,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,3800],"row":"SD1","col":"SD1","game":3}
+{"id":"sdc-SD1-vs-SD2-g1","p0":"Dragon's Roar (SD1)","p1":"Zombie Madness (SD2)","moves":389,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,6500],"row":"SD1","col":"SD2","game":1}
+{"id":"sdc-SD1-vs-SD2-g2","p0":"Dragon's Roar (SD1)","p1":"Zombie Madness (SD2)","moves":269,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,5600],"row":"SD1","col":"SD2","game":2}
+{"id":"sdc-SD1-vs-SD2-g3","p0":"Dragon's Roar (SD1)","p1":"Zombie Madness (SD2)","moves":99,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7850,-750],"row":"SD1","col":"SD2","game":3}
+{"id":"sdc-SD1-vs-SD3-g1","p0":"Dragon's Roar (SD1)","p1":"Blaze of Destruction (SD3)","moves":296,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7400,-1100],"row":"SD1","col":"SD3","game":1}
+{"id":"sdc-SD1-vs-SD3-g2","p0":"Dragon's Roar (SD1)","p1":"Blaze of Destruction (SD3)","moves":236,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1250,6800],"row":"SD1","col":"SD3","game":2}
+{"id":"sdc-SD1-vs-SD3-g3","p0":"Dragon's Roar (SD1)","p1":"Blaze of Destruction (SD3)","moves":183,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,6300],"row":"SD1","col":"SD3","game":3}
+{"id":"sdc-SD1-vs-SD4-g1","p0":"Dragon's Roar (SD1)","p1":"Fury from the Deep (SD4)","moves":168,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,8000],"row":"SD1","col":"SD4","game":1}
+{"id":"sdc-SD1-vs-SD4-g2","p0":"Dragon's Roar (SD1)","p1":"Fury from the Deep (SD4)","moves":144,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,6800],"row":"SD1","col":"SD4","game":2}
+{"id":"sdc-SD1-vs-SD4-g3","p0":"Dragon's Roar (SD1)","p1":"Fury from the Deep (SD4)","moves":182,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,8000],"row":"SD1","col":"SD4","game":3}
+{"id":"sdc-SD1-vs-SD6-g1","p0":"Dragon's Roar (SD1)","p1":"Spellcaster's Judgment (SD6)","moves":241,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3600,-900],"row":"SD1","col":"SD6","game":1}
+{"id":"sdc-SD1-vs-SD6-g2","p0":"Dragon's Roar (SD1)","p1":"Spellcaster's Judgment (SD6)","moves":80,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1900,6300],"row":"SD1","col":"SD6","game":2}
+{"id":"sdc-SD1-vs-SD6-g3","p0":"Dragon's Roar (SD1)","p1":"Spellcaster's Judgment (SD6)","moves":67,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1600],"row":"SD1","col":"SD6","game":3}
+{"id":"sdc-SD1-vs-SD10-g1","p0":"Dragon's Roar (SD1)","p1":"Machine Re-Volt (SD10)","moves":198,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,5200],"row":"SD1","col":"SD10","game":1}
+{"id":"sdc-SD1-vs-SD10-g2","p0":"Dragon's Roar (SD1)","p1":"Machine Re-Volt (SD10)","moves":231,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7800,-400],"row":"SD1","col":"SD10","game":2}
+{"id":"sdc-SD1-vs-SD10-g3","p0":"Dragon's Roar (SD1)","p1":"Machine Re-Volt (SD10)","moves":195,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6600,-100],"row":"SD1","col":"SD10","game":3}
+{"id":"sdc-SD1-vs-SDSC-g1","p0":"Dragon's Roar (SD1)","p1":"Spellcaster's Command (SDSC)","moves":282,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2250,-150],"row":"SD1","col":"SDSC","game":1}
+{"id":"sdc-SD1-vs-SDSC-g2","p0":"Dragon's Roar (SD1)","p1":"Spellcaster's Command (SDSC)","moves":240,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-200,4000],"row":"SD1","col":"SDSC","game":2}
+{"id":"sdc-SD1-vs-SDSC-g3","p0":"Dragon's Roar (SD1)","p1":"Spellcaster's Command (SDSC)","moves":560,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,4350],"row":"SD1","col":"SDSC","game":3}
+{"id":"sdc-SD1-vs-SDMP-g1","p0":"Dragon's Roar (SD1)","p1":"Master of Pendulum (SDMP)","moves":158,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2100,6500],"row":"SD1","col":"SDMP","game":1}
+{"id":"sdc-SD1-vs-SDMP-g2","p0":"Dragon's Roar (SD1)","p1":"Master of Pendulum (SDMP)","moves":116,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-500],"row":"SD1","col":"SDMP","game":2}
+{"id":"sdc-SD1-vs-SDMP-g3","p0":"Dragon's Roar (SD1)","p1":"Master of Pendulum (SDMP)","moves":191,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,4500],"row":"SD1","col":"SDMP","game":3}
+{"id":"sdc-SD2-vs-SDY-g1","p0":"Zombie Madness (SD2)","p1":"Yugi","moves":216,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD2","col":"SDY","game":1}
+{"id":"sdc-SD2-vs-SDY-g2","p0":"Zombie Madness (SD2)","p1":"Yugi","moves":157,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,8000],"row":"SD2","col":"SDY","game":2}
+{"id":"sdc-SD2-vs-SDY-g3","p0":"Zombie Madness (SD2)","p1":"Yugi","moves":272,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD2","col":"SDY","game":3}
+{"id":"sdc-SD2-vs-SDK-g1","p0":"Zombie Madness (SD2)","p1":"Kaiba","moves":183,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3400,-1250],"row":"SD2","col":"SDK","game":1}
+{"id":"sdc-SD2-vs-SDK-g2","p0":"Zombie Madness (SD2)","p1":"Kaiba","moves":484,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,3550],"row":"SD2","col":"SDK","game":2}
+{"id":"sdc-SD2-vs-SDK-g3","p0":"Zombie Madness (SD2)","p1":"Kaiba","moves":121,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6300,-1400],"row":"SD2","col":"SDK","game":3}
+{"id":"sdc-SD2-vs-SDP-g1","p0":"Zombie Madness (SD2)","p1":"Starter Deck: Pegasus","moves":340,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2000,-400],"row":"SD2","col":"SDP","game":1}
+{"id":"sdc-SD2-vs-SDP-g2","p0":"Zombie Madness (SD2)","p1":"Starter Deck: Pegasus","moves":133,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-150,7100],"row":"SD2","col":"SDP","game":2}
+{"id":"sdc-SD2-vs-SDP-g3","p0":"Zombie Madness (SD2)","p1":"Starter Deck: Pegasus","moves":76,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-650],"row":"SD2","col":"SDP","game":3}
+{"id":"sdc-SD2-vs-SD1-g1","p0":"Zombie Madness (SD2)","p1":"Dragon's Roar (SD1)","moves":142,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2300,-400],"row":"SD2","col":"SD1","game":1}
+{"id":"sdc-SD2-vs-SD1-g2","p0":"Zombie Madness (SD2)","p1":"Dragon's Roar (SD1)","moves":174,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,8000],"row":"SD2","col":"SD1","game":2}
+{"id":"sdc-SD2-vs-SD1-g3","p0":"Zombie Madness (SD2)","p1":"Dragon's Roar (SD1)","moves":81,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,7850],"row":"SD2","col":"SD1","game":3}
+{"id":"sdc-SD2-vs-SD2-g1","p0":"Zombie Madness (SD2)","p1":"Zombie Madness (SD2)","moves":256,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,8200],"row":"SD2","col":"SD2","game":1}
+{"id":"sdc-SD2-vs-SD2-g2","p0":"Zombie Madness (SD2)","p1":"Zombie Madness (SD2)","moves":175,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1350,4450],"row":"SD2","col":"SD2","game":2}
+{"id":"sdc-SD2-vs-SD2-g3","p0":"Zombie Madness (SD2)","p1":"Zombie Madness (SD2)","moves":169,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,7100],"row":"SD2","col":"SD2","game":3}
+{"id":"sdc-SD2-vs-SD3-g1","p0":"Zombie Madness (SD2)","p1":"Blaze of Destruction (SD3)","moves":182,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5150,-700],"row":"SD2","col":"SD3","game":1}
+{"id":"sdc-SD2-vs-SD3-g2","p0":"Zombie Madness (SD2)","p1":"Blaze of Destruction (SD3)","moves":210,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5600,-1450],"row":"SD2","col":"SD3","game":2}
+{"id":"sdc-SD2-vs-SD3-g3","p0":"Zombie Madness (SD2)","p1":"Blaze of Destruction (SD3)","moves":183,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4750,-200],"row":"SD2","col":"SD3","game":3}
+{"id":"sdc-SD2-vs-SD4-g1","p0":"Zombie Madness (SD2)","p1":"Fury from the Deep (SD4)","moves":319,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4400,-1700],"row":"SD2","col":"SD4","game":1}
+{"id":"sdc-SD2-vs-SD4-g2","p0":"Zombie Madness (SD2)","p1":"Fury from the Deep (SD4)","moves":140,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4300,-1650],"row":"SD2","col":"SD4","game":2}
+{"id":"sdc-SD2-vs-SD4-g3","p0":"Zombie Madness (SD2)","p1":"Fury from the Deep (SD4)","moves":264,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[900,-200],"row":"SD2","col":"SD4","game":3}
+{"id":"sdc-SD2-vs-SD6-g1","p0":"Zombie Madness (SD2)","p1":"Spellcaster's Judgment (SD6)","moves":98,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5800,-50],"row":"SD2","col":"SD6","game":1}
+{"id":"sdc-SD2-vs-SD6-g2","p0":"Zombie Madness (SD2)","p1":"Spellcaster's Judgment (SD6)","moves":170,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-950,7900],"row":"SD2","col":"SD6","game":2}
+{"id":"sdc-SD2-vs-SD6-g3","p0":"Zombie Madness (SD2)","p1":"Spellcaster's Judgment (SD6)","moves":142,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-50,6450],"row":"SD2","col":"SD6","game":3}
+{"id":"sdc-SD2-vs-SD10-g1","p0":"Zombie Madness (SD2)","p1":"Machine Re-Volt (SD10)","moves":65,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,0],"row":"SD2","col":"SD10","game":1}
+{"id":"sdc-SD2-vs-SD10-g2","p0":"Zombie Madness (SD2)","p1":"Machine Re-Volt (SD10)","moves":142,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-500],"row":"SD2","col":"SD10","game":2}
+{"id":"sdc-SD2-vs-SD10-g3","p0":"Zombie Madness (SD2)","p1":"Machine Re-Volt (SD10)","moves":205,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7800,-850],"row":"SD2","col":"SD10","game":3}
+{"id":"sdc-SD2-vs-SDSC-g1","p0":"Zombie Madness (SD2)","p1":"Spellcaster's Command (SDSC)","moves":176,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5400,-1200],"row":"SD2","col":"SDSC","game":1}
+{"id":"sdc-SD2-vs-SDSC-g2","p0":"Zombie Madness (SD2)","p1":"Spellcaster's Command (SDSC)","moves":280,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6100,-800],"row":"SD2","col":"SDSC","game":2}
+{"id":"sdc-SD2-vs-SDSC-g3","p0":"Zombie Madness (SD2)","p1":"Spellcaster's Command (SDSC)","moves":284,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6450,-600],"row":"SD2","col":"SDSC","game":3}
+{"id":"sdc-SD2-vs-SDMP-g1","p0":"Zombie Madness (SD2)","p1":"Master of Pendulum (SDMP)","moves":199,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3600,-400],"row":"SD2","col":"SDMP","game":1}
+{"id":"sdc-SD2-vs-SDMP-g2","p0":"Zombie Madness (SD2)","p1":"Master of Pendulum (SDMP)","moves":213,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[400,-400],"row":"SD2","col":"SDMP","game":2}
+{"id":"sdc-SD2-vs-SDMP-g3","p0":"Zombie Madness (SD2)","p1":"Master of Pendulum (SDMP)","moves":260,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1100],"row":"SD2","col":"SDMP","game":3}
+{"id":"sdc-SD3-vs-SDY-g1","p0":"Blaze of Destruction (SD3)","p1":"Yugi","moves":150,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2150,-100],"row":"SD3","col":"SDY","game":1}
+{"id":"sdc-SD3-vs-SDY-g2","p0":"Blaze of Destruction (SD3)","p1":"Yugi","moves":55,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-300],"row":"SD3","col":"SDY","game":2}
+{"id":"sdc-SD3-vs-SDY-g3","p0":"Blaze of Destruction (SD3)","p1":"Yugi","moves":371,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,4450],"row":"SD3","col":"SDY","game":3}
+{"id":"sdc-SD3-vs-SDK-g1","p0":"Blaze of Destruction (SD3)","p1":"Kaiba","moves":144,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5600,-200],"row":"SD3","col":"SDK","game":1}
+{"id":"sdc-SD3-vs-SDK-g2","p0":"Blaze of Destruction (SD3)","p1":"Kaiba","moves":341,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1800,1300],"row":"SD3","col":"SDK","game":2}
+{"id":"sdc-SD3-vs-SDK-g3","p0":"Blaze of Destruction (SD3)","p1":"Kaiba","moves":124,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-200],"row":"SD3","col":"SDK","game":3}
+{"id":"sdc-SD3-vs-SDP-g1","p0":"Blaze of Destruction (SD3)","p1":"Starter Deck: Pegasus","moves":270,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7600,-850],"row":"SD3","col":"SDP","game":1}
+{"id":"sdc-SD3-vs-SDP-g2","p0":"Blaze of Destruction (SD3)","p1":"Starter Deck: Pegasus","moves":152,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-650],"row":"SD3","col":"SDP","game":2}
+{"id":"sdc-SD3-vs-SDP-g3","p0":"Blaze of Destruction (SD3)","p1":"Starter Deck: Pegasus","moves":130,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7000,-1300],"row":"SD3","col":"SDP","game":3}
+{"id":"sdc-SD3-vs-SD1-g1","p0":"Blaze of Destruction (SD3)","p1":"Dragon's Roar (SD1)","moves":87,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7000,-300],"row":"SD3","col":"SD1","game":1}
+{"id":"sdc-SD3-vs-SD1-g2","p0":"Blaze of Destruction (SD3)","p1":"Dragon's Roar (SD1)","moves":99,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD3","col":"SD1","game":2}
+{"id":"sdc-SD3-vs-SD1-g3","p0":"Blaze of Destruction (SD3)","p1":"Dragon's Roar (SD1)","moves":288,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-200,5900],"row":"SD3","col":"SD1","game":3}
+{"id":"sdc-SD3-vs-SD2-g1","p0":"Blaze of Destruction (SD3)","p1":"Zombie Madness (SD2)","moves":246,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-650,8000],"row":"SD3","col":"SD2","game":1}
+{"id":"sdc-SD3-vs-SD2-g2","p0":"Blaze of Destruction (SD3)","p1":"Zombie Madness (SD2)","moves":142,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-650],"row":"SD3","col":"SD2","game":2}
+{"id":"sdc-SD3-vs-SD2-g3","p0":"Blaze of Destruction (SD3)","p1":"Zombie Madness (SD2)","moves":161,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2500,7250],"row":"SD3","col":"SD2","game":3}
+{"id":"sdc-SD3-vs-SD3-g1","p0":"Blaze of Destruction (SD3)","p1":"Blaze of Destruction (SD3)","moves":210,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2700,-900],"row":"SD3","col":"SD3","game":1}
+{"id":"sdc-SD3-vs-SD3-g2","p0":"Blaze of Destruction (SD3)","p1":"Blaze of Destruction (SD3)","moves":254,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7000,0],"row":"SD3","col":"SD3","game":2}
+{"id":"sdc-SD3-vs-SD3-g3","p0":"Blaze of Destruction (SD3)","p1":"Blaze of Destruction (SD3)","moves":437,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,3600],"row":"SD3","col":"SD3","game":3}
+{"id":"sdc-SD3-vs-SD4-g1","p0":"Blaze of Destruction (SD3)","p1":"Fury from the Deep (SD4)","moves":310,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2000,2000],"row":"SD3","col":"SD4","game":1}
+{"id":"sdc-SD3-vs-SD4-g2","p0":"Blaze of Destruction (SD3)","p1":"Fury from the Deep (SD4)","moves":152,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-350,7600],"row":"SD3","col":"SD4","game":2}
+{"id":"sdc-SD3-vs-SD4-g3","p0":"Blaze of Destruction (SD3)","p1":"Fury from the Deep (SD4)","moves":347,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1600,3000],"row":"SD3","col":"SD4","game":3}
+{"id":"sdc-SD3-vs-SD6-g1","p0":"Blaze of Destruction (SD3)","p1":"Spellcaster's Judgment (SD6)","moves":100,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,0],"row":"SD3","col":"SD6","game":1}
+{"id":"sdc-SD3-vs-SD6-g2","p0":"Blaze of Destruction (SD3)","p1":"Spellcaster's Judgment (SD6)","moves":228,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[600,-500],"row":"SD3","col":"SD6","game":2}
+{"id":"sdc-SD3-vs-SD6-g3","p0":"Blaze of Destruction (SD3)","p1":"Spellcaster's Judgment (SD6)","moves":341,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,1900],"row":"SD3","col":"SD6","game":3}
+{"id":"sdc-SD3-vs-SD10-g1","p0":"Blaze of Destruction (SD3)","p1":"Machine Re-Volt (SD10)","moves":267,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,1800],"row":"SD3","col":"SD10","game":1}
+{"id":"sdc-SD3-vs-SD10-g2","p0":"Blaze of Destruction (SD3)","p1":"Machine Re-Volt (SD10)","moves":79,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7800,-1300],"row":"SD3","col":"SD10","game":2}
+{"id":"sdc-SD3-vs-SD10-g3","p0":"Blaze of Destruction (SD3)","p1":"Machine Re-Volt (SD10)","moves":82,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5600,-200],"row":"SD3","col":"SD10","game":3}
+{"id":"sdc-SD3-vs-SDSC-g1","p0":"Blaze of Destruction (SD3)","p1":"Spellcaster's Command (SDSC)","moves":59,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-800],"row":"SD3","col":"SDSC","game":1}
+{"id":"sdc-SD3-vs-SDSC-g2","p0":"Blaze of Destruction (SD3)","p1":"Spellcaster's Command (SDSC)","moves":183,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,7000],"row":"SD3","col":"SDSC","game":2}
+{"id":"sdc-SD3-vs-SDSC-g3","p0":"Blaze of Destruction (SD3)","p1":"Spellcaster's Command (SDSC)","moves":103,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD3","col":"SDSC","game":3}
+{"id":"sdc-SD3-vs-SDMP-g1","p0":"Blaze of Destruction (SD3)","p1":"Master of Pendulum (SDMP)","moves":186,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3100,-700],"row":"SD3","col":"SDMP","game":1}
+{"id":"sdc-SD3-vs-SDMP-g2","p0":"Blaze of Destruction (SD3)","p1":"Master of Pendulum (SDMP)","moves":297,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1300,6000],"row":"SD3","col":"SDMP","game":2}
+{"id":"sdc-SD3-vs-SDMP-g3","p0":"Blaze of Destruction (SD3)","p1":"Master of Pendulum (SDMP)","moves":222,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,4400],"row":"SD3","col":"SDMP","game":3}
+{"id":"sdc-SD4-vs-SDY-g1","p0":"Fury from the Deep (SD4)","p1":"Yugi","moves":331,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2300,450],"row":"SD4","col":"SDY","game":1}
+{"id":"sdc-SD4-vs-SDY-g2","p0":"Fury from the Deep (SD4)","p1":"Yugi","moves":214,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4750,-1050],"row":"SD4","col":"SDY","game":2}
+{"id":"sdc-SD4-vs-SDY-g3","p0":"Fury from the Deep (SD4)","p1":"Yugi","moves":139,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6500,-1450],"row":"SD4","col":"SDY","game":3}
+{"id":"sdc-SD4-vs-SDK-g1","p0":"Fury from the Deep (SD4)","p1":"Kaiba","moves":116,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6400,-100],"row":"SD4","col":"SDK","game":1}
+{"id":"sdc-SD4-vs-SDK-g2","p0":"Fury from the Deep (SD4)","p1":"Kaiba","moves":98,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,7000],"row":"SD4","col":"SDK","game":2}
+{"id":"sdc-SD4-vs-SDK-g3","p0":"Fury from the Deep (SD4)","p1":"Kaiba","moves":247,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,100],"row":"SD4","col":"SDK","game":3}
+{"id":"sdc-SD4-vs-SDP-g1","p0":"Fury from the Deep (SD4)","p1":"Starter Deck: Pegasus","moves":247,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD4","col":"SDP","game":1}
+{"id":"sdc-SD4-vs-SDP-g2","p0":"Fury from the Deep (SD4)","p1":"Starter Deck: Pegasus","moves":284,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[700,-100],"row":"SD4","col":"SDP","game":2}
+{"id":"sdc-SD4-vs-SDP-g3","p0":"Fury from the Deep (SD4)","p1":"Starter Deck: Pegasus","moves":128,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-200],"row":"SD4","col":"SDP","game":3}
+{"id":"sdc-SD4-vs-SD1-g1","p0":"Fury from the Deep (SD4)","p1":"Dragon's Roar (SD1)","moves":97,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5550,-800],"row":"SD4","col":"SD1","game":1}
+{"id":"sdc-SD4-vs-SD1-g2","p0":"Fury from the Deep (SD4)","p1":"Dragon's Roar (SD1)","moves":316,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1050,700],"row":"SD4","col":"SD1","game":2}
+{"id":"sdc-SD4-vs-SD1-g3","p0":"Fury from the Deep (SD4)","p1":"Dragon's Roar (SD1)","moves":104,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-200],"row":"SD4","col":"SD1","game":3}
+{"id":"sdc-SD4-vs-SD2-g1","p0":"Fury from the Deep (SD4)","p1":"Zombie Madness (SD2)","moves":182,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4400,-900],"row":"SD4","col":"SD2","game":1}
+{"id":"sdc-SD4-vs-SD2-g2","p0":"Fury from the Deep (SD4)","p1":"Zombie Madness (SD2)","moves":315,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,4400],"row":"SD4","col":"SD2","game":2}
+{"id":"sdc-SD4-vs-SD2-g3","p0":"Fury from the Deep (SD4)","p1":"Zombie Madness (SD2)","moves":171,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1150,6400],"row":"SD4","col":"SD2","game":3}
+{"id":"sdc-SD4-vs-SD3-g1","p0":"Fury from the Deep (SD4)","p1":"Blaze of Destruction (SD3)","moves":152,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6300,-400],"row":"SD4","col":"SD3","game":1}
+{"id":"sdc-SD4-vs-SD3-g2","p0":"Fury from the Deep (SD4)","p1":"Blaze of Destruction (SD3)","moves":345,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,1100],"row":"SD4","col":"SD3","game":2}
+{"id":"sdc-SD4-vs-SD3-g3","p0":"Fury from the Deep (SD4)","p1":"Blaze of Destruction (SD3)","moves":122,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6200,-700],"row":"SD4","col":"SD3","game":3}
+{"id":"sdc-SD4-vs-SD4-g1","p0":"Fury from the Deep (SD4)","p1":"Fury from the Deep (SD4)","moves":291,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[350,-1350],"row":"SD4","col":"SD4","game":1}
+{"id":"sdc-SD4-vs-SD4-g2","p0":"Fury from the Deep (SD4)","p1":"Fury from the Deep (SD4)","moves":94,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-250,7600],"row":"SD4","col":"SD4","game":2}
+{"id":"sdc-SD4-vs-SD4-g3","p0":"Fury from the Deep (SD4)","p1":"Fury from the Deep (SD4)","moves":263,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[11000,-700],"row":"SD4","col":"SD4","game":3}
+{"id":"sdc-SD4-vs-SD6-g1","p0":"Fury from the Deep (SD4)","p1":"Spellcaster's Judgment (SD6)","moves":228,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6700,-600],"row":"SD4","col":"SD6","game":1}
+{"id":"sdc-SD4-vs-SD6-g2","p0":"Fury from the Deep (SD4)","p1":"Spellcaster's Judgment (SD6)","moves":71,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4300,-200],"row":"SD4","col":"SD6","game":2}
+{"id":"sdc-SD4-vs-SD6-g3","p0":"Fury from the Deep (SD4)","p1":"Spellcaster's Judgment (SD6)","moves":121,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-300],"row":"SD4","col":"SD6","game":3}
+{"id":"sdc-SD4-vs-SD10-g1","p0":"Fury from the Deep (SD4)","p1":"Machine Re-Volt (SD10)","moves":204,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6200,-600],"row":"SD4","col":"SD10","game":1}
+{"id":"sdc-SD4-vs-SD10-g2","p0":"Fury from the Deep (SD4)","p1":"Machine Re-Volt (SD10)","moves":381,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2700,-600],"row":"SD4","col":"SD10","game":2}
+{"id":"sdc-SD4-vs-SD10-g3","p0":"Fury from the Deep (SD4)","p1":"Machine Re-Volt (SD10)","moves":198,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[1300,-1300],"row":"SD4","col":"SD10","game":3}
+{"id":"sdc-SD4-vs-SDSC-g1","p0":"Fury from the Deep (SD4)","p1":"Spellcaster's Command (SDSC)","moves":134,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-550,5150],"row":"SD4","col":"SDSC","game":1}
+{"id":"sdc-SD4-vs-SDSC-g2","p0":"Fury from the Deep (SD4)","p1":"Spellcaster's Command (SDSC)","moves":130,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[1200,-1900],"row":"SD4","col":"SDSC","game":2}
+{"id":"sdc-SD4-vs-SDSC-g3","p0":"Fury from the Deep (SD4)","p1":"Spellcaster's Command (SDSC)","moves":303,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5250,-600],"row":"SD4","col":"SDSC","game":3}
+{"id":"sdc-SD4-vs-SDMP-g1","p0":"Fury from the Deep (SD4)","p1":"Master of Pendulum (SDMP)","moves":178,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5900,-1200],"row":"SD4","col":"SDMP","game":1}
+{"id":"sdc-SD4-vs-SDMP-g2","p0":"Fury from the Deep (SD4)","p1":"Master of Pendulum (SDMP)","moves":101,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-550,6700],"row":"SD4","col":"SDMP","game":2}
+{"id":"sdc-SD4-vs-SDMP-g3","p0":"Fury from the Deep (SD4)","p1":"Master of Pendulum (SDMP)","moves":150,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1200],"row":"SD4","col":"SDMP","game":3}
+{"id":"sdc-SD6-vs-SDY-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Yugi","moves":122,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,8400],"row":"SD6","col":"SDY","game":1}
+{"id":"sdc-SD6-vs-SDY-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Yugi","moves":147,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6400,-600],"row":"SD6","col":"SDY","game":2}
+{"id":"sdc-SD6-vs-SDY-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Yugi","moves":96,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,1000],"row":"SD6","col":"SDY","game":3}
+{"id":"sdc-SD6-vs-SDK-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Kaiba","moves":213,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4000,-1050],"row":"SD6","col":"SDK","game":1}
+{"id":"sdc-SD6-vs-SDK-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Kaiba","moves":363,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,5300],"row":"SD6","col":"SDK","game":2}
+{"id":"sdc-SD6-vs-SDK-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Kaiba","moves":54,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,10000],"row":"SD6","col":"SDK","game":3}
+{"id":"sdc-SD6-vs-SDP-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Starter Deck: Pegasus","moves":334,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6700,-900],"row":"SD6","col":"SDP","game":1}
+{"id":"sdc-SD6-vs-SDP-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Starter Deck: Pegasus","moves":165,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-200],"row":"SD6","col":"SDP","game":2}
+{"id":"sdc-SD6-vs-SDP-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Starter Deck: Pegasus","moves":60,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD6","col":"SDP","game":3}
+{"id":"sdc-SD6-vs-SD1-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Dragon's Roar (SD1)","moves":198,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,7700],"row":"SD6","col":"SD1","game":1}
+{"id":"sdc-SD6-vs-SD1-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Dragon's Roar (SD1)","moves":92,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[10000,-400],"row":"SD6","col":"SD1","game":2}
+{"id":"sdc-SD6-vs-SD1-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Dragon's Roar (SD1)","moves":187,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,6300],"row":"SD6","col":"SD1","game":3}
+{"id":"sdc-SD6-vs-SD2-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Zombie Madness (SD2)","moves":118,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-150,4400],"row":"SD6","col":"SD2","game":1}
+{"id":"sdc-SD6-vs-SD2-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Zombie Madness (SD2)","moves":131,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,7600],"row":"SD6","col":"SD2","game":2}
+{"id":"sdc-SD6-vs-SD2-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Zombie Madness (SD2)","moves":114,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-650,7600],"row":"SD6","col":"SD2","game":3}
+{"id":"sdc-SD6-vs-SD3-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Blaze of Destruction (SD3)","moves":123,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7000,-1500],"row":"SD6","col":"SD3","game":1}
+{"id":"sdc-SD6-vs-SD3-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Blaze of Destruction (SD3)","moves":551,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-700,2100],"row":"SD6","col":"SD3","game":2}
+{"id":"sdc-SD6-vs-SD3-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Blaze of Destruction (SD3)","moves":84,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2650,8000],"row":"SD6","col":"SD3","game":3}
+{"id":"sdc-SD6-vs-SD4-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Fury from the Deep (SD4)","moves":125,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,8000],"row":"SD6","col":"SD4","game":1}
+{"id":"sdc-SD6-vs-SD4-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Fury from the Deep (SD4)","moves":85,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6300,-950],"row":"SD6","col":"SD4","game":2}
+{"id":"sdc-SD6-vs-SD4-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Fury from the Deep (SD4)","moves":111,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7900,-1600],"row":"SD6","col":"SD4","game":3}
+{"id":"sdc-SD6-vs-SD6-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Spellcaster's Judgment (SD6)","moves":80,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-100],"row":"SD6","col":"SD6","game":1}
+{"id":"sdc-SD6-vs-SD6-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Spellcaster's Judgment (SD6)","moves":395,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,4200],"row":"SD6","col":"SD6","game":2}
+{"id":"sdc-SD6-vs-SD6-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Spellcaster's Judgment (SD6)","moves":147,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4800,-1100],"row":"SD6","col":"SD6","game":3}
+{"id":"sdc-SD6-vs-SD10-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Machine Re-Volt (SD10)","moves":132,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-150,300],"row":"SD6","col":"SD10","game":1}
+{"id":"sdc-SD6-vs-SD10-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Machine Re-Volt (SD10)","moves":132,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[100,-900],"row":"SD6","col":"SD10","game":2}
+{"id":"sdc-SD6-vs-SD10-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Machine Re-Volt (SD10)","moves":70,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1400],"row":"SD6","col":"SD10","game":3}
+{"id":"sdc-SD6-vs-SDSC-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Spellcaster's Command (SDSC)","moves":317,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6800,-1350],"row":"SD6","col":"SDSC","game":1}
+{"id":"sdc-SD6-vs-SDSC-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Spellcaster's Command (SDSC)","moves":489,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5300,-750],"row":"SD6","col":"SDSC","game":2}
+{"id":"sdc-SD6-vs-SDSC-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Spellcaster's Command (SDSC)","moves":223,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4900,-100],"row":"SD6","col":"SDSC","game":3}
+{"id":"sdc-SD6-vs-SDMP-g1","p0":"Spellcaster's Judgment (SD6)","p1":"Master of Pendulum (SDMP)","moves":334,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,4700],"row":"SD6","col":"SDMP","game":1}
+{"id":"sdc-SD6-vs-SDMP-g2","p0":"Spellcaster's Judgment (SD6)","p1":"Master of Pendulum (SDMP)","moves":85,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7400,-900],"row":"SD6","col":"SDMP","game":2}
+{"id":"sdc-SD6-vs-SDMP-g3","p0":"Spellcaster's Judgment (SD6)","p1":"Master of Pendulum (SDMP)","moves":191,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5900,-1800],"row":"SD6","col":"SDMP","game":3}
+{"id":"sdc-SD10-vs-SDY-g1","p0":"Machine Re-Volt (SD10)","p1":"Yugi","moves":111,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,7400],"row":"SD10","col":"SDY","game":1}
+{"id":"sdc-SD10-vs-SDY-g2","p0":"Machine Re-Volt (SD10)","p1":"Yugi","moves":112,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7700,-1150],"row":"SD10","col":"SDY","game":2}
+{"id":"sdc-SD10-vs-SDY-g3","p0":"Machine Re-Volt (SD10)","p1":"Yugi","moves":42,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1600,8000],"row":"SD10","col":"SDY","game":3}
+{"id":"sdc-SD10-vs-SDK-g1","p0":"Machine Re-Volt (SD10)","p1":"Kaiba","moves":116,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7000,-2900],"row":"SD10","col":"SDK","game":1}
+{"id":"sdc-SD10-vs-SDK-g2","p0":"Machine Re-Volt (SD10)","p1":"Kaiba","moves":98,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1650,7750],"row":"SD10","col":"SDK","game":2}
+{"id":"sdc-SD10-vs-SDK-g3","p0":"Machine Re-Volt (SD10)","p1":"Kaiba","moves":225,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6700,-550],"row":"SD10","col":"SDK","game":3}
+{"id":"sdc-SD10-vs-SDP-g1","p0":"Machine Re-Volt (SD10)","p1":"Starter Deck: Pegasus","moves":240,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2200,-800],"row":"SD10","col":"SDP","game":1}
+{"id":"sdc-SD10-vs-SDP-g2","p0":"Machine Re-Volt (SD10)","p1":"Starter Deck: Pegasus","moves":134,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1600],"row":"SD10","col":"SDP","game":2}
+{"id":"sdc-SD10-vs-SDP-g3","p0":"Machine Re-Volt (SD10)","p1":"Starter Deck: Pegasus","moves":95,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,8000],"row":"SD10","col":"SDP","game":3}
+{"id":"sdc-SD10-vs-SD1-g1","p0":"Machine Re-Volt (SD10)","p1":"Dragon's Roar (SD1)","moves":112,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,8000],"row":"SD10","col":"SD1","game":1}
+{"id":"sdc-SD10-vs-SD1-g2","p0":"Machine Re-Volt (SD10)","p1":"Dragon's Roar (SD1)","moves":86,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,8000],"row":"SD10","col":"SD1","game":2}
+{"id":"sdc-SD10-vs-SD1-g3","p0":"Machine Re-Volt (SD10)","p1":"Dragon's Roar (SD1)","moves":187,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7100,-600],"row":"SD10","col":"SD1","game":3}
+{"id":"sdc-SD10-vs-SD2-g1","p0":"Machine Re-Volt (SD10)","p1":"Zombie Madness (SD2)","moves":136,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-450,7500],"row":"SD10","col":"SD2","game":1}
+{"id":"sdc-SD10-vs-SD2-g2","p0":"Machine Re-Volt (SD10)","p1":"Zombie Madness (SD2)","moves":138,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5150,-750],"row":"SD10","col":"SD2","game":2}
+{"id":"sdc-SD10-vs-SD2-g3","p0":"Machine Re-Volt (SD10)","p1":"Zombie Madness (SD2)","moves":154,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,7900],"row":"SD10","col":"SD2","game":3}
+{"id":"sdc-SD10-vs-SD3-g1","p0":"Machine Re-Volt (SD10)","p1":"Blaze of Destruction (SD3)","moves":199,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1500,3800],"row":"SD10","col":"SD3","game":1}
+{"id":"sdc-SD10-vs-SD3-g2","p0":"Machine Re-Volt (SD10)","p1":"Blaze of Destruction (SD3)","moves":124,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3900,-400],"row":"SD10","col":"SD3","game":2}
+{"id":"sdc-SD10-vs-SD3-g3","p0":"Machine Re-Volt (SD10)","p1":"Blaze of Destruction (SD3)","moves":86,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,8000],"row":"SD10","col":"SD3","game":3}
+{"id":"sdc-SD10-vs-SD4-g1","p0":"Machine Re-Volt (SD10)","p1":"Fury from the Deep (SD4)","moves":42,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,8000],"row":"SD10","col":"SD4","game":1}
+{"id":"sdc-SD10-vs-SD4-g2","p0":"Machine Re-Volt (SD10)","p1":"Fury from the Deep (SD4)","moves":200,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,7300],"row":"SD10","col":"SD4","game":2}
+{"id":"sdc-SD10-vs-SD4-g3","p0":"Machine Re-Volt (SD10)","p1":"Fury from the Deep (SD4)","moves":151,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1800],"row":"SD10","col":"SD4","game":3}
+{"id":"sdc-SD10-vs-SD6-g1","p0":"Machine Re-Volt (SD10)","p1":"Spellcaster's Judgment (SD6)","moves":131,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,10400],"row":"SD10","col":"SD6","game":1}
+{"id":"sdc-SD10-vs-SD6-g2","p0":"Machine Re-Volt (SD10)","p1":"Spellcaster's Judgment (SD6)","moves":64,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,8000],"row":"SD10","col":"SD6","game":2}
+{"id":"sdc-SD10-vs-SD6-g3","p0":"Machine Re-Volt (SD10)","p1":"Spellcaster's Judgment (SD6)","moves":67,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-100],"row":"SD10","col":"SD6","game":3}
+{"id":"sdc-SD10-vs-SD10-g1","p0":"Machine Re-Volt (SD10)","p1":"Machine Re-Volt (SD10)","moves":168,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD10","col":"SD10","game":1}
+{"id":"sdc-SD10-vs-SD10-g2","p0":"Machine Re-Volt (SD10)","p1":"Machine Re-Volt (SD10)","moves":151,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-600],"row":"SD10","col":"SD10","game":2}
+{"id":"sdc-SD10-vs-SD10-g3","p0":"Machine Re-Volt (SD10)","p1":"Machine Re-Volt (SD10)","moves":362,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2100,500],"row":"SD10","col":"SD10","game":3}
+{"id":"sdc-SD10-vs-SDSC-g1","p0":"Machine Re-Volt (SD10)","p1":"Spellcaster's Command (SDSC)","moves":108,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,5400],"row":"SD10","col":"SDSC","game":1}
+{"id":"sdc-SD10-vs-SDSC-g2","p0":"Machine Re-Volt (SD10)","p1":"Spellcaster's Command (SDSC)","moves":59,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-500,8000],"row":"SD10","col":"SDSC","game":2}
+{"id":"sdc-SD10-vs-SDSC-g3","p0":"Machine Re-Volt (SD10)","p1":"Spellcaster's Command (SDSC)","moves":193,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7700,-650],"row":"SD10","col":"SDSC","game":3}
+{"id":"sdc-SD10-vs-SDMP-g1","p0":"Machine Re-Volt (SD10)","p1":"Master of Pendulum (SDMP)","moves":114,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6700,-1200],"row":"SD10","col":"SDMP","game":1}
+{"id":"sdc-SD10-vs-SDMP-g2","p0":"Machine Re-Volt (SD10)","p1":"Master of Pendulum (SDMP)","moves":120,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,8000],"row":"SD10","col":"SDMP","game":2}
+{"id":"sdc-SD10-vs-SDMP-g3","p0":"Machine Re-Volt (SD10)","p1":"Master of Pendulum (SDMP)","moves":100,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,8000],"row":"SD10","col":"SDMP","game":3}
+{"id":"sdc-SDSC-vs-SDY-g1","p0":"Spellcaster's Command (SDSC)","p1":"Yugi","moves":172,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6400,-300],"row":"SDSC","col":"SDY","game":1}
+{"id":"sdc-SDSC-vs-SDY-g2","p0":"Spellcaster's Command (SDSC)","p1":"Yugi","moves":301,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-300],"row":"SDSC","col":"SDY","game":2}
+{"id":"sdc-SDSC-vs-SDY-g3","p0":"Spellcaster's Command (SDSC)","p1":"Yugi","moves":96,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1250,4350],"row":"SDSC","col":"SDY","game":3}
+{"id":"sdc-SDSC-vs-SDK-g1","p0":"Spellcaster's Command (SDSC)","p1":"Kaiba","moves":156,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,6700],"row":"SDSC","col":"SDK","game":1}
+{"id":"sdc-SDSC-vs-SDK-g2","p0":"Spellcaster's Command (SDSC)","p1":"Kaiba","moves":56,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1100],"row":"SDSC","col":"SDK","game":2}
+{"id":"sdc-SDSC-vs-SDK-g3","p0":"Spellcaster's Command (SDSC)","p1":"Kaiba","moves":218,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6600,-150],"row":"SDSC","col":"SDK","game":3}
+{"id":"sdc-SDSC-vs-SDP-g1","p0":"Spellcaster's Command (SDSC)","p1":"Starter Deck: Pegasus","moves":250,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6400,-100],"row":"SDSC","col":"SDP","game":1}
+{"id":"sdc-SDSC-vs-SDP-g2","p0":"Spellcaster's Command (SDSC)","p1":"Starter Deck: Pegasus","moves":258,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[3100,-1650],"row":"SDSC","col":"SDP","game":2}
+{"id":"sdc-SDSC-vs-SDP-g3","p0":"Spellcaster's Command (SDSC)","p1":"Starter Deck: Pegasus","moves":196,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-50,1950],"row":"SDSC","col":"SDP","game":3}
+{"id":"sdc-SDSC-vs-SD1-g1","p0":"Spellcaster's Command (SDSC)","p1":"Dragon's Roar (SD1)","moves":202,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1100,7400],"row":"SDSC","col":"SD1","game":1}
+{"id":"sdc-SDSC-vs-SD1-g2","p0":"Spellcaster's Command (SDSC)","p1":"Dragon's Roar (SD1)","moves":267,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[2400,-1900],"row":"SDSC","col":"SD1","game":2}
+{"id":"sdc-SDSC-vs-SD1-g3","p0":"Spellcaster's Command (SDSC)","p1":"Dragon's Roar (SD1)","moves":155,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-2500],"row":"SDSC","col":"SD1","game":3}
+{"id":"sdc-SDSC-vs-SD2-g1","p0":"Spellcaster's Command (SDSC)","p1":"Zombie Madness (SD2)","moves":151,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1300,7750],"row":"SDSC","col":"SD2","game":1}
+{"id":"sdc-SDSC-vs-SD2-g2","p0":"Spellcaster's Command (SDSC)","p1":"Zombie Madness (SD2)","moves":77,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1500,8000],"row":"SDSC","col":"SD2","game":2}
+{"id":"sdc-SDSC-vs-SD2-g3","p0":"Spellcaster's Command (SDSC)","p1":"Zombie Madness (SD2)","moves":339,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,5250],"row":"SDSC","col":"SD2","game":3}
+{"id":"sdc-SDSC-vs-SD3-g1","p0":"Spellcaster's Command (SDSC)","p1":"Blaze of Destruction (SD3)","moves":225,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6800,-1800],"row":"SDSC","col":"SD3","game":1}
+{"id":"sdc-SDSC-vs-SD3-g2","p0":"Spellcaster's Command (SDSC)","p1":"Blaze of Destruction (SD3)","moves":61,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-400,8000],"row":"SDSC","col":"SD3","game":2}
+{"id":"sdc-SDSC-vs-SD3-g3","p0":"Spellcaster's Command (SDSC)","p1":"Blaze of Destruction (SD3)","moves":266,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1350,6150],"row":"SDSC","col":"SD3","game":3}
+{"id":"sdc-SDSC-vs-SD4-g1","p0":"Spellcaster's Command (SDSC)","p1":"Fury from the Deep (SD4)","moves":95,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,8000],"row":"SDSC","col":"SD4","game":1}
+{"id":"sdc-SDSC-vs-SD4-g2","p0":"Spellcaster's Command (SDSC)","p1":"Fury from the Deep (SD4)","moves":338,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-850,7250],"row":"SDSC","col":"SD4","game":2}
+{"id":"sdc-SDSC-vs-SD4-g3","p0":"Spellcaster's Command (SDSC)","p1":"Fury from the Deep (SD4)","moves":124,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-100,5850],"row":"SDSC","col":"SD4","game":3}
+{"id":"sdc-SDSC-vs-SD6-g1","p0":"Spellcaster's Command (SDSC)","p1":"Spellcaster's Judgment (SD6)","moves":175,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,7400],"row":"SDSC","col":"SD6","game":1}
+{"id":"sdc-SDSC-vs-SD6-g2","p0":"Spellcaster's Command (SDSC)","p1":"Spellcaster's Judgment (SD6)","moves":106,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-700,8000],"row":"SDSC","col":"SD6","game":2}
+{"id":"sdc-SDSC-vs-SD6-g3","p0":"Spellcaster's Command (SDSC)","p1":"Spellcaster's Judgment (SD6)","moves":168,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1150,5700],"row":"SDSC","col":"SD6","game":3}
+{"id":"sdc-SDSC-vs-SD10-g1","p0":"Spellcaster's Command (SDSC)","p1":"Machine Re-Volt (SD10)","moves":123,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7200,-1150],"row":"SDSC","col":"SD10","game":1}
+{"id":"sdc-SDSC-vs-SD10-g2","p0":"Spellcaster's Command (SDSC)","p1":"Machine Re-Volt (SD10)","moves":176,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5950,-950],"row":"SDSC","col":"SD10","game":2}
+{"id":"sdc-SDSC-vs-SD10-g3","p0":"Spellcaster's Command (SDSC)","p1":"Machine Re-Volt (SD10)","moves":87,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6750,-1050],"row":"SDSC","col":"SD10","game":3}
+{"id":"sdc-SDSC-vs-SDSC-g1","p0":"Spellcaster's Command (SDSC)","p1":"Spellcaster's Command (SDSC)","moves":244,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-2000,6100],"row":"SDSC","col":"SDSC","game":1}
+{"id":"sdc-SDSC-vs-SDSC-g2","p0":"Spellcaster's Command (SDSC)","p1":"Spellcaster's Command (SDSC)","moves":265,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6400,-1700],"row":"SDSC","col":"SDSC","game":2}
+{"id":"sdc-SDSC-vs-SDSC-g3","p0":"Spellcaster's Command (SDSC)","p1":"Spellcaster's Command (SDSC)","moves":196,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1600,5200],"row":"SDSC","col":"SDSC","game":3}
+{"id":"sdc-SDSC-vs-SDMP-g1","p0":"Spellcaster's Command (SDSC)","p1":"Master of Pendulum (SDMP)","moves":53,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,0],"row":"SDSC","col":"SDMP","game":1}
+{"id":"sdc-SDSC-vs-SDMP-g2","p0":"Spellcaster's Command (SDSC)","p1":"Master of Pendulum (SDMP)","moves":102,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7900,-1600],"row":"SDSC","col":"SDMP","game":2}
+{"id":"sdc-SDSC-vs-SDMP-g3","p0":"Spellcaster's Command (SDSC)","p1":"Master of Pendulum (SDMP)","moves":210,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,5300],"row":"SDSC","col":"SDMP","game":3}
+{"id":"sdc-SDMP-vs-SDY-g1","p0":"Master of Pendulum (SDMP)","p1":"Yugi","moves":109,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,2800],"row":"SDMP","col":"SDY","game":1}
+{"id":"sdc-SDMP-vs-SDY-g2","p0":"Master of Pendulum (SDMP)","p1":"Yugi","moves":88,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1300],"row":"SDMP","col":"SDY","game":2}
+{"id":"sdc-SDMP-vs-SDY-g3","p0":"Master of Pendulum (SDMP)","p1":"Yugi","moves":196,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1700,7000],"row":"SDMP","col":"SDY","game":3}
+{"id":"sdc-SDMP-vs-SDK-g1","p0":"Master of Pendulum (SDMP)","p1":"Kaiba","moves":112,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6900,-700],"row":"SDMP","col":"SDK","game":1}
+{"id":"sdc-SDMP-vs-SDK-g2","p0":"Master of Pendulum (SDMP)","p1":"Kaiba","moves":111,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6900,-1500],"row":"SDMP","col":"SDK","game":2}
+{"id":"sdc-SDMP-vs-SDK-g3","p0":"Master of Pendulum (SDMP)","p1":"Kaiba","moves":135,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[4800,-600],"row":"SDMP","col":"SDK","game":3}
+{"id":"sdc-SDMP-vs-SDP-g1","p0":"Master of Pendulum (SDMP)","p1":"Starter Deck: Pegasus","moves":160,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6800,-300],"row":"SDMP","col":"SDP","game":1}
+{"id":"sdc-SDMP-vs-SDP-g2","p0":"Master of Pendulum (SDMP)","p1":"Starter Deck: Pegasus","moves":203,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6200,-1500],"row":"SDMP","col":"SDP","game":2}
+{"id":"sdc-SDMP-vs-SDP-g3","p0":"Master of Pendulum (SDMP)","p1":"Starter Deck: Pegasus","moves":246,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-700],"row":"SDMP","col":"SDP","game":3}
+{"id":"sdc-SDMP-vs-SD1-g1","p0":"Master of Pendulum (SDMP)","p1":"Dragon's Roar (SD1)","moves":117,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[5800,-1300],"row":"SDMP","col":"SD1","game":1}
+{"id":"sdc-SDMP-vs-SD1-g2","p0":"Master of Pendulum (SDMP)","p1":"Dragon's Roar (SD1)","moves":189,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1300,7900],"row":"SDMP","col":"SD1","game":2}
+{"id":"sdc-SDMP-vs-SD1-g3","p0":"Master of Pendulum (SDMP)","p1":"Dragon's Roar (SD1)","moves":57,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,6700],"row":"SDMP","col":"SD1","game":3}
+{"id":"sdc-SDMP-vs-SD2-g1","p0":"Master of Pendulum (SDMP)","p1":"Zombie Madness (SD2)","moves":170,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,8000],"row":"SDMP","col":"SD2","game":1}
+{"id":"sdc-SDMP-vs-SD2-g2","p0":"Master of Pendulum (SDMP)","p1":"Zombie Madness (SD2)","moves":132,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,7900],"row":"SDMP","col":"SD2","game":2}
+{"id":"sdc-SDMP-vs-SD2-g3","p0":"Master of Pendulum (SDMP)","p1":"Zombie Madness (SD2)","moves":327,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1400,5900],"row":"SDMP","col":"SD2","game":3}
+{"id":"sdc-SDMP-vs-SD3-g1","p0":"Master of Pendulum (SDMP)","p1":"Blaze of Destruction (SD3)","moves":151,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[6300,-2100],"row":"SDMP","col":"SD3","game":1}
+{"id":"sdc-SDMP-vs-SD3-g2","p0":"Master of Pendulum (SDMP)","p1":"Blaze of Destruction (SD3)","moves":162,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-800,4700],"row":"SDMP","col":"SD3","game":2}
+{"id":"sdc-SDMP-vs-SD3-g3","p0":"Master of Pendulum (SDMP)","p1":"Blaze of Destruction (SD3)","moves":112,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-250,8000],"row":"SDMP","col":"SD3","game":3}
+{"id":"sdc-SDMP-vs-SD4-g1","p0":"Master of Pendulum (SDMP)","p1":"Fury from the Deep (SD4)","moves":113,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1900,8000],"row":"SDMP","col":"SD4","game":1}
+{"id":"sdc-SDMP-vs-SD4-g2","p0":"Master of Pendulum (SDMP)","p1":"Fury from the Deep (SD4)","moves":176,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1000,2000],"row":"SDMP","col":"SD4","game":2}
+{"id":"sdc-SDMP-vs-SD4-g3","p0":"Master of Pendulum (SDMP)","p1":"Fury from the Deep (SD4)","moves":91,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,8000],"row":"SDMP","col":"SD4","game":3}
+{"id":"sdc-SDMP-vs-SD6-g1","p0":"Master of Pendulum (SDMP)","p1":"Spellcaster's Judgment (SD6)","moves":59,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1500,8000],"row":"SDMP","col":"SD6","game":1}
+{"id":"sdc-SDMP-vs-SD6-g2","p0":"Master of Pendulum (SDMP)","p1":"Spellcaster's Judgment (SD6)","moves":88,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-600,7500],"row":"SDMP","col":"SD6","game":2}
+{"id":"sdc-SDMP-vs-SD6-g3","p0":"Master of Pendulum (SDMP)","p1":"Spellcaster's Judgment (SD6)","moves":93,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-900,8000],"row":"SDMP","col":"SD6","game":3}
+{"id":"sdc-SDMP-vs-SD10-g1","p0":"Master of Pendulum (SDMP)","p1":"Machine Re-Volt (SD10)","moves":113,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7100,0],"row":"SDMP","col":"SD10","game":1}
+{"id":"sdc-SDMP-vs-SD10-g2","p0":"Master of Pendulum (SDMP)","p1":"Machine Re-Volt (SD10)","moves":64,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7700,-1400],"row":"SDMP","col":"SD10","game":2}
+{"id":"sdc-SDMP-vs-SD10-g3","p0":"Master of Pendulum (SDMP)","p1":"Machine Re-Volt (SD10)","moves":139,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1800],"row":"SDMP","col":"SD10","game":3}
+{"id":"sdc-SDMP-vs-SDSC-g1","p0":"Master of Pendulum (SDMP)","p1":"Spellcaster's Command (SDSC)","moves":301,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[7500,-200],"row":"SDMP","col":"SDSC","game":1}
+{"id":"sdc-SDMP-vs-SDSC-g2","p0":"Master of Pendulum (SDMP)","p1":"Spellcaster's Command (SDSC)","moves":180,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[0,4700],"row":"SDMP","col":"SDSC","game":2}
+{"id":"sdc-SDMP-vs-SDSC-g3","p0":"Master of Pendulum (SDMP)","p1":"Spellcaster's Command (SDSC)","moves":217,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-1300],"row":"SDMP","col":"SDSC","game":3}
+{"id":"sdc-SDMP-vs-SDMP-g1","p0":"Master of Pendulum (SDMP)","p1":"Master of Pendulum (SDMP)","moves":299,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-300,6100],"row":"SDMP","col":"SDMP","game":1}
+{"id":"sdc-SDMP-vs-SDMP-g2","p0":"Master of Pendulum (SDMP)","p1":"Master of Pendulum (SDMP)","moves":173,"ended":true,"winner":"P0","reason":"LP reached 0","lp":[8000,-400],"row":"SDMP","col":"SDMP","game":2}
+{"id":"sdc-SDMP-vs-SDMP-g3","p0":"Master of Pendulum (SDMP)","p1":"Master of Pendulum (SDMP)","moves":79,"ended":true,"winner":"P1","reason":"LP reached 0","lp":[-1200,7500],"row":"SDMP","col":"SDMP","game":3}

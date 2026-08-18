@@ -214,10 +214,37 @@ export async function replayDuel({ seed, deckCodes, extraCodes = [[], []], respo
     if (applied >= responses.length) {
       return { core, handle, messages, pending, ended: false, applied };
     }
-    core.duelSetResponse(handle, responses[applied]);
+    core.duelSetResponse(handle, toCoreResponse(responses[applied]));
     applied++;
   }
   throw new Error(`duel did not settle within ${MAX_PROCESS_STEPS} process steps`);
+}
+
+/**
+ * Pure function. Widens a recorded response to the shape the core wants.
+ *
+ * A duel record must stay JSON, and `JSON.stringify` throws on BigInt — but the
+ * core's Race values ARE 64-bit (`OcgRace` is a bigint enum; the highest printed
+ * Race bit is 2147483648). So an ANNOUNCE_RACE answer is stored as a decimal
+ * STRING and widened back here, at the one boundary where responses meet the core.
+ * Everything else, Attributes included (`OcgAttribute` is a plain number), is
+ * already JSON-safe and passes through untouched.
+ *
+ * Args:
+ *     response (object): A response as stored in `duel.responses`.
+ *
+ * Returns:
+ *     object: The same response, with `races` entries as BigInt.
+ *
+ * Examples:
+ *     >>> toCoreResponse({type: 16, races: ["2"]})
+ *     {type: 16, races: [2n]}
+ *     >>> toCoreResponse({type: 1, index: 3})
+ *     {type: 1, index: 3}
+ */
+export function toCoreResponse(response) {
+  if (!response || !Array.isArray(response.races)) return response;
+  return { ...response, races: response.races.map(BigInt) };
 }
 
 /**
