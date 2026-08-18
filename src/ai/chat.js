@@ -188,8 +188,9 @@ export function replyText(raw) {
  *     opts.traceDir (string|undefined): Where to log the exchange.
  *
  * Returns:
- *     Promise<{posted: string|null, seenUpTo: string}>: the reply if any, and the
- *     timestamp of the newest message considered (pass back as `since`).
+ *     Promise<{posted: string|null, seenUpTo: string, record?: object}>: the reply
+ *     if any, the timestamp of the newest message considered (pass back as
+ *     `since`), and the trace record when the model was consulted.
  *
  * Examples:
  *     >>> // await replyToChat({duelId: "g1", seat: 1, provider, model, apiKey, system, since})
@@ -216,10 +217,11 @@ export async function replyToChat({ duelId, seat, provider, model, apiKey, optio
   const text = replyText(response.text);
   const posted = !text || text.startsWith(NO_REPLY) ? null : text.slice(0, MAX_REPLY_CHARS);
   if (posted) appendChat(duelId, seat, posted, now);
-  appendTrace(duelId, seat, traceRecord({
+  const record = traceRecord({
     move: null, at: now, seat, provider: provider.id, model, options, system, messages,
     response: text, reasoning: response.reasoning ?? null, usage: response.usage, latencyMs: response.latencyMs,
     choice: "", chosenLabel: posted ? `chat: ${posted}` : "chat: (no reply)", retries: 0, error: null,
-  }), traceDir);
-  return { posted, seenUpTo };
+  });
+  appendTrace(duelId, seat, record, traceDir);
+  return { posted, seenUpTo, record };
 }

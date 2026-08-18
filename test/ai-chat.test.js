@@ -513,10 +513,14 @@ test("NO_REPLY posts nothing but still advances the cursor, so a line is asked a
 
   appendChat(id, 2, "just watching", "2026-08-17T18:00:01.000Z");
   const first = await ask("2026-08-17T18:00:00.000Z", "2026-08-17T18:00:02.000Z");
-  assert.deepEqual(first, { posted: null, seenUpTo: "2026-08-17T18:00:01.000Z" });
+  // The model was consulted (a record comes back), said NO_REPLY, so nothing posted.
+  assert.equal(first.posted, null);
+  assert.equal(first.seenUpTo, "2026-08-17T18:00:01.000Z");
+  assert.equal(first.record?.chosenLabel, "chat: (no reply)");
   assert.equal(loadChat(id).length, 1, "nothing was posted");
 
   const second = await ask(first.seenUpTo, "2026-08-17T18:00:03.000Z");
+  // Nothing new: the model is not consulted at all, so no record.
   assert.deepEqual(second, { posted: null, seenUpTo: "2026-08-17T18:00:01.000Z" });
   assert.equal(provider.requests.length, 1, "the same line is never put to the model twice");
 });

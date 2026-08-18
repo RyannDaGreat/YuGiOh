@@ -104,6 +104,22 @@
   const chatMessages = $derived(view.chat ?? []);
   /** The board to draw: unmasked while debug is on, otherwise this seat's masked view. */
   const boardView = $derived(debug && debugView ? debugView.state : view.state);
+  /**
+   * A monster changing hands mid-effect. ocgcore asks the NEW controller for a
+   * destination zone before it moves the card (Snatch Steal, Change of Heart…),
+   * so until they answer the board shows the card still on the old side with the
+   * equip already attached — which reads as "the spell did nothing" unless
+   * labelled. Derived from the pending menu: "P0: Select the zone to place "X"".
+   */
+  const controlChange = $derived.by(() => {
+    const m = view.menu?.title?.match(/^P([01]): Select the zone to place "(.+)"/);
+    if (!m) return null;
+    const to = Number(m[1]);
+    const from = 1 - to;
+    const owner = view.state?.players?.[from];
+    const seq = owner?.mzone?.findIndex((c) => c && c.name === m[2]);
+    return seq === undefined || seq < 0 ? null : { player: from, seq, to };
+  });
   const unreadChat = $derived(Math.max(0, chatMessages.length - chatSeen));
   /** True while this seat owes the engine a decision — never a spectator, never during playback. */
   const myDecision = $derived(playbackAt === null && !view.ended && view.viewer !== 2 && view.pendingPlayer === view.viewer);
@@ -452,7 +468,7 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} />
+      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">

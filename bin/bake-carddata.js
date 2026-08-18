@@ -41,6 +41,46 @@ for (const name of listDecks()) {
   }
 }
 
+/**
+ * Query. The passcodes a card script can reach for at runtime: tokens it
+ * creates (`id+1`, `id+2`), and any card it names by number (`IsCode(N)`,
+ * `CreateToken(tp,N)`, `aux.*(…,N,…)`). Read from the script text, resolved
+ * against cards.cdb so ordinary numbers are ignored.
+ *
+ * Why: Hornet Drones (52340444) creates a "Sky Striker Ace Token" (52340445)
+ * that sits in no decklist, so a decklist-only bake shipped neither its data
+ * nor its script and the browser duel died mid-effect. Scripts reference other
+ * cards; the bundle has to close over that.
+ *
+ * Args:
+ *     code (number): A card whose script is in the bundle.
+ *
+ * Returns:
+ *     number[]: Passcodes referenced (may include ones already known).
+ *
+ * Examples:
+ *     >>> referencedCodes(52340444)   // [52340445]  (Hornet Drones -> its token)
+ */
+function referencedCodes(code) {
+  const path = join(SCRIPTS_SRC, "official", `c${code}.lua`);
+  if (!existsSync(path)) return [];
+  const text = readFileSync(path, "utf8");
+  const found = new Set();
+  // `id+N` / `id-N`: tokens and sibling printings are addressed relative to the card.
+  for (const m of text.matchAll(/\bid\s*([+-])\s*(\d+)\b/g)) found.add(m[1] === "+" ? code + Number(m[2]) : code - Number(m[2]));
+  // Bare 5-9 digit literals that are real passcodes.
+  for (const m of text.matchAll(/(?<![\w.])(\d{5,9})(?![\w.])/g)) found.add(Number(m[1]));
+  return [...found].filter((c) => c !== code && rowById(c) !== null);
+}
+
+// Close the deck cards over what their scripts reference, transitively.
+const queue = [...codes];
+while (queue.length) {
+  for (const ref of referencedCodes(queue.pop())) {
+    if (!codes.has(ref)) { codes.add(ref); queue.push(ref); }
+  }
+}
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(join(OUT, "scripts"), { recursive: true });
 

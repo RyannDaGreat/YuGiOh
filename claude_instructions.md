@@ -38,8 +38,9 @@ browser, or subagent vs subagent — with:
   "user"), format ("classic"|"goat"), main:[[cardName,count]…], extra?, side?, manual}`. Fusion/
   Synchro/Xyz/Link monsters (Extra-Deck types, `cards.isExtraDeckCard`) MUST be in `extra`, never
   `main`; the core keeps them in `OcgLocation.EXTRA`. `goat` main is 40–60, extra/side ≤ 15; a
-  `goat` duel builds under `OcgDuelMode.MODE_GOAT` (else MODE_MR5). Both decks of a duel share one
-  format (`store.sharedFormat`). A deck's identity is its FILE NAME, never its card contents —
+  `goat` duel builds under `OcgDuelMode.MODE_GOAT` (else MODE_MR5). A duel is ONE ruleset, so a mixed
+  pair is resolved rather than refused: `store.sharedFormat` picks `goat` only when BOTH decks are
+  GOAT, else classic, which can host either. A deck's identity is its FILE NAME, never its card contents —
   same cards + different name/manual = two distinct decks; nothing dedupes by content. Legacy
   `{name, main}` files still load (defaults user / classic / empty). See the `deck-schema` binding.
 - **times / atTime** — `times[i]` is the ISO wall-clock at which `responses[i]` was recorded. It is
@@ -81,6 +82,50 @@ browser, or subagent vs subagent — with:
   `web/data/sleeves.json`.
 - **playback / scrubber** — view the record at any move (`--at`, slider); **fork** = copy the record
   truncated at a move to branch from it.
+- **Node host / static host** — the two builds of one codebase (§19). *Node host*: `adapter-node`,
+  pages talk to `/api/*`, the engine runs server-side, state is real files under the repo. *Static
+  host*: `adapter-static` on GitHub Pages — no server at all, the engine runs IN the browser tab
+  against the browser's own filesystem and a baked card bundle. `web/src/lib/host.js`'s `STATIC` is
+  the only place the build flag is read.
+- **volume** — the app's state filesystem behind ONE synchronous interface (`src/volume.js`): the six
+  calls `store`/`chat`/`presence`/`seats`/`traces` actually use. Backends: `volume-node.js` (real
+  `node:fs`), `volume-browser.js` (OPFS, IndexedDB fallback, hydrated into memory at boot),
+  `memoryVolume` (tests). Everything that persists goes through it, which is what lets identical game
+  logic run on both hosts. `writerId()` names the writer — pid under Node, a per-page random id in a
+  browser, where there is no pid.
+- **card source** — the card database behind one synchronous interface (`src/cardsource.js`), the twin
+  of volume: `cardsource-node.js` reads `cards.cdb` through `node:sqlite`; `cardsource-browser.js`
+  fetches the baked bundle over HTTP into memory before any duel starts. `cards.js`'s public API is
+  identical either way.
+- **bake** — `bin/bake-carddata.js`: reduce the 250 MB vendor tree to exactly what the built-in decks
+  reference (584 cards, 25 shared + 505 card scripts, `strings.conf`, a script index, the deck seed)
+  and COMMIT it under `web/static/carddata/`. Re-bake whenever a deck gains a card.
+- **assets branch** — the orphan git branch `assets` holding full-resolution `pics/` and `boxart/`,
+  published by `bin/publish-assets.sh` through the gitignored `.assets/` worktree and loaded by URL.
+  Big binaries never enter `main` (§25).
+- **AI seat / seats sidecar** — a seat played by an LLM (§24). Who sits where is
+  `duels/<id>.seats.json` (`src/ai/seats.js`) — a sidecar beside the record like chat, never inside
+  it: `{0: Seat, 1: Seat}` where `Seat = {kind:"human"} | {kind:"ai", provider, model, options, talk}`.
+  A missing seat is human.
+- **trace** — one record per LLM call (`src/ai/trace.js`), in `duels/.traces/<id>.<seat>.json`. It is
+  ANNOTATION, never state: delete every trace and every duel still replays byte-identically. This is
+  what the duel page's "view LLM log" renders.
+- **frozen prefix** — the system prompt of an AI seat: player guide, deck manuals and both decklists,
+  built ONCE per duel and byte-identical for its whole length, which is what makes provider prompt
+  caching hit. Nothing per-turn may ever be interpolated into it.
+- **context strategy** — what an LLM seat is shown each decision (`src/ai/context.js`): `state-only`
+  (the default — the whole board is re-printed every turn anyway, so the message is the current state
+  plus the log delta since this seat's last move; cost is FLAT in move number and cannot run out of
+  context) or `full-history` (a growing transcript, for debugging and short matches).
+- **talk level** — how talkative an AI seat is: `quiet` (answers only lines that name it) /
+  `sporting` (the default; answers people, never another AI) / `chatty` (may also trade the odd line
+  with another AI, on a long cooldown). `TALK_LEVELS`, `src/ai/chat.js`.
+- **hush** — a person asking the table for quiet ("stop talking", "shut up"). `isHush` makes it a hard
+  rule rather than model judgement: both AIs go silent for the rest of the duel except for lines that
+  name them, and the hush itself is never answered.
+- **addressee** — whom a chat line is aimed at, decided from the names it contains (seat label, `P0`/
+  `P1`, deck name): `me`, `other`, or `all`. An unaddressed line is answered by ONE AI — the seat to
+  move, or the only AI at the table — so a spectator's "hey" is never answered in stereo.
 - **frenzy / autopilot / bulldog / SHUT UP** — user's CLAUDE.md terms: parallel agents; never wait
   on the user (60 s question timeout, log decisions in `.claude_autopilot.md`); never let go; stop
   everything immediately.
@@ -134,6 +179,34 @@ browser, or subagent vs subagent — with:
 - `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
   `web/src/lib/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
   `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
+
+- `provider-catalog` — `PROVIDER_CATALOG` is DATA and every consumer renders from it, so a new
+  provider/model/option is a one-file change: `src/ai/provider.js` (the table itself, plus
+  `defaultModel`/`defaultOptions` which read the provider, never the table by id) ↔ each adapter
+  (`src/ai/anthropic.js`, `openai.js`, `gemini.js` each import their own `CATALOG` entry for endpoint,
+  models and option names) ↔ `src/ai/catalog.js` / `index.js` (what a UI may import) ↔
+  `web/src/lib/pretty/SeatPicker.svelte` (provider/model/option dropdowns), `AiKeysModal.svelte` (one
+  row per provider), `AiRunner.svelte` (provider labels) ↔ `web/src/lib/keys.js` (one storage entry
+  per provider id) ↔ `test/ai.test.js` ("PROVIDER_CATALOG is self-consistent, so a UI can render it
+  blind"). Option NAMES are each provider's native parameter name and are deliberately not unified.
+- `seats-sidecar` — the seat-assignment file, kept in step across: `src/store.js` (`SEATS_SUFFIX`, and
+  `listDuels` which must exclude it or a duel called "<id>.seats" appears) ↔ `src/ai/seats.js`
+  (`seatsPath`/`loadSeats`/`saveSeats`, the Seat shape) ↔ `web/src/lib/api.js` (`getSeats`/`setSeats`)
+  ↔ `web/src/routes/api/duel/[id]/seats/+server.js` (Node host only) ↔
+  `web/src/routes/duel/[id]/+page.js` (loads seats with the duel) ↔ `+page.svelte` and
+  `web/src/lib/pretty/SeatPicker.svelte` / `AiRunner.svelte` ↔ §2's "AI seat / seats sidecar".
+- `talk-levels` — the talk levels and what each one may answer: `src/ai/chat.js` (`TALK_LEVELS`,
+  `DEFAULT_TALK`, `chatPrompt`'s per-level mood line) ↔ `src/ai/player.js` (`answerChat`, which is
+  where a level turns into whom-to-answer-now) ↔ `web/src/lib/pretty/SeatPicker.svelte` (the Talk
+  dropdown AND its tooltip, which states the rules in words) ↔ `test/ai-chat.test.js` ↔ §2's "talk
+  level" / "hush" / "addressee" entries. The tooltip is prose describing behaviour: change the levels
+  and it lies.
+- `asset-urls` — where card and box art come from: `web/src/lib/assets.js` (`ASSETS` — the only place
+  either host's prefix is decided) ↔ `bin/publish-assets.sh` (the branch's `pics/<passcode>.jpg` and
+  `boxart/<file>` layout) ↔ `web/src/lib/pretty/CardArt.svelte` / `DeckThumb.svelte` (the only
+  `<img>` sources) ↔ `web/src/routes/pics/[code]/+server.js` and `boxart/[code]/+server.js` (the Node
+  host's own copies, served from `vendor/`) ↔ §25. The file NAME rule lives in the `deck-schema`
+  binding (`store.boxArtFile`).
 
 ## 4. User requirements — verbatim (this session, 2026-08-16)
 
@@ -232,7 +305,8 @@ bin/ygo.js         CLI: new state log prompt menu wait play undo fork list tally
                    brief chat export import dump-cards fetch-pics fetch-boxart  (surface in §20)
 bin/serve.sh       web dev server (LAN, port 5178)   runserver.sh  interactive host Claude (HOST.md)
 bin/host-loop.sh   optional "your turn / new chat" notifier for the host's shell; never plays a move
-bin/build-static.sh, bin/bake-carddata.js, bin/bake-pics.js   the static GitHub Pages build (§19)
+bin/build-static.sh, bin/bake-carddata.js   the static GitHub Pages build (§19)
+bin/publish-assets.sh   full-resolution card + box art -> the orphan `assets` branch (§25)
 src/duel.js        ocgcore-wasm wrapper; replayDuel({seed, deckCodes, extraCodes, responses, format});
                    goat->MODE_GOAT else MR5; extra cards -> EXTRA; expandDeck/Extra/Side; autoResponse
                    (declines empty chain windows); WIN terminal; RETRY = error
@@ -245,21 +319,28 @@ src/cards.js       card decode/search/summaries (host-independent)     src/strin
 src/volume.js      the state filesystem, one interface (§19)   volume-node.js real fs | volume-browser.js OPFS
 src/cardsource.js  the card database, one interface (§19)      cardsource-node.js cards.cdb | -browser.js baked bundle
 src/archive.js     whole-state export/import (duels + chat logs + decks) as one portable JSON
+src/ai/            LLM seats (§24): provider.js (interface + PROVIDER_CATALOG) with anthropic/
+                   openai/gemini adapters, context.js (what a model sees), player.js (playSeat/
+                   playMove), chat.js (table talk, talk levels), trace.js (LLM log), seats.js
 src/rng.js         seeded shuffle             src/decks/*.json  40 decks: 11 structure + 29 curated (deck-schema)
 web/               SvelteKit; routes: / (history), /duel/[id] (table), /decks + /decks/[id] (browser),
-                   /api/{home,duel/[id](+/chat),card,decks,decks/[id],sleeves,archive},
+                   /api/{home,duel/[id](+/chat,/seats),card,decks,decks/[id],sleeves,archive},
                    /pics/[code], /boxart/[code], /nexus-sfx/[file]   (the /api routes exist on the Node host only)
-web/src/lib        api.js (the one seam, §19), host.js (STATIC flag), boot.js (browser boot), engine.js, sleeves.js
-web/src/lib/pretty  Table, Card, Preview, PileModal, sound.js, nexus-map.js
+web/src/lib        api.js (the one seam, §19), host.js (STATIC flag), boot.js (browser boot), engine.js,
+                   sleeves.js, keys.js (API keys, this browser only), assets.js (ASSETS, §25)
+web/src/lib/pretty  Table, Card, Preview, PileModal, DeckThumb, sound.js, nexus-map.js, and the AI
+                    seat UI (§24): SeatPicker, AiKeysModal, AiRunner, TraceViewer
 web/static          sfx (CC0), img (card back, sleeves), ASSET-LICENSES.md,
-                    carddata/ + pics/ + boxart/ (baked by bin/bake-*.js, COMMITTED — that is what §19 ships)
+                    carddata/ (baked by bin/bake-carddata.js, COMMITTED — that is what §19 ships).
+                    Card art and box art are NOT here: they live on the `assets` branch (§25)
 .github/workflows/pages.yml   runs bin/build-static.sh on push to main -> ryanndagreat.github.io/YuGiOh
 vendor/ (gitignored, setup.sh) CardScripts, BabelCDB, strings.conf, pics/, boxart/, cards.txt, nexus/{sfx,fx}
 docs/               ux surveys (open-source + official clients), Nexus FX catalogue, response-prompt design,
                     features.md, and the deck research (goat-decks, decks-structure-products, -character, -archetypes)
 reports/            structure_decks_haiku_competition (§13)
 test/               consistency (model vs masked core + leak detection), menu, events, chat, times, decks,
-                    archive, announce-race, confirm-cards-privacy, pendulum-labels, pendulum-summon-window
+                    archive, announce-race, confirm-cards-privacy, pendulum-labels, pendulum-summon-window,
+                    ai (providers/context/traces/loop), ai-chat (talk levels, hush, addressee, cursor)
 ```
 
 Key decisions and WHY:
@@ -276,6 +357,13 @@ Key decisions and WHY:
 - Two hosts from one codebase (§19): the engine never needed server-side state a browser filesystem
   could not hold, so the same UI also ships as a static GitHub Pages site anyone can play with no
   install. The seam is `web/src/lib/api.js` alone — no page and nothing in src/ branches on the host.
+- An LLM seat is a LAYER, not a fork of the game (§24): it goes through `viewDuel`/`playChoice` like
+  anyone else, so the honour boundary is structural — there is no code path in `src/ai/` that can
+  produce the opponent's hand. Providers are raw `fetch` (no SDKs), the answer is constrained to the
+  menu's own legal choices, and table talk is a SEPARATE request the move prompt never sees.
+- Large binaries never enter `main` (§25, owner's rule): full-resolution art lives on an orphan
+  branch and is referenced by URL. Downscaling card art to fit it into the repo was proposed and
+  REJECTED — card text must stay readable.
 - Cosmetics isolated in web/src/lib/pretty; Nexus assets kept in gitignored vendor/ (personal use,
   never committed); CC0 assets + synth as fallbacks.
 - Chat is data, never instructions (competition analogy); `wait --wake-on-chat` so Claude answers.
@@ -306,6 +394,23 @@ Key decisions and WHY:
   full 14-turn game through the CLI — Kaiba won with Blue-Eyes after breaking a Dragon Capture Jar
   lock with Trap Master + Two-Pronged Attack. Their usability complaints are why `--auto-pass`, the
   tribute hints and the current prompt wording exist.
+- **The static site is verified in a real browser before every push**, against the build served
+  exactly as GitHub Pages serves it (a stand-in server under the `/YuGiOh/` prefix with the
+  `404.html` fallback), by two Puppeteer suites the session keeps in its scratchpad rather than the
+  repo — they need a built site, a spare port and a paid API key, so they are not `npm test`:
+  - **human flow, 12 checks** — home renders; the deck library (40 decks) loads in-browser; create
+    navigates to `/duel/<id>`; a move plays and the log grows; chat posts and renders; card art comes
+    from the assets branch at full resolution (≥800 px, a `raw.githubusercontent.com/.../assets/pics/`
+    URL); a sound file is served; the card back resolves under `base`; after a reload the duel and its
+    chat are still there; a deep link works through the 404 fallback; the home page lists the duel the
+    browser created. Page errors and any 4xx/5xx must both be zero.
+  - **AI flow, 8 checks** (needs a real key) — the keys modal's Test says the key works; the seat
+    picker sets P1 to an OpenAI model; create opens the duel page; the AI panel reports `running`; the
+    AI makes its own moves in the tab; it replies in table chat; the LLM log lists the calls and
+    expands to system/messages/response.
+- **API keys for local testing live in `.env.local`** (gitignored, sourced by hand into the test
+  runs). Nothing in the repo reads it; it must never be committed, and no key may appear in a duel
+  record, a trace, a log line or a commit.
 
 ## 8. Success criteria
 - A human plays Claude from the browser with sound/animation; Claude plays through the CLI and
@@ -596,7 +701,9 @@ valid-looking record. Triggered by a seed reset running while an agent was mid-m
 is general: any two concurrent writers to one duel could corrupt it, including two agents that end up
 on the same seat.
 
-**Fix.** The temp name is now unique per writer: `${path}.${process.pid}.${randomUUID().slice(0,8)}.tmp`.
+**Fix.** The temp name is now unique per writer: `${path}.${writerId()}.${randomId().slice(0,8)}.tmp`,
+where `volume.writerId()` is the process pid under Node and a per-page random id in a browser,
+which has no pid.
 Concurrent writers become last-one-wins instead of corrupting. Operationally: **stop the writers
 before rewriting their data** — reseed with the driver stopped.
 
@@ -696,7 +803,9 @@ the callers (`store.js`, `chat.js`, `presence.js`) are sync, and the WASM core c
 `cardReader`/`scriptReader` re-entrantly from inside a duel step and cannot await, so neither
 interface may become async.
 - `src/volume.js` — the app's state filesystem as the six sync calls its callers use, plus
-  `memoryVolume` (also what the tests run on), `join`, `randomId`. `volume-node.js` installs
+  `memoryVolume` (also what the tests run on), `join`, `randomId`, `writerId` (pid under Node, a
+  per-page random id in a browser — `saveDuel` puts it in its temp-file name so two writers cannot
+  interleave, §16). `volume-node.js` installs
   `node:fs` on import; `volume-browser.js` hydrates the whole tree from OPFS into memory once
   (state is well under a megabyte), serves reads from memory, and writes through with a debounced,
   diffed flush; IndexedDB holds the same snapshot where OPFS is missing. A missing volume throws
@@ -712,15 +821,18 @@ interface may become async.
 
 **The bake — committed on purpose.**
 - `bin/bake-carddata.js` -> `web/static/carddata/`: `cards.json` (every field `cards.js` reads, for
-  the 584 passcodes the 40 built-in decks reference — including `setcode` and the 16 per-card script
-  strings; `cardsource-browser.js`'s docstring still lists those two as gaps, so trust the bundle,
-  not that note), `scripts/*.lua` (505 card scripts + 25 shared libraries), `strings.conf`,
-  `manifest.json`, `decks-seed.json`. Two orders of magnitude smaller than the 250 MB vendor tree.
-- `bin/bake-pics.js` -> `web/static/pics/` (YGOPRODeck art, resized to 280 px long side at JPEG
-  quality 62: 82.8 MB -> 11.0 MB for 584 cards) and `web/static/boxart/` (Yugipedia product boxes,
-  capped at 400 px, never upscaled), each with a `manifest.json` and a `NOTICE.md`.
-- **Re-run both whenever a deck gains a card, and commit the output** — otherwise the static site is
+  the 584 passcodes the 40 built-in decks reference — including `setcode`, without which no archetype
+  check matches, and the per-card script strings), `scripts/*.lua` (505 card scripts + 25 shared
+  libraries), `strings.conf`, `manifest.json`, `decks-seed.json`. 1.9 MB — two orders of magnitude
+  smaller than the 250 MB vendor tree.
+- `manifest.json` is the SCRIPT INDEX as well as a receipt. A static host has no directory listing, so
+  the browser fetches exactly the files named there and nothing else; 79 of the 584 cards are vanillas
+  with no script at all and must never be requested. Its counts (`cards`, `sharedScripts`,
+  `cardScripts`, `vanillaCards`, `seededDecks`) are cross-checked at boot, so a stale bake fails
+  loudly at startup instead of as an inexplicable Lua error mid-duel.
+- **Re-run it whenever a deck gains a card, and commit the output** — otherwise the static site is
   missing a card the Node host has, which is invisible until someone plays that deck in the browser.
+  Card ART is not baked: it lives on the `assets` branch (§25), published separately.
 
 **Static-host details that bite.** Base path `/YuGiOh` (`VITE_BASE` overrides it; a custom domain
 would make it ""), so every URL is built from SvelteKit's `base`. `adapterStatic({fallback:
@@ -839,10 +951,11 @@ files named below.
   in `setup.sh` and licensed **AGPL-3.0** (`vendor/CardScripts/COPYING`). `strings.conf` comes from
   Project Ignis `Distribution` at a pinned commit.
 - **Card art**: YGOPRODeck. Their terms forbid hotlinking their CDN and require self-hosting any
-  cached copy — which is why `vendor/pics/` (gitignored) and the re-encoded, committed
-  `web/static/pics/` exist. Provenance: `web/static/pics/NOTICE.md`.
+  cached copy — which is why the Node host serves the gitignored `vendor/pics/` and the static host
+  loads our own copy from the orphan `assets` branch (§25). Neither hotlinks YGOPRODeck.
 - **Box art**: official product scans from Yugipedia (`ms.yugipedia.com`), per each structure deck's
-  `boxArt` field. Provenance: `web/static/boxart/NOTICE.md`.
+  `boxArt` field; same two homes as the card art.
+- Provenance for both lives in the `assets` branch's `README.md`, written by `bin/publish-assets.sh`.
 - **Sounds and images we ship**: CC0 (Kenney, Fupi, PWL, Cethiel, Dumivid), except the two
   `classic-*` sleeves, which are CC-BY 3.0 and REQUIRE crediting jeffshee. Every file, its source,
   author, licence and any modification is listed in `web/static/ASSET-LICENSES.md`, which is also
@@ -851,3 +964,138 @@ files named below.
 - **Dueling Nexus duel-client cues**: fetched by `bin/fetch-nexus-sfx.sh` into gitignored `vendor/`
   for personal use only. They are NEVER committed and the UI must stay fully playable without them —
   the CC0 files plus the synth cover every cue.
+
+## 24. The AI player layer — LLM seats (added 2026-08-17)
+
+**What it is.** `src/ai/` lets a model sit a seat and play it. It is a LAYER, not a variant of the
+game: every decision goes through `viewDuel(duel, seat)` and `playChoice`, exactly like a human in
+the browser or an agent on the CLI, so the record a model produces is an ordinary duel record. It
+imports nothing from `node:*`, so the same code runs in a script or in a browser tab.
+
+**Files.**
+
+    src/ai/provider.js    the MoveProvider interface + PROVIDER_CATALOG (models and each provider's
+                          own thinking knobs, as DATA), legalChoices/decisionSchema/answerInstruction,
+                          parseDecision, postJson, usageOf
+    src/ai/anthropic.js   the three adapters. Each self-registers on import, exposes listModels /
+    src/ai/openai.js      chooseMove / verifyKey, and reads its own PROVIDER_CATALOG entry.
+    src/ai/gemini.js
+    src/ai/context.js     ContextStrategy: what the model is shown (frozenSystem, turnBlock,
+                          StateOnlyStrategy | FullHistoryStrategy, STRATEGIES/makeStrategy)
+    src/ai/player.js      playMove (one decision) and playSeat (the loop)
+    src/ai/chat.js        table talk: TALK_LEVELS, isHush, addressee, chatPrompt, replyToChat
+    src/ai/trace.js       the LLM log: tracePath/traceRecord/appendTrace/loadTrace/summarizeTrace
+    src/ai/seats.js       the seats sidecar
+    src/ai/catalog.js     engine-free entry point: adapters + catalog ONLY, so a page can render
+                          provider controls and test a key without bundling ocgcore-wasm
+    src/ai/index.js       the full entry point: catalog + playSeat/playMove + traces + strategies
+
+**No SDKs, on purpose.** Every adapter is plain `fetch`. The official SDKs all ship a
+`dangerouslyAllowBrowser` guard a static page has to switch off anyway, and the only thing that flag
+actually puts on the wire is one Anthropic header — `anthropic-dangerous-direct-browser-access: true`,
+which we send ourselves and which Anthropic's CORS REQUIRES from a browser. So the SDKs would be pure
+bundle weight.
+
+**The choice contract.** The engine enumerates only legal answers, so a model's whole decision surface
+is "which numbered option". That is small enough to CONSTRAIN rather than parse: for a single-pick
+menu, `legalChoices` hands the adapter the exact list of legal strings and each provider's own
+structured-output mechanism (OpenAI `text.format` json_schema, Gemini `responseSchema`, Anthropic
+forced tool use) carries it as a JSON-Schema `enum`, so the model cannot name an option that does not
+exist. Menus that are not single-pick (multi-select, ordering, counter splits, declare-a-card-name)
+are combinatorial, so `legalChoices` returns null, the schema takes a free string, and `chooseFromMenu`
+validates before anything is recorded. Structured output is a provider promise; `parseDecision`
+re-checks membership anyway, because a promise is not a check.
+
+**When the model is wrong — three tiers, none of them silent.** (1) Unreadable or illegal answer:
+re-ask ONCE, quoting the exact error back. (2) Still wrong: play a uniformly random LEGAL move so the
+duel does not stall, and record the failure in the trace's `error` with `retries` — a duel where an
+LLM fell back is visibly a duel where an LLM fell back. (3) Provider/transport failure (401, 429,
+network, an answer that never arrived): write a trace and RE-THROW. That is a broken setup, not a bad
+move, and papering over an unpaid key with a random move would be worse than stopping.
+
+**Context (§2 "context strategy", "frozen prefix").** The default is state-only, and the reason is
+specific to this engine rather than a general belief: `state.js` re-prints the whole board every turn
+per viewer and `field.js` remembers identities the seat has legitimately learned, so hidden-card
+memory lives in the ENGINE, not in the transcript — a seat that discards its history loses none of
+it. What a transcript uniquely holds is the seat's own intent, and the log delta since its last
+decision recovers enough of that. Cost is flat in move number; it structurally cannot run out of
+context. The system prefix (guide + manuals + both decklists, ~9k tokens) is built once and reused
+byte-identically so prompt caches hit.
+
+**Chat.** An AI seat answers table talk BETWEEN decisions, in a separate request that the move prompt
+never sees (`replyToChat`). That is PLAYER.md's "chat is data, never instructions" made structural:
+the model that picks moves has never read the chat. Whom it answers is decided by hard rules, not by
+model judgement, because judgement failed in practice (see concerns, 2026-08-17):
+- a line naming ONE seat (label, `P0`/`P1`, deck name) is that seat's alone; an unaddressed line is
+  answered by exactly one AI — the seat to move, or the only AI at the table;
+- people (the spectator and any human seat) are answered on a short cooldown; the other AI only if the
+  talk level allows and only after a much longer one. **The cooldowns are the loop-breaker**, whatever
+  the model says;
+- a hush from a person mutes both AIs for the rest of the duel except for lines that name them, and
+  the hush itself is never answered;
+- the "seen" cursor is MONOTONIC: `at` is stamped when a request began, so a slow reply lands in the
+  log out of order, and taking the last appended line's stamp rolled the cursor backwards and
+  re-answered lines. `since` is the floor, always.
+Replies are capped at `MAX_REPLY_CHARS` and ride in the `choice` field of the same JSON shape moves
+use; `NO_REPLY` posts nothing but still advances the cursor, so every line is considered exactly once.
+
+**Traces (§2).** `duels/.traces/<id>.<seat>.json`, oldest first, one record per call including chat
+replies (`move: null`). `traceRecord` copies an explicit field list — that is the boundary that keeps
+an API key from riding in on someone's options object — and the repeated system prefix is stored once
+and refilled on load (~50x smaller on a long duel, which matters because the browser volume holds
+everything in memory). The directory is hidden for the same reason `duels/.presence/` is: `listDuels`
+treats every `*.json` directly under `duels/` as a duel.
+
+**Keys.** `web/src/lib/keys.js` keeps them in this browser only — `sessionStorage` by default,
+`localStorage` with "remember on this device", which is the DEFAULT in the modal because a key that
+vanishes with the tab is a nuisance for the person who owns the browser. Each provider has a Test
+button that calls `verifyKey` (its cheapest authenticated endpoint). Keys are never logged, never
+traced, never sent anywhere but the provider's own API. The inputs are deliberately NOT
+`type="password"`: see concerns, the password-manager incident.
+
+**The UI.** `SeatPicker.svelte` (Human / AI, provider + model + provider-native options + Talk,
+rendered entirely from `PROVIDER_CATALOG`, with a gear to the keys modal and a red warning when that
+provider has no key) on the new-duel form; `AiKeysModal.svelte`; `AiRunner.svelte` and
+`TraceViewer.svelte` on the duel page. Seat assignments are saved to the sidecar right after the duel
+is created, and the form then opens the human's seat — or the spectator view for an AI-vs-AI game.
+
+**Running a seat, per host.** On the STATIC host `AiRunner` runs each AI seat as a `playSeat` loop in
+the tab: it starts on open (that is what "this seat is an AI" means), with Stop/Start, a status pill,
+the move count and last decision, and "view LLM log". A provider error no longer kills the game — the
+error stays visible and the seat resumes after 15 s, up to 20 times, reset by any successful move and
+cancelled by Stop. That matters more than it sounds: **the engine waits for whichever seat is
+pending**, so a crashed AI seat freezes the board mid-effect for everyone (see the Snatch Steal
+diagnosis in concerns). On the NODE host the panel says AI seats are driven from the CLI, which is how
+they already work there: `ygo brief <id> --as <seat>` prints the prompt an agent plays from.
+
+**Tests.** `test/ai.test.js` (21) covers the choice contract, the catalog's self-consistency, both
+context strategies, trace round-tripping and key exclusion, and the loop against a scripted provider —
+including that an off-menu answer is re-asked once then falls back loudly, that a provider failure is
+re-thrown rather than papered over, and that `playSeat` waits for the other seat instead of moving for
+it. `test/ai-chat.test.js` (16) covers the talk levels under a provider that never shuts up, cooldown
+accounting, hush, addressee, the monotonic cursor, and that chat text never reaches a move prompt.
+Both run against a fake provider — no key, no network.
+
+## 25. The assets branch — big binaries never enter `main` (added 2026-08-17)
+
+**REQUIREMENT (owner's rule).** Never commit large binaries to `main`, and never commit downscaled or
+re-encoded card art anywhere: **card text must stay readable**. A plan to re-encode the 584 images to
+280 px JPEG (82.8 MB -> 11.0 MB) so they would fit in the repo was implemented and then REJECTED by
+the owner; the history is in concerns.md. The result is this section.
+
+- `bin/publish-assets.sh` publishes `vendor/pics/*.jpg` and `vendor/boxart/*` to the ORPHAN branch
+  `assets`, through a worktree at `.assets/` (gitignored — it is a second checkout of the repo).
+  Idempotent: the branch's contents are replaced wholesale so deletions propagate, and only a real
+  change produces a commit. It also writes that branch's `README.md`, which carries the Konami /
+  YGOPRODeck / Yugipedia attribution (§23).
+- Layout on the branch: `pics/<passcode>.jpg`, `boxart/<setCode>.<ext>`.
+- `web/src/lib/assets.js` exports `ASSETS`, the ONE prefix every card/box-art `<img>` is built from:
+  `https://raw.githubusercontent.com/RyannDaGreat/YuGiOh/assets` on the static host (overridable with
+  `VITE_ASSETS_URL` for a fork, a mirror or a CDN), SvelteKit's `base` on the Node host, where
+  `/pics/[code]` and `/boxart/[code]` still serve `vendor/` exactly as before.
+- **Raw GitHub is a plain file server**, so it cannot try `.png` then `.jpg` the way the Node route
+  can: the deck payload carries the box art's file NAME with extension (`store.boxArtFile`, the
+  `deck-schema` binding), and there is no `onerror` extension-guessing anywhere.
+- Re-run it whenever a deck gains a card: `ygo fetch-pics` (and `fetch-boxart`) first, then
+  `bin/publish-assets.sh`. The static site's card art is only as complete as the last push of that
+  branch, and a missing image is invisible until someone plays that deck in the browser.

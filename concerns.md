@@ -525,3 +525,196 @@ thing to distrust — but here it was a WINNING agent's explanation that exposed
 described a capability it should not have had. Read agent self-reports for claims about the
 ENVIRONMENT, not just about play; those are checkable, and when one is impossible it is a bug
 report.
+
+## 2026-08-17 — the static site, the AI player layer, and everything that broke on the way
+
+One session took the repo from "a Node server on the LAN" to "a public site anyone can open, with
+LLM seats you can play against in your own tab". Commits `81b3e05` (volume), `d70938c` (bake),
+`fc97f2c` (two hosts), `49d6438` (AI UI), `f2df579` (talk levels, keys, box art), `0d00afd`
+(addressing, hush, provider errors). What follows is what went wrong, in the order it hurt.
+
+### Two AIs answered each other forever
+
+**What happened.** With both seats on models and the default "answer the table" behaviour, one
+spectator "hey" produced roughly twenty rounds of dragon bravado. Each reply was a new chat line, and
+a new chat line is exactly what makes an AI seat reply.
+
+**Root cause.** `replyToChat` answered everything it had not seen, and every seat's own reply was
+something the OTHER seat had not seen. There is no fixed point in that loop: it is not a prompt
+problem, it is a topology problem, and telling the model "do not reply just to keep a conversation
+going" only lengthens the cycle.
+
+**Fix.** Two mechanisms, both structural. `replyToChat` now answers only the seats it is TOLD to
+(`replyTo`), and `playSeat` decides that list per poll from the seat's talk level: people
+(spectator + human seats) on a short cooldown, the other AI only at `chatty` and only after 120 s.
+The cooldowns are the loop-breaker whatever the model says; the prompt's `NO_REPLY` preference is a
+nicety on top.
+
+**Lesson.** When two agents can each trigger the other, do not fix it in the prompt. Rate-limit the
+edge.
+
+### The seen-cursor could roll backwards (found by an adversarial test agent)
+
+**What happened.** While writing `test/ai-chat.test.js` against a provider that never shuts up, the
+test agent found that a line could be answered TWICE — the exact guarantee the cooldowns are built on.
+
+**Root cause.** The cursor took the last APPENDED line's `at`. But a reply is stamped with the time
+its REQUEST began, so a slow model's line lands in the log after — and stamped before — everything
+said while it was thinking. Taking the last entry's stamp therefore moved the cursor backwards, and
+messages in that window came round again.
+
+**Fix.** The cursor is a max over every line considered, floored at the previous `since`: monotonic by
+construction. Pinned by "the chat cursor only moves forward, so a slow reply cannot re-expose a line".
+
+**Lesson.** An append-ordered log whose timestamps are stamped at request time is NOT sorted by time.
+Any cursor over it must be monotonic explicitly.
+
+### "STOP TALKING" got replies
+
+**What happened.** A spectator asked one player a question and both answered. A spectator then told
+them to stop talking, and both replied to that too.
+
+**Root cause.** Both behaviours were left to model judgement, which is the wrong tool: "was this meant
+for me" and "am I being asked to be quiet" are questions with hard answers, and a model that answers
+them slightly wrong is indistinguishable from a model that is ignoring you.
+
+**Fix.** `addressee()` and `isHush()` in `src/ai/chat.js`, applied as filters in `playSeat` BEFORE any
+request is made. A line naming one seat (label, `P0`/`P1`, deck name) belongs to that seat; an
+unaddressed line goes to exactly one AI — the seat to move, or the only AI at the table; a hush from a
+person mutes both AIs for the rest of the duel except for lines that name them, and is itself never
+answered. Talk levels tightened at the same time: `sporting` (the default) never talks to another AI
+at all — that is what looped — and only `chatty` may, on a two-minute clock. The prompt also NAMES the
+other player so the model's own judgement lines up with the filter instead of fighting it.
+
+**Lesson.** A social rule the user can state in one sentence ("stop talking") deserves a hard filter,
+not a prompt sentence. Prompts express preferences; filters express guarantees.
+
+### gpt-5-nano returned nothing, and the board "showed Snatch Steal on the wrong side"
+
+**What happened.** The owner reported a duel frozen with Snatch Steal equipped to a monster still
+sitting on its original controller's side. That looks exactly like a rules bug, and it was not.
+
+**Root cause, part one.** `gpt-5-nano` spent its entire 8k output budget reasoning and returned
+`status: "incomplete", incomplete_details.reason: "max_output_tokens"` with no assistant message. Not
+a context problem — the input is flat by design — an OUTPUT budget problem, which reads as the same
+error if you do not check which side ran out.
+
+**Root cause, part two.** That error threw out of `playSeat` and killed the runner. The engine then
+sat waiting for the crashed seat, and what it was waiting FOR was a zone: Snatch Steal's effect had
+resolved and the core had asked the new controller to pick a monster zone for the stolen card. The
+"wrong side" was a half-applied effect frozen at a `SELECT_PLACE` prompt. Reproduced end to end —
+activation, equip, `SELECT_PLACE` to the new controller, move — which is what turned a suspected
+rules bug into a runner bug.
+
+**Fix.** The OpenAI adapter retries once with four times the output room (ceiling 32k) when and only
+when the response is `incomplete: max_output_tokens` with no message. And `AiRunner` no longer dies on
+a provider error: it shows it, waits 15 s and resumes, up to 20 times, reset by any successful move
+and cancelled by Stop.
+
+**Lesson.** In a turn-based engine, an AI seat that crashes does not fail politely in its own corner —
+it freezes the shared board mid-effect, and the symptom surfaces as a RULES complaint from whoever is
+watching. Treat "the board looks illegal" as a possible liveness failure before doubting the core.
+
+### Two Svelte 5 lessons, both learned the hard way
+
+**`state_unsafe_mutation`.** `AiRunner` created each seat's run record lazily, from the template, on
+first touch. Svelte 5 forbids creating state during render, so the panel threw and took itself down
+whenever a seat was rendered. Fixed by creating both seats' records eagerly in `blankRun()`. Lesson:
+in Svelte 5, state is created in the script, never in the template.
+
+**An `$effect` that ate every keystroke.** The keys modal seeded its draft fields in an `$effect` that
+read `draft` — so it re-ran on every keystroke and re-seeded the field from storage, wiping what was
+being typed. Fixed by reading STORAGE inside the effect, so its only dependency is `open`. Lesson: an
+effect's dependencies are whatever it reads; if it both reads and writes the same state, it is a loop.
+
+### Chrome offered to generate a password for the API key field
+
+**What happened.** Typing an API key into the modal made Chrome offer to GENERATE a strong password
+and save it, and password managers claimed the field.
+
+**Root cause.** The inputs were `type="password"` with `autocomplete="new-password"` — those are
+precisely the signals that mean "this is a new account credential". We asked for the behaviour.
+
+**Fix.** Plain `type="text"` masked with CSS (`-webkit-text-security: disc`), `autocomplete="off"`,
+`spellcheck="false"`, and the opt-out attributes the common managers honour (`data-lpignore`,
+`data-1p-ignore`). "Remember on this device" is the default, because a key that dies with the tab is a
+nuisance for the person who owns the browser.
+
+**Lesson.** `type="password"` is a semantic claim about what the value IS, not a request for dots.
+
+### The compressed-card-art plan the owner rejected
+
+**What happened.** To make the static site self-contained, card art was re-encoded to 280 px JPEG
+(82.8 MB -> 11.0 MB for 584 cards) and committed under `web/static/pics/`. The owner rejected it on
+both counts: card text must stay readable, and large binaries must not enter `main` at all.
+
+**Fix.** `bin/publish-assets.sh` and the orphan `assets` branch (manifest §25): full-resolution
+originals, referenced by URL, `main` stays small. `bin/bake-pics.js` and `web/static/pics|boxart` are
+gone. Verified in the browser afterwards: the static site's card images are ≥800 px and come from
+`raw.githubusercontent.com/.../assets/pics/`.
+
+**Lesson.** "Make it fit" and "make it small" are not the same requirement, and the owner's constraint
+was about FIDELITY. Ask which one is binding before optimising.
+
+### A docblock terminator inside a regex commented out a whole module's imports
+
+**What happened.** The static bundle threw on `packLevel` being undefined. `src/cardsource-browser.js`
+imports it — but an edit had left a `*/` sequence inside a regular expression in a comment block above
+the imports, so the block comment terminated early and the real code that followed, imports included,
+was swallowed by what the parser now read as comment.
+
+**Fix.** Restored the imports and kept the regex out of the docblock.
+
+**Lesson.** A `*/` inside a string or regex in a doc comment silently re-cuts the comment. When a
+module's own imports appear to vanish, look at the comment above them, and prefer running the build
+over reading the diff.
+
+### Mid-refactor 500s: `no volume installed`, then `SCRIPT_DIRS is not defined`
+
+**What happened.** During the volume/cardsource split, with more than one agent editing, the dev
+server served `[500] GET /api/archive — no volume installed`, and then ten `ReferenceError:
+SCRIPT_DIRS is not defined at scriptReader (src/cards.js:172)` from inside `OcgCore.createDuel`.
+
+**Root cause.** Both are the same shape: a caller reached the new seam before the new seam existed.
+The archive route ran while the volume install had moved to `hooks.server.js` but that file had not
+been reloaded; `scriptReader` still lived in `cards.js` and referenced a constant that had already
+moved to `cardsource-node.js`. Concurrent editing made the window bigger and the errors harder to
+attribute to any one change.
+
+**Related and real, not a race.** SvelteKit runs layout and page loads in PARALLEL, so a page can
+reach the engine before the layout's `boot()` has resolved. That is not a transient — it is the normal
+ordering — which is why `api.js` awaits `boot()` itself instead of trusting the layout, and why
+`boot()` is memoised so concurrent loads cannot double-install.
+
+**Lessons.** (1) When two agents refactor one seam, the 500s are not evidence about either change on
+its own — rebuild from a clean state before diagnosing. (2) Never assume a framework's layout runs to
+completion before its pages; make each entry point demand what it needs.
+
+### The bake shipped without setcodes, and then 404'd on every vanilla
+
+**What happened.** The first bundle omitted `setcode` and the per-card script strings, so archetype
+checks (`IsSetCard`) matched nothing in the browser while working perfectly on the Node host — a
+silent difference between the two hosts, visible only as cards that quietly do not trigger. Then, once
+scripts were fetched, the console filled with 404s for `carddata/scripts/c<code>.lua`.
+
+**Root cause.** The 404s were the 79 vanilla cards. A vanilla legitimately has no Lua file, and the
+browser was deriving the URL from the passcode rather than from a list of what actually exists — a
+static host has no directory listing to check against.
+
+**Fix.** The bake emits `setcode` and the script strings, and `manifest.json` carries the script INDEX:
+the browser fetches exactly the files named there and never asks for a vanilla's. The manifest's counts
+(584 cards, 25 shared + 505 card scripts, 79 vanillas, 40 seeded decks) are cross-checked at boot so a
+stale bake fails loudly at startup instead of as an inexplicable Lua error mid-duel;
+`cardsource-browser.js` additionally warns if the bundle contains no setcodes at all.
+
+**Lesson.** On a static host, "does this file exist" is not a question you may ask at runtime — ship
+the index. And a data bake is only verified by RUNNING the engine against it, because the fields it
+forgets are exactly the ones that fail quietly.
+
+### Verification that the session settled on
+
+Two Puppeteer suites against the built static site served exactly as GitHub Pages serves it (the
+`/YuGiOh/` prefix, the `404.html` fallback): a 12-check human flow and an 8-check AI flow with a real
+OpenAI key (manifest §7). Both live in the session scratchpad, not the repo — they need a build, a
+port and a paid key. Final state of the day: human 12/12, AI 8/8, 103 unit tests with 102 passing and
+1 skipped for want of a key, and the site live at <https://ryanndagreat.github.io/YuGiOh/>.

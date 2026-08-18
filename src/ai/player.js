@@ -257,7 +257,7 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
     // Which cooldown a reply spends depends on whom it answered.
     if (before.some((m) => aiSeats.includes(m.seat) && !people.includes(m.seat))) lastAiReplyAt = Date.now();
     if (before.some((m) => people.includes(m.seat))) lastPeopleReplyAt = Date.now();
-    onTrace?.({ move: null, at: seenChat, seat, chosenLabel: `chat: ${r.posted}` });
+    onTrace?.(r.record);
   };
   for (;;) {
     if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };

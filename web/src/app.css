@@ -59,6 +59,8 @@
 .fx-pick { animation: pick var(--pick-ms) ease-out; }
 /* Sits on a monster that has not attacked yet this battle phase; the travelling
    dagger is the same blade leaving for its target, so this marker clears as it goes. */
+/* A monster the engine is moving to the other player, shown until they pick its zone. */
+.control-change { position: absolute; left: 50%; bottom: var(--attack-mark-inset); transform: translateX(-50%); font-size: 0.6rem; line-height: 1; padding: 0.15rem 0.35rem; border-radius: 0.25rem; background: rgba(250, 204, 21, 0.9); color: #422006; font-weight: 700; white-space: nowrap; pointer-events: none; display: inline-flex; align-items: center; gap: 0.15rem; }
 .attack-mark { position: absolute; top: var(--attack-mark-inset); right: var(--attack-mark-inset); opacity: var(--attack-mark-opacity); color: var(--attack-mark-color); pointer-events: none; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)); }
 /* A card in flight between two slots (unified move animation, see FlyingCard.svelte). */
 .fly-card { position: absolute; z-index: 40; pointer-events: none; }

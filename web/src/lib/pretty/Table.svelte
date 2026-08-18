@@ -26,7 +26,7 @@
   import { flip } from "svelte/animate";
   import { sfx } from "./sound.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [] } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null } = $props();
 
   /**
    * Zone ids of monsters that may still declare an attack ("1-m-3"), from the core's
@@ -439,6 +439,10 @@
 {#snippet attackMark(id)}
   {#if attackable.has(id)}
     <span class="attack-mark" title="can still attack this battle phase"><Icon icon="mdi:sword" width="22" height="22" /></span>
+  {/if}
+  {#if controlChange && id === zoneId(controlChange.player, "m", controlChange.seq)}
+    <!-- Mid control-change: the engine is waiting for the new controller to pick a zone; the card has not moved yet. -->
+    <span class="control-change" title="changing control — P{controlChange.to} is choosing where to place it"><Icon icon="mdi:swap-vertical-bold" width="14" height="14" /> → P{controlChange.to}</span>
   {/if}
 {/snippet}
 
