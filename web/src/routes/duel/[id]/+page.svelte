@@ -4,6 +4,7 @@
   import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
   import AiRunner from "$lib/pretty/AiRunner.svelte";
   import ContextMenu from "$lib/pretty/ContextMenu.svelte";
+  import { panelOpen, setPanelOpen } from "$lib/panels.js";
   import { nameIn, optionPlaces, phaseOptions } from "$lib/pretty/optionPlaces.js";
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
@@ -66,6 +67,8 @@
   let debugView = $state(null);
   /** The API keys modal (AI seats read their keys from this browser). */
   let keysOpen = $state(false);
+  /** Log panel open/closed, remembered across reloads. */
+  let logOpen = $state(panelOpen("log", true));
   /** How respond? windows are answered: "always" | "smart" | "never" (localStorage). */
   let respondMode = $state("always");
   /** Guards the auto-decline effect so it fires at most once per decision point. */
@@ -629,10 +632,11 @@
         {#if errorText}<p class="text-red-300 text-xs mt-1">{errorText}</p>{/if}
       </section>
 
-      <section class="rounded-md bg-black/40 border border-amber-900/60 p-2">
-        <h3 class="font-bold text-amber-200 text-sm mb-1">Log</h3>
+      <!-- Collapsible, remembered (see $lib/panels.js): not everyone wants the log open all game. -->
+      <details class="rounded-md bg-black/40 border border-amber-900/60 p-2" bind:open={logOpen} ontoggle={(e) => setPanelOpen("log", e.currentTarget.open)}>
+        <summary class="cursor-pointer text-amber-200 font-bold text-sm mb-1 flex items-center gap-2">Log <span class="text-amber-100/40 font-normal text-xs">{logOpen ? "" : `${view.logLines.length} lines`}</span></summary>
         <pre bind:this={logEl} class="scroll-themed h-[22rem] overflow-y-auto text-[0.68rem] leading-snug whitespace-pre-wrap font-mono text-amber-50/90">{view.logLines.slice(-LOG_TAIL).join("\n")}</pre>
-      </section>
+      </details>
 
       <details class="rounded-md bg-black/40 border border-amber-900/60 p-2 text-xs">
         <summary class="cursor-pointer text-amber-200">LLM state — exactly what an LLM playing this seat is given ({view.prompt.length.toLocaleString()} chars)</summary>

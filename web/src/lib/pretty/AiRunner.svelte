@@ -20,10 +20,13 @@
   import { getKey } from "$lib/keys.js";
   import { PROVIDER_CATALOG } from "../../../../src/ai/catalog.js";
   import TraceViewer from "./TraceViewer.svelte";
+  import { panelOpen, setPanelOpen } from "$lib/panels.js";
 
   let { duelId, seats = { 0: { kind: "human" }, 1: { kind: "human" } }, players = ["P0", "P1"], onkeys = () => {}, ended = false } = $props();
 
   const aiSeats = $derived([0, 1].filter((s) => seats[s]?.kind === "ai"));
+  /** Open/closed, remembered across reloads (see $lib/panels.js). */
+  let panelIsOpen = $state(panelOpen("ai", true));
 
   /** Pure function. A seat's blank run record. */
   const blankRun = () => ({ status: "idle", moves: 0, last: "", error: "", controller: null, traces: [], showLog: false, retries: 0, resumeTimer: null });
@@ -127,12 +130,15 @@
 </script>
 
 {#if aiSeats.length}
-  <section class="rounded-md p-2 bg-indigo-950/40 border border-indigo-400/40 text-xs flex flex-col gap-2">
-    <div class="flex items-center gap-2">
+  <!-- Collapsible, remembered: the panel shows what an AI just did ("last: Set …"), which can spoil a game you are playing against it. -->
+  <details class="rounded-md p-2 bg-indigo-950/40 border border-indigo-400/40 text-xs flex flex-col gap-2" bind:open={panelIsOpen} ontoggle={(e) => setPanelOpen("ai", e.currentTarget.open)}>
+    <summary class="flex items-center gap-2 cursor-pointer list-none">
       <Icon icon="mdi:robot-outline" class="text-indigo-300" width="16" height="16" />
       <h3 class="font-bold text-indigo-200 uppercase tracking-wide">AI players</h3>
-      <button class="ml-auto px-2 py-0.5 rounded border border-indigo-400/50 hover:bg-indigo-800/40 inline-flex items-center gap-1" onclick={onkeys} title="API keys"><Icon icon="mdi:key-variant" width="12" height="12" />keys</button>
-    </div>
+      <span class="text-indigo-100/50">{panelIsOpen ? "" : `${aiSeats.length} seat${aiSeats.length === 1 ? "" : "s"} · ${aiSeats.map((s) => run(s).status).join(", ")}`}</span>
+      <button class="ml-auto px-2 py-0.5 rounded border border-indigo-400/50 hover:bg-indigo-800/40 inline-flex items-center gap-1" onclick={(e) => { e.preventDefault(); onkeys(); }} title="API keys"><Icon icon="mdi:key-variant" width="12" height="12" />keys</button>
+      <Icon icon={panelIsOpen ? "mdi:chevron-up" : "mdi:chevron-down"} class="text-indigo-300" width="14" height="14" />
+    </summary>
     {#if !STATIC}
       <p class="text-indigo-100/70">On the local server, AI seats are driven from the CLI — <code>node bin/ygo.js brief {duelId} --as &lt;seat&gt;</code> prints the prompt an agent plays from. In-page AI runs on the static site.</p>
     {/if}
@@ -164,5 +170,5 @@
         {/if}
       </div>
     {/each}
-  </section>
+  </details>
 {/if}
