@@ -21,6 +21,8 @@
  * Run: npm test
  */
 
+// Installs the real filesystem as the app volume (src/volume.js).
+import "../src/volume-node.js";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { OcgLocation, OcgMessageType, OcgPosition } from "ocgcore-wasm";

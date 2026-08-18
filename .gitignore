@@ -14,3 +14,7 @@ vendor/
 duels/.presence/
 /.claude_vlm_checks
 /duels
+
+# Local API keys. NEVER committed — this file is the only place secrets live.
+.env.local
+.env*.local

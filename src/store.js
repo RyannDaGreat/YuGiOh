@@ -47,9 +47,8 @@
  * empty extra/side, empty manual). See the `deck-schema` semantic binding.
  */
 
-import { randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+
+import { existsSync, join, mkdirSync, randomId, readdirSync, readFileSync, renameSync, writeFileSync } from "./volume.js";
 import stripJsonComments from "strip-json-comments";
 import { REPO_ROOT, cardInfo, codeOf, isExtraDeckCard, typeLabel } from "./cards.js";
 import { expandDeck, expandExtra, expandSide } from "./duel.js";
@@ -72,6 +71,9 @@ const GOAT_MAIN_MAX = 60;
 const MAX_EXTRA = 15;
 const MAX_SIDE = 15;
 
+/** Re-exported so state-layer modules (archive.js) can make repo-relative paths
+ * without importing cards.js, which is card DATA rather than app state. */
+export { REPO_ROOT };
 export const DUELS_DIR = join(REPO_ROOT, "duels");
 export const DECKS_DIR = join(REPO_ROOT, "src/decks");
 
@@ -329,7 +331,7 @@ export function loadDuel(id) {
 export function saveDuel(duel) {
   mkdirSync(DUELS_DIR, { recursive: true });
   const path = duelPath(duel.id);
-  const tmp = `${path}.${process.pid}.${randomUUID().slice(0, 8)}.tmp`;
+  const tmp = `${path}.${process.pid}.${randomId().slice(0, 8)}.tmp`;
   writeFileSync(tmp, JSON.stringify(duel, null, 1));
   renameSync(tmp, path);
 }

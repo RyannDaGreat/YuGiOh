@@ -9,8 +9,7 @@
  * Files: duels/.presence/<duelId>.<seat>.json = {label, kind, at, pid}
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, join, mkdirSync, readFileSync, writeFileSync } from "./volume.js";
 import { DUELS_DIR } from "./store.js";
 
 const PRESENCE_DIR = join(DUELS_DIR, ".presence");

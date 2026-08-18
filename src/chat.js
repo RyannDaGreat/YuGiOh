@@ -28,8 +28,7 @@
  * chat carries no game state, so no locking is worth its weight here.
  */
 
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, join, mkdirSync, readFileSync, renameSync, writeFileSync } from "./volume.js";
 import { CHAT_SUFFIX, DUEL_ID_PATTERN, DUELS_DIR } from "./store.js";
 
 /** Seat 2 = spectator: no seat at the table, still allowed to talk. */

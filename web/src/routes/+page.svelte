@@ -62,6 +62,66 @@
     const d = new Date(at);
     return `${d.toLocaleDateString(undefined, { month: "short", day: "numeric" })}, ${d.toTimeString().slice(0, 5)}`;
   }
+
+  /**
+   * Table talk, duel records and decks all live in one archive file — the same
+   * format `ygo export` writes, so a browser-played duel can be carried to the
+   * CLI and back. See src/archive.js.
+   */
+  let archiveBusy = $state(false);
+  let archiveNote = $state("");
+  let fileInput = $state(null);
+  /** Overwrite files that already exist, rather than keeping what is here. */
+  let replaceOnImport = $state(false);
+
+  /** Command. Downloads the whole app state as one JSON file. */
+  async function exportArchive() {
+    archiveBusy = true;
+    archiveNote = "";
+    try {
+      const res = await fetch("/api/archive");
+      if (!res.ok) throw new Error(`export failed (${res.status})`);
+      const blob = await res.blob();
+      const name = (res.headers.get("content-disposition") ?? "").match(/filename="([^"]+)"/)?.[1] ?? "ygo-duels.json";
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement("a"), { href: url, download: name });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      archiveNote = `downloaded ${name}`;
+    } catch (err) {
+      archiveNote = String(err.message ?? err);
+    } finally {
+      archiveBusy = false;
+    }
+  }
+
+  /** Command. Restores an archive chosen with the file picker, then reloads the list. */
+  async function importArchive(event) {
+    const file = event.currentTarget.files?.[0];
+    if (!file) return;
+    archiveBusy = true;
+    archiveNote = "";
+    try {
+      const archive = JSON.parse(await file.text());
+      const res = await fetch("/api/archive", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ archive, replace: replaceOnImport }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.message ?? `import failed (${res.status})`);
+      archiveNote = `imported ${body.written} file${body.written === 1 ? "" : "s"}` +
+        (body.skipped ? `, skipped ${body.skipped} already here` : "");
+      if (body.written) location.reload();
+    } catch (err) {
+      archiveNote = String(err.message ?? err);
+    } finally {
+      archiveBusy = false;
+      event.currentTarget.value = "";
+    }
+  }
 </script>
 
 {#snippet duelRows(rows)}
@@ -105,9 +165,25 @@
       <h1 class="text-3xl font-black text-amber-200 tracking-wide">YuGi</h1>
       <p class="text-amber-100/60 text-sm">Headless Yu-Gi-Oh! for LLM agents. Every duel is kept forever: pick one up, or replay a finished one move by move.</p>
     </div>
-    <a class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded bg-amber-900/40 border border-amber-700/60 text-amber-100 hover:bg-amber-800/50 transition-colors" href="/decks">
-      <Icon icon={cardsIcon} /> Deck Library
-    </a>
+    <div class="shrink-0 flex flex-col items-end gap-2">
+      <div class="flex items-center gap-2">
+        <!-- Whole-state export/import: duels, their chat logs, and decks (src/archive.js). -->
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-black/40 border border-amber-900 text-amber-100 hover:bg-amber-900/40 transition-colors disabled:opacity-50" onclick={exportArchive} disabled={archiveBusy} title="download every duel, chat log and deck as one file">
+          <Icon icon="mdi:download" /> Export
+        </button>
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-black/40 border border-amber-900 text-amber-100 hover:bg-amber-900/40 transition-colors disabled:opacity-50" onclick={() => fileInput?.click()} disabled={archiveBusy} title="restore duels, chat logs and decks from an exported file">
+          <Icon icon="mdi:upload" /> Import
+        </button>
+        <input bind:this={fileInput} type="file" accept="application/json,.json" class="hidden" onchange={importArchive} />
+        <a class="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-amber-900/40 border border-amber-700/60 text-amber-100 hover:bg-amber-800/50 transition-colors" href="/decks">
+          <Icon icon={cardsIcon} /> Deck Library
+        </a>
+      </div>
+      <label class="text-[0.7rem] text-amber-100/60 inline-flex items-center gap-1.5" title="off: keep what is here and skip duplicates. on: let the archive overwrite them.">
+        <input type="checkbox" bind:checked={replaceOnImport} /> overwrite on import
+      </label>
+      {#if archiveNote}<p class="text-[0.7rem] text-amber-200/80">{archiveNote}</p>{/if}
+    </div>
   </header>
 
   <section class="rounded-md bg-black/40 border border-amber-900/60 p-3">

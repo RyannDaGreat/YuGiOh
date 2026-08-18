@@ -11,10 +11,14 @@
  *     ygo card  "Trap Hole"        # rules text, offline
  */
 
+// Installs the real filesystem as the app volume (src/volume.js) before any
+// duel is read or written. A browser build installs a browser volume instead.
+import "../src/volume-node.js";
 import { Command } from "commander";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } from "../src/cards.js";
+import { exportArchive, importArchive } from "../src/archive.js";
 import { expandDeck, expandExtra, expandSide } from "../src/duel.js";
 import { playChoice, parseViewer, promptText, shouldAutoPass, viewDuel } from "../src/session.js";
 import { alignTimes, createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime, saveDuel } from "../src/store.js";
@@ -356,6 +360,30 @@ program
       "",
       `Stop when the duel is over or after ${opts.maxPlays} play calls. Then report: decisions made, final LP of both players (from state), the result, and any CLI output that was confusing, wrong, or missing something you needed.`,
     ].join("\n"));
+  });
+
+program
+  .command("export <file>")
+  .description("Write every duel, chat log and deck to one portable archive file")
+  .action((file) => {
+    const archive = exportArchive();
+    writeFileSync(file, JSON.stringify(archive, null, 1));
+    const names = Object.keys(archive.files);
+    const duels = names.filter((n) => n.startsWith("duels/") && !n.includes(".chat.")).length;
+    const chats = names.filter((n) => n.includes(".chat.")).length;
+    const decks = names.filter((n) => n.startsWith("src/decks/")).length;
+    console.log(`exported ${names.length} files to ${file} (${duels} duels, ${chats} chat logs, ${decks} decks)`);
+  });
+
+program
+  .command("import <file>")
+  .description("Restore duels, chat logs and decks from an archive written by `ygo export`")
+  .option("--replace", "overwrite files that already exist (default: keep yours, skip theirs)")
+  .action((file, opts) => {
+    if (!existsSync(file)) throw new Error(`no such archive: ${file}`);
+    const { written, skipped } = importArchive(JSON.parse(readFileSync(file, "utf8")), Boolean(opts.replace));
+    console.log(`imported ${written.length} files from ${file}`);
+    if (skipped.length) console.log(`skipped ${skipped.length} that already existed (use --replace to overwrite): ${skipped.slice(0, 5).join(", ")}${skipped.length > 5 ? " …" : ""}`);
   });
 
 program
