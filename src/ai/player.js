@@ -32,10 +32,11 @@
  * the strategy, not in the trace, not in a module-level variable.
  */
 
+import { chatSince, loadChat } from "../chat.js";
 import { chooseFromMenu } from "../menu.js";
 import { loadDuel } from "../store.js";
 import { menuSummary, playChoice, viewDuel } from "../session.js";
-import { replyToChat } from "./chat.js";
+import { DEFAULT_TALK, TALK_LEVELS, replyToChat } from "./chat.js";
 import { makeStrategy } from "./context.js";
 import { answerInstruction, defaultModel, defaultOptions, getProvider, legalChoices, parseDecision } from "./provider.js";
 import { appendTrace, traceRecord } from "./trace.js";
@@ -70,6 +71,9 @@ const POLL_MS = 1000;
  *     opts.signal (AbortSignal|undefined)
  *     opts.now (string): ISO timestamp for the move and the trace.
  *     opts.chat (boolean): Answer table talk between decisions (default true).
+ *     opts.people (number[]): Seats that are people — the spectator (2) and human seats.
+ *     opts.aiSeats (number[]): Seats played by other AIs (answered only per talk level).
+ *     opts.talk (string): A chat.TALK_LEVELS key: "quiet" | "sporting" | "chatty".
  *     opts.traceDir (string|undefined): Traces directory; tests pass a temp one.
  *
  * Returns:
@@ -193,7 +197,7 @@ export async function playMove({ duelId, seat, view, provider, model, apiKey, op
  *     ...   playerGuide, maxMoves: 3})
  *     {reason: "max-moves", moves: 3, traces: [{move: 1, …}, …], winner: null}
  */
-export async function playSeat({ duelId, seat, provider, model, apiKey, options, playerGuide, brief = "", strategy, onTrace, signal, maxMoves, pollMs = POLL_MS, traceDir, chat = true }) {
+export async function playSeat({ duelId, seat, provider, model, apiKey, options, playerGuide, brief = "", strategy, onTrace, signal, maxMoves, pollMs = POLL_MS, traceDir, chat = true, people = [2], aiSeats = [], talk = DEFAULT_TALK }) {
   const chosen = typeof provider === "string" ? getProvider(provider) : provider;
   const usedModel = model ?? defaultModel(chosen);
   const usedOptions = { ...defaultOptions(chosen), ...options };
@@ -209,11 +213,28 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
   // (chat.js) that the move prompt never sees. `seenChat` advances past whatever was
   // considered, so each message is answered at most once.
   let seenChat = new Date().toISOString();
+  const level = TALK_LEVELS[talk] ?? TALK_LEVELS[DEFAULT_TALK];
+  let lastPeopleReplyAt = 0;
+  let lastAiReplyAt = 0;
   const answerChat = async () => {
     if (!chat) return;
-    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, signal, traceDir });
+    const now = Date.now();
+    // Whom to answer right now, by cooldown: people on a short one, the other AI
+    // only if this level allows and its (much longer) cooldown has passed. The
+    // cooldowns are the loop-breaker — two AIs cannot ping-pong faster than that.
+    const replyTo = [
+      ...(now - lastPeopleReplyAt >= level.peopleCooldownMs ? people : []),
+      ...(level.replyToAis && now - lastAiReplyAt >= level.aiCooldownMs ? aiSeats : []),
+    ].filter((s) => s !== seat);
+    if (!replyTo.length) return;
+    const before = chatSince(loadChat(duelId), seenChat).filter((m) => replyTo.includes(m.seat));
+    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, replyTo, talk, signal, traceDir });
     seenChat = r.seenUpTo;
-    if (r.posted !== null) onTrace?.({ move: null, at: seenChat, seat, chosenLabel: `chat: ${r.posted}` });
+    if (r.posted === null) return;
+    // Which cooldown a reply spends depends on whom it answered.
+    if (before.some((m) => aiSeats.includes(m.seat) && !people.includes(m.seat))) lastAiReplyAt = Date.now();
+    if (before.some((m) => people.includes(m.seat))) lastPeopleReplyAt = Date.now();
+    onTrace?.({ move: null, at: seenChat, seat, chosenLabel: `chat: ${r.posted}` });
   };
   for (;;) {
     if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };

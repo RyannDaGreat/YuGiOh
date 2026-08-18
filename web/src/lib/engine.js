@@ -12,7 +12,7 @@
 import { cardInfo, codeOf, summarizeCard } from "../../../src/cards.js";
 import { chosenOption } from "../../../src/menu.js";
 import { menuSummary, parseViewer, playChoice, promptText, viewDuel } from "../../../src/session.js";
-import { createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime } from "../../../src/store.js";
+import { boxArtFile, createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime } from "../../../src/store.js";
 import { victoryString } from "../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
 import { heartbeat, presence } from "../../../src/presence.js";
@@ -205,13 +205,41 @@ function signatureCode(main) {
 }
 
 /**
+ * Pure function. A deck's box-art file name for the UI, or null when the deck has
+ * no box (curated/user decks, and any structure deck still missing its `boxArt`).
+ *
+ * WHY the payload carries the FILE NAME and not just `setCode`: DeckThumb builds
+ * one URL for both hosts — `{ASSETS}/boxart/<file>`. On the Node host ASSETS is
+ * the app base and the /boxart route serves vendor/boxart; on the static host it
+ * is raw.githubusercontent.com/.../assets, a dumb file server that can only
+ * answer for the real name, extension included. Deriving it here (server-side on
+ * Node, in the browser on static) keeps the extension logic in exactly one place,
+ * src/store.js `boxArtFile`, shared with `ygo fetch-boxart` which wrote the file.
+ *
+ * Args:
+ *     deck (object): A loaded deck (loadDeck), with `setCode` and `boxArt`.
+ *
+ * Returns:
+ *     string|null
+ *
+ * Examples:
+ *     >>> deckBoxArtFile(loadDeck("kaiba"))   // "SDK.png"
+ *     >>> deckBoxArtFile(loadDeck("goat-control"))  // null  (curated, no box)
+ */
+function deckBoxArtFile(deck) {
+  return deck.setCode && deck.boxArt ? boxArtFile(deck.setCode, deck.boxArt) : null;
+}
+
+/**
  * Query. One tile-worth of metadata per built-in deck for the /decks browser:
  * identity, total card counts, and a `signatureCode` passcode for the thumbnail
  * art. Loads every deck (loadDeck), so a malformed deck file fails loudly here.
  *
  * Returns:
- *     Array<{id, name, category, format, mainCount, extraCount, sideCount, signatureCode}>
+ *     Array<{id, name, category, format, setCode, boxArtFile, mainCount, extraCount, sideCount, signatureCode}>
  *     `*Count` are total card counts (the sum of each section's [name, count] rows).
+ *     `boxArtFile` is the box art's file name WITH extension ("SD1.png") or null —
+ *     see deckBoxArtFile.
  */
 export function deckLibrary() {
   const total = (section) => section.reduce((n, [, count]) => n + count, 0);
@@ -223,6 +251,7 @@ export function deckLibrary() {
       category: deck.category,
       format: deck.format,
       setCode: deck.setCode,
+      boxArtFile: deckBoxArtFile(deck),
       mainCount: total(deck.main),
       extraCount: total(deck.extra),
       sideCount: total(deck.side),
@@ -240,7 +269,7 @@ export function deckLibrary() {
  *     id (string): Deck id — a built-in name under src/decks, or a path loadDeck accepts.
  *
  * Returns:
- *     {name, category, format, manual, main, extra, side}
+ *     {name, category, format, setCode, boxArtFile, manual, sources, main, extra, side}
  *     Each section is Array<{code, name, count}> in decklist order.
  */
 export function deckDetail(id) {
@@ -251,6 +280,7 @@ export function deckDetail(id) {
     category: deck.category,
     format: deck.format,
     setCode: deck.setCode,
+    boxArtFile: deckBoxArtFile(deck),
     manual: deck.manual,
     sources: deck.sources ?? [],
     main: rows(deck.main),

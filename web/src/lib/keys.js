@@ -28,7 +28,7 @@ export function getKey(provider) {
  *     key (string): The key; empty string removes it everywhere.
  *     remember (boolean): Persist across tabs and restarts.
  */
-export function setKey(provider, key, remember = false) {
+export function setKey(provider, key, remember = true) {
   if (!browser) return;
   sessionStorage.removeItem(PREFIX + provider);
   localStorage.removeItem(PREFIX + provider);

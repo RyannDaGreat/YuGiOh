@@ -54,7 +54,7 @@
     class="group flex flex-col gap-2 rounded-lg bg-black/40 border border-amber-900/60 p-3 hover:border-amber-500/70 hover:bg-black/60 transition-colors"
   >
     <div class="self-center transition-transform group-hover:scale-105">
-      <DeckThumb setCode={d.setCode} signatureCode={d.signatureCode} name={d.name} category={d.category} size="tile" />
+      <DeckThumb boxArtFile={d.boxArtFile} signatureCode={d.signatureCode} name={d.name} category={d.category} size="tile" />
     </div>
     <div class="flex items-center justify-between gap-2">
       <span class="font-bold text-amber-100 leading-tight">{d.name}</span>

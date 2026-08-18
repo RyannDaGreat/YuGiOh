@@ -24,8 +24,14 @@
   $effect(() => {
     if (!open) return;
     for (const id of ids) {
-      draft[id] = getKey(id);
-      remember[id] = isRemembered(id);
+      // Read storage, not `draft`: this effect must depend on `open` only. Reading
+      // the draft here would re-run it on every keystroke and wipe what was typed.
+      const stored = getKey(id);
+      draft[id] = stored;
+      // Remembering is the default: a key that vanishes when the tab closes is a
+      // nuisance for the person who owns this browser. Only a key already stored
+      // per-session (someone unticked the box) stays that way.
+      remember[id] = stored ? isRemembered(id) : true;
       result[id] = null;
     }
   });
@@ -65,10 +71,10 @@
       </div>
       <div class="p-4 flex flex-col gap-4 text-sm">
         <p class="text-amber-100/70 text-xs leading-relaxed">
-          Keys stay in this browser and are sent only to the provider you choose. Off by default they last
-          until this tab closes; <b>remember on this device</b> keeps them across visits. Nothing on this
-          site can hide a key from someone who controls your browser — treat them like any other secret,
-          and prefer keys with a spend limit.
+          Keys stay in this browser and are sent only to the provider you choose. They are remembered on
+          this device by default; untick <b>remember on this device</b> to keep one only until the tab
+          closes. Nothing on this site can hide a key from someone who controls your browser — treat them
+          like any other secret, and prefer keys with a spend limit.
         </p>
         {#each ids as id}
           {@const cat = PROVIDER_CATALOG[id]}
@@ -83,11 +89,25 @@
               {/if}
             </div>
             <div class="flex items-center gap-2">
+              <!--
+                Deliberately NOT type="password": that, and autocomplete="new-password",
+                are exactly the signals that make Chrome / Google Password Manager offer
+                to GENERATE a password and save it. An API key is not an account password.
+                So: a plain text field masked with CSS, no password semantics, and the
+                opt-out attributes the common managers honour.
+              -->
               <input
-                class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900 font-mono text-xs"
-                type={show[id] ? "text" : "password"}
-                autocomplete="new-password"
+                class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900 font-mono text-xs {show[id] ? '' : 'masked'}"
+                type="text"
+                name="api-key-{id}"
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"
                 spellcheck="false"
+                data-lpignore="true"
+                data-1p-ignore
+                data-bwignore
+                data-form-type="other"
                 placeholder={cat.keyHint}
                 bind:value={draft[id]}
                 onchange={() => save(id)}
@@ -105,3 +125,8 @@
     </div>
   </div>
 {/if}
+
+<style>
+  /* Masks the key like a password field without BEING one (see the input's comment). */
+  .masked { -webkit-text-security: disc; }
+</style>

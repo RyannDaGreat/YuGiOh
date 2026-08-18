@@ -23,7 +23,7 @@ import { allCards, cardInfo, codeOf, REPO_ROOT, searchCards, summarizeCard } fro
 import { exportArchive, importArchive } from "../src/archive.js";
 import { expandDeck, expandExtra, expandSide } from "../src/duel.js";
 import { playChoice, parseViewer, promptText, shouldAutoPass, viewDuel } from "../src/session.js";
-import { alignTimes, createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime, saveDuel } from "../src/store.js";
+import { alignTimes, boxArtFile, createDuel, forkDuel, listDecks, listDuels, loadDeck, loadDuel, moveTime, saveDuel } from "../src/store.js";
 import { victoryString } from "../src/strings.js";
 import { heartbeat } from "../src/presence.js";
 import { appendChat, chatSince, formatChat, loadChat } from "../src/chat.js";
@@ -457,8 +457,9 @@ program
         missing += 1;
         continue;
       }
-      const ext = deck.boxArt.match(/\.(png|jpe?g|webp)(?:[?#]|$)/i)?.[1].toLowerCase().replace("jpeg", "jpg") ?? "png";
-      const path = join(BOXART_DIR, `${deck.setCode}.${ext}`);
+      // `boxArtFile` — not a local regex — names the file, so what lands here is
+      // byte-for-byte the name the web UI asks both hosts for. See src/store.js.
+      const path = join(BOXART_DIR, boxArtFile(deck.setCode, deck.boxArt));
       if (existsSync(path)) { cached += 1; continue; }
       const res = await fetch(deck.boxArt, { headers: { "user-agent": "Mozilla/5.0 ygo-boxart" } });
       if (!res.ok) throw new Error(`no box art for ${deck.setCode} (${deck.name}): HTTP ${res.status} from ${deck.boxArt}`);

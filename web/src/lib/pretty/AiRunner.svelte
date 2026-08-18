@@ -62,8 +62,12 @@
     r.status = "running";
     r.error = "";
     await loadExisting(seat);
+    // Whom this seat may answer: the spectator and any human seat are people; the
+    // other seat, if it is an AI, is answered only as its talk level allows.
+    const people = [2, ...[0, 1].filter((s) => seats[s]?.kind !== "ai")];
     ai.playSeat({
       duelId, seat, provider: cfg.provider, model: cfg.model, options: cfg.options, apiKey, playerGuide,
+      people, aiSeats: aiSeats.filter((s) => s !== seat), talk: cfg.talk,
       signal: controller.signal,
       onTrace: (rec) => {
         if (rec.move !== null) { r.moves += 1; r.traces = [...r.traces, rec]; }

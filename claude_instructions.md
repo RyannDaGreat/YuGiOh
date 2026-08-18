@@ -103,7 +103,9 @@ browser, or subagent vs subagent — with:
   `src/cards.js` (`EXTRA_DECK_TYPES`/`isExtraDeckCard`), `src/session.js` (viewDuel exposes
   `format` + per-seat deck metadata; promptText lists the extra deck), `bin/ygo.js` (`new --format`,
   `deck`, `decks`, and `fetch-pics` which pulls art for Main+Extra+Side of every deck and duel),
-  §2's "deck / deck schema" glossary entry, the box-art path (`bin/ygo.js` `fetch-boxart`, the `/boxart/[code]` route,
+  §2's "deck / deck schema" glossary entry, the box-art path (`src/store.js` `boxArtFile` — the ONE
+  place that names a box-art file — used by `bin/ygo.js` `fetch-boxart`, the `/boxart/[code]` route,
+  `web/src/lib/engine.js` (`deckBoxArtFile`, the `boxArtFile` field of `deckLibrary`/`deckDetail`) and
   `web/src/lib/pretty/DeckThumb.svelte`), and the deck files `src/decks/*.json`.
   A deck's `category` is one of THREE: `"structure"` = an official Konami product (Structure/Starter
   Deck) — a fixed printed list with an official name, a `setCode` (e.g. "SD1", "SDY"), and REAL box
@@ -114,6 +116,10 @@ browser, or subagent vs subagent — with:
   `imageinfo` API to the `ms.yugipedia.com` direct URL); `fetch-boxart` downloads each into
   `vendor/boxart/<setCode>.<ext>` (gitignored, like `vendor/pics`), and `DeckThumb` shows the box on
   the tile/detail header, falling back to the signature card only until the box is cached.
+  The deck payload carries the box art's FILE NAME with extension (`boxArtFile: "SD1.png"`), never a
+  bare set code, so `{ASSETS}/boxart/<file>` resolves on BOTH hosts: the static host's ASSETS is the
+  raw `assets` branch, a plain file server that cannot try ".png then .jpg" the way the Node route
+  can, so an extensionless `/boxart/SD1` 404s there. No `onerror` extension-guessing — one name.
   Deck files are JSONC (loadDeck strips `//` and block comments, so a card row can cite its source
   inline) and carry an optional `sources: [str]` array — the machine-readable citation list for the
   decklist + manual. Every non-vanilla deck's list and combo manual comes from real research (see

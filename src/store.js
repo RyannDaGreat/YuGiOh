@@ -188,6 +188,38 @@ export function loadDeck(nameOrPath) {
 }
 
 /**
+ * Pure function. The file name a structure deck's box art is stored under —
+ * `<setCode>.<ext>`, where the extension is whatever the upstream `boxArt` URL
+ * serves (scans come as PNG or JPG depending on the Yugipedia source).
+ *
+ * WHY this is one function rather than a regex at each site: the exact file name
+ * has to agree in three places — `ygo fetch-boxart` (which writes it into
+ * vendor/boxart, and thence the `assets` branch), the Node `/boxart/[code]`
+ * route, and the <img src> the STATIC site points at raw.githubusercontent.com.
+ * The static host is a plain file server: it cannot try ".png, then .jpg" the
+ * way the Node route can, so an extensionless URL simply 404s there. One
+ * function names the file and every host asks for that same name.
+ *
+ * Args:
+ *     setCode (string): Official product code, e.g. "SD1".
+ *     boxArtUrl (string): URL the art was downloaded from (deck field `boxArt`).
+ *
+ * Returns:
+ *     string: File name with extension; "jpeg" is normalised to "jpg", and a URL
+ *     with no recognisable image extension falls back to "png".
+ *
+ * Examples:
+ *     >>> boxArtFile("SD1", "https://ms.yugipedia.com//1/1a/SD1-DeckEN.png")
+ *     "SD1.png"
+ *     >>> boxArtFile("SDY", "https://ms.yugipedia.com//0/08/SDY-DeckNA.jpeg?w=800")
+ *     "SDY.jpg"
+ */
+export function boxArtFile(setCode, boxArtUrl) {
+  const ext = boxArtUrl.match(/\.(png|jpe?g|webp)(?:[?#]|$)/i)?.[1].toLowerCase().replace("jpeg", "jpg") ?? "png";
+  return `${setCode}.${ext}`;
+}
+
+/**
  * Pure function. The ruleset a pair of decks plays under. A duel is one ruleset,
  * so a mixed pair has to resolve to one: GOAT only when BOTH decks are GOAT
  * decks, otherwise classic (MR5). A GOAT-era deck plays perfectly well under

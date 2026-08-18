@@ -68,7 +68,7 @@
   const sigOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.signatureCode])));
   const nameOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.name])));
   const catOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.category])));
-  const setOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.setCode])));
+  const boxOf = $derived(Object.fromEntries(data.library.map((d) => [d.id, d.boxArtFile])));
 
   /**
    * Pure function. A valid seat default: the requested deck id if it exists,
@@ -257,13 +257,13 @@
       <label class="flex flex-col gap-1">P0 deck (goes first)
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p0" bind:value={p0}>{@render deckOptions()}</select>
-          <a href="{base}/decks/{p0}?seat=0" title="inspect {nameOf[p0]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p0]} signatureCode={sigOf[p0]} name={nameOf[p0]} category={catOf[p0]} size="mini" /></a>
+          <a href="{base}/decks/{p0}?seat=0" title="inspect {nameOf[p0]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb boxArtFile={boxOf[p0]} signatureCode={sigOf[p0]} name={nameOf[p0]} category={catOf[p0]} size="mini" /></a>
         </div>
       </label>
       <label class="flex flex-col gap-1">P1 deck
         <div class="flex items-center gap-2">
           <select class="flex-1 min-w-0 px-2 py-1 rounded bg-black/40 border border-amber-900" name="p1" bind:value={p1}>{@render deckOptions()}</select>
-          <a href="{base}/decks/{p1}?seat=1" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb setCode={setOf[p1]} signatureCode={sigOf[p1]} name={nameOf[p1]} category={catOf[p1]} size="mini" /></a>
+          <a href="{base}/decks/{p1}?seat=1" title="inspect {nameOf[p1]}" class="shrink-0 rounded hover:ring-2 hover:ring-amber-500/70"><DeckThumb boxArtFile={boxOf[p1]} signatureCode={sigOf[p1]} name={nameOf[p1]} category={catOf[p1]} size="mini" /></a>
         </div>
       </label>
       <div class="flex flex-col gap-1">

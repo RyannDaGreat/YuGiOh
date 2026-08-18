@@ -10,3 +10,4 @@ import "./gemini.js";
 import "./openai.js";
 
 export { PROVIDER_CATALOG, defaultModel, defaultOptions, getProvider, providers } from "./provider.js";
+export { TALK_LEVELS, DEFAULT_TALK } from "./chat.js";

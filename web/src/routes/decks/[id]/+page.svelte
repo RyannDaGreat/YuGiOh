@@ -109,7 +109,7 @@
 
   <header class="flex flex-wrap items-end justify-between gap-4">
     <div class="flex items-center gap-4">
-      <DeckThumb setCode={deck.setCode} signatureCode={deck.main[0]?.code} name={deck.name} category={deck.category} size="tile" />
+      <DeckThumb boxArtFile={deck.boxArtFile} signatureCode={deck.main[0]?.code} name={deck.name} category={deck.category} size="tile" />
       <div>
         <h1 class="text-3xl font-black text-amber-200 tracking-wide">{deck.name}</h1>
         <div class="mt-1 flex items-center gap-2 text-sm">

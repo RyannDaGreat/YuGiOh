@@ -11,3 +11,4 @@ export { PROVIDER_CATALOG, defaultModel, defaultOptions, getProvider, providers 
 export { playSeat, playMove } from "./player.js";
 export { loadTrace, summarizeTrace, tracePath } from "./trace.js";
 export { STRATEGIES, DEFAULT_STRATEGY } from "./context.js";
+export { TALK_LEVELS, DEFAULT_TALK } from "./chat.js";
