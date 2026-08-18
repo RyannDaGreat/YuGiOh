@@ -27,7 +27,7 @@
  */
 
 import { packLevel } from "./cards.js";
-import { memoryCardSource, setCardSource } from "./cardsource.js";
+import { memoryCardSource, patchScript, setCardSource } from "./cardsource.js";
 
 /**
  * The bundle is several hundred small files. Firing them all at once buries the
@@ -284,7 +284,7 @@ function completeSource(cards, scripts, systemStrings, fallback, corpus) {
     // Known not to exist anywhere (a vanilla, or a library the core merely probes
     // for): answer null without a round trip. Otherwise fetch that one script
     // now, and remember the answer either way.
-    scripts[base] = corpus.has(base) ? fetchSync(`${fallback}/scripts/${base}`) : null;
+    scripts[base] = corpus.has(base) ? patchScript(base, fetchSync(`${fallback}/scripts/${base}`)) : null;
     return scripts[base];
   };
 

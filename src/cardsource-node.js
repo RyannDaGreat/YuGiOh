@@ -17,7 +17,7 @@ import { DatabaseSync } from "node:sqlite";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_ROOT } from "./cards.js";
-import { setCardSource } from "./cardsource.js";
+import { setCardSource, patchScript } from "./cardsource.js";
 
 const CDB_PATH = join(REPO_ROOT, "vendor/BabelCDB/cards.cdb");
 const STRINGS_PATH = join(REPO_ROOT, "vendor/strings.conf");
@@ -82,7 +82,7 @@ function readScript(name) {
   const base = name.split("/").pop();
   for (const dir of SCRIPT_DIRS) {
     const path = join(dir, base);
-    if (existsSync(path)) return readFileSync(path, "utf8");
+    if (existsSync(path)) return patchScript(name, readFileSync(path, "utf8"));
   }
   return null;
 }

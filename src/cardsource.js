@@ -44,6 +44,61 @@ const NO_CARD_SOURCE =
 let backend = null;
 
 /**
+ * Compatibility patches applied to shared Lua on the way in, by every backend.
+ *
+ * WHY here and not in vendor/: vendor/CardScripts is a pinned upstream checkout
+ * that setup.sh recreates, and the same script text reaches the engine by three
+ * roads (Node's file read, the browser's baked bundle, the browser's fallback to
+ * the assets branch). One patch table, applied at the read, keeps them identical.
+ *
+ * chain.lua: its `Chain.GetTriggering*` getters call Duel.GetChainInfo with the
+ * newest CHAININFO flags (SETCODES 30, LINK 31, LSCALE 32, RSCALE 33), which the
+ * pinned ocgcore-wasm 0.1.2 core rejects ("chain.lua:85: Passed invalid CHAININFO
+ * flag"). chain.lua snapshots EVERY property of the reason effect's card whenever
+ * an effect is registered mid-resolution, so any such card (Droll & Lock Bird,
+ * always; Sky Striker Linkage when destroyed while resolving; Zeke's banish)
+ * errored and could deadlock the duel — the decision was refused forever. Guarding
+ * the one getter factory with pcall makes an unsupported flag read as nil instead.
+ * Nothing shipped depends on those triggering properties being known. Idempotent
+ * (a marker comment guards re-application).
+ */
+const SCRIPT_PATCHES = {
+  "chain.lua": (text) => {
+    const marker = "-- [yugi] pcall: the pinned core rejects the newest CHAININFO flags (SETCODES/LINK/LSCALE/RSCALE)";
+    if (text.includes(marker)) return text;
+    const from = "local function chaininfo_fn(info)\n\treturn function(ch)\n\t\treturn Duel.GetChainInfo(ch or 0,info)\n\tend\nend";
+    if (!text.includes(from)) throw new Error("chain.lua patch: chaininfo_fn not found in the expected form — upstream changed; re-check whether the pinned core still rejects the flags");
+    // Every Chain.GetTriggering* getter is built by this one factory; guarding it
+    // makes an unsupported flag read as nil (unknown) instead of a Lua error that
+    // aborts the effect and, when the core cannot back out, deadlocks the duel.
+    const to = `local function chaininfo_fn(info) ${marker}\n\treturn function(ch)\n\t\tlocal ok,v=pcall(Duel.GetChainInfo,ch or 0,info)\n\t\tif ok then return v end\n\t\treturn nil\n\tend\nend`;
+    return text.replace(from, to);
+  },
+};
+
+/**
+ * Pure function. The script text the engine should see: the upstream text with
+ * any compatibility patch for that file applied. Applied by every backend.
+ *
+ * Args:
+ *     name (string): Script name (basename or path).
+ *     text (string|null): Upstream text, or null when the script does not exist.
+ *
+ * Returns:
+ *     string|null
+ *
+ * Examples:
+ *     >>> patchScript("utility.lua", "x")   // "x"        (no patch registered)
+ *     >>> patchScript("chain.lua", src).includes("pcall(Duel.GetChainInfo")   // true
+ *     >>> patchScript("chain.lua", null)    // null
+ */
+export function patchScript(name, text) {
+  if (text === null || text === undefined) return null;
+  const patch = SCRIPT_PATCHES[String(name).split("/").pop()];
+  return patch ? patch(text) : text;
+}
+
+/**
  * Command. Installs the backing card database. Call exactly once at startup,
  * before any card is read or any duel is created.
  *
@@ -134,7 +189,7 @@ export function memoryCardSource(cards = {}, scripts = {}, systemStrings = "") {
     rowById: (code) => rows.get(code) ?? null,
     textById: (code) => rows.get(code) ?? null,
     idByName: (name) => byName.get(name)?.id ?? null,
-    script: (name) => scripts[name.split("/").pop()] ?? null,
+    script: (name) => patchScript(name, scripts[name.split("/").pop()] ?? null),
     search: (term, limit) => {
       const needle = term.toLowerCase();
       return [...rows.values()]
