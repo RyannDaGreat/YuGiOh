@@ -926,3 +926,26 @@ art/back image; the Table applies it to every card of the far player (zones, EMZ
 flyers, ghosts). Verified with Puppeteer on the Node host: 7/7 opponent images turned, 0 of mine, toggle
 → 0, survives reload. Note the manifest had never documented confirm-clicks / collapsible panels /
 panels.js — added a "Table settings" paragraph while here.
+
+## 2026-08-18 — The Right-Scale/Link-Marker offset bug is now patched (decision of 08-17 reversed)
+
+Owner, on the live site: "Why can't I special summon Endymion through Pendulum Summon right now?" —
+Jackal King (Scale 4) / Magister (Scale 8), Endymion Lv7 in hand, no Pendulum Summon entry. That is
+the collapsed (0, 4) window diagnosed on 08-17. Owner: "of course I'd like to fix it." Applied the
+one-line-per-offset fix as `patches/ocgcore-wasm+0.1.2.patch` via patch-package (postinstall). Results:
+- Endymion board now offers exactly Endymion; the 4/8 and 1/8 harness cases are rules-correct
+  (`test/pendulum-summon-window.test.js` rewritten from "pin the bug" to "pin the rules").
+- Replay survey of all local records: only PendyVsSpell (#86) and SkyVsSpectre (#79) stop replaying —
+  archived to `duels/archive-prepatch/`. `test/pendulum-labels.test.js` used SkyVsSpectre move 120 for the
+  face-up-Extra-Deck assertion; rewritten as a scripted duel (Dragonpit scale → MST it → face-up Extra).
+- The static bundle carries the patch (checked the compiled chunk).
+Lesson: the 08-17 "don't patch the vendored core" brief was right for that session, but the bug crippled
+every Pendulum and Link deck; the moment a player met it live, the replay cost was worth paying.
+
+## 2026-08-18 — Xyz materials were invisible on the table
+
+Owner: "How does XYZ work in this UI — are cards overlaid on top of one another, stacked so I can see
+them?" They were not: the state carried material names for the text/AI view only. Now `materials`
+carry codes and `Card.svelte` draws the stack under the monster + a `◈N` pip (tooltip names them).
+Verified with a greedy Sushi-Boat mirror on the Node host (Shirauo-class Carrier with Shari + Ikura:
+two slivers at depths 2/1, pip "◈2 | 2 Xyz materials: …") and a screenshot.

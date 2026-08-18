@@ -40,6 +40,15 @@
    */
   const counterTotal = $derived(card?.counters ? Object.values(card.counters).reduce((a, b) => a + b, 0) : 0);
   const counterTitle = $derived(card?.counters ? Object.entries(card.counters).map(([type, n]) => `${n}×#${type}`).join(", ") : "");
+  /**
+   * An Xyz Monster's overlay units, drawn as a stack peeking out under the
+   * monster (bottom of the stack first, so the top material sits nearest the
+   * monster) — the way materials lie under an Xyz on a real table. At most
+   * MATERIAL_STACK_SHOWN slivers; the pip carries the true count and the names.
+   */
+  const MATERIAL_STACK_SHOWN = 4;
+  const materials = $derived(mode === "art" ? card?.materials ?? [] : []);
+  const materialTitle = $derived(materials.length ? `${materials.length} Xyz material${materials.length === 1 ? "" : "s"}: ${materials.map((m) => m.name).join(", ")}` : "");
 </script>
 
 <div class="relative card-box card-{size} shrink-0 {fx}" role="presentation" onmouseenter={() => hoverable && onhover(card)}>
@@ -47,6 +56,12 @@
   {#if mode === "empty"}
     <div class="absolute inset-0 card-box card-{size} border border-emerald-900/40 bg-emerald-950/30"></div>
   {:else}
+    {#each materials.slice(-MATERIAL_STACK_SHOWN) as m, i (i)}
+      <!-- Each material is a full card offset a few px per unit toward the bottom-right, mostly hidden under the monster: what shows is the stack's edge. -->
+      <div class="absolute inset-0 card-box card-{size} overflow-hidden shadow-md xyz-material" style="--stack-depth: {materials.slice(-MATERIAL_STACK_SHOWN).length - i}" title={m.name}>
+        <img src="{ASSETS}/pics/{m.code}.jpg" alt={m.name} class="absolute inset-0 w-full h-full object-cover {upsideDown ? 'rotate-180' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+      </div>
+    {/each}
     <button
       class="absolute inset-0 card-box card-{size} overflow-hidden shadow-md transition-transform duration-300 hover:scale-105 focus:outline-none {isDefense ? 'rotate-90 scale-[0.86]' : ''}"
       onclick={() => hoverable && onclick(card)}
@@ -64,6 +79,10 @@
       {/if}
       {#if count !== null}
         <span class="absolute right-0.5 bottom-0.5 text-[0.6rem] font-bold bg-black/70 text-amber-100 px-1 rounded">{count}</span>
+      {/if}
+      {#if materials.length}
+        <!-- Xyz material count, bottom-right — the stack's edge shows below, this says exactly how many and which (tooltip). -->
+        <span class="absolute right-0.5 bottom-0.5 text-[0.6rem] leading-none font-bold bg-fuchsia-500/90 text-white ring-1 ring-fuchsia-200 rounded px-1 py-0.5" title={materialTitle}>◈{materials.length}</span>
       {/if}
       {#if counterTotal > 0 && mode !== "back"}
         <!-- Distinct from the pile `count` badge: a counters pip, top-left. -->

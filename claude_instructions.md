@@ -614,17 +614,33 @@ hand and from face-up Pendulum Monsters in the Extra Deck. The scale cards thems
 - The menu deliberately does NOT compute the summonable Level window: the core enumerates the
   actual legal targets in the selection that follows the choice, and that list is the authority.
 
-**KNOWN ENGINE BUG — every card's right Pendulum Scale is 0 inside the core.** `ocgcore-wasm`
-0.1.2 serialises `OCG_CardData` for the 32-bit core with `rscale` at byte offset 48 and
-`link_marker` at 52 (`dist/index.js`, the `ptrSize === 4` branch); the core reads `rscale` at 44 and
-`link_marker` at 48. So the engine sees `rscale = 0` for every card and Link monsters get their
-markers from `rscale`. Consequences, measured 2026-08-17:
-- a correct 1-left / 8-right scale pair offers NO Pendulum Summon at all (window becomes 0 < Lv < 1);
-- an 8-left / 1-right pair offers Levels 1-7, including a Level 1 monster it must not;
-- so the effective window is `0 < Lv < (left card's lscale)`, and queried `rightScale` is always 0.
-This is why the scale shown to players comes from cards.cdb, not from the core query. FIXING IT
-CHANGES REPLAYS: a recorded response can become illegal, so patch it only between games, never
-while a duel is in progress, and re-run `npm test` afterwards.
+**ENGINE PATCH — the vendored core's Right Scale / Link Marker offsets (bug found 2026-08-17, fixed
+2026-08-18).** `ocgcore-wasm` 0.1.2 as published serialises `OCG_CardData` for the 32-bit core with
+`rscale` at byte offset 48 and `link_marker` at 52 (`dist/index.js`, the `ptrSize === 4` branch) while the
+core reads `rscale` at 44 and `link_marker` at 48 — so the engine saw `rscale = 0` for every card and Link
+Monsters took their markers from `rscale` (= 0). Measured effects: a 4-left / 8-right pair offered Levels
+1-3 instead of 5-7; a 1-left / 8-right pair offered NO Pendulum Summon; Link Monsters had no arrows (so no
+linked zones for MR5 Extra Deck placement). Owner hit it live (Endymion Lv7 unsummonable under Jackal King 4
+/ Magister 8) and said "of course I'd like to fix it".
+- The fix is `patches/ocgcore-wasm+0.1.2.patch` (two offsets, wasm32 branch only), applied by
+  `patch-package` from `package.json`'s `postinstall`, so `npm install` (and `setup.sh`) reproduce it and
+  the static bundle carries it (verified in `web/build`: `setUint32(44, rscale)` / `(48, link_marker)`).
+  0.1.2 is the latest release; when upgrading, check whether upstream fixed it and drop the patch.
+- `test/pendulum-summon-window.test.js` pins the rules-correct window end to end (Stargazer/Metaphys for
+  4/8; Levels 2-7 for 1/8; Endymion for Jackal King/Magister) and says "the patch was not applied" if the
+  collapsed window returns.
+- **It changed replays**: records store choices as menu indices, and every menu from the first
+  Pendulum/Link summon on is different. The two local records that broke (PendyVsSpell, SkyVsSpectre)
+  moved to `duels/archive-prepatch/` (README there); everything else replays. Games saved in a browser on
+  the static site from before the deploy that contain a Pendulum/Link summon will not scrub past it.
+- The scale shown to players still comes from cards.cdb (`state.js`) — it is the printed number and never
+  changes in play for the cards we ship — so nothing else depended on the wrong query.
+
+**Xyz materials on the table (2026-08-18).** `fieldCardData.materials` is `[{name, code}]` (overlay units,
+top of the stack last); `Card.svelte` draws them as full cards shifted `--xyz-stack-step` per depth toward
+the bottom-right UNDER the monster (`.xyz-material`, at most 4 slivers) plus a fuchsia `◈N` pip whose
+tooltip lists them — what a real table shows: the materials' edges under the Xyz. Owner asked "are cards
+overlaid on top of one another, stacked so I can see them?" — before this the table showed nothing.
 
 ## 13. Structure-deck Haiku tournament — reports/structure_decks_haiku_competition (added 2026-08-17)
 

@@ -43,6 +43,8 @@
   --equip-line-width: 2px;
   --equip-line-dash: 5 5;
   --equip-line-march: 0.8s;
+  /* Xyz materials: each overlay unit sits this much further toward the bottom-right, under the monster. */
+  --xyz-stack-step: 4px;
 }
 .card-box { width: var(--card-w); height: calc(var(--card-w) * var(--card-ratio)); border-radius: calc(var(--card-w) * var(--card-radius-ratio)); }
 .card-zone { --card-w: var(--card-w-zone); }
@@ -101,6 +103,9 @@
 /* A card in flight between two slots (unified move animation, see FlyingCard.svelte). */
 .fly-card { position: absolute; z-index: 40; pointer-events: none; }
 .fly-flip { animation: fly-flip var(--fly-ms) ease-in-out; }
+/* An Xyz Monster's overlay unit: the whole card, shifted by its depth in the stack (1 = just under the
+   monster), drawn beneath the monster's own button so only the shifted edge shows. */
+.xyz-material { transform: translate(calc(var(--stack-depth) * var(--xyz-stack-step)), calc(var(--stack-depth) * var(--xyz-stack-step))); z-index: 0; filter: brightness(0.7); }
 /* Equip/relationship line — dashed, marching so it reads as an active link. */
 @keyframes dash-march { to { stroke-dashoffset: -20; } }
 .equip-line { fill: none; stroke: var(--equip-line-color); stroke-width: var(--equip-line-width); stroke-dasharray: var(--equip-line-dash); animation: dash-march var(--equip-line-march) linear infinite; }

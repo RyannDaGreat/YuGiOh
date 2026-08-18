@@ -105,15 +105,51 @@ test("the idle menu never offers to 'special summon' a scale card", () => {
 // A Pendulum Monster leaving the field goes FACE-UP to the Extra Deck, where it
 // is public and Pendulum-summonable — unlike the face-down Extra Deck proper.
 // The state must say which is which, to the opponent too.
-import { loadDuel } from "../src/store.js";
+import { expandDeck, replayDuel } from "../src/duel.js";
 import { viewDuel } from "../src/session.js";
+import { renderMenu } from "../src/menu.js";
+
+/**
+ * Command. Replays `duel.responses` and answers the pending menu with the first
+ * item matching `itemRe` (the menu title must match `titleRe`); returns the
+ * response to append. Same shape as test/set-this-turn.test.js.
+ */
+async function pick(duel, titleRe, itemRe) {
+  const r = await replayDuel({ seed: duel.seed, deckCodes: duel.decks.map((d) => d.codes), responses: duel.responses });
+  try {
+    const menu = buildMenu(r.pending, { selectHint: 0n, eventHint: 0n, field: null });
+    assert.match(menu.title, titleRe, renderMenu(menu).join("\n"));
+    if (itemRe === null) return menu.zero.response; // decline a respond? window
+    const i = menu.items.findIndex((it) => itemRe.test(it.label));
+    assert.ok(i >= 0, `${itemRe} in:\n${renderMenu(menu).join("\n")}`);
+    return menu.build([menu.items[i].value]);
+  } finally {
+    r.core.destroyDuel(r.handle);
+  }
+}
+
 test("extra deck entries say whether a card lies face-up, and the opponent sees those by name", async () => {
-  // SkyVsSpectre move 120: P0 (Endymion) has three Pendulums face-up in its Extra Deck.
-  const view = await viewDuel(loadDuel("SkyVsSpectre"), 1, 120);
-  const extra = view.state.players[0].extra;
-  const up = extra.filter((c) => c.faceUp);
-  assert.equal(up.length, 3);
-  assert.deepEqual(up.map((c) => c.name).sort(), ["Mythical Beast Bashilisk", "Mythical Beast Jackal", "Mythical Beast Jackal King"], "face-up cards are public to the opponent");
-  assert.ok(extra.some((c) => !c.faceUp && c.name === null), "the face-down Extra Deck proper stays hidden from the opponent");
-  assert.ok(view.stateLines.some((l) => /extra \(face-up, Pendulum-summonable\): .*Bashilisk/.test(l)), "the LLM's state text lists them on their own line");
+  // P0's whole deck is Dragonpit Magicians and Mystical Space Typhoons, so the opening
+  // hand has both: activate Dragonpit as a scale, then Typhoon it — a Pendulum Monster
+  // destroyed in the Pendulum Zone goes to the Extra Deck FACE-UP.
+  const codes = [expandDeck([["Dragonpit Magician", 20], ["Mystical Space Typhoon", 20]]), expandDeck([["Celtic Guardian", 40]])];
+  const duel = { seed: 1, decks: [{ name: "D0", codes: codes[0] }, { name: "D1", codes: codes[1] }], responses: [] };
+  const push = async (titleRe, itemRe) => duel.responses.push(await pick(duel, titleRe, itemRe));
+  await push(/main phase action/, /^Activate Dragonpit Magician \(P0 hand/);
+  await push(/^P0: /, /^P0 s0$/);
+  await push(/respond\?/, null); // no chain to the scale activation
+  await push(/respond\?/, null); // …and nothing after it resolved
+  await push(/main phase action/, /^Activate Mystical Space Typhoon \(P0 hand/);
+  await push(/^P0: /, /^P0 s[1-4]$/);
+  await push(/^P0: /, /^Dragonpit Magician \(P0 s0\)/); // the target
+  await push(/respond\?/, null); // the chain has resolved; nothing more to chain
+  for (const viewer of [0, 1]) {
+    const view = await viewDuel(duel, viewer);
+    const extra = view.state.players[0].extra;
+    const up = extra.filter((c) => c.faceUp);
+    assert.deepEqual(up.map((c) => c.name), ["Dragonpit Magician"], `viewer ${viewer}: the destroyed scale lies face-up, by name`);
+    assert.ok(view.stateLines.some((l) => /extra \(face-up, Pendulum-summonable\): Dragonpit Magician/.test(l)), `viewer ${viewer}: the LLM's state text lists it on its own line`);
+  }
+  const opp = await viewDuel(duel, 1);
+  assert.equal(opp.state.players[0].extra.filter((c) => !c.faceUp).length, 0, "P0 runs no Extra Deck proper here — every entry is the face-up Pendulum");
 });

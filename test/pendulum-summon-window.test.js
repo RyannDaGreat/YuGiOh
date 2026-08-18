@@ -6,17 +6,16 @@
  *      column into the printed Level and BOTH printed Pendulum Scales. This is a
  *      permanent regression test of our own code.
  *
- *   2. A KNOWN UPSTREAM BUG our data path is not responsible for. `ocgcore-wasm`
- *      0.1.2 marshals `OcgCardData` into the wasm32 struct with `rscale` at byte
- *      offset 48 instead of 44 (and `link_marker` at 52 instead of 48), so the
- *      core never receives ANY card's Right Scale — it reads 0 for every card —
- *      and never receives any Link Marker either. The Pendulum Summon window
- *      therefore comes out as (0, left-zone card's Left Scale) instead of
- *      (min scale, max scale). See concerns.md, 2026-08-17.
- *      The engine tests below PIN that wrong behaviour on purpose, so the harness
- *      has a loud tripwire: the day they start FAILING, the marshalling has been
- *      fixed and they must be swapped for the rules-correct expectations each one
- *      already prints as a diagnostic.
+ *   2. THE ENGINE'S Pendulum Summon window, end to end — which also guards our
+ *      patch of the vendored core. `ocgcore-wasm` 0.1.2 as published marshals
+ *      `OcgCardData` into the wasm32 struct with `rscale` at byte offset 48
+ *      instead of 44 (and `link_marker` at 52 instead of 48), so the core read
+ *      Right Scale 0 and Link Marker 0 for EVERY card: the window collapsed to
+ *      (0, left-zone card's Left Scale) and Link Monsters had no arrows. We fix
+ *      the two offsets with `patches/ocgcore-wasm+0.1.2.patch` (patch-package,
+ *      applied by `npm install`'s postinstall). If these engine tests fail with
+ *      the collapsed window again, the patch did not apply. See concerns.md,
+ *      2026-08-17 (diagnosis) and 2026-08-18 (fix applied).
  *
  * Run: npm test
  */
@@ -44,11 +43,10 @@ const OPPONENT_HAND_SIZE = 5;
  */
 const PENDULUM_SUMMON_ENTRY = /^(Pendulum Summon|Special summon).*\(P0 s0\)/;
 
-const KNOWN_BUG =
-  "ocgcore-wasm 0.1.2 writes OcgCardData.rscale at wasm32 offset 48 instead of 44, so the core " +
-  "sees every Right Scale as 0. If this assertion fails the dependency has been fixed: replace " +
-  "these expectations with the rules-correct ones printed as diagnostics, and retire the " +
-  "workaround notes in concerns.md (2026-08-17).";
+const PATCH_NOTE =
+  "ocgcore-wasm 0.1.2 as published writes OcgCardData.rscale at wasm32 offset 48 instead of 44, so the " +
+  "core saw every Right Scale as 0; patches/ocgcore-wasm+0.1.2.patch fixes it. If this assertion fails " +
+  "with a Right Scale of 0, the patch was not applied (run `npm install`).";
 
 /**
  * Command. Sets up P0 with two Pendulum Zones and a stacked hand, takes the
@@ -153,28 +151,26 @@ test("cards.cdb decoding: printed Level and BOTH printed Pendulum Scales", () =>
   assert.deepEqual([cardInfo(codeOf("Magna Drago")).level, cardInfo(codeOf("Metaphys Armed Dragon")).level], [2, 7]);
 });
 
-test("engine: Pendulum Summon window (pins the ocgcore-wasm 0.1.2 Right Scale bug)", async (t) => {
+test("engine: Pendulum Summon window is (min scale, max scale), both scales reaching the core", async () => {
   // The board from duel PendyVsSpell turn 6: Scale 4 on the left, Scale 8 on the
   // right. The printed rules admit Levels 5-7 — Stargazer and Metaphys only.
   const hand = ["Kuriboh", "Magna Drago", "Sangan", "Performapal Salutiger", "Stargazer Magician", "Metaphys Armed Dragon"];
   const { offered, scales } = await pendulumWindow("Performapal Trump Witch", "Dragonpit Magician", hand);
-  t.diagnostic("rules-correct answer: Stargazer Magician (Lv5), Metaphys Armed Dragon (Lv7)");
-
-  assert.equal(scales.s0.leftScale, 4, "the Left Scale does survive the trip into the core");
-  assert.equal(scales.s4.rightScale, 0, KNOWN_BUG);
-  // The window collapses to (0, 4): every Level 1-3 monster, none of the legal ones.
-  assert.deepEqual(offered, ["Kuriboh", "Magna Drago", "Sangan"], KNOWN_BUG);
+  assert.deepEqual([scales.s0.leftScale, scales.s0.rightScale], [4, 4]);
+  assert.deepEqual([scales.s4.leftScale, scales.s4.rightScale], [8, 8], PATCH_NOTE);
+  assert.deepEqual(offered, ["Stargazer Magician", "Metaphys Armed Dragon"], PATCH_NOTE);
 });
 
-test("engine: a low Left Scale suppresses the Pendulum Summon entirely (same bug)", async (t) => {
-  // Scale 1 on the left, Scale 8 on the right: the rules admit Levels 2-7, so
-  // every monster below is legal. The lost Right Scale collapses the window to
-  // (0, 1), which contains no Level at all, and the option vanishes from the menu.
+test("engine: a Scale 1 / Scale 8 pair admits Levels 2-7", async () => {
   const hand = ["Kuriboh", "Magna Drago", "Sangan", "Performapal Salutiger", "Metaphys Armed Dragon"];
   const { offered, scales } = await pendulumWindow("Stargazer Magician", "Dragonpit Magician", hand);
-  t.diagnostic("rules-correct answer: Magna Drago, Sangan, Performapal Salutiger, Metaphys Armed Dragon");
+  assert.deepEqual([scales.s0.leftScale, scales.s4.rightScale], [1, 8], PATCH_NOTE);
+  assert.deepEqual(offered, ["Magna Drago", "Sangan", "Performapal Salutiger", "Metaphys Armed Dragon"], PATCH_NOTE);
+});
 
-  assert.equal(scales.s0.leftScale, 1);
-  assert.equal(scales.s4.rightScale, 0, KNOWN_BUG);
-  assert.deepEqual(offered, [], KNOWN_BUG);
+test("engine: the Endymion board — Jackal King (4) / Magister (8) offers Endymion (Lv7)", async () => {
+  // Reported 2026-08-18 on the live site: no Pendulum Summon entry at all with these
+  // scales and Endymion in hand — the collapsed (0, 4) window admitted no Level 7.
+  const { offered } = await pendulumWindow("Mythical Beast Jackal King", "Magister of Endymion", ["Endymion, the Mighty Master of Magic", "Sangan"]);
+  assert.deepEqual(offered, ["Endymion, the Mighty Master of Magic"]);
 });

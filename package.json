@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "postinstall": "patch-package"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "ygo": "./bin/ygo.js"
   },
   "devDependencies": {
+    "patch-package": "^8.0.1",
     "puppeteer": "^25.7.0"
   },
   "allowScripts": {

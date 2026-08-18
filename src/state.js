@@ -168,7 +168,9 @@ function normalizeCounters(raw) {
  *     {name: string|null, code: number, position: string, faceDown: boolean, negated: boolean,
  *      setThisTurn: boolean, summonedThisTurn: boolean,
  *      atk?, def?, baseAtk?, baseDef?, level?, rank?, link?, typeLabel?, scale?: string,
- *      equippedTo?: string, targets?: string[], materials?: string[], counters?: object}
+ *      equippedTo?: string, targets?: string[], materials?: Array<{name: string, code: number}>, counters?: object}
+ *     `materials` are an Xyz Monster's overlay units, top of the stack last, with the code so
+ *     the table can draw them stacked under the monster.
  *     `scale` is set only for a Pendulum Monster sitting in a spell/trap zone —
  *     that is a Pendulum Zone, where the scale is the card's whole point.
  *     `setThisTurn` / `summonedThisTurn` are public information (everyone saw the
@@ -200,10 +202,9 @@ export function fieldCardData(card, known, isMonsterZone) {
   if (isMonsterZone) {
     Object.assign(data, { atk: card.attack, def: card.defense, baseAtk: card.baseAttack, baseDef: card.baseDefense, level: card.level, rank: card.rank, link: card.link?.rating ?? 0 });
   } else if (isPendulumMonster(card.code)) {
-    // A Pendulum Monster in a spell/trap zone is a scale in a Pendulum Zone.
-    // The scale is the printed one (cards.cdb), not the core's: ocgcore-wasm
-    // does not deliver rscale to the engine, so the queried rightScale is 0 for
-    // every card (see claude_instructions.md "Pendulum scales").
+    // A Pendulum Monster in a spell/trap zone is a scale in a Pendulum Zone. The
+    // scale shown is the printed one (cards.cdb) — a scale never changes in play
+    // for the cards we ship, and it is the number a player reads off the card.
     data.scale = scaleText(info.lscale, info.rscale);
   }
   if (card.equipCard) {
@@ -213,7 +214,7 @@ export function fieldCardData(card, known, isMonsterZone) {
     data.equipTarget = coord(card.equipCard);
   }
   if (card.targetCards?.length) data.targets = card.targetCards.map((t) => `P${t.controller} ${zoneLabel(t.location, t.sequence)}`);
-  if (card.overlayCards?.length) data.materials = card.overlayCards.map(cardName);
+  if (card.overlayCards?.length) data.materials = card.overlayCards.map((code) => ({ name: cardName(code), code }));
   if (card.counters && Object.keys(card.counters).length) data.counters = normalizeCounters(card.counters);
   return data;
 }
@@ -340,7 +341,7 @@ export function describeFieldCard(c) {
   if (c.negated) parts.push("[effects negated]");
   if (c.equippedTo) parts.push(`[equipped to ${c.equippedTo}]`);
   if (c.targets) parts.push(`[targets ${c.targets.join(", ")}]`);
-  if (c.materials) parts.push(`[materials: ${c.materials.join(", ")}]`);
+  if (c.materials) parts.push(`[materials: ${c.materials.map((m) => m.name).join(", ")}]`);
   if (c.counters) parts.push(`[counters: ${Object.entries(c.counters).map(([type, n]) => `${n}x#${type}`).join(", ")}]`);
   return parts.join(" ") + setNote;
 }
