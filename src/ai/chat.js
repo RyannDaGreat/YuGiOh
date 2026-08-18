@@ -117,7 +117,11 @@ export const LOG_TAIL_LINES = 20;
  */
 export function chatPrompt(seat, lines, talk = DEFAULT_TALK, other = null, context = {}) {
   const who = (m) => (m.seat === 2 ? "spectator" : `P${m.seat}`);
-  const otherLine = other ? `The other player is P${other.seat} (${other.names.filter(Boolean).join(", ")}). A remark about THEIR play or addressed to THEM is not yours to answer: reply ${NO_REPLY}.` : "";
+  // Who is being answered was decided BEFORE the model saw anything (player.js:
+  // addressee/conversationTarget), so the model is told, not asked, that these
+  // lines are its to answer. Asking it to judge made a nano model decline
+  // "what do you think of my opening hand" as being about the other player.
+  const otherLine = other ? `The other player is P${other.seat} (${other.names.filter(Boolean).join(", ")}). The lines below were addressed to YOU, or to the table with you as the one to answer — so answer them, even when they are about the other player's cards or plays.` : "";
   const { earlier = [], logTail = [], board = [] } = context;
   const mood = talk === "chatty"
     ? "You enjoy table talk: a short quip is welcome whenever there is anything to react to."
@@ -134,9 +138,10 @@ export function chatPrompt(seat, lines, talk = DEFAULT_TALK, other = null, conte
     ...lines.map((m) => `${m.name} (${who(m)}): ${m.text}`),
     "",
     "Answer THIS, concretely: name the cards and the effects involved when asked how or why. Do not restate your game plan.",
+    "You cannot see the other player's hand or face-downs; say so if asked about them, then answer what you can.",
     mood,
     ...(otherLine ? [otherLine] : []),
-    "If someone asks for quiet, the only right answer is silence: reply " + NO_REPLY + ".",
+    "If someone asks for quiet, the only right answer is silence: reply " + NO_REPLY + ". Otherwise, when a person spoke to you, reply.",
     `You are P${seat}. If someone asked you something or said something worth answering, reply as yourself at the table`,
     "in ONE short sentence, in character and sporting. Otherwise say nothing: table talk is occasional, not a running",
     "commentary, and you never reply just to keep a conversation going.",
