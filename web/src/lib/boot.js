@@ -5,6 +5,7 @@
  * the same promise, so concurrent loads never double-install.
  */
 import { base } from "$app/paths";
+import { ASSETS } from "./assets.js";
 import { STATIC } from "./host.js";
 
 let booted = null;
@@ -29,7 +30,9 @@ export function boot() {
         import("../../../src/volume-browser.js"),
         import("../../../src/cardsource-browser.js"),
       ]);
-      const [vol, cards] = await Promise.all([openBrowserVolume(), openBrowserCardSource(`${base}/carddata`)]);
+      // The bundle under `base` is the fast path; the assets branch (ASSETS) holds the
+      // complete database and every script, so any card the core asks for is reachable.
+      const [vol, cards] = await Promise.all([openBrowserVolume(), openBrowserCardSource(`${base}/carddata`, { fallbackUrl: ASSETS })]);
       // A fresh browser has an empty volume, so the built-in decks are seeded from
       // the same archive format `ygo export` writes. replace=false: they appear once,
       // and anything the user has since edited or added is left alone.

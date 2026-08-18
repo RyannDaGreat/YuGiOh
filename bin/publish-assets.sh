@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Publishes the large binary assets — full-resolution card art and box art — to
-# the orphan `assets` branch, so main never carries them and a clone stays small.
+# Publishes the large assets — full-resolution card art and box art, the complete
+# card database and every card script — to the orphan `assets` branch, so main
+# never carries them and a clone stays small.
 #
 # The static site (GitHub Pages) loads images from that branch by URL
 # (web/src/lib/assets.js); the Node host keeps serving vendor/ locally as before.
@@ -31,17 +32,32 @@ fi
 [ -d "$WORKTREE" ] || git worktree add "$WORKTREE" "$BRANCH" >/dev/null
 
 # Replace contents wholesale so removals propagate too.
-rm -rf "$WORKTREE/pics" "$WORKTREE/boxart"
-mkdir -p "$WORKTREE/pics" "$WORKTREE/boxart"
+rm -rf "$WORKTREE/pics" "$WORKTREE/boxart" "$WORKTREE/scripts" "$WORKTREE/carddata"
+mkdir -p "$WORKTREE/pics" "$WORKTREE/boxart" "$WORKTREE/scripts"
 cp vendor/pics/*.jpg "$WORKTREE/pics/"
 cp vendor/boxart/* "$WORKTREE/boxart/"
+
+# The COMPLETE card corpus, so the in-browser engine can reach any card ever
+# printed exactly as Node can: every card's data in one file (fetched in the
+# background after boot; also the synchronous fallback for a card the small
+# bundle lacks) and every script, flat, by basename (fetched synchronously the
+# moment the core asks for one that was not prefetched). Tokens made mid-duel,
+# cards a script names by number, anything -- no guessing what a duel will need.
+node bin/bake-carddata.js --assets "$WORKTREE"
+cp vendor/CardScripts/*.lua vendor/CardScripts/official/*.lua "$WORKTREE/scripts/"
 cat > "$WORKTREE/README.md" <<'MD'
 # YuGi assets
 
-Full-resolution card art (`pics/<passcode>.jpg`) and Structure/Starter Deck box
-art (`boxart/<setCode>.<ext>`) for https://github.com/RyannDaGreat/YuGiOh.
-Kept on this orphan branch so the main branch stays small; the static site loads
-them by URL and a local checkout serves its own `vendor/` copy.
+Large assets for https://github.com/RyannDaGreat/YuGiOh, kept on this orphan
+branch so the main branch stays small; the static site loads them by URL and a
+local checkout serves its own `vendor/` copy:
+
+- `pics/<passcode>.jpg` — full-resolution card art
+- `boxart/<setCode>.<ext>` — Structure/Starter Deck box art
+- `carddata/cards-all.json` — every card's data (the whole database)
+- `scripts/<name>.lua` — every card script and shared library, flat by basename
+
+Card scripts are Project Ignis CardScripts, AGPL-3.0, redistributed unmodified.
 
 Yu-Gi-Oh! and all card art are the property of Konami; this is a non-commercial
 fan project. Card images come from YGOPRODeck and are self-hosted here rather than
@@ -54,7 +70,7 @@ git -C "$WORKTREE" add -A
 if git -C "$WORKTREE" diff --cached --quiet; then
   echo "assets: no changes ($(ls "$WORKTREE/pics" | wc -l | tr -d ' ') pics, $(ls "$WORKTREE/boxart" | wc -l | tr -d ' ') box art)"
 else
-  git -C "$WORKTREE" commit -qm "[C] Update assets: $(ls "$WORKTREE/pics" | wc -l | tr -d ' ') card images, $(ls "$WORKTREE/boxart" | wc -l | tr -d ' ') box art"
+  git -C "$WORKTREE" commit -qm "[C] Update assets: $(ls "$WORKTREE/pics" | wc -l | tr -d ' ') card images, $(ls "$WORKTREE/boxart" | wc -l | tr -d ' ') box art, $(ls "$WORKTREE/scripts" | wc -l | tr -d ' ') scripts, full card database"
   echo "assets: committed $(du -sh "$WORKTREE" | cut -f1)"
 fi
 git push -q origin "$BRANCH"

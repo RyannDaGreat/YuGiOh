@@ -547,9 +547,9 @@
   "proc_xyz.lua",
   "utility.lua"
  ],
- "cards": 607,
+ "cards": 615,
  "seededDecks": 40,
  "sharedScripts": 25,
  "cardScripts": 520,
- "vanillaCards": 87
+ "vanillaCards": 95
 }

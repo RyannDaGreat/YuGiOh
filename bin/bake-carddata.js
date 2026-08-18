@@ -19,14 +19,24 @@
 
 import "../src/volume-node.js";
 import "../src/cardsource-node.js";
+import { parseArgs } from "node:util";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exportArchive } from "../src/archive.js";
-import { REPO_ROOT, cardInfo, codeOf } from "../src/cards.js";
+import { REPO_ROOT, allCards, cardInfo, codeOf } from "../src/cards.js";
 import { rowById, textById } from "../src/cardsource.js";
 import { listDecks, loadDeck } from "../src/store.js";
 
 const OUT = join(REPO_ROOT, "web/static/carddata");
+/**
+ * `--assets <dir>`: also write the COMPLETE card database into <dir>/carddata/
+ * cards-all.json (every card ever printed, ~8.5 MB, 1.5 MB gzipped). That file
+ * lives on the assets branch (bin/publish-assets.sh), never in main; the browser
+ * fetches it in the background after boot and falls back to it synchronously
+ * for anything the small bundle lacks. It is what makes the in-browser engine
+ * equivalent to Node instead of a guess at what a duel will need.
+ */
+const { values: args } = parseArgs({ options: { assets: { type: "string" } } });
 const SCRIPTS_SRC = join(REPO_ROOT, "vendor/CardScripts");
 const STRINGS_SRC = join(REPO_ROOT, "vendor/strings.conf");
 
@@ -40,6 +50,9 @@ for (const name of listDecks()) {
     for (const [cardName] of list ?? []) codes.add(codeOf(cardName));
   }
 }
+
+/** How far around a card's own passcode `id±…` arithmetic may reach (Scapegoat's four tokens are id+1..id+4). */
+const ID_NEIGHBOURHOOD = 8;
 
 /**
  * Query. The passcodes a card script can reach for at runtime: tokens it
@@ -66,12 +79,44 @@ function referencedCodes(code) {
   if (!existsSync(path)) return [];
   const text = readFileSync(path, "utf8");
   const found = new Set();
-  // `id+N` / `id-N`: tokens and sibling printings are addressed relative to the card.
-  for (const m of text.matchAll(/\bid\s*([+-])\s*(\d+)\b/g)) found.add(m[1] === "+" ? code + Number(m[2]) : code - Number(m[2]));
+  // `id+N` / `id-N`: tokens and sibling printings are addressed relative to the
+  // card — and not always with a literal (Scapegoat: `Duel.CreateToken(tp,id+i)`
+  // for i=1..4). Any relative arithmetic therefore pulls in the whole small
+  // neighbourhood that exists in cards.cdb; a few spare cards is nothing next to
+  // a duel dying mid-effect.
+  if (/\bid\s*[+-]/.test(text)) for (let d = -ID_NEIGHBOURHOOD; d <= ID_NEIGHBOURHOOD; d++) if (d) found.add(code + d);
   // Bare 5-9 digit literals that are real passcodes.
   for (const m of text.matchAll(/(?<![\w.])(\d{5,9})(?![\w.])/g)) found.add(Number(m[1]));
+  // Named token constants from the shared Lua; `TOKEN_X+i` reaches a neighbourhood too.
+  for (const m of text.matchAll(/\b(TOKEN_\w+)\b(\s*[+-])?/g)) {
+    const base = TOKEN_CONSTANTS.get(m[1]);
+    if (base === undefined) continue;
+    found.add(base);
+    if (m[2]) for (let d = -ID_NEIGHBOURHOOD; d <= ID_NEIGHBOURHOOD; d++) if (d) found.add(base + d);
+  }
   return [...found].filter((c) => c !== code && rowById(c) !== null);
 }
+
+/**
+ * Query. Token passcodes the shared Lua defines by name (`TOKEN_OJAMA = 29843092`
+ * in constant.lua and friends), so a card script that says `TOKEN_OJAMA+i` can
+ * be resolved without executing Lua.
+ *
+ * Returns:
+ *     Map<string, number>: constant name -> passcode.
+ *
+ * Examples:
+ *     >>> tokenConstants().get("TOKEN_OJAMA")   // 29843092
+ */
+function tokenConstants() {
+  const map = new Map();
+  for (const name of readdirSync(SCRIPTS_SRC)) {
+    if (!name.endsWith(".lua")) continue;
+    for (const m of readFileSync(join(SCRIPTS_SRC, name), "utf8").matchAll(/^\s*(TOKEN_\w+)\s*=\s*(\d+)/gm)) map.set(m[1], Number(m[2]));
+  }
+  return map;
+}
+const TOKEN_CONSTANTS = tokenConstants();
 
 // Close the deck cards over what their scripts reference, transitively.
 const queue = [...codes];
@@ -93,9 +138,28 @@ for (const code of [...codes].sort((a, b) => a - b)) {
   // setcode is what archetype checks (IsSetCard) match on, and the per-card
   // script strings are the effect names prompts show — both invisible until a
   // card misbehaves in the browser, so they ride along from the raw rows.
+  cards[code] = bakedCard(code, info);
+}
+writeFileSync(join(OUT, "cards.json"), JSON.stringify(cards));
+
+/**
+ * Pure function. One card's baked record — every field cards.js reads, plus the
+ * raw setcode (archetype checks) and script strings (effect names in prompts).
+ *
+ * Args:
+ *     code (number): Passcode.
+ *     info (object): cardInfo(code).
+ *
+ * Returns:
+ *     object
+ *
+ * Examples:
+ *     >>> bakedCard(89631139, cardInfo(89631139)).name   // "Blue-Eyes White Dragon"
+ */
+function bakedCard(code, info) {
   const row = rowById(code);
   const text = textById(code);
-  cards[code] = {
+  return {
     code: info.code, name: info.name, desc: info.desc,
     atk: info.atk, def: info.def, level: info.level,
     lscale: info.lscale, rscale: info.rscale,
@@ -105,7 +169,18 @@ for (const code of [...codes].sort((a, b) => a - b)) {
     strings: text?.strings ?? [],
   };
 }
-writeFileSync(join(OUT, "cards.json"), JSON.stringify(cards));
+
+if (args.assets) {
+  const dir = join(args.assets, "carddata");
+  mkdirSync(dir, { recursive: true });
+  const everything = {};
+  for (const { code } of allCards()) {
+    const info = cardInfo(code);
+    if (info) everything[code] = bakedCard(code, info);
+  }
+  writeFileSync(join(dir, "cards-all.json"), JSON.stringify(everything));
+  console.log(`  -> ${dir}/cards-all.json  ${Object.keys(everything).length} cards (the whole database, for the assets branch)`);
+}
 
 // 2. Lua. Shared libraries are needed by every duel; card scripts only for cards
 //    in play. A card with no script is a vanilla and needs none — that is normal.

@@ -159,9 +159,10 @@ export function bakedRow(card) {
  * Examples:
  *     >>> // await openBrowserCardSource("/YuGiOh/carddata")   // {cards: 584, scripts: 530}
  */
-export async function openBrowserCardSource(baseUrl) {
+export async function openBrowserCardSource(baseUrl, { fallbackUrl = null } = {}) {
   if (!baseUrl) throw new Error("openBrowserCardSource needs the carddata base URL (e.g. `${base}/carddata`)");
   const root = baseUrl.replace(/\/$/, "");
+  const fallback = fallbackUrl ? fallbackUrl.replace(/\/$/, "") : null;
 
   const [manifestText, cardsText, systemStrings] = await Promise.all([
     fetchText(`${root}/manifest.json`),
@@ -193,7 +194,101 @@ export async function openBrowserCardSource(baseUrl) {
 
   const cards = {};
   for (const code of codes) cards[code] = bakedRow(baked[code]);
-  setCardSource(memoryCardSource(cards, scripts, systemStrings));
+  setCardSource(fallback ? completeSource(cards, scripts, systemStrings, fallback) : memoryCardSource(cards, scripts, systemStrings));
 
-  return { cards: codes.length, scripts: names.length };
+  return { cards: codes.length, scripts: names.length, complete: Boolean(fallback) };
+}
+
+/**
+ * Command. Fetches a URL SYNCHRONOUSLY on the main thread. Deprecated by browsers
+ * for good reason, and used here for exactly the one case it exists for: the
+ * ocgcore reader callbacks are synchronous WASM->JS calls that cannot await, and
+ * a card the core asks for mid-duel that was not prefetched (a token, a card a
+ * script names by number) must be answered NOW or the duel dies. It blocks for
+ * one round trip, on a rare miss.
+ *
+ * Args:
+ *     url (string): Absolute URL.
+ *
+ * Returns:
+ *     string|null: The body, or null on 404. Throws on any other failure.
+ *
+ * Examples:
+ *     >>> // fetchSync("https://raw.githubusercontent.com/…/assets/scripts/c73915051.lua")   // "--Scapegoat\n…"
+ *     >>> // fetchSync(".../scripts/c99999999.lua")   // null
+ */
+function fetchSync(url) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", url, false);
+  xhr.send();
+  if (xhr.status === 404) return null;
+  if (xhr.status < 200 || xhr.status >= 300) throw new Error(`card corpus fetch failed: ${xhr.status} ${url}`);
+  return xhr.responseText;
+}
+
+/**
+ * Command. A card source that can reach EVERY card and script, like Node's:
+ * the baked bundle first (resident, fast), then the complete database from the
+ * assets branch (fetched in the background right after boot; fetched
+ * synchronously the first time something is missing before that lands), then
+ * for scripts a synchronous fetch of the one file the core asked for. Misses
+ * are remembered as null so nothing is fetched twice.
+ *
+ * This is what retires "the bundle forgot the token" as a class of bug: the
+ * bundle is a cache, and correctness never depends on what it guessed.
+ *
+ * Args:
+ *     cards (object): Baked rows by code (mutated as the full database lands).
+ *     scripts (object): Script text by basename (mutated as misses are fetched).
+ *     systemStrings (string): strings.conf.
+ *     fallback (string): Base URL of the assets branch.
+ *
+ * Returns:
+ *     object: A card source implementing the interface in cardsource.js.
+ *
+ * Examples:
+ *     >>> // completeSource(cards, scripts, conf, "https://raw.githubusercontent.com/RyannDaGreat/YuGiOh/assets").rowById(73915053)
+ *     >>> // {id: 73915053, name: "Sheep Token", …}   (fetched, even though no deck lists it)
+ */
+function completeSource(cards, scripts, systemStrings, fallback) {
+  const rows = new Map(Object.entries(cards).map(([code, row]) => [Number(code), row]));
+  let full = null; // the whole database, once it has landed
+  const allUrl = `${fallback}/carddata/cards-all.json`;
+
+  const absorb = (text) => {
+    full = JSON.parse(text);
+    for (const [code, card] of Object.entries(full)) if (!rows.has(Number(code))) rows.set(Number(code), bakedRow(card));
+    return full;
+  };
+  // Background load: by the time a mid-duel token is needed this has usually landed.
+  fetch(allUrl, { cache: "no-cache" }).then((r) => (r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${allUrl}`))))
+    .then((text) => { if (!full) absorb(text); })
+    .catch((err) => console.warn("full card database did not load in the background; misses will fetch it synchronously:", err.message));
+
+  const row = (code) => {
+    const have = rows.get(code);
+    if (have) return have;
+    if (!full) {
+      const text = fetchSync(allUrl);
+      if (text) absorb(text);
+    }
+    return rows.get(code) ?? null;
+  };
+  const script = (name) => {
+    const base = name.split("/").pop();
+    if (base in scripts) return scripts[base];
+    // A miss: fetch that one script now, and remember the answer either way.
+    scripts[base] = fetchSync(`${fallback}/scripts/${base}`);
+    return scripts[base];
+  };
+
+  const memory = memoryCardSource(cards, scripts, systemStrings);
+  return {
+    ...memory,
+    rowById: row,
+    textById: row,
+    script,
+    // Name lookups and listings stay bundle-scoped: they serve decklists and the
+    // deck viewer, which only ever name cards the bundle already holds.
+  };
 }
