@@ -543,14 +543,29 @@ option that names a place on the table is ALSO playable from the table itself:
   in a zone-select menu, piles with activatable/summonable cards, and phase pills all get it.
 - One shared `hoverOption` (duel page) lights the option in the aside, in the context menu and on the table
   at once (`.lit` / `.option-lit`): hover a row → its card glows; hover a card → its row glows.
-- Click: ONE option acts at once (attack with this monster, place here, pick this target); SEVERAL open
-  `ContextMenu.svelte` at the pointer with just that card's options (Escape / outside click close it).
+- Click: SEVERAL options open `ContextMenu.svelte` at the pointer with just that card's options (Escape /
+  outside click close it). ONE option acts at once only when the **confirm-clicks** toggle is off, or the
+  option is a bare zone pick ("P0 m3") or a phase pill (`direct`); with the toggle on (the default) even a
+  single option is shown first — owner: "sometimes when I click a card and it just does some things,
+  sometimes it's unsafe… even if there's only one option, it still shows me that option".
   `pickFromTable` submits an exact-count selection (min = max, e.g. a zone or "exactly 1" target) as soon
   as it is complete — the click IS the confirmation; ranges still wait for the aside's Confirm.
 - Only while it is the viewer's decision (`myTurn`); respond windows included, so a set trap that can be
   activated wears the rim too.
 - Verified by Puppeteer: rims, hover both ways, context menu open/close/pick, zone-select placement, EP
   pill ending the turn, and a whole attack (monster rim → attack → target rim, hover-lit → click resolves).
+
+**Table settings, remembered (`web/src/lib/panels.js`: `panelOpen(name, fallback)` / `setPanelOpen`,
+one localStorage key per setting).** All in the duel header or as `<details>` panels: `confirm-clicks`
+(above; default on); the **AI players** and **Log** panels collapse and remember it (owner: the AI panel
+"actually shows spoilers" — its "last: Set …" line — so it must be closable); **opponent's cards:
+turned/upright** (`opponent-upside-down`, default on) — the far player's cards are drawn turned 180° toward
+them, as on a real table and in Master Duel, so ownership reads from orientation alone (owner: "I can't tell
+who owns what card… maybe we should have an option for opponent's cards to be upside down"). Only the
+picture turns (`Card.svelte upsideDown` rotates the art/back `<img>`, never badges, tags or the stat line);
+`Table.facesAway(p)` = option on ∧ p is not the seat at the bottom, applied to zones, EMZ, pile tops, hand
+backs, flyers and ghosts. Own cards are never turned — "if we make every card upside down that could be
+kind of a miserable experience".
 
 **Modified stats (2026-08-18).** A monster whose ATK (or DEF, when in defence) differs from its printed
 value draws its stat line in `--stat-modified-color` (brighter, yellower) with a `printed N` tooltip

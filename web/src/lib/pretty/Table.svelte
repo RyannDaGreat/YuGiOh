@@ -27,7 +27,10 @@
   import { sfx } from "./sound.js";
   import { optionsAt } from "./optionPlaces.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null, options = [], phaseOptionIndex = {}, hoverOption = null, onhoveroption = () => {}, onoptions = () => {} } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null, options = [], phaseOptionIndex = {}, hoverOption = null, onhoveroption = () => {}, onoptions = () => {}, opponentUpsideDown = false } = $props();
+
+  /** Query. Whether player p's cards are drawn turned toward them — the far side of the table, when the option is on. */
+  const facesAway = (p) => opponentUpsideDown && p !== me;
 
   /**
    * Which menu options a table element owns (see optionPlaces.js). Every element
@@ -306,7 +309,7 @@
     if (!a || !b) return; // an endpoint we can't see (masked/off-screen) — skip, don't guess
     const { w, h } = cardFlySize();
     const id = daggerId++;
-    flyers = [...flyers, { id, from: centre(a), to: centre(b), w, h, code, back: backs[p] ?? backs[0], faceFrom, faceTo, ms }];
+    flyers = [...flyers, { id, from: centre(a), to: centre(b), w, h, code, back: backs[p] ?? backs[0], faceFrom, faceTo, ms, upsideDown: facesAway(p) }];
     setTimeout(() => { flyers = flyers.filter((f) => f.id !== id); }, ms + FLY_LINGER_MS);
   }
 
@@ -328,7 +331,7 @@
     if (!r) return;
     const id = daggerId++;
     const { w, h } = cardFlySize();
-    ghosts = [...ghosts, { id, zone, at: centre(r), w, h, code, back: backs[at.p] ?? backs[0] }];
+    ghosts = [...ghosts, { id, zone, at: centre(r), w, h, code, back: backs[at.p] ?? backs[0], upsideDown: facesAway(at.p) }];
     setTimeout(() => { ghosts = ghosts.filter((g) => g.id !== id); }, GHOST_MS);
   }
 
@@ -575,7 +578,7 @@
   {@const opts = at(p, zone, seq)}
   {@const here = (zone === "m" ? board.players[p].mzone : board.players[p].szone)[seq]}
   <div data-zone={zoneId(p, zone, seq)} class="relative justify-self-center {fx[zoneId(p, zone, seq)] ?? ''}">
-    <Card card={here} {label} own={p === viewer} {debug} back={backs[p]} {onhover} {onclick} />
+    <Card card={here} {label} own={p === viewer} {debug} back={backs[p]} upsideDown={facesAway(p)} {onhover} {onclick} />
     {@render attackMark(zoneId(p, zone, seq))}
     {@render optionRim(opts, "zone", /DEF/.test(here?.position ?? ""))}
   </div>
@@ -585,7 +588,7 @@
   {@const card = bottom.mzone[mine] ?? top.mzone[theirs]}
   {@const owner = bottom.mzone[mine] ? me : 1 - me}
   <div data-zone={zoneId(me, "m", mine)} data-zone-alt={zoneId(1 - me, "m", theirs)} class="relative justify-self-center {fx[zoneId(me, 'm', mine)] ?? fx[zoneId(1 - me, 'm', theirs)] ?? ''}">
-    <Card {card} label="EMZ" own={owner === viewer} {debug} back={backs[owner]} {onhover} {onclick} />
+    <Card {card} label="EMZ" own={owner === viewer} {debug} back={backs[owner]} upsideDown={facesAway(owner)} {onhover} {onclick} />
     {@render attackMark(bottom.mzone[mine] ? zoneId(me, "m", mine) : zoneId(1 - me, "m", theirs))}
     {@render optionRim([...at(me, "m", mine), ...at(1 - me, "m", theirs)], "zone", /DEF/.test(card?.position ?? ""))}
   </div>
@@ -597,12 +600,12 @@
   <div class="justify-self-center flex flex-col items-center">
     <div data-zone={zoneId(p, kind, 0)} class="relative transition-transform duration-300 hover:scale-105">
       {#if kind === "grave"}
-        <Card card={topGrave ? { ...topGrave, faceDown: false, position: "" } : null} label="GY" count={pl.grave.length} {onhover} {onclick} />
+        <Card card={topGrave ? { ...topGrave, faceDown: false, position: "" } : null} label="GY" count={pl.grave.length} upsideDown={facesAway(p)} {onhover} {onclick} />
       {:else if kind === "deck"}
-        <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} back={backs[p]} />
+        <Card card={pl.deckCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="deck" count={pl.deckCount} back={backs[p]} upsideDown={facesAway(p)} />
       {:else}
         {@const faceUp = pl.extra.filter((c) => c.faceUp).length}
-        <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} back={backs[p]} />
+        <Card card={pl.extraCount ? { name: null, code: 0, faceDown: true, position: "" } : null} label="extra" count={pl.extraCount} back={backs[p]} upsideDown={facesAway(p)} />
         <!-- Pendulums lying face-up in the Extra Deck are public and re-summonable: badge how many. -->
         {#if faceUp}<span class="absolute left-0.5 top-0.5 z-10 text-[0.55rem] font-bold bg-yellow-300 text-yellow-950 px-1 rounded pointer-events-none" title="{faceUp} face-up (Pendulum) — click the pile to see which">▲{faceUp}</span>{/if}
       {/if}
@@ -623,7 +626,7 @@
   <div data-zone-area={`${p}-hand`} class="flex gap-1 justify-center py-1 min-h-[calc(var(--card-w-hand)*86/59+0.5rem)]">
     {#each keyed(cards) as { card: c, key }, i (key)}
       <div data-zone={zoneId(p, "hand", i)} class="relative" animate:flip={{ duration: HAND_FLIP_MS }}>
-        <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} back={backs[p]} {onhover} {onclick} />
+        <Card card={c.code ? { ...c, faceDown: false } : { name: null, code: 0, faceDown: true, position: "" }} size="hand" {debug} upsideDown={facesAway(p)} back={backs[p]} {onhover} {onclick} />
         {@render optionRim(c.code ? at(p, "hand", i, c.name) : [], "hand")}
       </div>
     {/each}
@@ -726,11 +729,11 @@
        board already shows that zone empty (see `ghosts`). Same overlay card as a
        flight, with the two endpoints equal, so it simply stands there. -->
   {#each ghosts as g (g.id)}
-    <FlyingCard from={g.at} to={g.at} w={g.w} h={g.h} code={g.code} back={g.back} />
+    <FlyingCard from={g.at} to={g.at} w={g.w} h={g.h} code={g.code} back={g.back} upsideDown={g.upsideDown} />
   {/each}
   <!-- Unified card-flight overlay: one FlyingCard per zone→zone move (see play()). -->
   {#each flyers as f (f.id)}
-    <FlyingCard from={f.from} to={f.to} w={f.w} h={f.h} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={f.ms} />
+    <FlyingCard from={f.from} to={f.to} w={f.w} h={f.h} code={f.code} back={f.back} faceFrom={f.faceFrom} faceTo={f.faceTo} duration={f.ms} upsideDown={f.upsideDown} />
   {/each}
 
   <!-- Coin / dice toss result, centered for ~1s (paired with the coinflip/diceroll SFX). -->

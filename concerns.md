@@ -915,3 +915,14 @@ answers "the whole pile" for seq null and "this card" for a seq, and `PileModal`
 card with options and opens its own context menu. Verified with Puppeteer on the Node host (Cyber-Stein
 → Extra Deck selection: pile rim title "click to list this pile — 5 options inside", click opens "Your
 extra deck (5)", 5 cards rimmed, clicking one gives only "Master of Oz (P0 extra 0)").
+
+## 2026-08-18 — Whose card is that? Opponent's cards drawn turned
+
+Owner: "cards in the middle usually you can tell who owns them from the orientation… I can't tell
+because they're always right side up… maybe we should have an option for opponents cards to be upside
+down… that is actually how they do it in master duel." Added `opponent-upside-down` (default on,
+remembered, header toggle "opponent's cards: turned/upright"): `Card.svelte upsideDown` rotates just the
+art/back image; the Table applies it to every card of the far player (zones, EMZ, pile tops, hand backs,
+flyers, ghosts). Verified with Puppeteer on the Node host: 7/7 opponent images turned, 0 of mine, toggle
+→ 0, survives reload. Note the manifest had never documented confirm-clicks / collapsible panels /
+panels.js — added a "Table settings" paragraph while here.

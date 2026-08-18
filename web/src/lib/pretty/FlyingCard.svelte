@@ -20,10 +20,11 @@
    * @prop {boolean} faceFrom  face-up at the source?
    * @prop {boolean} faceTo    face-up at the destination?
    * @prop {number} duration   ms for the trip
+   * @prop {boolean} upsideDown the card belongs to the far player and the table draws their cards turned (Card.svelte)
    */
   import { onMount } from "svelte";
 
-  let { from, to, w = 60, h = 88, code = 0, back = "", faceFrom = true, faceTo = true, duration = 380 } = $props();
+  let { from, to, w = 60, h = 88, code = 0, back = "", faceFrom = true, faceTo = true, duration = 380, upsideDown = false } = $props();
 
   // A flyer is spawned once with fixed endpoints/faces and removed after the
   // trip; it never reacts to prop changes, so capturing the initial values here
@@ -52,8 +53,8 @@
   style="--fly-ms:{duration}ms; left:{cx - w / 2}px; top:{cy - h / 2}px; width:{w}px; height:{h}px; transition:left var(--fly-ms) cubic-bezier(.4,0,.2,1), top var(--fly-ms) cubic-bezier(.4,0,.2,1);"
 >
   {#if showFace && code && !broken}
-    <img src="{ASSETS}/pics/{code}.jpg" alt="" class="absolute inset-0 w-full h-full object-cover rounded shadow-lg" onerror={() => (broken = true)} />
+    <img src="{ASSETS}/pics/{code}.jpg" alt="" class="absolute inset-0 w-full h-full object-cover rounded shadow-lg {upsideDown ? 'rotate-180' : ''}" onerror={() => (broken = true)} />
   {:else}
-    <img src={back} alt="" class="absolute inset-0 w-full h-full object-cover rounded shadow-lg" />
+    <img src={back} alt="" class="absolute inset-0 w-full h-full object-cover rounded shadow-lg {upsideDown ? 'rotate-180' : ''}" />
   {/if}
 </div>

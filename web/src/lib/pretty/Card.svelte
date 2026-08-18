@@ -13,10 +13,13 @@
    * @prop {boolean} debug      debug peek: hidden face-downs are treated as known (any seat)
    * @prop {number} count       for piles: number badge
    * @prop {string} back        card-back image URL (the owner's sleeve)
+   * @prop {boolean} upsideDown the card faces the other player: its face/back is drawn turned 180°, as an
+   *                            opponent's card lies on a real table, so ownership reads from orientation.
+   *                            Only the picture turns — badges, tags and the stat line stay readable.
    * @prop {(card) => void} onhover
    * @prop {(card) => void} onclick
    */
-  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, back = `${base}/img/card-back.png`, onhover = () => {}, onclick = () => {} } = $props();
+  let { card = null, label = "", size = "zone", fx = "", own = false, debug = false, count = null, back = `${base}/img/card-back.png`, upsideDown = false, onhover = () => {}, onclick = () => {} } = $props();
 
   const isDefense = $derived(Boolean(card && /DEF/.test(card.position ?? "")));
   const known = $derived(Boolean(card && card.code));
@@ -51,10 +54,10 @@
     >
       {#if mode === "back" || mode === "peek"}
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#7a4a2a_0,#3b2314_70%)] border border-amber-900"></div>
-        <img src={back} alt="" class="absolute inset-0 w-full h-full object-cover" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+        <img src={back} alt="" class="absolute inset-0 w-full h-full object-cover {upsideDown ? 'rotate-180' : ''}" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
       {#if mode === "art" || mode === "peek"}
-        <img src="{ASSETS}/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
+        <img src="{ASSETS}/pics/{card.code}.jpg" alt={card.name} class="absolute inset-0 w-full h-full object-cover {mode === 'peek' ? 'opacity-50' : ''} {upsideDown ? 'rotate-180' : ''}" loading="lazy" onerror={(e) => { e.currentTarget.style.display = "none"; }} />
       {/if}
       {#if mode === "peek"}
         <span class="absolute inset-x-0 bottom-0 text-[0.5rem] leading-tight bg-sky-900/80 text-sky-100 text-center">set</span>

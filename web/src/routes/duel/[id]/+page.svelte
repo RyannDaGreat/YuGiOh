@@ -75,6 +75,12 @@
    * may be an irreversible effect. Off = the direct version. Remembered.
    */
   let confirmClicks = $state(panelOpen("confirm-clicks", true));
+  /**
+   * The opponent's cards drawn turned toward them, as on a real table (and in
+   * Master Duel), so whose card sits where reads from orientation alone. Own
+   * cards are never turned. Remembered.
+   */
+  let opponentUpsideDown = $state(panelOpen("opponent-upside-down", true));
   /** How respond? windows are answered: "always" | "smart" | "never" (localStorage). */
   let respondMode = $state("always");
   /** Guards the auto-decline effect so it fires at most once per decision point. */
@@ -490,6 +496,7 @@
       {@render respondModeButton()}
     {/if}
     <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {confirmClicks ? 'bg-emerald-900/50 border-emerald-400/60 text-emerald-100' : 'bg-black/40 border-amber-900 text-amber-100/70'}" onclick={() => { confirmClicks = !confirmClicks; setPanelOpen("confirm-clicks", confirmClicks); }} title="on: clicking a card always shows its option(s) first, even a single one. off: a single option acts at once"><Icon icon={confirmClicks ? "mdi:shield-check" : "mdi:flash"} />confirm clicks: {confirmClicks ? "on" : "off"}</button>
+        <button class="px-2 py-0.5 rounded border inline-flex items-center gap-1 {opponentUpsideDown ? 'bg-emerald-900/50 border-emerald-400/60 text-emerald-100' : 'bg-black/40 border-amber-900 text-amber-100/70'}" onclick={() => { opponentUpsideDown = !opponentUpsideDown; setPanelOpen("opponent-upside-down", opponentUpsideDown); }} title="on: the opponent's cards are drawn turned toward them, like on a real table, so you can tell whose card is whose at a glance. off: every card upright"><Icon icon="mdi:rotate-3d-variant" />opponent's cards: {opponentUpsideDown ? "turned" : "upright"}</button>
     {#if view.viewer !== 2 && sleeves.length}
       <label class="text-amber-100/70">sleeve
         <select class="ml-1 px-1 rounded bg-black/40 border border-amber-900 text-amber-50" value={sleeveChoice} onchange={(e) => pickSleeve(e.currentTarget.value)}>
@@ -555,7 +562,7 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} options={tableOptions} {phaseOptionIndex} {hoverOption} onhoveroption={(i) => (hoverOption = i)} onoptions={tableClick} />
+      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} options={tableOptions} {phaseOptionIndex} {hoverOption} onhoveroption={(i) => (hoverOption = i)} onoptions={tableClick} {opponentUpsideDown} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
