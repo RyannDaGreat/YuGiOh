@@ -98,8 +98,9 @@ browser, or subagent vs subagent — with:
   fetches the baked bundle over HTTP into memory before any duel starts. `cards.js`'s public API is
   identical either way.
 - **bake** — `bin/bake-carddata.js`: reduce the 250 MB vendor tree to exactly what the built-in decks
-  reference (584 cards, 25 shared + 505 card scripts, `strings.conf`, a script index, the deck seed)
-  and COMMIT it under `web/static/carddata/`. Re-bake whenever a deck gains a card.
+  need — their cards, plus everything those cards' SCRIPTS reach for, plus the Lua, `strings.conf`, a
+  script index and the deck seed — and COMMIT it under `web/static/carddata/`. Re-bake whenever a deck
+  gains a card; `manifest.json` is the receipt and the authority on the counts.
 - **assets branch** — the orphan git branch `assets` holding full-resolution `pics/` and `boxart/`,
   published by `bin/publish-assets.sh` through the gitignored `.assets/` worktree and loaded by URL.
   Big binaries never enter `main` (§25).
@@ -179,7 +180,6 @@ browser, or subagent vs subagent — with:
 - `chat-timeline` — the playback cutoff rule: `src/chat.js` (`chatUpTo`) ↔
   `web/src/lib/engine.js` (`duelPayload`: filter only when `at` is before the last move) ↔
   `web/src/routes/duel/[id]/+page.svelte` (read-only panel, "as of move N") ↔ `test/chat.test.js`.
-
 - `provider-catalog` — `PROVIDER_CATALOG` is DATA and every consumer renders from it, so a new
   provider/model/option is a one-file change: `src/ai/provider.js` (the table itself, plus
   `defaultModel`/`defaultOptions` which read the provider, never the table by id) ↔ each adapter
@@ -203,10 +203,11 @@ browser, or subagent vs subagent — with:
   and it lies.
 - `asset-urls` — where card and box art come from: `web/src/lib/assets.js` (`ASSETS` — the only place
   either host's prefix is decided) ↔ `bin/publish-assets.sh` (the branch's `pics/<passcode>.jpg` and
-  `boxart/<file>` layout) ↔ `web/src/lib/pretty/CardArt.svelte` / `DeckThumb.svelte` (the only
-  `<img>` sources) ↔ `web/src/routes/pics/[code]/+server.js` and `boxart/[code]/+server.js` (the Node
-  host's own copies, served from `vendor/`) ↔ §25. The file NAME rule lives in the `deck-schema`
-  binding (`store.boxArtFile`).
+  `boxart/<file>` layout) ↔ every `<img>` that shows either, all of them in `web/src/lib/pretty/`:
+  `Card`, `CardArt`, `Preview`, `FlyingCard`, `PileModal` (`{ASSETS}/pics/<code>.jpg`) and `DeckThumb`
+  (`{ASSETS}/boxart/<file>`) ↔ `web/src/routes/pics/[code]/+server.js` and `boxart/[code]/+server.js`
+  (the Node host's own copies, served from `vendor/`) ↔ §25. The file NAME rule lives in the
+  `deck-schema` binding (`store.boxArtFile`).
 
 ## 4. User requirements — verbatim (this session, 2026-08-16)
 
@@ -478,6 +479,8 @@ There is ONE flyer for ALL zone permutations because it is driven by physical MO
 **Scrubber/playback integration.** Animate only on a SINGLE-step advance (a live move, or one 1.1s play/pause tick). On a multi-move scrub jump, snap (no flyers). One guard; reuses the same flyer.
 
 **Masking.** The flyer and lines are driven by the MASKED event/state stream, so they can never reveal more than the viewer may see (an opponent's draw flies as a face-down back; a hidden equip is simply not linked).
+
+**Control change in flight (added 2026-08-17).** When a monster changes hands (Snatch Steal, Change of Heart) ocgcore asks the NEW controller for a destination zone BEFORE it moves the card, so between those two steps the board honestly shows the card on its old side with the equip already attached — which reads as "the spell did nothing", and did (the owner reported it as a bug; see concerns). The card now wears a `→ P0` badge until the zone is chosen. It is derived from the PENDING MENU (`P0: Select the zone to place "X"`) rather than from any new engine field: the menu is already in the payload, it is the only thing that actually knows a placement is outstanding, and deriving it costs the record nothing. Verified on `duel1` move 270.
 
 **Card identity.** The flyer needs none — the `move` event already carries `from`+`to`. Only the intra-zone reflow keys (`animate:flip`) need a stable per-card key; a deterministic per-move id (or hand order + code) suffices. This is the ONLY identity surface — deliberately small.
 
@@ -820,16 +823,23 @@ interface may become async.
   `/YuGiOh/`, so hardcoding "/" would 404 in production and only in production.
 
 **The bake — committed on purpose.**
-- `bin/bake-carddata.js` -> `web/static/carddata/`: `cards.json` (every field `cards.js` reads, for
-  the 584 passcodes the 40 built-in decks reference — including `setcode`, without which no archetype
-  check matches, and the per-card script strings), `scripts/*.lua` (505 card scripts + 25 shared
-  libraries), `strings.conf`, `manifest.json`, `decks-seed.json`. 1.9 MB — two orders of magnitude
-  smaller than the 250 MB vendor tree.
+- `bin/bake-carddata.js` -> `web/static/carddata/`: `cards.json` (every field `cards.js` reads, per
+  card — including `setcode`, without which no archetype check matches, and the per-card script
+  strings), `scripts/*.lua` (card scripts + the shared libraries), `strings.conf`, `manifest.json`,
+  `decks-seed.json`. A few megabytes: two orders of magnitude smaller than the 250 MB vendor tree.
+  Counts as bundled today — 607 cards, 25 shared + 520 card scripts, 87 vanillas, 40 seeded decks;
+  `manifest.json` is the authority, not this line.
+- **The card set is the decks CLOSED OVER what their scripts reference**, not the decklists. A script
+  reaches for cards that sit in no decklist: tokens it creates (addressed as `id+1`, `id+2`) and any
+  card it names by passcode. Hornet Drones creates a Sky Striker Ace Token, and a decklist-only bundle
+  shipped neither the token's data nor its script, so the duel died mid-effect in the browser and
+  nowhere else. `referencedCodes` reads those numbers out of each script and resolves them against
+  `cards.cdb` (so ordinary numbers are ignored), and the walk repeats transitively.
 - `manifest.json` is the SCRIPT INDEX as well as a receipt. A static host has no directory listing, so
-  the browser fetches exactly the files named there and nothing else; 79 of the 584 cards are vanillas
-  with no script at all and must never be requested. Its counts (`cards`, `sharedScripts`,
-  `cardScripts`, `vanillaCards`, `seededDecks`) are cross-checked at boot, so a stale bake fails
-  loudly at startup instead of as an inexplicable Lua error mid-duel.
+  the browser fetches exactly the files named there and nothing else; a vanilla has no script at all
+  and must never be requested. Its counts (`cards`, `sharedScripts`, `cardScripts`, `vanillaCards`,
+  `seededDecks`) are cross-checked at boot, so a stale bake fails loudly at startup instead of as an
+  inexplicable Lua error mid-duel.
 - **Re-run it whenever a deck gains a card, and commit the output** — otherwise the static site is
   missing a card the Node host has, which is invisible until someone plays that deck in the browser.
   Card ART is not baked: it lives on the `assets` branch (§25), published separately.
@@ -936,6 +946,9 @@ read-only. The UI calls the same `src/session.js` the CLI does; everything visua
   is taken from `cards.cdb` instead; `MSG_MOVE`'s `reason` is not exposed, so a log line says where
   a card went, not why (the surrounding lines make it clear).
 - The core keeps running after `MSG_WIN`; the harness treats WIN as terminal.
+- A control change is TWO steps: the core asks the new controller for a destination zone and only
+  then moves the card, so a board caught between them shows the monster on its old side with the
+  equip attached. Not a bug — see §11's control-change badge, which labels it.
 - See also §12 (every card's right Pendulum Scale reads as 0 inside the core) and §15 (two defects
   that can strand a duel mid-board). All of these are pinned-version behaviour: changing the
   core/CardScripts pair changes how already-recorded duels replay, so they are documented, not
@@ -1040,7 +1053,8 @@ Replies are capped at `MAX_REPLY_CHARS` and ride in the `choice` field of the sa
 use; `NO_REPLY` posts nothing but still advances the cursor, so every line is considered exactly once.
 
 **Traces (§2).** `duels/.traces/<id>.<seat>.json`, oldest first, one record per call including chat
-replies (`move: null`). `traceRecord` copies an explicit field list — that is the boundary that keeps
+replies (`move: null`). `replyToChat` hands its record back to `playSeat`, which passes it to
+`onTrace`, so the live LLM log shows a chat row's tokens and latency without a reload. `traceRecord` copies an explicit field list — that is the boundary that keeps
 an API key from riding in on someone's options object — and the repeated system prefix is stored once
 and refilled on load (~50x smaller on a long duel, which matters because the browser volume holds
 everything in memory). The directory is hidden for the same reason `duels/.presence/` is: `listDuels`
@@ -1095,7 +1109,8 @@ the owner; the history is in concerns.md. The result is this section.
   `/pics/[code]` and `/boxart/[code]` still serve `vendor/` exactly as before.
 - **Raw GitHub is a plain file server**, so it cannot try `.png` then `.jpg` the way the Node route
   can: the deck payload carries the box art's file NAME with extension (`store.boxArtFile`, the
-  `deck-schema` binding), and there is no `onerror` extension-guessing anywhere.
+  `deck-schema` binding). No `onerror` ever retries a second extension; `DeckThumb`'s only falls back
+  to the deck's signature card when the box art is not published yet.
 - Re-run it whenever a deck gains a card: `ygo fetch-pics` (and `fetch-boxart`) first, then
   `bin/publish-assets.sh`. The static site's card art is only as complete as the last push of that
   branch, and a missing image is invisible until someone plays that deck in the browser.

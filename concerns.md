@@ -615,6 +615,14 @@ and cancelled by Stop.
 it freezes the shared board mid-effect, and the symptom surfaces as a RULES complaint from whoever is
 watching. Treat "the board looks illegal" as a possible liveness failure before doubting the core.
 
+**Second half of the same report, fixed separately.** Even with a live, healthy seat, that board state
+is REACHABLE and looks wrong: the core asks the new controller for a zone before it moves the card, so
+for as long as that question goes unanswered the monster honestly sits on its old side wearing the
+equip. The duel page now derives a `→ P0` badge from the pending menu title and shows it on that
+monster until the zone is answered (manifest §11, verified on `duel1` move 270). Lesson: when a user reports "the board looks wrong",
+there may be TWO answers — why it is stuck, and why the honest intermediate state is unreadable. Fix
+both; the second one is what stops the next report.
+
 ### Two Svelte 5 lessons, both learned the hard way
 
 **`state_unsafe_mutation`.** `AiRunner` created each seat's run record lazily, from the template, on
@@ -710,6 +718,15 @@ stale bake fails loudly at startup instead of as an inexplicable Lua error mid-d
 **Lesson.** On a static host, "does this file exist" is not a question you may ask at runtime — ship
 the index. And a data bake is only verified by RUNNING the engine against it, because the fields it
 forgets are exactly the ones that fail quietly.
+
+**The same mistake once more, later the same day.** The bundle was built from the DECKLISTS, and a
+script reaches beyond them: Hornet Drones creates a Sky Striker Ace Token (`id+1`) that appears in no
+decklist, so the browser had neither the token's card data nor its script and the duel died mid-effect
+— on the static host only. The bake now closes over passcodes named inside each script (`id±N`, and
+bare literals that resolve against `cards.cdb`), transitively, which took the bundle from 584 to 607
+cards. Lesson, stated generally: **the dependency set of a card is not its decklist entry — it is
+whatever its Lua can name at runtime.** Any "ship only what is needed" filter must be a closure, not a
+list.
 
 ### Verification that the session settled on
 

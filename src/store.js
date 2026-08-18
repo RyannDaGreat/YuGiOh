@@ -403,8 +403,8 @@ export function forkDuel(id, newId, at, players, created) {
 /**
  * Command. Creates and saves a new duel record.
  *
- * Both decks must share a `format` (sharedFormat throws otherwise); it becomes
- * the duel-level `format`. Each deck is frozen with its main/extra/side lists and
+ * The duel-level `format` is what sharedFormat resolves for the pair (GOAT only
+ * when both decks are GOAT, else classic). Each deck is frozen with its main/extra/side lists and
  * their passcodes (`codes`/`extraCodes`/`sideCodes`), plus category and manual, so
  * a record replays identically and a later deck viewer can show what was played.
  *

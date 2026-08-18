@@ -57,7 +57,10 @@ async function fetchText(url) {
   // file out of several hundred, and that must not take the whole boot down.
   for (let attempt = 0; ; attempt++) {
     try {
-      const response = await fetch(url);
+      // Revalidate rather than trust the HTTP cache: a deploy that adds a card
+      // must not be undone by a tab holding yesterday's cards.json (GitHub Pages
+      // answers 304 with an ETag, so this costs a round trip, not a download).
+      const response = await fetch(url, { cache: "no-cache" });
       if (response.ok) return await response.text();
       if (response.status < 500 || attempt) throw new Error(`carddata fetch failed: ${response.status} ${url}`);
     } catch (err) {

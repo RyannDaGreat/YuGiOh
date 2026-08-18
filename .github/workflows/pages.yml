@@ -1,8 +1,9 @@
 # Builds the static flavour of the web UI and publishes it to GitHub Pages.
 #
-# The static build needs no vendor/ and no setup.sh: card data, scripts and art
-# are baked into web/static (bin/bake-carddata.js, bin/bake-pics.js) and
-# committed. So this is just: install, build, upload, deploy.
+# The static build needs no vendor/ and no setup.sh: card data and scripts are
+# baked into web/static (bin/bake-carddata.js) and committed, and card art is
+# loaded by URL from the orphan `assets` branch (bin/publish-assets.sh). So this
+# is just: install, build, upload, deploy.
 name: Deploy to GitHub Pages
 
 on:
