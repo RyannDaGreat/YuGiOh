@@ -154,7 +154,8 @@
     // card. Otherwise even a single option is shown first, so a sloppy click
     // never fires an effect you did not read.
     const bareZone = opts.length === 1 && /^P[01] [ms]\d$/.test(opts[0].label);
-    if (opts.length === 1 && (!confirmClicks || bareZone)) { pickFromTable(opts[0].index); return; }
+    // Phase pills are marked `direct`: pressing "EP" is already an explicit statement of intent.
+    if (opts.length === 1 && (!confirmClicks || bareZone || opts[0].direct)) { pickFromTable(opts[0].index); return; }
     contextMenu = { at, options: opts };
   }
 

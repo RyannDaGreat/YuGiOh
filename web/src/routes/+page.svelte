@@ -23,6 +23,23 @@
   /** Command. Closes the keys modal and refreshes key-presence indicators. */
   function closeKeys() { keysOpen = false; keysVersion += 1; }
 
+  /**
+   * Pure function. Which view "Continue" opens for a duel: the human's seat when
+   * exactly one seat is human, the spectator view when both are AIs, P0 otherwise.
+   *
+   * @param {{seats?: string[]}} d - a duel summary
+   * @returns {"0"|"1"|"all"}
+   * @example continueSeat({seats: ["human", "ai"]})   // "0"
+   * @example continueSeat({seats: ["ai", "human"]})   // "1"
+   * @example continueSeat({seats: ["ai", "ai"]})      // "all"
+   */
+  function continueSeat(d) {
+    const humans = (d.seats ?? ["human", "human"]).map((k, i) => (k === "human" ? i : null)).filter((i) => i !== null);
+    if (humans.length === 1) return String(humans[0]);
+    if (humans.length === 0) return "all";
+    return "0";
+  }
+
   /** Command. Plays a finished duel again — same decks, labels and seat assignments, new shuffle, new id. */
   async function rematch(id) {
     const r = await rematchApi(id);
@@ -191,6 +208,12 @@
           <td class="text-amber-100/70 whitespace-nowrap">{stamp(d.created)}</td>
           <td class="text-amber-100/70 whitespace-nowrap">{stamp(d.lastMove)}</td>
           <td class="space-x-2 whitespace-nowrap">
+            {#if !d.ended}
+              <!-- One click back into the game at the seat you hold; the AI seat starts on open. -->
+              <a class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-300 text-emerald-950 font-bold hover:bg-emerald-200" href="{base}/duel/{d.id}?as={continueSeat(d)}" title="continue this game">
+                <Icon icon={playIcon} /> Continue
+              </a>
+            {/if}
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=all" title="watch the whole game back, chat and all">replay</a>
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=0">P0</a>
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=1">P1</a>

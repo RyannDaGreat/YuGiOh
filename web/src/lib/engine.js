@@ -168,7 +168,12 @@ export function rematch(id) {
  * Command. Branches a duel at a move under a new id (see store.forkDuel).
  */
 export function fork(id, newId, at) {
-  return forkDuel(id, newId, at, undefined, new Date().toISOString());
+  const branch = forkDuel(id, newId, at, undefined, new Date().toISOString());
+  // A branch is the same table: same human/AI seats. Without this the fork had no
+  // AI seat, nothing ran on it, and the seat read "offline" — the owner forked to
+  // undo a mistake and found the AI gone.
+  saveSeats(branch.id, loadSeats(id));
+  return branch;
 }
 
 /**
@@ -220,6 +225,10 @@ export async function duelSummaries() {
       created: duel.created ?? null,
       lastMove: moveTime(duel.times, moves),
       chatCount: loadChat(id).length,
+      // Which seat a person sits in, so the home page can offer one "continue"
+      // that opens the right view: the human seat if there is exactly one, the
+      // spectator view for AI-vs-AI, P0 for human-vs-human.
+      seats: [loadSeats(id)[0].kind, loadSeats(id)[1].kind],
     });
   }
   return rows.sort((a, b) => String(b.lastMove ?? b.created ?? "").localeCompare(String(a.lastMove ?? a.created ?? "")));

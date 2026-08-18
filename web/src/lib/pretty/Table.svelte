@@ -672,7 +672,7 @@
           {@const idx = phaseOptionIndex[key]}
           {#if idx !== undefined}
             <!-- This phase is a menu option right now: same rim, hover sync and click as a card. -->
-            <button class="option-rim-pill px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {hoverOption === idx ? 'lit' : ''} {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/70'}" title={options.find((o) => o.index === idx)?.label ?? key} onmouseenter={() => onhoveroption(idx)} onmouseleave={leave} onclick={(e) => { e.stopPropagation(); onoptions([{ index: idx, label: key }], { x: e.clientX, y: e.clientY }); }}>{key}</button>
+            <button class="option-rim-pill px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {hoverOption === idx ? 'lit' : ''} {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/70'}" title={options.find((o) => o.index === idx)?.label ?? key} onmouseenter={() => onhoveroption(idx)} onmouseleave={leave} onclick={(e) => { e.stopPropagation(); onoptions([{ index: idx, label: options.find((o) => o.index === idx)?.label ?? key, direct: true }], { x: e.clientX, y: e.clientY }); }}>{key}</button>
           {:else}
             <span class="px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold tracking-wide {i === phaseIndex ? 'bg-amber-400 text-amber-950 shadow-[0_0_10px_#fbbf24]' : 'bg-black/30 text-amber-100/50'}">{key}</span>
           {/if}
