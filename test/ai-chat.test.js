@@ -36,7 +36,7 @@
 import "../src/volume-node.js";
 import "../src/cardsource-node.js";
 import assert from "node:assert/strict";
-import { addressee, isHush } from "../src/ai/chat.js";
+import { addressee, conversationTarget, isHush } from "../src/ai/chat.js";
 import { test } from "node:test";
 import { memoryVolume, setVolume } from "../src/volume.js";
 import { createDuel, loadDeck, loadDuel } from "../src/store.js";
@@ -202,7 +202,11 @@ function chatCounts(id) {
  */
 function quoting(provider, seat) {
   const tag = seat === 2 ? "(spectator):" : `(P${seat}):`;
-  return provider.requests.filter((r) => isChatRequest(r) && r.messages.some((m) => m.content.includes(tag)));
+  // Only the lines being ANSWERED count. The prompt also carries a few earlier
+  // lines as context, under their own heading, and those are not what a request
+  // is about.
+  const answered = (content) => content.split("## Table talk since you last looked")[1] ?? "";
+  return provider.requests.filter((r) => isChatRequest(r) && r.messages.some((m) => answered(m.content).includes(tag)));
 }
 
 /**
@@ -603,6 +607,58 @@ test("a hush from a person mutes both AIs for the rest of the duel, except when 
     await say(2, `P${1 - toMove} are you still there?`);
     assert.equal(chatCounts(id)[1 - toMove], 1, "a line naming the hushed seat is still answered");
     assert.equal(chatCounts(id)[toMove], 0, "the seat that was not named stays quiet");
+  } finally {
+    stop.abort();
+    await Promise.all(loops);
+  }
+});
+
+test("an unaddressed follow-up goes to the seat last in the conversation, not the seat on the clock", async () => {
+  // Pure part: the thread rule itself.
+  const me = { seat: 0, names: ["Yugi"] }, other = { seat: 1, names: ["Kaiba"] };
+  const log = [
+    { seat: 2, text: "p0 how did you do that", at: "2026-08-17T19:43:00Z" },
+    { seat: 0, text: "Foolish Burial Goods…", at: "2026-08-17T19:43:10Z" },
+    { seat: 2, text: "explain in detail.", at: "2026-08-17T19:44:00Z" },
+  ];
+  assert.equal(conversationTarget(log, log[2], { me, other }, [0, 1]), 0, "P0 was last in the thread");
+  const stale = [{ seat: 0, text: "hi", at: "2026-08-17T19:00:00Z" }, { seat: 2, text: "explain", at: "2026-08-17T19:44:00Z" }];
+  assert.equal(conversationTarget(stale, stale[1], { me, other }, [0, 1]), null, "a 44-minute-old thread is closed");
+  const named = [{ seat: 2, text: "kaiba, nice", at: "2026-08-17T19:43:00Z" }, { seat: 2, text: "why?", at: "2026-08-17T19:43:20Z" }];
+  assert.equal(conversationTarget(named, named[1], { me, other }, [0, 1]), 1, "naming a seat opens a thread with it");
+
+  // Live part: two AI loops; the spectator addresses P<idle> then follows up unaddressed.
+  const id = "chat-thread";
+  freshDuel(id);
+  const toMove = (await viewDuel(loadDuel(id), 0)).pendingPlayer;
+  const idle = 1 - toMove;
+  const providers = [talker({ seat: 0 }), talker({ seat: 1 })];
+  const stop = new AbortController();
+  const loops = [0, 1].map((seat) => playSeat({
+    duelId: id, seat, provider: providers[seat], model: "talker-1", apiKey: "not-a-real-key",
+    playerGuide: TINY_GUIDE, pollMs: TEST_POLL_MS, signal: stop.signal, talk: "sporting",
+    people: [2], aiSeats: [1 - seat],
+  }));
+  const say = async (seat, text) => { appendChat(id, seat, text, new Date().toISOString()); await naptime(90); };
+  try {
+    await naptime(TEST_POLL_MS);
+    await say(2, `P${idle} how did you do that?`);
+    assert.equal(chatCounts(id)[idle], 1, "the named seat answered");
+    assert.equal(chatCounts(id)[toMove], 0);
+    // The follow-up names nobody. It is P<idle>'s thread — but P<idle> is inside its
+    // people cooldown, so nobody answers NOW; crucially the seat to move must NOT grab it.
+    await say(2, "explain in detail.");
+    assert.equal(chatCounts(id)[toMove], 0, "the seat on the clock did not hijack the thread");
+    // ...and the follow-up is not lost: it is answered once the people cooldown ends.
+    // (Compress the wait: the loop reads TALK_LEVELS live, so shorten it for this test only.)
+    const saved = TALK_LEVELS.sporting.peopleCooldownMs;
+    TALK_LEVELS.sporting.peopleCooldownMs = 0;
+    try {
+      await naptime(TEST_POLL_MS * 3);
+      assert.equal(chatCounts(id)[idle], 2, "the delayed follow-up was answered by the thread's seat");
+    } finally {
+      TALK_LEVELS.sporting.peopleCooldownMs = saved;
+    }
   } finally {
     stop.abort();
     await Promise.all(loops);

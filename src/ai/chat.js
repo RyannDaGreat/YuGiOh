@@ -91,6 +91,10 @@ export function addressee(text, me, other) {
 export const DEFAULT_TALK = "sporting";
 /** Reply length cap, in characters — table talk, not an essay. */
 export const MAX_REPLY_CHARS = 280;
+/** How many earlier chat lines ride along as context for a reply. */
+export const EARLIER_LINES = 8;
+/** How many recent log lines ride along as grounding for a reply. */
+export const LOG_TAIL_LINES = 20;
 
 /**
  * Pure function. The user message that asks for a reply to fresh table talk.
@@ -98,25 +102,38 @@ export const MAX_REPLY_CHARS = 280;
  * Args:
  *     seat (0|1): The AI's seat.
  *     lines (Array<{seat, name, text}>): New messages from others.
+ *     talk (string): TALK_LEVELS key, shapes the mood line.
+ *     other ({seat, names}|null): The other player, named so its remarks are left alone.
+ *     context ({earlier?: Array, logTail?: string[], board?: string[]}): Grounding —
+ *         a few earlier chat lines, the recent log, the board — so answers are
+ *         about what happened rather than the game plan.
  *
  * Returns:
  *     string
  *
  * Examples:
  *     >>> chatPrompt(1, [{seat: 2, name: "spectator", text: "nice summon"}]).includes("spectator: nice summon")   // true
+ *     >>> chatPrompt(1, [], "quiet", null, {logTail: ["P1 attacks"]}).includes("## Recent log")   // true
  */
-export function chatPrompt(seat, lines, talk = DEFAULT_TALK, other = null) {
+export function chatPrompt(seat, lines, talk = DEFAULT_TALK, other = null, context = {}) {
   const who = (m) => (m.seat === 2 ? "spectator" : `P${m.seat}`);
   const otherLine = other ? `The other player is P${other.seat} (${other.names.filter(Boolean).join(", ")}). A remark about THEIR play or addressed to THEM is not yours to answer: reply ${NO_REPLY}.` : "";
+  const { earlier = [], logTail = [], board = [] } = context;
   const mood = talk === "chatty"
     ? "You enjoy table talk: a short quip is welcome whenever there is anything to react to."
     : talk === "quiet"
       ? "You are a quiet player: answer only direct questions or remarks addressed to you."
       : "You are a sporting player: answer people, and otherwise speak only when there is something worth saying.";
   return [
+    // Grounding first: what actually happened and what the table looks like, so
+    // "why did you attack" is answered from the log, not from vibes.
+    ...(logTail.length ? ["## Recent log (your view)", ...logTail, ""] : []),
+    ...(board.length ? ["## Board now", ...board, ""] : []),
+    ...(earlier.length ? ["## Earlier table talk (for context — already answered)", ...earlier.map((m) => `${m.name} (${who(m)}): ${m.text}`), ""] : []),
     "## Table talk since you last looked",
     ...lines.map((m) => `${m.name} (${who(m)}): ${m.text}`),
     "",
+    "Answer THIS, concretely: name the cards and the effects involved when asked how or why. Do not restate your game plan.",
     mood,
     ...(otherLine ? [otherLine] : []),
     "If someone asks for quiet, the only right answer is silence: reply " + NO_REPLY + ".",
@@ -129,6 +146,53 @@ export function chatPrompt(seat, lines, talk = DEFAULT_TALK, other = null) {
     `If nothing needs an answer, reply with exactly ${NO_REPLY}.`,
     "Put the reply text itself in the `choice` field of your answer.",
   ].join("\n");
+}
+
+/** How long a conversation thread stays "open" for unaddressed follow-ups. */
+export const THREAD_WINDOW_MS = 5 * 60 * 1000;
+
+/**
+ * Pure function. Which AI seat an unaddressed person line is really for: the
+ * seat that was last in the conversation — the last AI to reply, or the last
+ * seat a person named — if that was recent; otherwise nobody in particular
+ * (`null`, and the caller falls back to the seat to move).
+ *
+ * Both AI loops compute this from the same chat log, so exactly one of them
+ * takes an unaddressed follow-up like "explain in detail." — the one it was
+ * plainly meant for — instead of the seat that happens to be on the clock.
+ *
+ * Args:
+ *     log (Array<{seat, text, at}>): The whole chat log, oldest first.
+ *     line ({at: string}): The person's line being considered.
+ *     seats ({me: {seat, names}, other: {seat, names}}): Both players.
+ *     aiSeats (number[]): Seats played by AIs.
+ *
+ * Returns:
+ *     number|null
+ *
+ * Examples:
+ *     >>> const me = {seat: 0, names: ["Yugi"]}, other = {seat: 1, names: ["Kaiba"]}
+ *     >>> const log = [{seat: 2, text: "p0 how did you do that", at: "2026-08-17T19:43:00Z"},
+ *     ...              {seat: 0, text: "Foolish Burial Goods…", at: "2026-08-17T19:43:10Z"},
+ *     ...              {seat: 2, text: "explain in detail.", at: "2026-08-17T19:44:00Z"}]
+ *     >>> conversationTarget(log, log[2], {me, other}, [0, 1])   // 0
+ */
+export function conversationTarget(log, line, { me, other }, aiSeats) {
+  const t = Date.parse(line.at);
+  for (let i = log.length - 1; i >= 0; i--) {
+    const m = log[i];
+    const age = t - Date.parse(m.at);
+    if (age <= 0) continue; // this line or later
+    if (age > THREAD_WINDOW_MS) return null;
+    if (aiSeats.includes(m.seat)) return m.seat; // last AI to speak
+    if (m.seat === 2 || !aiSeats.includes(m.seat)) {
+      const to = addressee(m.text, me, other);
+      if (to === "me") return me.seat;
+      if (to === "other") return other.seat;
+      if (isHush(m.text)) return null;
+    }
+  }
+  return null;
 }
 
 /**
@@ -179,6 +243,8 @@ export function replyText(raw) {
  *     opts.talk (string): A TALK_LEVELS key; shapes the instruction only.
  *     opts.other ({seat, names}|null): The other player, named in the prompt so
  *         the model knows whose remarks are not its to answer.
+ *     opts.context ({logTail?: string[], board?: string[]}): Grounding for the
+ *         reply (player.js passes the view's recent log and board).
  *     opts.provider (MoveProvider): The adapter.
  *     opts.model, opts.apiKey, opts.options: As for chooseMove.
  *     opts.system (string): The frozen system prefix, shared with move requests.
@@ -196,7 +262,7 @@ export function replyText(raw) {
  *     >>> // await replyToChat({duelId: "g1", seat: 1, provider, model, apiKey, system, since})
  *     >>> // {posted: "Nice Fissure — two blockers up, your move.", seenUpTo: "2026-…"}
  */
-export async function replyToChat({ duelId, seat, provider, model, apiKey, options, system, since, replyTo = [2], select = () => true, talk = DEFAULT_TALK, other = null, signal, now = new Date().toISOString(), traceDir }) {
+export async function replyToChat({ duelId, seat, provider, model, apiKey, options, system, since, replyTo = [2], select = () => true, talk = DEFAULT_TALK, other = null, context = {}, signal, now = new Date().toISOString(), traceDir }) {
   const all = chatSince(loadChat(duelId), since).filter((m) => m.seat !== seat);
   if (!all.length) return { posted: null, seenUpTo: since };
   // Everything new is marked seen (so nothing is answered twice), but only lines
@@ -212,7 +278,10 @@ export async function replyToChat({ duelId, seat, provider, model, apiKey, optio
   const seenUpTo = all.reduce((newest, m) => (Date.parse(m.at) > Date.parse(newest) ? m.at : newest), since);
   const fresh = all.filter((m) => replyTo.includes(m.seat) && select(m));
   if (!fresh.length) return { posted: null, seenUpTo };
-  const messages = [{ role: "user", content: chatPrompt(seat, fresh, talk, other) }];
+  // Earlier lines are shown for context only — everything before `since` was already handled.
+  const log = loadChat(duelId);
+  const earlier = log.filter((m) => Date.parse(m.at) <= Date.parse(since)).slice(-EARLIER_LINES);
+  const messages = [{ role: "user", content: chatPrompt(seat, fresh, talk, other, { earlier, ...context }) }];
   const response = await provider.chooseMove({ apiKey, model, system, messages, choices: null, options, signal, maxOutputTokens: 512 });
   const text = replyText(response.text);
   const posted = !text || text.startsWith(NO_REPLY) ? null : text.slice(0, MAX_REPLY_CHARS);

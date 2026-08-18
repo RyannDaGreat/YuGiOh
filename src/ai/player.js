@@ -36,7 +36,7 @@ import { chatSince, loadChat } from "../chat.js";
 import { chooseFromMenu } from "../menu.js";
 import { loadDuel } from "../store.js";
 import { menuSummary, playChoice, viewDuel } from "../session.js";
-import { DEFAULT_TALK, TALK_LEVELS, addressee, isHush, replyToChat } from "./chat.js";
+import { DEFAULT_TALK, LOG_TAIL_LINES, TALK_LEVELS, addressee, conversationTarget, isHush, replyToChat } from "./chat.js";
 import { makeStrategy } from "./context.js";
 import { answerInstruction, defaultModel, defaultOptions, getProvider, legalChoices, parseDecision } from "./provider.js";
 import { appendTrace, traceRecord } from "./trace.js";
@@ -240,6 +240,7 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
     // turn it is (or the only AI at the table) — so a spectator's "hey" is not
     // answered in stereo. Quiet, or hushed, answers only lines naming this seat.
     const soleAi = aiSeats.length === 0;
+    const log = loadChat(duelId);
     const select = (m) => {
       if (people.includes(m.seat) && isHush(m.text)) return false;
       if (!people.includes(m.seat)) return true;
@@ -247,11 +248,24 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
       if (to === "me") return true;
       if (to === "other") return false;
       if (hushed || level.addressedOnly) return false;
-      return soleAi || view.pendingPlayer === seat;
+      if (soleAi) return true;
+      // Unaddressed: it continues whatever thread is open — the seat last in the
+      // conversation takes it; with no open thread, the seat whose turn it is.
+      const target = conversationTarget(log, m, { me, other }, [seat, ...aiSeats]);
+      return target === null ? view.pendingPlayer === seat : target === seat;
     };
-    if (!replyTo.length) { seenChat = fresh[fresh.length - 1].at > seenChat ? fresh[fresh.length - 1].at : seenChat; return; }
+    // Nothing may be answered right now. A person's line that this seat WOULD
+    // answer is only delayed by the cooldown, never dropped: leave the cursor so
+    // the next poll sees it. Lines from the other AI can be let go.
+    if (!replyTo.length) {
+      const owed = fresh.some((m) => people.includes(m.seat) && select(m));
+      if (!owed) seenChat = fresh[fresh.length - 1].at > seenChat ? fresh[fresh.length - 1].at : seenChat;
+      return;
+    }
     const before = fresh.filter((m) => replyTo.includes(m.seat) && select(m));
-    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, replyTo, select, talk, other, signal, traceDir });
+    // Grounding for the reply: the recent log and the board as this seat sees them.
+    const context = { logTail: view.logLines.slice(-LOG_TAIL_LINES), board: view.stateLines };
+    const r = await replyToChat({ duelId, seat, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, since: seenChat, replyTo, select, talk, other, context, signal, traceDir });
     seenChat = r.seenUpTo;
     if (r.posted === null) return;
     // Which cooldown a reply spends depends on whom it answered.
