@@ -846,3 +846,26 @@ trap to the GY at +1800 ms. Opponent's spell arriving by poll: same four beats. 
 starts spinning as soon as the payload lands — before the effect's beat. The `+1000` float is on beat;
 the counter is not. Fixing it means driving LPCounter from the digest rather than the board (out of
 scope here, and LPCounter was not this agent's file).
+
+## 2026-08-18 — "AI offline" root causes (static host), and seats moved into the record
+
+Owner, repeatedly: "why is it possible that it says offline?… there is no situation where being
+offline is okay… fork is not the reason the AI seat should be kept… maybe you need to simplify the
+code a bit." My first fix (copy the seats sidecar on fork) treated one symptom. Actual causes found:
+
+1. **Heartbeat only between decisions.** `playSeat` beat once per loop iteration; a reasoning model
+   (gpt-5.6-terra) thinks for longer than the 30 s presence window, so the pill read "offline" exactly
+   while the AI was playing — the "I just saw them make a move" case. Fix: `setInterval` beat for
+   the loop's lifetime (`HEARTBEAT_MS = ONLINE_MS/6`), cleared in `finally`.
+2. **Seats in a sidecar written as a second step.** Anything that made a duel record without also
+   writing `duels/<id>.seats.json` (fork, import, an old record) had no AI seat → nothing ran → offline
+   forever. Fix (the simplification): `duel.seats` lives IN the record, written by `createDuel` in the
+   same save; fork/rematch/export carry it by construction. `loadSeats` still reads a legacy sidecar
+   and self-heals from a player label that is exactly a catalog model id (nobody names themselves
+   "gpt-5.6-terra"), so games that already lost their seat get the AI back.
+3. **Retry cap.** After 20 provider errors the seat stopped for good. Removed: retry forever while
+   the page is open; the error stays visible.
+
+Verified: static AI suite extended — pill online while running, after a reload, and 36 s into an idle
+wait (all PASS on the built site). Node-host note: in-page AI still does not run there (AI seats are
+CLI-driven on Node, as documented); the owner plays on the static site.

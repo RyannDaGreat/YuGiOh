@@ -418,7 +418,7 @@ export function forkDuel(id, newId, at, players, created) {
  * Returns:
  *     object: The saved record, with empty `responses` and `times`.
  */
-export function createDuel({ id, seed, decks, players, created }) {
+export function createDuel({ id, seed, decks, players, created, seats }) {
   if (existsSync(duelPath(id))) throw new Error(`duel already exists: ${id}`);
   const format = sharedFormat(decks);
   const frozen = decks.map((d) => ({
@@ -433,7 +433,10 @@ export function createDuel({ id, seed, decks, players, created }) {
     extraCodes: expandExtra(d.extra),
     sideCodes: expandSide(d.side),
   }));
-  const duel = { id, created, seed, format, decks: frozen, players, responses: [], times: [] };
+  // `seats` (who sits where: human or an AI with provider/model/options) lives IN
+  // the record, next to the player labels: a fork, a rematch, an export all carry
+  // it without anyone remembering to. A missing seat is a human seat.
+  const duel = { id, created, seed, format, decks: frozen, players, seats: seats ?? {}, responses: [], times: [] };
   saveDuel(duel);
   return duel;
 }

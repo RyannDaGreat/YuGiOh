@@ -33,7 +33,7 @@
  */
 
 import { chatSince, loadChat } from "../chat.js";
-import { heartbeat } from "../presence.js";
+import { ONLINE_MS, heartbeat } from "../presence.js";
 import { chooseFromMenu } from "../menu.js";
 import { loadDuel } from "../store.js";
 import { menuSummary, playChoice, viewDuel } from "../session.js";
@@ -50,6 +50,14 @@ const MAX_ATTEMPTS = 2;
 /** How often the loop re-checks a duel while waiting for the other seat. Matches
  * the CLI's `wait` poll: fast enough to feel live, slow enough to be free. */
 const POLL_MS = 1000;
+
+/**
+ * How often a running loop says "this seat is held". A model can think for a
+ * minute; a beat only between decisions went stale mid-thought and the seat read
+ * "offline" while the AI was in fact playing. Several beats per online window
+ * keeps a slow tab from ever flickering.
+ */
+const HEARTBEAT_MS = ONLINE_MS / 6;
 
 /**
  * Command. Plays one decision for a seat: builds the prompt, asks the model,
@@ -274,24 +282,30 @@ export async function playSeat({ duelId, seat, provider, model, apiKey, options,
     if (before.some((m) => people.includes(m.seat))) lastPeopleReplyAt = Date.now();
     onTrace?.(r.record);
   };
-  for (;;) {
-    if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };
-    // This seat IS held while the loop runs — say so, the way a browser tab or a
-    // CLI `wait` does, so the presence pill reads "online (ai)" instead of the
-    // "offline" an unattended seat shows. Stopping the loop stops the beat, which
-    // is the truthful state.
-    heartbeat(duelId, seat, "ai", Date.now());
-    const view = await viewDuel(loadDuel(duelId), seat);
-    if (view.ended) return { reason: "ended", moves: traces.length, traces, winner: view.winner };
-    await answerChat(view);
-    if (view.pendingPlayer !== seat) {
-      await sleep(pollMs, signal);
-      continue;
+  // This seat IS held for as long as the loop runs — say so on a clock of its
+  // own, the way a browser tab or a CLI `wait` does, so the presence pill reads
+  // "online (ai)" through a long think and not only between decisions. The loop
+  // ending (or throwing) stops the beat, which is the truthful state.
+  const beat = () => heartbeat(duelId, seat, "ai", Date.now());
+  beat();
+  const beating = setInterval(beat, HEARTBEAT_MS);
+  try {
+    for (;;) {
+      if (signal?.aborted) return { reason: "aborted", moves: traces.length, traces, winner: null };
+      const view = await viewDuel(loadDuel(duelId), seat);
+      if (view.ended) return { reason: "ended", moves: traces.length, traces, winner: view.winner };
+      await answerChat(view);
+      if (view.pendingPlayer !== seat) {
+        await sleep(pollMs, signal);
+        continue;
+      }
+      const record = await playMove({ duelId, seat, view, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, strategy: plan, signal, now: new Date().toISOString(), traceDir });
+      traces.push(record);
+      onTrace?.(record);
+      if (maxMoves !== undefined && traces.length >= maxMoves) return { reason: "max-moves", moves: traces.length, traces, winner: null };
     }
-    const record = await playMove({ duelId, seat, view, provider: chosen, model: usedModel, apiKey, options: usedOptions, system, strategy: plan, signal, now: new Date().toISOString(), traceDir });
-    traces.push(record);
-    onTrace?.(record);
-    if (maxMoves !== undefined && traces.length >= maxMoves) return { reason: "max-moves", moves: traces.length, traces, winner: null };
+  } finally {
+    clearInterval(beating);
   }
 }
 

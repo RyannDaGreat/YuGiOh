@@ -5,7 +5,7 @@
   import DeckThumb from "$lib/pretty/DeckThumb.svelte";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
-  import { getArchive, importArchive as importArchiveApi, newDuel, rematch as rematchApi, setSeats } from "$lib/api.js";
+  import { getArchive, importArchive as importArchiveApi, newDuel, rematch as rematchApi } from "$lib/api.js";
   import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
   import SeatPicker from "$lib/pretty/SeatPicker.svelte";
   import { getKey } from "$lib/keys.js";
@@ -58,10 +58,9 @@
       p1: String(f.get("p1")),
       seed: String(f.get("seed") ?? "").trim(),
       players: [String(f.get("player0") || defaultLabel(seat0, 0)), String(f.get("player1") || defaultLabel(seat1, 1))],
+      seats: { 0: seat0, 1: seat1 },
     });
     if (!r.ok) { createError = r.error; return; }
-    const saved = await setSeats(r.id, { 0: seat0, 1: seat1 });
-    if (!saved.ok) { createError = saved.error; return; }
     // Open the human's seat if there is one; a pure AI-vs-AI game opens as spectator.
     const as = seat0.kind === "human" ? "0" : seat1.kind === "human" ? "1" : "all";
     await goto(`${base}/duel/${r.id}?as=${as}`);

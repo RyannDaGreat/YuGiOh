@@ -30,9 +30,13 @@
 
   /** Pure function. A seat's blank run record. */
   const blankRun = () => ({ status: "idle", moves: 0, last: "", error: "", controller: null, traces: [], showLog: false, retries: 0, resumeTimer: null });
-  /** After a provider error, how long to wait before resuming the seat, and how many times. */
+  /**
+   * After a provider error, how long to wait before resuming the seat. There is no
+   * cap: an AI seat is held for as long as the page is open, and a page that has
+   * been open all along should never show its AI as gone. Under the presence
+   * window (30s), so a retry pause never reads as offline either.
+   */
   const RESUME_DELAY_MS = 15000;
-  const MAX_AUTO_RESUMES = 20;
   /**
    * Per-seat run state, created eagerly for both seats: Svelte forbids creating
    * state during render, so a lazy "make it on first touch" from the template
@@ -95,10 +99,8 @@
       // must not end the game: resume after a pause, keeping the error visible.
       // Only a Stop from the user, or a fresh Start, cancels the retry.
       r.retries = (r.retries ?? 0) + 1;
-      if (r.retries <= MAX_AUTO_RESUMES) {
-        r.status = `error — retrying in ${RESUME_DELAY_MS / 1000}s (${r.retries}/${MAX_AUTO_RESUMES})`;
-        r.resumeTimer = setTimeout(() => { r.resumeTimer = null; if (r.controller === null) start(seat); }, RESUME_DELAY_MS);
-      }
+      r.status = `error — retrying in ${RESUME_DELAY_MS / 1000}s (attempt ${r.retries})`;
+      r.resumeTimer = setTimeout(() => { r.resumeTimer = null; if (r.controller === null) start(seat); }, RESUME_DELAY_MS);
     });
   }
 

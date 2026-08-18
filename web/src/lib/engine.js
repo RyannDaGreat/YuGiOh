@@ -17,7 +17,7 @@ import { victoryString } from "../../../src/strings.js";
 import { seatBacks } from "./sleeves.js";
 import { heartbeat, presence } from "../../../src/presence.js";
 import { appendChat, chatUpTo, loadChat } from "../../../src/chat.js";
-import { loadSeats, saveSeats } from "../../../src/ai/seats.js";
+import { loadSeats } from "../../../src/ai/seats.js";
 
 export { listDecks, listDuels, parseViewer };
 
@@ -110,11 +110,11 @@ export async function play(id, player, choice) {
 /**
  * Command. Creates a duel from form values.
  */
-export function newDuel({ id, p0, p1, seed, players }) {
+export function newDuel({ id, p0, p1, seed, players, seats }) {
   const decks = [loadDeck(p0), loadDeck(p1)];
   const seedValue = seed === "" || seed === undefined ? Math.floor(Math.random() * 2 ** 32) : Number(seed);
   const chosenId = id && String(id).trim() ? String(id).trim() : autoId(p0, p1);
-  return createDuel({ id: chosenId, seed: seedValue, decks, players, created: new Date().toISOString() });
+  return createDuel({ id: chosenId, seed: seedValue, decks, players, seats, created: new Date().toISOString() });
 }
 
 /**
@@ -159,21 +159,15 @@ export function rematch(id) {
   const library = deckLibrary();
   const ids = source.decks.map((d) => library.find((x) => x.name === d.name)?.id);
   if (ids.some((x) => !x)) throw new Error(`cannot rematch ${id}: a deck it used is no longer in the library (${source.decks.map((d) => d.name).join(" vs ")})`);
-  const duel = newDuel({ id: "", p0: ids[0], p1: ids[1], seed: "", players: source.players });
-  saveSeats(duel.id, loadSeats(id));
-  return duel;
+  return newDuel({ id: "", p0: ids[0], p1: ids[1], seed: "", players: source.players, seats: loadSeats(id) });
 }
 
 /**
  * Command. Branches a duel at a move under a new id (see store.forkDuel).
  */
 export function fork(id, newId, at) {
-  const branch = forkDuel(id, newId, at, undefined, new Date().toISOString());
-  // A branch is the same table: same human/AI seats. Without this the fork had no
-  // AI seat, nothing ran on it, and the seat read "offline" — the owner forked to
-  // undo a mistake and found the AI gone.
-  saveSeats(branch.id, loadSeats(id));
-  return branch;
+  // Seats live in the record, so the branch keeps the same human/AI seats by construction.
+  return forkDuel(id, newId, at, undefined, new Date().toISOString());
 }
 
 /**

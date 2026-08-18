@@ -104,10 +104,11 @@ browser, or subagent vs subagent — with:
 - **assets branch** — the orphan git branch `assets` holding full-resolution `pics/` and `boxart/`,
   published by `bin/publish-assets.sh` through the gitignored `.assets/` worktree and loaded by URL.
   Big binaries never enter `main` (§25).
-- **AI seat / seats sidecar** — a seat played by an LLM (§24). Who sits where is
-  `duels/<id>.seats.json` (`src/ai/seats.js`) — a sidecar beside the record like chat, never inside
-  it: `{0: Seat, 1: Seat}` where `Seat = {kind:"human"} | {kind:"ai", provider, model, options, talk}`.
-  A missing seat is human.
+- **AI seat / seats** — a seat played by an LLM (§24). Who sits where is `duel.seats` IN the duel
+  record (`src/ai/seats.js`), next to the player labels: `{0: Seat, 1: Seat}` where
+  `Seat = {kind:"human"} | {kind:"ai", provider, model, options, talk}`. A missing seat is human. It
+  used to be a `duels/<id>.seats.json` sidecar; `loadSeats` still reads one for old records, and
+  self-heals a seat whose player label is exactly a catalog model id.
 - **trace** — one record per LLM call (`src/ai/trace.js`), in `duels/.traces/<id>.<seat>.json`. It is
   ANNOTATION, never state: delete every trace and every duel still replays byte-identically. This is
   what the duel page's "view LLM log" renders.
@@ -189,12 +190,13 @@ browser, or subagent vs subagent — with:
   row per provider), `AiRunner.svelte` (provider labels) ↔ `web/src/lib/keys.js` (one storage entry
   per provider id) ↔ `test/ai.test.js` ("PROVIDER_CATALOG is self-consistent, so a UI can render it
   blind"). Option NAMES are each provider's native parameter name and are deliberately not unified.
-- `seats-sidecar` — the seat-assignment file, kept in step across: `src/store.js` (`SEATS_SUFFIX`, and
-  `listDuels` which must exclude it or a duel called "<id>.seats" appears) ↔ `src/ai/seats.js`
-  (`seatsPath`/`loadSeats`/`saveSeats`, the Seat shape) ↔ `web/src/lib/api.js` (`getSeats`/`setSeats`)
-  ↔ `web/src/routes/api/duel/[id]/seats/+server.js` (Node host only) ↔
+- `seats-sidecar` — the seat assignment, kept in step across: `src/store.js` (`createDuel({seats})`
+  writes `duel.seats`; `SEATS_SUFFIX` and `listDuels`, which must still exclude the legacy sidecar or a
+  duel called "<id>.seats" appears) ↔ `src/ai/seats.js` (`loadSeats`/`saveSeats`/`seatFromLabel`, the
+  Seat shape) ↔ `web/src/lib/api.js` (`getSeats`/`setSeats`, `newDuel({seats})`) ↔
+  `web/src/routes/api/duel/[id]/seats/+server.js` (Node host only) ↔
   `web/src/routes/duel/[id]/+page.js` (loads seats with the duel) ↔ `+page.svelte` and
-  `web/src/lib/pretty/SeatPicker.svelte` / `AiRunner.svelte` ↔ §2's "AI seat / seats sidecar".
+  `web/src/lib/pretty/SeatPicker.svelte` / `AiRunner.svelte` ↔ §2's "AI seat / seats".
 - `talk-levels` — the talk levels and what each one may answer: `src/ai/chat.js` (`TALK_LEVELS`,
   `DEFAULT_TALK`, `chatPrompt`'s per-level mood line) ↔ `src/ai/player.js` (`answerChat`, which is
   where a level turns into whom-to-answer-now) ↔ `web/src/lib/pretty/SeatPicker.svelte` (the Talk
@@ -1060,7 +1062,7 @@ imports nothing from `node:*`, so the same code runs in a script or in a browser
     src/ai/player.js      playMove (one decision) and playSeat (the loop)
     src/ai/chat.js        table talk: TALK_LEVELS, isHush, addressee, chatPrompt, replyToChat
     src/ai/trace.js       the LLM log: tracePath/traceRecord/appendTrace/loadTrace/summarizeTrace
-    src/ai/seats.js       the seats sidecar
+    src/ai/seats.js       seat assignments (in the duel record; legacy sidecar read-only)
     src/ai/catalog.js     engine-free entry point: adapters + catalog ONLY, so a page can render
                           provider controls and test a key without bundling ocgcore-wasm
     src/ai/index.js       the full entry point: catalog + playSeat/playMove + traces + strategies
@@ -1148,16 +1150,29 @@ traced, never sent anywhere but the provider's own API. The inputs are deliberat
 **The UI.** `SeatPicker.svelte` (Human / AI, provider + model + provider-native options + Talk,
 rendered entirely from `PROVIDER_CATALOG`, with a gear to the keys modal and a red warning when that
 provider has no key) on the new-duel form; `AiKeysModal.svelte`; `AiRunner.svelte` and
-`TraceViewer.svelte` on the duel page. Seat assignments are saved to the sidecar right after the duel
-is created, and the form then opens the human's seat — or the spectator view for an AI-vs-AI game.
+`TraceViewer.svelte` on the duel page. Seat assignments go INTO the record in the same
+`createDuel({seats})` write (2026-08-18: they used to be a sidecar saved in a second step, and a fork
+made without that step, or a game imported without the sidecar, had no AI seat and read "offline"
+forever — a fork/rematch/export now carries seats by construction), and the form then opens the
+human's seat — or the spectator view for an AI-vs-AI game.
 
 **Running a seat, per host.** On the STATIC host `AiRunner` runs each AI seat as a `playSeat` loop in
 the tab: it starts on open (that is what "this seat is an AI" means), with Stop/Start, a status pill,
 the move count and last decision, and "view LLM log". A provider error no longer kills the game — the
-error stays visible and the seat resumes after 15 s, up to 20 times, reset by any successful move and
-cancelled by Stop. That matters more than it sounds: **the engine waits for whichever seat is
-pending**, so a crashed AI seat freezes the board mid-effect for everyone (see the Snatch Steal
-diagnosis in concerns). On the NODE host the panel says AI seats are driven from the CLI, which is how
+error stays visible and the seat resumes after 15 s, forever (no retry cap: an AI seat is held for as
+long as the page is open), cancelled only by Stop. That matters more than it sounds: **the engine
+waits for whichever seat is pending**, so a crashed AI seat freezes the board mid-effect for everyone
+(see the Snatch Steal diagnosis in concerns).
+
+**REQUIREMENT (owner, 2026-08-18): an AI seat is never "offline" while any person has the game open.**
+"There is no situation where being offline is okay … the AI should always at all times be keeping
+whatever active seat any person sees." So: `playSeat` heartbeats on a clock of its own
+(`HEARTBEAT_MS = ONLINE_MS / 6`, `setInterval` for the loop's lifetime, `finally`-cleared) — a beat
+only between decisions went stale during a long think and the seat read offline while the model was in
+fact playing; the retry pause (15 s) is under the 30 s window; and because seats live in the record,
+every road into a game (open, Continue, fork, rematch, import) mounts `AiRunner` with the same AI seat,
+which starts it. Verified in the static AI suite: pill online while running, again after a reload, and
+36 s into an idle wait. On the NODE host the panel says AI seats are driven from the CLI, which is how
 they already work there: `ygo brief <id> --as <seat>` prints the prompt an agent plays from.
 
 **Tests.** `test/ai.test.js` (21) covers the choice contract, the catalog's self-consistency, both
