@@ -27,7 +27,7 @@
   import { sfx } from "./sound.js";
   import { optionsAt } from "./optionPlaces.js";
 
-  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null, options = [], phaseOptionIndex = {}, hoverOption = null, onhoveroption = () => {}, onoptions = () => {}, opponentUpsideDown = false } = $props();
+  let { board, me = 0, players = ["P0", "P1"], events = [], onhover = () => {}, onclick = () => {}, sound = false, viewer = 2, debug = false, backs = [`${base}/img/card-back.png`, `${base}/img/card-back.png`], attackers = [], controlChange = null, options = [], phaseOptionIndex = {}, hoverOption = null, onhoveroption = () => {}, onoptions = () => {}, opponentUpsideDown = false, optionCounts = [] } = $props();
 
   /** Query. Whether player p's cards are drawn turned toward them — the far side of the table, when the option is on. */
   const facesAway = (p) => opponentUpsideDown && p !== me;
@@ -44,6 +44,8 @@
   const enter = (opts) => { if (opts.length) onhoveroption(opts[0].index); };
   const leave = () => onhoveroption(null);
   const clickOptions = (opts, event) => { if (opts.length) { event.stopPropagation(); onoptions(opts, { x: event.clientX, y: event.clientY }); } };
+  /** Query (of props). Counters taken so far from THIS element's options (count-distribution menus); 0 for every other menu. */
+  const pickedCount = (opts) => opts.reduce((sum, o) => sum + (optionCounts[o.index] ?? 0), 0);
 
   /**
    * Zone ids of monsters that may still declare an attack ("1-m-3"), from the core's
@@ -570,7 +572,10 @@
     <!-- A defence-position card is drawn rotated (Card.svelte); the rim takes the same transform so it hugs the card, not the slot.
          `open`: a pile's rim only SAYS there are options inside — clicking it opens the pile, and the cards in it carry the options. -->
     <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <span class="option-rim card-box card-{size} {lit(opts) ? 'lit' : ''} {defense ? 'rotate-90 scale-[0.86]' : ''}" title={open ? `click to list this pile — ${opts.length} option${opts.length === 1 ? "" : "s"} inside` : opts.length === 1 ? opts[0].label : `${opts.length} options`} onmouseenter={() => enter(opts)} onmouseleave={leave} onclick={(e) => (open ? open() : clickOptions(opts, e))}></span>
+    <span class="option-rim card-box card-{size} {lit(opts) ? 'lit' : ''} {defense ? 'rotate-90 scale-[0.86]' : ''}" title={open ? `click to list this pile — ${opts.length} option${opts.length === 1 ? "" : "s"} inside` : opts.length === 1 ? opts[0].label : `${opts.length} options`} onmouseenter={() => enter(opts)} onmouseleave={leave} onclick={(e) => (open ? open() : clickOptions(opts, e))}>
+      <!-- Count-distribution menus: how many this card is giving up so far. Clicking the rim added them, so the number sits right where you clicked. -->
+      {#if pickedCount(opts) > 0}<span class="option-count">{pickedCount(opts)}</span>{/if}
+    </span>
   {/if}
 {/snippet}
 

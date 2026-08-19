@@ -4,6 +4,8 @@
   import AiKeysModal from "$lib/pretty/AiKeysModal.svelte";
   import AiRunner from "$lib/pretty/AiRunner.svelte";
   import ContextMenu from "$lib/pretty/ContextMenu.svelte";
+  import CountMenu from "$lib/pretty/CountMenu.svelte";
+  import { bumpedAt, capOf, countsToText, neededOf, steppedAt, textToCounts } from "$lib/pretty/countMenu.js";
   import { panelOpen, setPanelOpen } from "$lib/panels.js";
   import { nameIn, optionPlaces, phaseOptions } from "$lib/pretty/optionPlaces.js";
   import { onMount } from "svelte";
@@ -147,6 +149,48 @@
   const hoverOptionName = $derived(hoverOption === null ? null : nameIn(view.menu?.items?.[hoverOption] ?? ""));
   /** The open context menu: pointer position + the options of the card that was clicked. */
   let contextMenu = $state(null);
+  /**
+   * Count-distribution menus (mode "counters", SELECT_COUNTER "remove N
+   * counters"): ONE counts array (option index → count) is the source of
+   * truth; the aside's steppers/badges (CountMenu), the free-text box
+   * (nameInput) and the table's card bubbles are all views over it
+   * (countMenu.js). Reset whenever the decision point changes.
+   */
+  let counterCounts = $state([]);
+  const isCounters = $derived(Boolean(view.menu) && view.menu.mode === "counters");
+  /** Per-option caps ("(has N)") and the exact total the title asks for. */
+  const counterCaps = $derived(isCounters ? view.menu.items.map(capOf) : []);
+  const counterNeeded = $derived(isCounters ? neededOf(view.menu.title) : null);
+  /** counterCounts padded to full menu length — the array every view consumes. */
+  const counterView = $derived(counterCaps.map((_, i) => counterCounts[i] ?? 0));
+
+  /**
+   * Command. Sets the counters text box and, when it parses as a valid answer
+   * (textToCounts), the counts it describes — typing "1:2,3:1" moves the
+   * steppers, badges and card bubbles. Invalid text (mid-typing, over a cap)
+   * leaves the counts alone; the box simply cannot confirm until it parses.
+   */
+  function retypeCounters(value) {
+    nameInput = value;
+    const parsed = textToCounts(value, counterCaps);
+    if (parsed) counterCounts = parsed;
+  }
+
+  /** Command. −/+ stepper: steps one option's count within 0..cap and rewrites the text box to match. */
+  function stepCounter(index, delta) {
+    counterCounts = steppedAt(counterView, index, delta, counterCaps[index]);
+    nameInput = countsToText(counterCounts);
+  }
+
+  /**
+   * Command. A click on the option's card — or on its aside row — takes one
+   * more counter from that card, wrapping to 0 past its cap (so clicks alone
+   * can undo a misclick), and rewrites the text box to match.
+   */
+  function bumpCounter(index) {
+    counterCounts = bumpedAt(counterView, index, counterCaps[index]);
+    nameInput = countsToText(counterCounts);
+  }
 
   /**
    * Command. A table element with options was clicked: one option acts at once
@@ -155,6 +199,10 @@
    */
   function tableClick(opts, at) {
     if (busy || !opts.length) return;
+    // A counters menu distributes a count over cards: a click adds one from THAT
+    // card (local state only — nothing is submitted until Confirm), so no context
+    // menu and no confirm-clicks safety apply here. Each card is one option.
+    if (isCounters) { bumpCounter(opts[0].index); return; }
     // One option acts directly only when the safety toggle is off, or for a bare
     // zone pick ("P0 m3") — there is no effect to be surprised by in placing a
     // card. Otherwise even a single option is shown first, so a sloppy click
@@ -172,6 +220,7 @@
    * the slot IS the confirmation. Ranges ("choose 1-2") still wait for Confirm.
    */
   function pickFromTable(index) {
+    if (view.menu.mode === "counters") return bumpCounter(index); // add one from that card, never submits
     const number = String(index + 1);
     if (view.menu.mode === "one") return submit(number);
     if (view.menu.mode !== "many" && view.menu.mode !== "order") return;
@@ -246,7 +295,7 @@
   async function refresh() {
     let next;
     try { next = await getDuel(view.id, view.viewer === 2 ? "all" : view.viewer, playbackAt === null ? undefined : playbackAt); } catch { return; }
-    if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) { selected = []; contextMenu = null; hoverOption = null; }
+    if (next.moves !== view.moves || next.pendingPlayer !== view.pendingPlayer) { selected = []; contextMenu = null; hoverOption = null; counterCounts = []; nameInput = ""; }
     view = next;
     slider = next.at;
     // Follow the log only when it grew, so the reader can scroll up between events.
@@ -266,6 +315,7 @@
     if (!body.ok) errorText = body.error;
     selected = [];
     nameInput = "";
+    counterCounts = [];
     await refresh();
     busy = false;
   }
@@ -562,7 +612,7 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} options={tableOptions} {phaseOptionIndex} {hoverOption} onhoveroption={(i) => (hoverOption = i)} onoptions={tableClick} {opponentUpsideDown} />
+      <Table board={boardView} {me} players={view.players} events={view.events} onhover={showCard} onclick={showCard} {sound} viewer={view.viewer} {debug} backs={view.backs} attackers={view.attackers ?? []} {controlChange} options={tableOptions} {phaseOptionIndex} {hoverOption} onhoveroption={(i) => (hoverOption = i)} onoptions={tableClick} {opponentUpsideDown} optionCounts={counterView} />
     </div>
 
     <aside class="w-80 shrink-0 flex flex-col gap-3">
@@ -624,27 +674,33 @@
           </div>
         {:else if myTurn}
           <h3 class="font-bold text-amber-200 text-sm mb-1">{view.menu.title}</h3>
-          <div class="flex flex-col gap-1">
-            {#each view.menu.items as label, i}
-              <button class="text-left text-xs px-2 py-1 rounded border border-amber-900/60 hover:bg-amber-900/40 {selected.includes(String(i + 1)) ? 'bg-yellow-300 text-yellow-950' : 'bg-black/30'} {hoverOption === i ? 'option-lit' : ''}" onclick={() => pick(i)} onmouseenter={() => (hoverOption = i)} onmouseleave={() => (hoverOption = null)} disabled={busy}>
-                <span class="font-mono text-amber-300 mr-1">{i + 1}</span>{label}
-                {#if view.menu.mode === "order" && selected.includes(String(i + 1))}<span class="float-right">#{selected.indexOf(String(i + 1)) + 1}</span>{/if}
+          {#if isCounters}
+            <!-- Count distribution: click cards on the table (or the rows) to add one each,
+                 fine-tune with −/+; the text box below is the same counts, spelled out. -->
+            <CountMenu items={view.menu.items} counts={counterView} caps={counterCaps} needed={counterNeeded} text={nameInput} {busy} {hoverOption} onhover={(i) => (hoverOption = i)} onbump={bumpCounter} onstep={stepCounter} ontext={retypeCounters} onconfirm={() => submit(countsToText(counterView))} />
+          {:else}
+            <div class="flex flex-col gap-1">
+              {#each view.menu.items as label, i}
+                <button class="text-left text-xs px-2 py-1 rounded border border-amber-900/60 hover:bg-amber-900/40 {selected.includes(String(i + 1)) ? 'bg-yellow-300 text-yellow-950' : 'bg-black/30'} {hoverOption === i ? 'option-lit' : ''}" onclick={() => pick(i)} onmouseenter={() => (hoverOption = i)} onmouseleave={() => (hoverOption = null)} disabled={busy}>
+                  <span class="font-mono text-amber-300 mr-1">{i + 1}</span>{label}
+                  {#if view.menu.mode === "order" && selected.includes(String(i + 1))}<span class="float-right">#{selected.indexOf(String(i + 1)) + 1}</span>{/if}
+                </button>
+              {/each}
+              {#if view.menu.zero}
+                <button class="text-left text-xs px-2 py-1 rounded border border-dashed border-amber-900/60 bg-black/30 hover:bg-amber-900/40" onclick={() => submit("0")} disabled={busy}><span class="font-mono text-amber-300 mr-1">0</span>{view.menu.zero}</button>
+              {/if}
+            </div>
+            {#if view.menu.mode === "many" || view.menu.mode === "order"}
+              <button class="mt-2 w-full text-xs px-2 py-1 rounded bg-amber-300 text-amber-950 font-bold disabled:opacity-40" onclick={() => submit(selected.join(","))} disabled={busy || !canConfirm}>
+                Confirm {selected.length ? `(${selected.join(", ")})` : ""} — need {view.menu.min === view.menu.max ? view.menu.min : `${view.menu.min}–${view.menu.max}`}
               </button>
-            {/each}
-            {#if view.menu.zero}
-              <button class="text-left text-xs px-2 py-1 rounded border border-dashed border-amber-900/60 bg-black/30 hover:bg-amber-900/40" onclick={() => submit("0")} disabled={busy}><span class="font-mono text-amber-300 mr-1">0</span>{view.menu.zero}</button>
             {/if}
-          </div>
-          {#if view.menu.mode === "many" || view.menu.mode === "order"}
-            <button class="mt-2 w-full text-xs px-2 py-1 rounded bg-amber-300 text-amber-950 font-bold disabled:opacity-40" onclick={() => submit(selected.join(","))} disabled={busy || !canConfirm}>
-              Confirm {selected.length ? `(${selected.join(", ")})` : ""} — need {view.menu.min === view.menu.max ? view.menu.min : `${view.menu.min}–${view.menu.max}`}
-            </button>
-          {/if}
-          {#if view.menu.mode === "name" || view.menu.mode === "counters"}
-            <form class="mt-2 flex gap-1" onsubmit={(e) => { e.preventDefault(); submit(view.menu.mode === "name" ? `name:${nameInput}` : nameInput); }}>
-              <input class="flex-1 px-1 rounded bg-black/40 border border-amber-900 text-xs" bind:value={nameInput} placeholder={view.menu.mode === "name" ? "exact card name" : "option:count, e.g. 1:2"} />
-              <button type="submit" class="px-2 rounded bg-amber-300 text-amber-950 text-xs" disabled={busy}>Send</button>
-            </form>
+            {#if view.menu.mode === "name"}
+              <form class="mt-2 flex gap-1" onsubmit={(e) => { e.preventDefault(); submit(`name:${nameInput}`); }}>
+                <input class="flex-1 px-1 rounded bg-black/40 border border-amber-900 text-xs" bind:value={nameInput} placeholder="exact card name" />
+                <button type="submit" class="px-2 rounded bg-amber-300 text-amber-950 text-xs" disabled={busy}>Send</button>
+              </form>
+            {/if}
           {/if}
         {:else}
           <p class="text-amber-100/70 text-xs">Waiting for P{view.pendingPlayer} to decide…</p>

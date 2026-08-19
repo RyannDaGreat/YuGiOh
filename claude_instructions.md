@@ -564,6 +564,27 @@ option that names a place on the table is ALSO playable from the table itself:
   activated wears the rim too.
 - Verified by Puppeteer: rims, hover both ways, context menu open/close/pick, zone-select placement, EP
   pill ending the turn, and a whole attack (monster rim → attack → target rim, hover-lit → click resolves).
+- **Count menus (added 2026-08-19, user requirement).** A `counters`-mode menu (menu.js SELECT_COUNTER:
+  "P0: remove 3 counter(s) of type #1", items like "Mythical Institution (P0 s1) (has 2)", answer as
+  "option:count" pairs) is a count DISTRIBUTION, not a pick list. Owner: "I should be able to just click
+  cards to take one spell counter off each … there should be like a confirm thing where I can like put
+  each option and have it increment. This should be a general purpose thing"; "the text box does make
+  sense so you can keep that but it has to be in sync with when I use the UI." ONE counts array
+  (option → count) on the duel page is the source of truth; every view derives from it. Pure helpers in
+  `$lib/pretty/countMenu.js` read the per-option caps from "(has N)" and the exact total from the title,
+  translate counts ↔ "1:2,3:1" text and step/bump the array (tests: `test/count-menu.test.js`).
+  - Aside (`CountMenu.svelte`, stateless): each option row is click-to-add-one with −/+ steppers and a
+    count badge, a running "taking N of M", and a Confirm enabled exactly at N = M which submits the SAME
+    "1:2,3:1" text a typed answer uses — menu.js `chooseFromMenu` stays the only parser.
+  - Table: the named cards wear the usual option rim; CLICKING a card adds one from it. Local state only —
+    nothing submits until Confirm — so no context menu and no confirm-clicks safety apply; a click past the
+    cap wraps the count to 0 (documented choice: clicks alone can undo a misclick). The pending count sits
+    on the card as a yellow top-RIGHT bubble (`.option-count`) — top-left already holds the card's own blue
+    counters pip, which every counter-menu card has, so the two would always collide there.
+  - The free-text box stays, two-way synced: valid text moves the badges/bubbles, steppers/clicks rewrite
+    the text; invalid text (mid-typing, over a cap) leaves the counts alone and simply cannot confirm.
+  - Verified by Puppeteer on a real "remove 6 counter(s)" prompt (Selene 20 counters + Citadel 1): render,
+    card-click increment + bubble, cap wrap, both sync directions, hover both ways, engine accepted Confirm.
 
 **Table settings, remembered (`web/src/lib/panels.js`: `panelOpen(name, fallback)` / `setPanelOpen`,
 one localStorage key per setting).** All in the duel header or as `<details>` panels: `confirm-clicks`

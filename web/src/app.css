@@ -31,6 +31,19 @@
   --option-rim-width: 1px;
   --option-rim-lit-glow: 0 0 8px 2px rgba(250, 204, 21, 0.75);
   --option-rim-lit-bg: rgba(250, 204, 21, 0.18);
+  /* Count-distribution menus (mode "counters"): the aside's −/+ steppers and count
+     badges, and the count bubble on the table card itself. Same yellow family as the
+     option rim, so "clickable" and "counted" read as one system. */
+  --count-badge-size: 1.3rem;
+  --count-radius: 0.25rem;
+  --count-color: #fde047;
+  --count-bg: rgba(0, 0, 0, 0.55);
+  --count-active-bg: #facc15;
+  --count-active-color: #422006;
+  --count-border: rgba(250, 204, 21, 0.45);
+  --count-disabled-opacity: 0.3;
+  --count-bubble-inset: -0.45rem;
+  --count-bubble-font: 0.7rem;
   /* A monster's ATK/DEF when it differs from the printed value: a touch brighter and yellower. */
   --stat-modified-color: #fde047;
   --stat-modified-glow: 0 0 4px rgba(253, 224, 71, 0.6);
@@ -93,6 +106,18 @@
 .option-rim-pill.lit { box-shadow: var(--option-rim-lit-glow); }
 /* A menu row (aside or context menu) whose card is hovered on the table. */
 .option-lit { box-shadow: inset 0 0 0 1px var(--option-rim-color), var(--option-rim-lit-glow); background: var(--option-rim-lit-bg) !important; }
+/* Count-distribution menus (CountMenu.svelte): a −/+ stepper button of one option row… */
+.count-step { width: var(--count-badge-size); display: inline-flex; align-items: center; justify-content: center; border: var(--option-rim-width) solid var(--count-border); border-radius: var(--count-radius); background: var(--count-bg); color: var(--count-color); font-weight: 700; cursor: pointer; }
+.count-step:disabled { opacity: var(--count-disabled-opacity); cursor: default; }
+/* …the count badge between the steppers (active = this card is giving up at least one)… */
+.count-badge { min-width: var(--count-badge-size); display: inline-flex; align-items: center; justify-content: center; border-radius: var(--count-radius); background: var(--count-bg); color: var(--count-color); font-variant-numeric: tabular-nums; }
+.count-badge.active { background: var(--count-active-bg); color: var(--count-active-color); font-weight: 700; }
+/* …and the same count as a bubble on the table card's option rim (Table.svelte),
+   so a click on the card answers right where it happened. Top-RIGHT, because the
+   top-left already holds the card's own counters pip (Card.svelte) — the cards a
+   counters menu names all have counters, so the two would always collide there.
+   Not hit-testable — the rim under it keeps taking the clicks. */
+.option-count { position: absolute; top: var(--count-bubble-inset); right: var(--count-bubble-inset); z-index: 31; min-width: var(--count-badge-size); height: var(--count-badge-size); display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--count-active-bg); color: var(--count-active-color); font-size: var(--count-bubble-font); font-weight: 700; pointer-events: none; box-shadow: var(--option-rim-lit-glow); }
 /* A stat line whose value differs from the card's printed one. */
 .stat-modified { color: var(--stat-modified-color); text-shadow: 0 0 3px #000, var(--stat-modified-glow); }
 /* Sits on a monster that has not attacked yet this battle phase; the travelling

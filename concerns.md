@@ -976,3 +976,30 @@ static build: key modal Test (2 models visible), real moves, chat reply, presenc
 found while testing: the keys modal saves on the input's `change` event — a synthetic value-set with
 only an `input` event never persisted the key ("no key" seat), which read like a provider bug but was
 the test's fault. The key is in .env.local only; grepped the diff before committing.
+
+## 2026-08-19 — SELECT_COUNTER's raw text box became a count-distribution UI
+
+Owner hit "P0: remove 3 counter(s) of type #1 — answer as option:count, e.g. 1:2" and had to type
+"1:2,2:1" by hand: "I should be able to just click cards to take one spell counter off each … there
+should be like a confirm thing where I can like put each option and have it increment. This should be
+a general purpose thing"; the text box may stay "but it has to be in sync with when I use the UI."
+Built as presentation only (mode `counters`, the one option:count menu mode): one counts array on the
+duel page, pure helpers in `$lib/pretty/countMenu.js` (caps from "(has N)", needed total from the
+title, counts ↔ text, step/bump), `CountMenu.svelte` for the aside, card clicks bump via the existing
+optionPlaces rims, Confirm submits the same "1:2,3:1" text through chooseFromMenu — no second parser,
+engine untouched. Decisions worth remembering:
+- A click past the cap WRAPS to 0 (not "does nothing"), so clicks alone can undo a misclick.
+- Card clicks bypass the confirm-clicks safety and the context menu: they only move local state;
+  Confirm is the only thing that submits.
+- Invalid text (mid-typing "1:", over a cap, bad option) leaves the counts alone rather than clamping —
+  clamping would desync the two views; the box just cannot confirm until it parses.
+- First screenshot caught a REAL collision: the on-card "taking N" bubble sat top-left, where
+  Card.svelte's blue "has N counters" pip lives — and every card a counters menu names has counters,
+  so they would ALWAYS collide. Bubble moved to top-right. Lesson: a badge position must be checked
+  against the badges the exact same cards are guaranteed to wear.
+Verified: 9 unit tests (test/count-menu.test.js, incl. chooseFromMenu round-trip; npm test 146 pass /
+1 pre-existing skip) and Puppeteer on a live prompt ("remove 6 counter(s)", Selene has-20 + Citadel
+has-1, hunted by greedy-playing shadow-spectre-endymion vs yugi seed 1): steppers render, card click →
+badge/bubble/text "1:1", 20 more clicks wrap to 0, +/− steppers move text, typing "1:6" moves badges
+and enables Confirm exactly at 6 of 6, hover lights both ways, Confirm accepted (moves 159→160), test
+duels deleted after.
