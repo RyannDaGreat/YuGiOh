@@ -190,6 +190,14 @@ browser, or subagent vs subagent — with:
   row per provider), `AiRunner.svelte` (provider labels) ↔ `web/src/lib/keys.js` (one storage entry
   per provider id) ↔ `test/ai.test.js` ("PROVIDER_CATALOG is self-consistent, so a UI can render it
   blind"). Option NAMES are each provider's native parameter name and are deliberately not unified.
+- **DeepSeek (added 2026-08-19, the V4 release)** speaks OpenAI's Responses API verbatim, so it is a
+  catalog entry + a one-call binding of `responses.js`, no adapter of its own. Verified live with a real
+  key: GET /models lists deepseek-v4-pro / deepseek-v4-flash; every reasoning effort none…max accepted on
+  both; strict json_schema enum output honoured; `prompt_cache_key` and the `developer` role accepted;
+  CORS open to browser origins. One payload difference handled in the shared reader: DeepSeek returns the
+  reasoning itself as `content` items of type "reasoning_text" (OpenAI returns `summary` items; the chain
+  of thought stays encrypted there) — `reasoningSummary` reads both. Keys are NEVER committed; the test
+  key lives in `.env.local` (gitignored) as DEEPSEEK_API_KEY.
 - `seats-sidecar` — the seat assignment, kept in step across: `src/store.js` (`createDuel({seats})`
   writes `duel.seats`; `SEATS_SUFFIX` and `listDuels`, which must still exclude the legacy sidecar or a
   duel called "<id>.seats" appears) ↔ `src/ai/seats.js` (`loadSeats`/`saveSeats`/`seatFromLabel`, the
@@ -322,7 +330,9 @@ src/cards.js       card decode/search/summaries (host-independent)     src/strin
 src/volume.js      the state filesystem, one interface (§19)   volume-node.js real fs | volume-browser.js OPFS
 src/cardsource.js  the card database, one interface (§19)      cardsource-node.js cards.cdb | -browser.js baked bundle
 src/archive.js     whole-state export/import (duels + chat logs + decks) as one portable JSON
-src/ai/            LLM seats (§24): provider.js (interface + PROVIDER_CATALOG) with anthropic/
+src/ai/            LLM seats (§24): provider.js (interface + PROVIDER_CATALOG), responses.js (the
+                   shared Responses-API implementation; openai.js and deepseek.js are one-call
+                   catalog bindings of it) with anthropic/
                    openai/gemini adapters, context.js (what a model sees), player.js (playSeat/
                    playMove), chat.js (table talk, talk levels), trace.js (LLM log), seats.js
 src/rng.js         seeded shuffle             src/decks/*.json  40 decks: 11 structure + 29 curated (deck-schema)

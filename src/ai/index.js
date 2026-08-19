@@ -4,6 +4,7 @@
  * needs: the catalog to render controls from, the registry, and the loop.
  */
 import "./anthropic.js";
+import "./deepseek.js";
 import "./gemini.js";
 import "./openai.js";
 

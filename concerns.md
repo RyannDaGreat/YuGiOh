@@ -961,3 +961,18 @@ by copying archive-prepatch/PendyVsSpell.json into duels/ — note the dev serve
 pick up the patched node_modules (its ESM cache still held the old glue; the first repro attempt
 "passed" misleadingly). Lesson: whenever an engine change can invalidate stored data, guard every
 loader the same day — the data outlives the deploy in other people's browsers.
+
+## 2026-08-19 — DeepSeek provider (V4 release): a catalog entry, not an adapter
+
+DeepSeek-V4 shipped with Responses-API support. Probed live before writing any code: /models lists
+v4-pro + v4-flash; our exact OpenAI request body (developer role, reasoning.effort all 7 values,
+strict json_schema enum, prompt_cache_key) round-trips on both models; CORS preflight allows
+https://ryanndagreat.github.io. So the right shape was DRY: openai.js's implementation moved to
+responses.js parameterised by catalog entry (endpoint + modelsEndpoint), openai.js and deepseek.js
+became one-call bindings. One real difference: DeepSeek returns reasoning as content[].reasoning_text,
+not summary[] — reasoningSummary reads both, so the trace panel shows DeepSeek's actual reasoning.
+In-browser suite (dstest.js, provider-parameterised aitest) passes for deepseek AND openai on the
+static build: key modal Test (2 models visible), real moves, chat reply, presence, LLM log. Gotcha
+found while testing: the keys modal saves on the input's `change` event — a synthetic value-set with
+only an `input` event never persisted the key ("no key" seat), which read like a provider bug but was
+the test's fault. The key is in .env.local only; grepped the diff before committing.

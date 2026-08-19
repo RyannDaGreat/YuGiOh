@@ -153,6 +153,7 @@ export const PROVIDER_CATALOG = {
     id: "openai",
     label: "OpenAI",
     endpoint: "https://api.openai.com/v1/responses",
+    modelsEndpoint: "https://api.openai.com/v1/models",
     keyEnv: "OPENAI_API_KEY",
     keyHint: "sk-…",
     docs: "https://developers.openai.com/api/docs/guides/reasoning",
@@ -177,6 +178,30 @@ export const PROVIDER_CATALOG = {
         values: ["off", "auto", "concise", "detailed"],
         default: "auto",
         note: "reasoning.summary — a readable summary for the trace panel. Never the raw chain of thought. Not sent at effort 'none'.",
+      },
+    ],
+  },
+
+  deepseek: {
+    id: "deepseek",
+    label: "DeepSeek",
+    endpoint: "https://api.deepseek.com/responses",
+    modelsEndpoint: "https://api.deepseek.com/models",
+    keyEnv: "DEEPSEEK_API_KEY",
+    keyHint: "sk-…",
+    docs: "https://api-docs.deepseek.com",
+    /** Both ids from a live GET /models, 2026-08-19 (the V4 release). */
+    models: [
+      { id: "deepseek-v4-pro", label: "DeepSeek-V4 Pro", default: true },
+      { id: "deepseek-v4-flash", label: "DeepSeek-V4 Flash (cheap)" },
+    ],
+    options: [
+      {
+        name: "effort",
+        label: "Reasoning effort",
+        values: ["none", "minimal", "low", "medium", "high", "xhigh", "max"],
+        default: "low",
+        note: "reasoning.effort on the Responses API — every value verified accepted on both models.",
       },
     ],
   },
