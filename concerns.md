@@ -1003,3 +1003,21 @@ has-1, hunted by greedy-playing shadow-spectre-endymion vs yugi seed 1): stepper
 badge/bubble/text "1:1", 20 more clicks wrap to 0, +/− steppers move text, typing "1:6" moves badges
 and enables Confirm exactly at 6 of 6, hover lights both ways, Confirm accepted (moves 159→160), test
 duels deleted after.
+
+## 2026-08-19 — The chain.lua patch never reached the static site (live game deadlocked on Zeke)
+
+Owner's live game (shadow-spectre vs ryan-yu-sky-striker) stuck "waiting on P1", AI retrying with
+"card script errors: chain.lua:85 Passed invalid CHAININFO flag" from c75147529 (Sky Striker Ace -
+Zeke). The trace's LINE NUMBERS matched the UNPATCHED chain.lua — that was the tell. Root cause:
+patchScript was applied on the Node road, the browser miss-fetch road and memoryCardSource's reader,
+but openBrowserCardSource BULK-hydrates every baked script raw, and completeSource's fast path
+(`if (base in scripts) return scripts[base]`) serves those entries verbatim — so the static site's
+engine ran unpatched shared Lua from day one. Every "the patch works" verification had run on Node.
+Fix: apply patchScript at hydration (one line), so every consumer sees patched text (patch is
+idempotent, the double-patch in memoryCardSource is harmless). Unit test mirrors the hydration line.
+Also updated the stale manifest §15(a) that still said the CHAININFO defect was "documented rather
+than patched" — written before the Droll fix existed, a hazard.
+Lessons: (1) a "fixed" bug that was only verified on one host is not fixed; the browser engine needs
+its own proof for engine-side patches. (2) An error trace's line numbers can identify WHICH copy of a
+file ran — that is what caught this. The owner's stuck game needs only a reload after deploy: the
+record is intact; the error was in processing the pending decision, which now succeeds.

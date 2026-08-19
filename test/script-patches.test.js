@@ -62,3 +62,18 @@ test("Droll & Lock Bird resolves instead of deadlocking (the core rejects CHAINI
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// The browser hydrates every baked script in bulk and completeSource's fast path
+// returns those entries directly — so the patch must already be IN them. This
+// mirrors that hydration line exactly (cardsource-browser.js openBrowserCardSource):
+// a bulk-loaded raw chain.lua must come out guarded. Regression for the live
+// 2026-08-19 deadlock (Sky Striker Ace - Zeke, "Passed invalid CHAININFO flag"),
+// where only the miss-fetch road patched and the bulk road did not.
+test("bulk-hydrated scripts carry the patches (the browser's fast path serves them verbatim)", () => {
+  const raw = "local function chaininfo_fn(info)\n\treturn function(ch)\n\t\treturn Duel.GetChainInfo(ch or 0,info)\n\tend\nend";
+  const names = ["chain.lua", "utility.lua"];
+  const sources = [raw, "-- utility"];
+  const scripts = Object.fromEntries(names.map((name, i) => [name, patchScript(name, sources[i])]));
+  assert.match(scripts["chain.lua"], /pcall\(Duel\.GetChainInfo,ch or 0,info\)/);
+  assert.equal(scripts["utility.lua"], "-- utility");
+});

@@ -181,7 +181,15 @@ export async function openBrowserCardSource(baseUrl, { fallbackUrl = null } = {}
   const names = manifest.scripts;
   if (!Array.isArray(names) || !names.length) throw new Error("carddata manifest has no `scripts` list — re-run bin/bake-carddata.js");
   const sources = await mapPool(names, FETCH_CONCURRENCY, (name) => fetchText(`${root}/scripts/${name}`));
-  const scripts = Object.fromEntries(names.map((name, i) => [name, sources[i]]));
+  // Compatibility patches are applied HERE, at hydration, so every road that
+  // serves a pre-fetched script serves the patched text. They used to be applied
+  // only on the miss-fetch road below and in memoryCardSource's reader — but
+  // completeSource's fast path returns pre-hydrated entries directly, so the
+  // static site ran an UNPATCHED chain.lua and Sky Striker Ace - Zeke deadlocked
+  // a live game on "Passed invalid CHAININFO flag" (2026-08-19; the same bug the
+  // Droll fix addressed, reachable because Node patches on read and the browser
+  // did not). patchScript is idempotent, so the re-patch in memoryCardSource is harmless.
+  const scripts = Object.fromEntries(names.map((name, i) => [name, patchScript(name, sources[i])]));
 
   const expected = manifest.sharedScripts + manifest.cardScripts;
   if (names.length !== expected) {

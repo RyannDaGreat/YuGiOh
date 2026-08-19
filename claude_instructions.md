@@ -812,17 +812,24 @@ before, plus `test/announce-race.test.js`).
 
 ## 15. KNOWN ENGINE BUGS that can strand a duel mid-board (found 2026-08-17)
 
-Two defects can put a duel in a position **no player can answer**. Neither is fixable without
-changing the pinned core/CardScripts pair, and changing that pair changes how every already-recorded
-duel replays (the same hazard §12 documents for Pendulum scales), so they are documented rather than
-patched. A stranded duel has to be replayed from a fresh shuffle — see the tournament's
-`tools/reseed.mjs` and its `reseeds.jsonl` ledger.
+Historically two defects could put a duel in a position **no player can answer**. (a) is FIXED;
+(b) remains documented-only. A duel stranded by (b) has to be replayed from a fresh shuffle — see the
+tournament's `tools/reseed.mjs` and its `reseeds.jsonl` ledger.
 
-**(a) `chain.lua:85` — CHAININFO flag mismatch.** Answering the pending menu raises a Lua error from
-the card scripts (`chain.lua:85 in local 'fn'`, reached via `proc_workaround.lua:147`). The pinned
-CardScripts commit uses a CHAININFO flag the pinned core (v11) does not know. Every observed instance
-involves **SD10 Machine Re-Volt**, and the agent-visible message names `c80045583.lua` — Ancient Gear
-Cannon. Symptom: the board looks ordinary (e.g. "Select the zone to place …") and answering throws.
+**(a) FIXED — `chain.lua:85` CHAININFO flag mismatch (patched 2026-08-17, browser road closed
+2026-08-19).** The pinned CardScripts commit reads CHAININFO flags the pinned core (v11) does not
+know, raising "Passed invalid CHAININFO flag" from `chain.lua`'s shared getter factory — reachable
+from any effect registration that snapshots card properties (`proc_workaround.lua` → RegisterEffect →
+`get_all_triggering_properties`). First seen as Ancient Gear Cannon in the tournament, then Droll &
+Lock Bird, then Sky Striker Ace - Zeke live in a browser game. The fix is `SCRIPT_PATCHES` in
+`src/cardsource.js`: `patchScript("chain.lua", …)` pcall-guards the getter factory, idempotently
+(marker check). It must hold on EVERY road a script reaches the core: Node reads (`cardsource-node`),
+the browser's miss-fetch road, memoryCardSource's reader, and — the one that was missed — the
+browser's BULK HYDRATION (`cardsource-browser.js openBrowserCardSource`), whose `completeSource` fast
+path serves pre-fetched text verbatim; patches are now applied at hydration, so all consumers see
+patched text. Pinned by `test/script-patches.test.js` (Droll resolves; a bulk-hydrated chain.lua is
+guarded; the patch is idempotent). The baked corpus and assets-branch copies stay UNPATCHED on
+purpose: patching is an engine-side concern, applied at load.
 
 **(b) `MSG_SELECT_SUM` dead end.** The message decodes to nonsense: `selects_must` entries with
 impossible players and locations (P69, P254, `loc120`), and `min`/`max` of 0 against a required
