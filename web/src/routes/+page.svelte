@@ -201,12 +201,16 @@
           <td class="py-1 font-mono text-amber-200">{d.id}</td>
           <td>{d.decks[0]} <span class="text-amber-100/50">({d.players[0]})</span></td>
           <td>{d.decks[1]} <span class="text-amber-100/50">({d.players[1]})</span></td>
-          <td>{d.status}</td>
+          <td>{#if d.broken}<span class="text-red-300" title={d.status}>unreplayable (saved under an older engine)</span>{:else}{d.status}{/if}</td>
           <td>{d.moves}</td>
           <td class="text-amber-100/70">{d.chatCount || "—"}</td>
           <td class="text-amber-100/70 whitespace-nowrap">{stamp(d.created)}</td>
           <td class="text-amber-100/70 whitespace-nowrap">{stamp(d.lastMove)}</td>
           <td class="space-x-2 whitespace-nowrap">
+            {#if d.broken}
+              <!-- Nothing to open: the engine cannot replay this record any more. Rematch still works — it only needs the deck names. -->
+              <button class="px-1.5 rounded border border-amber-900/70 text-amber-200 hover:bg-amber-900/40 text-xs" onclick={() => rematch(d.id)} title="same decks and seats, fresh game under the current engine">rematch</button>
+            {:else}
             {#if !d.ended}
               <!-- One click back into the game at the seat you hold; the AI seat starts on open. -->
               <a class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-300 text-emerald-950 font-bold hover:bg-emerald-200" href="{base}/duel/{d.id}?as={continueSeat(d)}" title="continue this game">
@@ -217,6 +221,7 @@
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=0">P0</a>
             <a class="underline text-amber-300" href="{base}/duel/{d.id}?as=1">P1</a>
             <button class="ml-1 px-1.5 rounded border border-amber-900/70 text-amber-200 hover:bg-amber-900/40 text-xs" onclick={() => rematch(d.id)} title="play again: same decks, same players, new shuffle">rematch</button>
+            {/if}
           </td>
         </tr>
       {/each}

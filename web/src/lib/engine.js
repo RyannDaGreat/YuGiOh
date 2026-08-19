@@ -205,8 +205,15 @@ export async function duelSummaries() {
     const cached = summaryReplayCache.get(id);
     let r = cached && cached.moves === moves ? cached.result : null;
     if (!r) {
-      const view = await viewDuel(duel, 2); // the costly step: a full engine replay
-      r = { ended: view.ended, winner: view.winner, pendingPlayer: view.pendingPlayer, winReason: view.winReason };
+      try {
+        const view = await viewDuel(duel, 2); // the costly step: a full engine replay
+        r = { ended: view.ended, winner: view.winner, pendingPlayer: view.pendingPlayer, winReason: view.winReason };
+      } catch (err) {
+        // A record the engine can no longer replay — e.g. one saved before the
+        // 2026-08-18 core patch changed the menus a Pendulum/Link summon offers.
+        // Reported on its row; it must never take the whole home page down.
+        r = { broken: String(err.message ?? err) };
+      }
       summaryReplayCache.set(id, { moves, result: r });
     }
     rows.push({
@@ -214,8 +221,10 @@ export async function duelSummaries() {
       decks: duel.decks.map((d) => d.name),
       players: duel.players,
       moves,
-      ended: r.ended,
-      status: r.ended ? `${r.winner === 2 ? "draw" : `P${r.winner} (${duel.players[r.winner]}) wins`} — ${victoryString(r.winReason)}` : `waiting on P${r.pendingPlayer}`,
+      ended: r.broken ? true : r.ended,
+      broken: r.broken ?? null,
+      status: r.broken ? `unreplayable — ${r.broken}`
+        : r.ended ? `${r.winner === 2 ? "draw" : `P${r.winner} (${duel.players[r.winner]}) wins`} — ${victoryString(r.winReason)}` : `waiting on P${r.pendingPlayer}`,
       created: duel.created ?? null,
       lastMove: moveTime(duel.times, moves),
       chatCount: loadChat(id).length,

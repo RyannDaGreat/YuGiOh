@@ -633,6 +633,11 @@ linked zones for MR5 Extra Deck placement). Owner hit it live (Endymion Lv7 unsu
   Pendulum/Link summon on is different. The two local records that broke (PendyVsSpell, SkyVsSpectre)
   moved to `duels/archive-prepatch/` (README there); everything else replays. Games saved in a browser on
   the static site from before the deploy that contain a Pendulum/Link summon will not scrub past it.
+- **A record the engine cannot replay must never take the page down** (2026-08-19: a visitor's browser
+  held a pre-patch game and the home page 500'd on every load — only incognito worked). `duelSummaries`
+  catches the replay failure per record and reports it ON the row (`broken`, status "unreplayable — …");
+  the home page shows it in red with only a rematch button (rematch needs just the deck names). Opening
+  such a duel directly still 404s with the error text.
 - The scale shown to players still comes from cards.cdb (`state.js`) — it is the printed number and never
   changes in play for the cards we ship — so nothing else depended on the wrong query.
 

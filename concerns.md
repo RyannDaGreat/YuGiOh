@@ -949,3 +949,15 @@ them?" They were not: the state carried material names for the text/AI view only
 carry codes and `Card.svelte` draws the stack under the monster + a `◈N` pip (tooltip names them).
 Verified with a greedy Sushi-Boat mirror on the Node host (Shirauo-class Carrier with Shari + Ikura:
 two slivers at depths 2/1, pip "◈2 | 2 Xyz materials: …") and a screenshot.
+
+## 2026-08-19 — One pre-patch record 500'd the whole static site for its owner
+
+Owner's browser (OPFS) held a game saved before the core patch; the home page replays every stored
+record to summarise it, the replay threw, the load function died → "Internal Error" on every refresh
+(incognito fine, storage empty). The engine change was known to break old records; NOT guarding the
+per-record replay was the real bug. Fix: `duelSummaries` catches per record and reports the error on
+the row ("unreplayable — core rejected recorded response #N…", red, rematch-only). Reproduced locally
+by copying archive-prepatch/PendyVsSpell.json into duels/ — note the dev server needed a restart to
+pick up the patched node_modules (its ESM cache still held the old glue; the first repro attempt
+"passed" misleadingly). Lesson: whenever an engine change can invalidate stored data, guard every
+loader the same day — the data outlives the deploy in other people's browsers.
