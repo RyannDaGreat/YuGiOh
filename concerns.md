@@ -1021,3 +1021,42 @@ Lessons: (1) a "fixed" bug that was only verified on one host is not fixed; the 
 its own proof for engine-side patches. (2) An error trace's line numbers can identify WHICH copy of a
 file ran — that is what caught this. The owner's stuck game needs only a reload after deploy: the
 record is intact; the error was in processing the pending decision, which now succeeds.
+
+## 2026-08-19 — AI table talk: mid-word truncation, "amnesia" on follow-ups, surface-deep answers
+
+Owner grilled deepseek-v4-pro at the table (static-host duel zombie-madness-vs-spellcasters-command-2)
+about an Enemy Controller play and hit three defects at once; the transcript is the evidence:
+"Your answers are always surface deep, they never explain the why … It's like you have amnesia", and
+the seat's last line ended mid-word: "…Dark Dust Spirit's summon effect wiped it any". Reproduced all
+three offline against a scripted provider before fixing (the posted line was exactly 280 chars —
+MAX_REPLY_CHARS — and the follow-up prompt provably lacked the seat's own previous answer).
+
+1. **Mid-word cut.** `replyToChat` posted `answer.slice(0, MAX_REPLY_CHARS)` — a raw slice — while
+   `tidyTruncated` (built 2026-08-18 for exactly this, "never mid-word, because it reads as a bug, and
+   it was one") sat unused three functions up, applied only to output-budget truncation, not to the
+   char cap. Fix: `capReply` (exported, doctested) ends the cut at a sentence/word boundary; cap raised
+   280 → 500 by tying it to chat.js MAX_CHAT_CHARS (the same per-message limit a person posts under —
+   600 was considered and would have made appendChat THROW on a capped reply, caught before commit).
+   Lesson: when two truncation paths exist, the cleanup written for one must be wired to BOTH — grep
+   for every `slice(0,` on the same string; and a producer's cap must be derived from its consumer's.
+2. **Amnesia.** The context window was `log.filter(at <= since)`, but the seat's own reply is stamped
+   `now` (request start), which is always LATER than `seenUpTo` (the max stamp of the lines it
+   answered, own lines filtered out before the max). So the seat's own LATEST answer always fell in the
+   gap between the cursor and the clock: invisible as context, excluded from `fresh` by seat. Every
+   follow-up ("Then why did you set it?") was answered by a model that had never seen what it just
+   said — it re-derived an answer from scratch each round, sometimes a different one, which reads as
+   amnesia and let a wrong claim mutate instead of being corrected. Fix: `earlier` now keeps a line if
+   `at <= since` OR it is the seat's own, and `chatPrompt` marks own lines `(you)`. `EARLIER_LINES`
+   8 → 12 (the live grilling ran ~14 lines; 8 lost its start). Lesson: a cursor that deliberately
+   ignores own-stamps must not also gate the CONTEXT — the two uses of `since` had different jobs.
+3. **Surface-deep.** The prompt demanded "ONE short sentence" always, and "name the cards and the
+   effects involved when asked how or why" — which literally instructs re-narration of the what. The
+   model also confabulated a rule under pressure ("it can't be used as tribute fodder" — that is Mind
+   Control's clause, not Enemy Controller's). Fix: banter stays one sentence, but a how/why question
+   may take up to three and must be answered with REASONING (what was weighed/feared/forced, and by
+   what rule); stay consistent with own earlier lines and correct them if wrong; never quote a rule
+   you are not sure of. Prompt-only — no new machinery.
+Fixes are in src/ai/chat.js only; regression tests in test/ai-chat.test.js pin the boundary-clean cap
+and that a follow-up prompt contains the seat's own previous reply. Confabulation itself is a model
+limitation — the fixes give the model its own words back so it can at least stay consistent or
+correct itself when challenged.

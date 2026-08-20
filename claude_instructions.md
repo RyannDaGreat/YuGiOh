@@ -1207,9 +1207,19 @@ model judgement, because judgement failed in practice (see concerns, 2026-08-17)
 - a person's line that arrives inside the seat's cooldown is DELAYED (the cursor is not advanced past
   it), never dropped; only the other AI's lines may be let go;
 - the reply request is grounded: it carries the recent log (`LOG_TAIL_LINES`), the board, and the last
-  `EARLIER_LINES` chat lines as context, and is told to answer concretely, naming cards and effects.
-  It is TOLD whom it is answering (addressing was decided above), never asked to judge — asking made
-  a nano model decline "what do you think of my opening hand" as being about the other player;
+  `EARLIER_LINES` chat lines as context — INCLUDING the seat's OWN replies, marked `(you)`, and in
+  particular the one stamped after the seen-cursor. Own stamps never advance the cursor (own lines are
+  filtered out before `seenUpTo` is computed), so filtering context by `at <= since` alone hid exactly
+  the seat's own latest answer: every follow-up was answered from scratch, which read as amnesia at the
+  table (found live 2026-08-19, see concerns). It is TOLD whom it is answering (addressing was decided
+  above), never asked to judge — asking made a nano model decline "what do you think of my opening
+  hand" as being about the other player;
+- a how/why question is answered with the seat's REASONING (what it weighed, feared, or was forced
+  into — up to three sentences); banter stays one sentence. The prompt demands consistency with the
+  seat's own earlier lines, correction over repetition when one of them was wrong, and forbids quoting
+  a rule the model is not sure of — a confidently invented rule ("a stolen monster can't be tribute
+  fodder") plus one-sentence answers is what a live spectator called "surface deep … like you have
+  amnesia" (2026-08-19);
 - people (the spectator and any human seat) are answered on a short cooldown; the other AI only if the
   talk level allows and only after a much longer one. **The cooldowns are the loop-breaker**, whatever
   the model says;
@@ -1218,8 +1228,12 @@ model judgement, because judgement failed in practice (see concerns, 2026-08-17)
 - the "seen" cursor is MONOTONIC: `at` is stamped when a request began, so a slow reply lands in the
   log out of order, and taking the last appended line's stamp rolled the cursor backwards and
   re-answered lines. `since` is the floor, always.
-Replies are capped at `MAX_REPLY_CHARS` and ride in the `choice` field of the same JSON shape moves
-use; `NO_REPLY` posts nothing but still advances the cursor, so every line is considered exactly once.
+Replies are capped at `MAX_REPLY_CHARS` (= `chat.js MAX_CHAT_CHARS`, 500 — the AI talks under exactly
+the per-message limit a person does, so a capped reply can never make `appendChat` throw; the old
+hard-coded 280 could not hold a why-answer) by `capReply`, which ends the cut at a sentence or word
+boundary via `tidyTruncated` — a raw `slice(0, cap)` once shipped "…Dark Dust Spirit's summon effect
+wiped it any" to the table — and ride in the `choice` field of the same JSON shape moves use;
+`NO_REPLY` posts nothing but still advances the cursor, so every line is considered exactly once.
 **Never post JSON (2026-08-18).** A reasoning model can hit the output cap mid-answer (thinking is billed
 against the same budget) and return a *fragment* of the JSON. Two rules, both structural: every adapter
 retries a truncated answer with `nextOutputBudget` (×4 up to `MAX_OUTPUT_TOKENS_CEILING`, `provider.js`)

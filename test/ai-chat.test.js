@@ -42,7 +42,7 @@ import { memoryVolume, setVolume } from "../src/volume.js";
 import { createDuel, loadDeck, loadDuel } from "../src/store.js";
 import { viewDuel } from "../src/session.js";
 import { appendChat, loadChat } from "../src/chat.js";
-import { CHAT_MAX_OUTPUT_TOKENS, MAX_REPLY_CHARS, NO_REPLY, TALK_LEVELS, chatPrompt, replyText, replyToChat } from "../src/ai/chat.js";
+import { CHAT_MAX_OUTPUT_TOKENS, MAX_REPLY_CHARS, NO_REPLY, TALK_LEVELS, capReply, chatPrompt, replyText, replyToChat } from "../src/ai/chat.js";
 import { playSeat } from "../src/ai/player.js";
 
 /** The real decks, read while the Node volume is still installed. */
@@ -608,8 +608,69 @@ test("a reply is cut to MAX_REPLY_CHARS — table talk, not an essay", async () 
     duelId: id, seat: 0, provider, model: "talker-1", apiKey: "not-a-real-key", options: {},
     system: "FROZEN", since: "2026-08-17T18:00:00.000Z", replyTo: [2], talk: "sporting", now: "2026-08-17T18:00:02.000Z",
   });
-  assert.equal(posted.length, MAX_REPLY_CHARS);
+  assert.equal(posted.length, MAX_REPLY_CHARS, "an unbroken run has no boundary to cut at, so only the cap holds it");
   assert.equal(loadChat(id)[1].text.length, MAX_REPLY_CHARS, "what was stored is what was returned");
+});
+
+test("the cap never cuts mid-word: the cut lands on a sentence or word boundary", async () => {
+  // REGRESSION, verbatim from the owner's transcript (2026-08-19): deepseek-v4-pro's
+  // 283-char answer was posted as `answer.slice(0, 280)` and the table read
+  // "…Dark Dust Spirit's summon effect wiped it any" — `tidyTruncated` existed
+  // for budget truncation but was never wired to the char cap.
+  const live = "I used Enemy Controller's second effect — tributing my face-down Mandragola to take Ryu Kokki until the End Phase — because stealing it briefly was my best answer to the attack pressure, but it can't be used as tribute fodder and then Dark Dust Spirit's summon effect wiped it anyway";
+  const cut = capReply(live, 280);
+  assert.ok(cut.length <= 280, `the cap holds: ${cut.length}`);
+  assert.ok(!cut.endsWith(" any"), "the live bug: 'anyway' chopped to 'any'");
+  assert.ok(/(\.|!|\?|…)$/.test(cut), `the cut ends cleanly: ${JSON.stringify(cut.slice(-20))}`);
+  // Under the real cap the whole answer fits — the cap was also simply too small
+  // to hold a why-answer, which is why MAX_REPLY_CHARS grew.
+  assert.equal(capReply(live), live);
+  // A finished sentence before the cap is preferred over a word boundary.
+  assert.equal(capReply("It was Magic Cylinder. I had to destroy it before attacking", 30), "It was Magic Cylinder.");
+
+  // End to end: what gets POSTED obeys the same rule.
+  const id = "chat-midword";
+  freshDuel(id);
+  const essay = `${"Ryu Kokki is a problem. ".repeat(40)}Extraordinary`;
+  const provider = talker({ seat: 0, chatAnswer: () => JSON.stringify({ choice: essay, reason: "-" }) });
+  appendChat(id, 2, "explain everything about that", "2026-08-17T18:00:01.000Z");
+  const { posted } = await replyToChat({
+    duelId: id, seat: 0, provider, model: "talker-1", apiKey: "not-a-real-key", options: {},
+    system: "FROZEN", since: "2026-08-17T18:00:00.000Z", replyTo: [2], talk: "sporting", now: "2026-08-17T18:00:02.000Z",
+  });
+  assert.ok(posted.length <= MAX_REPLY_CHARS);
+  assert.ok(posted.endsWith("Ryu Kokki is a problem."), `the cut fell on the last full sentence: ${JSON.stringify(posted.slice(-30))}`);
+});
+
+test("a follow-up prompt carries the seat's OWN previous reply — no amnesia", async () => {
+  // REGRESSION (2026-08-19). A reply is stamped when its request began — always
+  // AFTER the lines it answered, whose max stamp becomes the next `since`. So a
+  // context window gated on `at <= since` alone hid exactly the seat's own last
+  // answer, and the model met every follow-up ("Then why did you set it?")
+  // having never seen what it just said: it re-answered from scratch each time,
+  // which the owner read, correctly, as amnesia.
+  const id = "chat-continuity";
+  freshDuel(id);
+  const a1 = "Enemy Controller was Set that same turn, so it could not be activated yet.";
+  const provider = talker({ seat: 1, chatAnswer: (n) => JSON.stringify({ choice: n === 1 ? a1 : "As I said, quick-plays wait a turn.", reason: "-" }) });
+  const ask = (since, now) => replyToChat({
+    duelId: id, seat: 1, provider, model: "talker-1", apiKey: "not-a-real-key", options: {},
+    system: "FROZEN", since, replyTo: [2], talk: "sporting", now,
+  });
+
+  appendChat(id, 2, "Then why did you set it?", "2026-08-19T17:53:00.000Z");
+  const first = await ask("2026-08-19T17:52:00.000Z", "2026-08-19T17:53:20.000Z");
+  assert.equal(first.posted, a1);
+  assert.equal(first.seenUpTo, "2026-08-19T17:53:00.000Z", "the cursor is the question's stamp — BEHIND the reply's");
+
+  appendChat(id, 2, "I keep asking you WHY. It's like you have amnesia.", "2026-08-19T17:55:00.000Z");
+  await ask(first.seenUpTo, "2026-08-19T17:55:10.000Z");
+  const prompt = provider.requests[1].messages[0].content;
+  const context = prompt.split("## Table talk since you last looked")[0];
+  assert.ok(context.includes("Then why did you set it?"), "the question that started the thread is context");
+  assert.ok(context.includes(a1), "and so is the seat's own answer to it — the line the follow-up is about");
+  assert.ok(context.includes(`(you): ${a1}`), "own lines are marked (you), so the model knows whose words they are");
+  assert.ok(!prompt.split("## Table talk since you last looked")[1].includes(a1), "its own line is context, never something to answer");
 });
 
 test("chatPrompt names the speakers, sets the mood per level, and always offers NO_REPLY", () => {
