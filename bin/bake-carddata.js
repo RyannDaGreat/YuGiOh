@@ -23,8 +23,9 @@ import { parseArgs } from "node:util";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exportArchive } from "../src/archive.js";
-import { REPO_ROOT, allCards, cardInfo, codeOf } from "../src/cards.js";
-import { rowById, textById } from "../src/cardsource.js";
+import { REPO_ROOT, allCards, codeOf } from "../src/cards.js";
+import { rowById } from "../src/cardsource.js";
+import { bakedCard } from "../src/cardsource-browser.js";
 import { listDecks, loadDeck } from "../src/store.js";
 
 const OUT = join(REPO_ROOT, "web/static/carddata");
@@ -129,54 +130,24 @@ while (queue.length) {
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(join(OUT, "scripts"), { recursive: true });
 
-// 1. Card data — exactly the fields cards.js exposes, so the browser adapter can
-//    serve cardInfo() from this with no reshaping.
+// 1. Card data — `bakedCard` (src/cardsource-browser.js) is the one definition of
+//    the record, sitting beside the `bakedRow` that reads it back, so the browser
+//    adapter serves cardInfo() from this with no reshaping.
 const cards = {};
 for (const code of [...codes].sort((a, b) => a - b)) {
-  const info = cardInfo(code);
-  if (!info) throw new Error(`no card data for passcode ${code} — is cards.cdb current?`);
-  // setcode is what archetype checks (IsSetCard) match on, and the per-card
-  // script strings are the effect names prompts show — both invisible until a
-  // card misbehaves in the browser, so they ride along from the raw rows.
-  cards[code] = bakedCard(code, info);
+  const card = bakedCard(code);
+  if (!card) throw new Error(`no card data for passcode ${code} — is cards.cdb current?`);
+  cards[code] = card;
 }
 writeFileSync(join(OUT, "cards.json"), JSON.stringify(cards));
-
-/**
- * Pure function. One card's baked record — every field cards.js reads, plus the
- * raw setcode (archetype checks) and script strings (effect names in prompts).
- *
- * Args:
- *     code (number): Passcode.
- *     info (object): cardInfo(code).
- *
- * Returns:
- *     object
- *
- * Examples:
- *     >>> bakedCard(89631139, cardInfo(89631139)).name   // "Blue-Eyes White Dragon"
- */
-function bakedCard(code, info) {
-  const row = rowById(code);
-  const text = textById(code);
-  return {
-    code: info.code, name: info.name, desc: info.desc,
-    atk: info.atk, def: info.def, level: info.level,
-    lscale: info.lscale, rscale: info.rscale,
-    type: info.type, race: String(info.race), attribute: info.attribute,
-    alias: info.alias ?? 0,
-    setcode: String(row?.setcode ?? "0"),
-    strings: text?.strings ?? [],
-  };
-}
 
 if (args.assets) {
   const dir = join(args.assets, "carddata");
   mkdirSync(dir, { recursive: true });
   const everything = {};
   for (const { code } of allCards()) {
-    const info = cardInfo(code);
-    if (info) everything[code] = bakedCard(code, info);
+    const card = bakedCard(code);
+    if (card) everything[code] = card;
   }
   writeFileSync(join(dir, "cards-all.json"), JSON.stringify(everything));
   console.log(`  -> ${dir}/cards-all.json  ${Object.keys(everything).length} cards (the whole database, for the assets branch)`);

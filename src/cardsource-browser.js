@@ -26,8 +26,8 @@
  * fails loudly at startup rather than as an inexplicable Lua error mid-duel.
  */
 
-import { packLevel } from "./cards.js";
-import { memoryCardSource, patchScript, setCardSource } from "./cardsource.js";
+import { cardInfo, packLevel } from "./cards.js";
+import { currentCardSource, memoryCardSource, patchScript, setCardSource } from "./cardsource.js";
 
 /**
  * The bundle is several hundred small files. Firing them all at once buries the
@@ -135,6 +135,45 @@ export function bakedRow(card) {
     name: card.name,
     desc: card.desc,
     strings: card.strings ?? [],
+  };
+}
+
+/**
+ * Query. The inverse of `bakedRow`: one card's bundle record, read from the
+ * installed (Node) card source. `bin/bake-carddata.js` emits these; this is the
+ * ONLY definition of the record, so the two directions cannot drift.
+ *
+ * Decoded fields come from `cardInfo`; everything the core reads but a human
+ * never does — `alias` (the core's "always treated as" mechanism: A Legendary
+ * Ocean aliases Umi, Harpie Lady 1 aliases Harpie Lady), the packed `setcode`
+ * archetype codes, the script strings — comes from the RAW row, because
+ * `cardInfo` deliberately exposes none of them.
+ *
+ * Args:
+ *     code (number): Card passcode.
+ *
+ * Returns:
+ *     object|null: The bundle record, or null when the passcode is unknown.
+ *
+ * Examples:
+ *     >>> bakedCard(295517).alias      // 22702055  (A Legendary Ocean IS "Umi")
+ *     >>> bakedCard(89631139).name     // "Blue-Eyes White Dragon"
+ *     >>> bakedCard(89631139).alias    // 0         (a card that is only itself)
+ */
+export function bakedCard(code) {
+  const info = cardInfo(code);
+  const { rowById, textById } = currentCardSource();
+  const row = rowById(code);
+  const text = textById(code);
+  if (!info || !row) return null;
+  return {
+    code: info.code, name: info.name, desc: info.desc,
+    atk: info.atk, def: info.def, level: info.level,
+    lscale: info.lscale, rscale: info.rscale,
+    type: info.type, race: String(info.race), attribute: info.attribute,
+    alias: row.alias ?? 0,
+    setcode: String(row.setcode ?? "0"),
+    strings: text?.strings ?? [],
   };
 }
 

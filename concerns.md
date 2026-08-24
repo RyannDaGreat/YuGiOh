@@ -1060,3 +1060,57 @@ Fixes are in src/ai/chat.js only; regression tests in test/ai-chat.test.js pin t
 and that a follow-up prompt contains the seat's own previous reply. Confabulation itself is a model
 limitation — the fixes give the model its own words back so it can at least stay consistent or
 correct itself when challenged.
+
+## 2026-08-23 — The static site lost every "always treated as" name (alias baked as 0)
+
+Reported live, from a duel in the web UI (`fury-from-the-deep-vs-fury-from-the-deep-3`, P0, turn 11):
+"Why can I not activate Leviah Dragon to destroy Legendary Ocean which is treated as Umi?" The AI at
+P1 could not name a rule that stopped it either, and guessed "interface/engine issue" — correctly.
+
+What it took to find it, in order, because the order matters for next time:
+1. **Rules first, not code.** Levia-Dragon - Daedalus sends a face-up "Umi" as a COST; A Legendary
+   Ocean is legal; Gravity Bind stops attacks, not activations. So the position was legal and the
+   engine was wrong — worth establishing before touching anything.
+2. **Read the actual Lua.** `official/c37721209.lua`'s cost filter is `c:IsCode(CARD_UMI) and
+   c:IsFaceup() and c:IsAbleToGraveAsCost() and <another card exists on the field>`. All four held.
+3. **Where does "treated as Umi" live?** NOT in `c295517.lua` — it has no name effect at all. Grep
+   said no CardScripts file uses `EnableChangeCode`, and none of the 12 cards whose text says "always
+   treated as" registers `EFFECT_CHANGE_CODE`. The mechanism is `cards.cdb`'s `datas.alias`
+   (295517 -> 22702055), applied by the core, which is also why `c43797906.lua` (Warrior of Atlantis)
+   has to say `IsOriginalCode(295517)` to search the card by its own name.
+4. **Synthetic board, not the duel record.** The record lives in the player's browser (OPFS) and was
+   unreachable, so `OCG_DuelNewCard` built the position directly: Daedalus in an MZONE, the field
+   spell in `SZONE` sequence 5 (LOCATION_FZONE is NOT a placement location — the first attempt put it
+   nowhere and made both variants look broken), a card on the other side. Node offered the effect for
+   BOTH Umi and A Legendary Ocean. So Node was fine and the browser was not.
+5. **Causation, not correlation.** Wrapping `cardReader` to force `alias: 0` reproduced it exactly:
+   A Legendary Ocean false, Umi true. Then the source: `bakedCard` in bin/bake-carddata.js read
+   `info.alias` from `cardInfo()`, which has never returned `alias` — so every one of the 651 baked
+   cards, and all 14,714 in the assets branch's `cards-all.json`, shipped `alias: 0`.
+
+Fallout in that one duel: Daedalus (and Neo-Daedalus) could never be activated, and Amphibious
+Bugroth MK-3 attacked INTO a monster on turn 7 because it could not attack directly — the whole
+point of "Fury from the Deep". Elsewhere: Harpie Lady 1/2/3 and Cyber Harpie Lady were not "Harpie
+Lady" (Harpies' Hunting Ground, Elegant Egotist), and the Ojama/Sheep token variants were distinct
+cards. 415 of the full database's cards carry a real alias.
+
+Why the tests agreed with the bug: the record shape existed twice. `test/cardsource-browser.test.js`
+carried a hand-copy of `bakedCard` under the comment "bakes exactly as bin/bake-carddata.js does" —
+including the same `info.alias`, so both sides read 0 and matched. Its field-by-field comparison
+against Node listed `id, type, level, attribute, atk, def`; `alias` was not in the list. **A copy of
+a function is a copy of its bugs, and a test that re-implements the thing it tests proves nothing.**
+
+Fix: one `bakedCard(code)` in src/cardsource-browser.js beside its inverse `bakedRow`, with the
+fields the CORE reads (`alias`, `setcode`, `strings`) taken from the raw cdb row and only the human
+fields from `cardInfo`; bin and tests call it. Rebaked `web/static/carddata/` (the same rebake also
+picked up 19 descs whose "* The above text is unofficial…" footer `cleanDesc` now strips — the
+committed bundle was that stale) and `.assets/carddata/cards-all.json`. Guards: a round trip of
+every card in the committed bundle against `cards.cdb` over every core-read field (which also fails
+on a stale bundle), and `test/browser-host-rules.test.js`, which installs ONLY the browser source and
+drives the real core over the board from the duel — Daedalus's cost sees A Legendary Ocean, Bugroth
+may attack directly. Both were confirmed to FAIL against the shipped bundle before the fix.
+
+Lesson: the browser host is a lossy reduction of the Node host, and a lossy reduction of card DATA
+is invisible until it is a rules difference — no error, no warning, just an option that never
+appears. Every field the core reads needs a test comparing the bundle to `cards.cdb`; no one is ever
+going to notice `alias` by looking.

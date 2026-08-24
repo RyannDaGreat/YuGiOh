@@ -977,9 +977,9 @@ interface may become async.
 
 **The bake — committed on purpose.**
 - `bin/bake-carddata.js` -> `web/static/carddata/`: `cards.json` (every field `cards.js` reads, per
-  card — including `setcode`, without which no archetype check matches, and the per-card script
-  strings), `scripts/*.lua` (card scripts + the shared libraries), `strings.conf`, `manifest.json`,
-  `decks-seed.json`. A few megabytes: two orders of magnitude smaller than the 250 MB vendor tree.
+  card — including `setcode`, without which no archetype check matches, `alias`, which IS Konami's
+  "always treated as" (§26), and the per-card script strings), `scripts/*.lua` (card scripts + the
+  shared libraries), `strings.conf`, `manifest.json`, `decks-seed.json`. A few megabytes: two orders of magnitude smaller than the 250 MB vendor tree.
   Counts as bundled today — 607 cards, 25 shared + 520 card scripts, 87 vanillas, 40 seeded decks;
   `manifest.json` is the authority, not this line.
 - **The card set is the decks CLOSED OVER what their scripts reference**, not the decklists. A script
@@ -993,6 +993,11 @@ interface may become async.
   and must never be requested. Its counts (`cards`, `sharedScripts`, `cardScripts`, `vanillaCards`,
   `seededDecks`) are cross-checked at boot, so a stale bake fails loudly at startup instead of as an
   inexplicable Lua error mid-duel.
+- **One definition of the record, both directions.** `bakedCard(code)` (src/cardsource-browser.js)
+  writes it and `bakedRow(card)` reads it back, side by side in one file, and `bin/bake-carddata.js`
+  and the tests all call those — the bake had its own copy once, and the copy is what silently lost
+  `alias` (§26). Anything the CORE reads comes from the RAW cdb row there, never from `cardInfo`,
+  which deliberately exposes only what a human reads.
 - **Re-run it whenever a deck gains a card, and commit the output** — otherwise the static site is
   missing a card the Node host has, which is invisible until someone plays that deck in the browser.
   Card ART is not baked: it lives on the `assets` branch (§25), published separately.
@@ -1317,3 +1322,39 @@ the owner; the history is in concerns.md. The result is this section.
 - Re-run it whenever a deck gains a card: `ygo fetch-pics` (and `fetch-boxart`) first, then
   `bin/publish-assets.sh`. The static site's card art is only as complete as the last push of that
   branch, and a missing image is invisible until someone plays that deck in the browser.
+
+## 26. FIXED RULES BUG — the browser host lost every "always treated as" name (2026-08-23)
+
+**Symptom.** Mid-duel in the web UI (`fury-from-the-deep-vs-fury-from-the-deep-3`, P0): Levia-Dragon
+- Daedalus ("You can send 1 face-up 'Umi' you control to the GY; destroy all other cards on the
+field") offered NO activation, although A Legendary Ocean sat face-up in the Field Zone. Amphibious
+Bugroth MK-3 could not attack directly under it either. The CLI/Node host played both correctly.
+
+**Root cause.** Project Ignis does not script "(This card is always treated as 'Umi')" in Lua at all
+— `cards.cdb`'s `datas.alias` column IS the mechanism, and the core applies it in `card::get_code`.
+The bake reached for it as `info.alias`, but `cardInfo()` (src/cards.js) returns only the fields a
+human reads and has never had `alias`, so `alias: info.alias ?? 0` baked **0 for all 651 cards** —
+and the same line wrote the assets branch's `cards-all.json`, so all 14,714 cards there too (415 of
+them really are aliases). The browser host therefore played A Legendary Ocean as a card named only
+"A Legendary Ocean", Harpie Lady 1/2/3 and Cyber Harpie Lady as not-"Harpie Lady", and the Ojama /
+Sheep token variants as distinct cards. Every effect that names the other card silently ceased to
+exist: no error, no warning, just an option that never appears.
+
+**Why nothing caught it.** The bake's record shape existed TWICE — `bakedCard` in the bin script and
+a hand-copied twin inside `test/cardsource-browser.test.js` ("bakes exactly as bin/bake-carddata.js
+does"), which reproduced the same `info.alias` and so agreed with the bug. The field-by-field
+comparison against Node in that file listed `id, type, level, attribute, atk, def` — not `alias`.
+
+**Fix.** One `bakedCard(code)` beside its inverse `bakedRow`, taking `alias`/`setcode`/`strings` from
+the raw cdb row; bin and tests call it. Rebaked `web/static/carddata/` and `.assets/carddata/
+cards-all.json` (the latter reaches players only after `bin/publish-assets.sh` pushes the branch).
+
+**Guards.** `test/cardsource-browser.test.js` now round-trips EVERY card in the committed bundle
+through `bakedRow(bakedCard(code))` and against `cards.cdb`, over every field the core reads — which
+also fails when the committed bundle is merely stale. `test/browser-host-rules.test.js` installs only
+the browser source (node:test gives each file its own process) and drives the real core over a board:
+Daedalus's cost sees A Legendary Ocean, and Bugroth may attack directly under it.
+
+**Lesson, worth generalising.** The browser host is a REDUCTION of the Node host, and a lossy
+reduction is invisible until it is a rules difference. Any field the core reads must be compared
+against `cards.cdb` by a test, not by inspection: nobody looks at `alias`, so only a duel exposes it.

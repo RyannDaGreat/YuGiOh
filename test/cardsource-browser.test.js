@@ -15,9 +15,9 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { REPO_ROOT, cardInfo } from "../src/cards.js";
+import { REPO_ROOT } from "../src/cards.js";
 import { currentCardSource, setCardSource } from "../src/cardsource.js";
-import { openBrowserCardSource } from "../src/cardsource-browser.js";
+import { bakedCard, bakedRow, openBrowserCardSource } from "../src/cardsource-browser.js";
 
 const BUNDLE = join(REPO_ROOT, "web/static/carddata");
 const CORPUS = join(REPO_ROOT, "vendor/CardScripts");
@@ -70,16 +70,9 @@ let PROBE, PROBE_VANILLA;
 /** The "complete database" served for the probes — built from the NODE source, before the browser source is installed. */
 let DATABASE = "{}";
 
-/** Query. Bakes the given cards exactly as bin/bake-carddata.js does, from whatever source is current. */
+/** Query. Bakes the given cards exactly as bin/bake-carddata.js does — same function, from whatever source is current. */
 function bakeNow(codes) {
-  const { rowById, textById } = currentCardSource();
-  const out = {};
-  for (const code of codes) {
-    const info = cardInfo(code); const row = rowById(code); const text = textById(code);
-    out[code] = { code: info.code, name: info.name, desc: info.desc, atk: info.atk, def: info.def, level: info.level, lscale: info.lscale, rscale: info.rscale,
-      type: info.type, race: String(info.race), attribute: info.attribute, alias: info.alias ?? 0, setcode: String(row?.setcode ?? "0"), strings: text?.strings ?? [] };
-  }
-  return JSON.stringify(out);
+  return JSON.stringify(Object.fromEntries(codes.map((code) => [code, bakedCard(code)])));
 }
 
 test("browser card source: bundle first, then the complete database, then a synchronous script fetch", async () => {
@@ -104,7 +97,7 @@ test("browser card source: bundle first, then the complete database, then a sync
     //    because the background load was made to fail — and matches Node exactly.
     const got = src.rowById(PROBE);
     assert.ok(got, "the fallback reached a card no deck lists");
-    for (const k of ["id", "type", "level", "attribute", "atk", "def"]) assert.equal(got[k], nodeProbe[k], `${k} matches Node`);
+    for (const k of ["id", "alias", "type", "level", "attribute", "atk", "def"]) assert.equal(got[k], nodeProbe[k], `${k} matches Node`);
     assert.equal(String(got.race), String(nodeProbe.race), "race matches Node");
     assert.ok(syncFetches.some((u) => /cards-all\.json$/.test(u)), "the database was fetched synchronously on the miss");
     const dbFetches = syncFetches.filter((u) => /cards-all\.json$/.test(u)).length;
@@ -139,4 +132,29 @@ test("browser card source: the complete database lands in the background and mis
   } finally {
     setCardSource(nodeSource);
   }
+});
+
+/**
+ * The bundle is lossy by construction — a subset of cards, decoded fields split
+ * apart — but never for a field the CORE reads. `alias` is the whole of Konami's
+ * "this card is always treated as X" (A Legendary Ocean IS "Umi", Harpie Lady 1
+ * IS "Harpie Lady"); it is invisible in the UI and only shows up as an effect
+ * that cannot be activated, so nothing but this test guards it.
+ */
+test("baked bundle: every cdb field the core reads survives the round trip, for every card in the committed bundle", () => {
+  const { rowById } = currentCardSource();
+  const bundle = JSON.parse(readFileSync(join(BUNDLE, "cards.json"), "utf8"));
+  const CORE_FIELDS = ["id", "alias", "setcode", "type", "atk", "def", "level", "race", "attribute"];
+  const asRow = (row) => Object.fromEntries(CORE_FIELDS.map((k) => [k, String(row[k])]));
+  let aliased = 0;
+  for (const code of BUNDLE_CARDS) {
+    const cdb = rowById(code);
+    // The committed file, as the browser reads it back...
+    assert.deepEqual(asRow(bakedRow(bundle[code])), asRow(cdb), `committed bundle differs from cards.cdb for ${code} (stale bake?)`);
+    // ...and a fresh bake of the same card.
+    assert.deepEqual(asRow(bakedRow(bakedCard(code))), asRow(cdb), `bake/read round trip loses a field for ${code}`);
+    if (Number(cdb.alias)) aliased++;
+  }
+  assert.ok(aliased > 0, "the bundle really does contain alias cards, so the check above bit");
+  assert.equal(Number(bundle[295517].alias), 22702055, "A Legendary Ocean bakes as an alias of Umi");
 });
